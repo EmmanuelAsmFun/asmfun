@@ -21,6 +21,9 @@ This project is specially build for the Commander-X16.
 - Instant value change
 - Helper info about the current opcode
 
+![Image of ASMFun](https://asmfun.com/images/info/CodeAssistHome.gif)
+
+
 # About
 I always wanted to understand how assembler worked. Never learned it, or just the basics at school 20 years ago.
 As a child on DOS and Commodore 64 computers, I never understood how they created games without Basic. It was a complete mystery, how is this possible??!!
@@ -68,6 +71,9 @@ Need to clean up first, will come later...
 
 
 All help is welcome :-)
+
+
+
 
 
 
