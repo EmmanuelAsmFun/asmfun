@@ -8,7 +8,8 @@ I created this as a hobby learning project.
 The userinterface runs in a browser (Typescript), the Commander-X16 runs on a local exe written in .net Core 3.0. For now, it uses the ACME compiler, but everything is prepared for other compilers.
 
 # for Commander-X16
-This project is specially build for the Commander-X16.
+This project is specially build for the Commander-X16, David Murray, the 8-bit Guy.
+https://murray2.com/forums/commander-x16.9/
 
 ![Image of ASMFun](https://asmfun.com/images/screenshots/screenshot-commanderX16.jpg)
 
