@@ -1,0 +1,103 @@
+﻿
+@import "colors";
+@keyframes actifOpcode {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.05);
+    }
+}
+
+.MemoryInfo {
+    position: fixed;
+    top: 29px;
+    right: 110px;
+    padding: 10px;
+    color: #11b011;
+    width: 162px;
+    height: 90px;
+    border: 1px solid @color-popup-border;
+    z-index: 200;
+
+    .isActifOpcode {
+        color: #f0f167;
+        -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+        -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+        animation: actifOpcode 0.5s ease-in-out infinite alternate;
+    }
+
+    .top-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 24px;
+        line-height: 22px;
+        background: @color-popup-top-bar;
+        color: @color-popup-top-bar-text;
+
+
+        .nav-popupbtns {
+            position: absolute;
+            top: 1px;
+            right: 8px;
+
+            a, a:link, a:active, a:hover {
+                color: #222222;
+                cursor: pointer;
+            }
+
+            a:hover {
+                color: black;
+                cursor: pointer;
+            }
+        }
+
+        .ProgramCounter {
+            position: absolute;
+            top: 1px;
+            left: 5px;
+        }
+    }
+
+    .StackPointer {
+        position: absolute;
+        top: 28px;
+        left: 10px;
+    }
+
+    .StatusRegister {
+        position: absolute;
+        top: 48px;
+        left: 10px;
+    }
+
+    .Accumulator {
+        position: absolute;
+        top: 70px;
+        text-align: center;
+        left: -1px;
+        right: -1px;
+        border: 1px solid @color-popup-border;
+    }
+
+    .RegisterX {
+        position: absolute;
+        top: 90px;
+        left: -1px;
+        width: 90px;
+        text-align: center;
+        border: 1px solid @color-popup-border;
+    }
+
+    .RegisterY {
+        position: absolute;
+        top: 90px;
+        left: 90px;
+        text-align: center;
+        width: 91px;
+        border: 1px solid @color-popup-border;
+    }
+}

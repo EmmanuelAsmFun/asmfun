@@ -1,0 +1,657 @@
+﻿<html>
+<head>
+    <meta property="og:url" content="https://asmfun.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ASM Fun for Commander X16, An assembler development tool, special for noobs!" />
+    <meta property="og:description" content="Want to develop awesome stuff on the commander X16?" />
+    <meta property="og:image" content="https://asmfun.com/images/asm-fun.jpg" />
+    <title> AsmFun (ALPHA) - For Commander X16 </title>
+    <meta charset="UTF-8">
+    <meta name="description" content="An assembler development tool, special for noobies">
+    <meta name="keywords" content="Assembler, noobs, learn, ide, basic, commodore, dos, x86,The 8bit-guy, commander x16,David Murray">
+    <meta name="author" content="Emmanuel The Creator">
+    <link href="../fonts/font-awesome.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="../out/Main.js" type="module"></script>
+    <link rel="stylesheet" type="text/css" href="/styles/AsmFun.css">
+    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
+    <link rel="shortcut icon" type="image/png" href="/images/favicon.png" />
+
+</head>
+<body>
+
+
+    <div id="app">
+
+
+
+        <div class="error-dialog" v-show="alertMessages.ShowErrorMessage" id="page-error-dialog">
+            <div class="alertMessage">
+                <div class="message-content" role="dialog">
+                    <div class="alert-header">
+                        <h2 id="bigError-title">{{ alertMessages.ErrorTitle}}</h2>
+                    </div>
+                    <div class="alert-body">
+                        <div class="modal-icon" v-bind:class="alertMessages.ConfirmIconClass"></div>
+                        <p id="bigError-message" v-html="alertMessages.ErrorMessage"></p>
+                    </div>
+                    <div class="alert-footer">
+                        <button id="bigError-button" class="btn btn-default btn-alertMessage" v-on:click="alertMessages.HideErrorMessage(this, event)"> Ok </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-notification" role="alert" v-show="alertMessages.ShowNotification">
+            <div class="page-notification-content">
+                <span v-bind:class="alertMessages.NotificationIconClass"></span> <span v-html="alertMessages.NotificationMessage"></span>
+            </div>
+        </div>
+        <div class="confirm-dialog" v-show="alertMessages.ShowConfirmMessage" id="page-confirm-dialog">
+            <div class="alertMessage">
+                <div class="message-content" role="dialog" v-show="alertMessages.ShowConfirmMessage">
+                    <div class="alert-header">
+                        <a class="close" aria-hidden="true" data-dismiss="modal" v-on:click="alertMessages.ConfirmMessageClose(this,event)"
+                           id="ConfirmMessageClose">X</a>
+                        <h2 v-html="alertMessages.ConfirmTitle"></h2>
+                    </div>
+                    <div class="alert-body">
+                        <div class="modal-icon" v-bind:class="alertMessages.ErrorIconClass"></div>
+                        <p v-html="alertMessages.ConfirmMessage"></p>
+                    </div>
+                    <div class="alert-footer">
+                        <button class="btn btn-success btn-alertMessage" aria-hidden="true" data-dismiss="modal" v-on:click="alertMessages.ConfirmMessageYes(this,event)"
+                                id="ConfirmMessageYes">
+                            <span class="fa fa-thumbs-up"></span>
+                            <span> {{alertMessages.YesText}}</span>
+                        </button>
+                        <span v-show="!alertMessages.ConfirmYesOnly">
+                            <button class="btn btn-danger btn-alertMessage" aria-hidden="true" data-dismiss="modal" v-on:click="alertMessages.ConfirmMessageNo(this,event)"
+                                    id="ConfirmMessageNo">
+                                <span class="fa fa-thumbs-down"></span>
+                                <span>
+                                    {{alertMessages.NoText}}
+                                </span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="top-bar">
+            <a class="logo" href="https://asmfun.com"><img src="../images/Logo_ASMFun.png" alt="Logo ASM Fun" title="Logo ASM Fun" /></a>
+            <div class="top-buttons">
+                <span> (ALPHA) For Commander X16</span>
+                &nbsp;
+                &nbsp;
+                <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
+                <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
+                <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
+                
+                <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Computer Control"><span class="fa fa-desktop"></span></a>
+                <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
+
+            </div>
+        </div>
+
+        <div id="computer" class="computer" v-if="computer.isVisible">
+            <div class="top-buttons">
+                <a href="javascript:" v-on:click="ComputerStart()" title="Start computer"><span class="fa fa-play"></span></a>
+                <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer"><span class="fa fa-stop"></span></a>
+                <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer"><span class="fa fa-refresh"></span></a>
+                <a href="javascript:" v-on:click="ComputerLoadProgram" title="Load Program in computer"><span class="fa fa-microchip"></span></a>
+                <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in computer"><span style="font-size:13px;vertical-align:text-top;">RUN</span></a>
+                <a href="javascript:" v-on:click="ComputerOpenDetail(null)" title="Forward keyboard"><span class="fa fa-keyboard-o"></span></a>
+            </div>
+            <div v-if="computer.isDetailVisible" class="computerDetail">
+                <h2>Your keyboard is forwarded to the Computer</h2>
+                <p>
+                    Experimental feature :-)
+                </p>
+            </div>
+        </div>
+
+        <div class="files" v-if="scfiles">
+           <div v-for="sourceCodeFile in scfiles">
+                <div class="fileName" v-bind:class="{'isSelected': sourceCodeFile.isSelected }">
+                    <span class="selectableFile" v-if="sourceCodeFile.data.isCodeFile" v-on:click="SelectFile(sourceCodeFile)">
+                        <span class="fa fa-cube"></span> {{sourceCodeFile.data.fileName}}
+                    </span>
+                    <span class="selectableFile" v-if="sourceCodeFile.data.isIncludeFile" v-on:click="SelectFile(sourceCodeFile)">
+                        <span class="fa fa-cubes"></span> {{sourceCodeFile.data.fileName}}
+                    </span>
+                    <span v-if="sourceCodeFile.data.isBinary">
+                        <span class="fa fa-file-image-o"></span>    {{sourceCodeFile.data.fileName}}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="MemoryInfo" v-if="isShowDebugger">
+            <div class="top-bar">
+                <div class="ProgramCounter" title="ProgramCounter">PC {{ data6502.programCounter | toHex2}}</div>
+                <div class="nav-popupbtns">
+                    <a href="javascript:" v-on:click="DbgNextStep" title="step (F10)"><span class="fa fa-step-forward"></span></a>
+                    <a href="javascript:" v-on:click="DbgStepOver" title="step over(F11)"><span class="fa fa-fast-forward"></span></a>
+                    <a href="javascript:" v-on:click="DbgRun" title="Run (F5)"><span class="fa fa-play"></span></a>
+                    <a href="javascript:" v-on:click="MemoryOpenManager()" title="Show memory"><span class="fa fa-braille" v-bind:class="{  'isSelected' : memoryViewer.isVisible}"></span></a>
+                </div>
+            </div>
+            <div>
+                <div class="Accumulator" v-bind:class="{'isActifOpcode':currentOpcode !== null && currentOpcode.hasRegisterA }" title="Accumulator" alt="Accumulator">A {{ data6502.registerA | toHex1 }}</div>
+                <div class="RegisterX" v-bind:class="{'isActifOpcode':currentOpcode !== null && currentOpcode.hasRegisterX }" title="RegisterX" alt="RegisterX">X {{ data6502.registerX | toHex1}}</div>
+                <div class="RegisterY" v-bind:class="{'isActifOpcode':currentOpcode !== null && currentOpcode.hasRegisterY }" title="RegisterY" alt="RegisterY">Y {{ data6502.registerY | toHex1}}</div>
+                <div class="StackPointer" title="StackPointer">SP {{ data6502.stackPointer | toHex1}}</div>
+                <div class="StatusRegister">SR {{ data6502.statusRegister | toHex1}}</div>
+                <br />
+
+            </div>
+        </div>
+
+
+        <div class="stack" v-if="isShowDebugger">
+            <div class="title" v-bind:class="{'stackOpcode':currentOpcode !== null && currentOpcode.isStack }">
+                <span class="fa fa-sort-amount-asc"></span>
+                <span>Stack</span>
+            </div>
+
+            <div v-for="stackItem in stack.datas">
+                <div>
+                    {{ stackItem.address | toHex2 }}
+                    {{ stackItem.data1 | toHex1 }}
+                    {{ stackItem.data1 | toStr }}
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="labels" v-on:click="DbgLoadLabelValues()" v-if="isShowDebugger">
+            <div class="listing">
+                <table>
+                    <tr v-for="labelData in labelsWithoutZones" v-bind:class="{ 'hilite' : labelData.hilite }" v-bind:id="'lblview'+labelData.data.name">
+                        <td>
+                            <span class="ad" v-bind:class="{ 'hilite' : labelData.hilite }">{{ labelData.labelhexAddress }}</span>
+                        </td>
+                        <td width="70" v-bind:class="{ 'hilite' : labelData.hilite }">
+                            {{ labelData.data.name }}
+                        </td>
+                        <td v-bind:class="{ 'hilite' : labelData.hilite }">
+                            {{ labelData.labelhexValue }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="Dissasembly" v-if="isShowDebugger">
+            <div class="title">Dissasembly</div>
+            <div>
+
+                <div v-for="programItem in dissasembly.instructions">
+                    <div v-bind:class="{  'isSelected' : programItem.selected }">
+                        {{
+programItem.address  | toHex2
+                        }}
+                        {{ programItem.opcodeName }}
+                        {{ programItem.dataString }}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+        <div id="sourceCode" class="sourceCode">
+        <div id="sc-inner" class="inner">
+            <div id="MyCursor" class="myCursor myCursorA">|</div>
+
+            <div v-show="codeAssistPopupData.isVisible" class="codeAssistPopup" v-bind:style="{ left: codeAssistPopupData.posX, top: codeAssistPopupData.posY }">
+                <div v-for="item in codeAssistPopupData.items">
+                    <div v-bind:id="'codeAs'+item.index" v-on:click="item.select(item)"
+                         v-bind:class="{  'isSelected' : item.isSelected }">
+                        <span class="ca-name">{{item.name}}</span>
+                        <span class="ca-hint" v-html="item.hint"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div>
+                <div v-if="selectedFile != null">
+
+                    <span class="ln" v-for="sourceCodeLine in selectedFile.lines"
+                          v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
+                        <span class="debugInfo">
+                            <span class="l-address" v-if="isShowDebugger">{{sourceCodeLine.data.resultMemoryAddress}}</span>
+                            <span class="breakPoint" v-if="isShowDebugger">
+                                <a v-on:click="DbgSetBreakpointCurrentLine(selectedFile,sourceCodeLine)"
+                                   v-bind:class="{ 'debugable' :sourceCodeLine.resultMemoryAddress !=='', 'isBpSelected' : sourceCodeLine.hasBreakPoint }">
+                                    <span class="fa fa-circle"></span>
+                                </a>
+                            </span>
+                        </span>
+                        <span v-bind:id="'line'+sourceCodeLine.data.lineNumber" class="lnn" v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
+                            {{sourceCodeLine.data.lineNumber}}
+                            <span class="errorDetail" v-if="sourceCodeLine.hasError && sourceCodeLine.error != null">{{avatar.entertainer.name}}: {{sourceCodeLine.error.message}}</span>
+                        </span>
+                        
+                         <span class="scline" v-html="sourceCodeLine.sourceCodeHtml" v-on:mousedown="SourCodeLineClick(this,event,sourceCodeLine)"> </span>
+                        <span v-html="sourceCodeLine.asmFunCode"></span>
+                        <span class="sc-value" v-if="isShowDebugger && sourceCodeLine.label != null && sourceCodeLine.label.showValueInCode">
+                            <input v-bind:id="'labelEdit'+sourceCodeLine.data.lineNumber" v-if="sourceCodeLine.label != null && sourceCodeLine.label.isInEditMode"
+                                   type="text" v-model="sourceCodeLine.label.newValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.label)" />
+                            <span v-if="sourceCodeLine.label != null && !sourceCodeLine.label.isInEditMode === true"
+                                  v-on:click="SwapChangeLabelValue(sourceCodeLine)"> = {{ sourceCodeLine.label.labelhexValue}}</span>
+                        </span>
+                        <br />
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+        <div class="statusRBar">
+
+            <div v-for="errorfst in errorsForStatusBar">
+                <div class="error" v-bind:style="{ top: errorfst.posY+'%' }"> </div>
+            </div>
+        </div>
+
+
+        <div class="memoryViewer" v-if="memoryViewer.isVisible" @wheel="MemoryScroll">
+            <div class="nav-btns">
+                <a class="close-btn" v-on:click="MemoryOpenManager(false)">X</a>
+                <span class="paging"> {{memoryViewer.memoryBlock.currentPage +1}}/ {{memoryViewer.memoryBlock.totalPages+ 1}} </span>
+                <span class="address">{{memoryViewer.memoryBlock.startAddressHex}} - {{memoryViewer.memoryBlock.endAddressHex}} </span>
+                <span class="pageControl">
+                    <a v-on:click="PreviousMemoryPage(64)"> &lt;&lt;&lt; </a>
+                    <a v-on:click="PreviousMemoryPage(16)"> &lt;&lt; </a>
+                    <a v-on:click="PreviousMemoryPage(1)"> &lt; </a>
+                    &nbsp;
+                    <a v-on:click="NextMemoryPage(1)"> &gt;</a>
+                    <a v-on:click="NextMemoryPage(16)"> &gt;&gt;</a>
+                    <a v-on:click="NextMemoryPage(64)"> &gt;&gt;&gt;</a>
+                </span>
+
+            </div>
+            <div class="memoryblock" v-if="memoryViewer.memoryBlock != null">
+                <span v-for="data in memoryViewer.memoryBlock.datas" v-html="data.code"
+                      v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
+            </div>
+        </div>
+        <div class="memoryViewerSel" v-if="memoryViewer.isVisible">
+            <!-- The bar to hilite the select source code -->
+        </div>
+
+
+        <div class="serverNotConnected" v-if="ide.serverNotConnected">
+            <h2>The ASMFun Player is not running</h2>
+            <div>
+                <p>
+                    To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
+                    You can download it here.<br /><br />
+                </p>
+                <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions</a></label>
+                <br /><br /><br />
+                <table v-bind:class="{ 'linkdisabled' : !ide.hasConfirmedLicense }">
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td><span class="downloadheader">Windows</span></td>
+                            <td><span class="downloadheader">Linux</span></td>
+                            <td><span class="downloadheader">Mac</span></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th><b>Light</b><br /><small> .Net core 3.0 is already installed</small></th>
+                            <td><span class="download"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> 340Kb (916kb)</span></td>
+                            <td><span class="download"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span> 1.4Mb (3.7Mb) </td>
+                            <td><span class="download"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> 1.4Mb (3.7Mb) </span></td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <th><b>Complete</b><br /><small>  with .net core 3.0 framework<br />
+                            Microsoft is hungry in Mb, fiuuw!</small>
+                            </th>
+                            <td><span class="download"><a href="/downloads/ASMFunWindows.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span></td>
+                            <td><span class="download"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> 40Mb (95Mb)  </span></td>
+                            <td><span class="download"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> 40Mb (92Mb) </span></td>
+                        </tr>
+                      
+                    </tbody>
+                </table>
+                <p><br/>
+                    Can somebody tell me if Linux and Mac works? I don't have a linux or Mac available at the moment.
+                </p>
+                <p><br /><br /><br /></p>
+                <p>
+                    <a href="javascript:" v-on:click="CheckPlayerAvailable">Check again if the player is running...</a>
+                </p>
+            </div>
+            </div>
+
+
+        <div class="settingsViewer" v-if="settings.isVisible">
+            <div class="nav-btns">
+                <a class="close-btn" v-on:click="SettingsOpenManager(false)">X</a>
+            </div>
+            <div class="content">
+                <div v-if="settings.userSettings != null">
+
+                    <div class="info">
+                        <table>
+                            <tr>
+                                <td> Running on: </td>
+                                <td>{{settings.userSettings.platform}}</td>
+                            </tr>
+                            <tr>
+                                <td>Computer: </td>
+                                <td>{{settings.userSettings.computerSettings.computerType}} </td>
+                            </tr>
+                            <tr>
+                                <td>Server version: </td>
+                                <td>{{settings.userSettings.serverVersion}} </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div v-if="settings.projectSettings != null">
+                    <h2>Project settings</h2>
+                    <div>
+                        <div class="form-item">
+                            <div class="form-lbl">Folder:</div>
+                            <input type="text" v-model="settings.projectSettings.folder" style="width:400px" disabled="disabled" />
+                        </div>
+
+                        <div v-if="settings.projectSettings.detail != null">
+                            <div class="form-item">
+                                <div class="form-lbl">Name:</div>
+                                <input type="text" v-model="settings.projectSettings.detail.name" style="width:200px" />
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Developer:</div>
+                                <input type="text" v-model="settings.projectSettings.detail.developerName" style="width:200px" placeholder="Dave Lopper" />
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Developer pic url:</div>
+                                <input type="text" v-model="settings.projectSettings.detail.devPicUrl" style="width:400px" />
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Screenshot url:</div>
+                                <input type="text" v-model="settings.projectSettings.detail.imageUrl" style="width:400px" />
+                            </div>
+                        </div>
+                        <div v-if="settings.configuration != null">
+
+                            <div class="form-item">
+                                <span class="form-lbl">Compiler:</span>
+                                <select v-model="settings.configuration.compilerType" style="width:200px">
+                                    <option disabled value="0">Select the compiler</option>
+                                    <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
+                                </select>
+                                <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
+                            </div>
+                            <div class="form-item">
+                                <span class="form-lbl">ROM version:</span>
+                                <select v-model="settings.configuration.romVersion" style="width:200px">
+                                    <option disabled value="">Select the ROM</option>
+                                    <option v-for="option in projectManager.romVersionNames" v-bind:value="option.value">{{ option.name }}</option>
+                                </select>
+                                <a href="https://github.com/commanderx16/x16-rom" target="_blank">Visit his website</a>
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Compiler variables:</div>
+                                <input type="text" v-model="settings.configuration.compilerVariables" style="width:400px" />
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Compiler addon commmandLine:</div>
+                                <input type="text" v-model="settings.configuration.addonCommandLine" style="width:400px" />
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <div class="form-lbl">Start Filename:</div>
+                            <input type="text" v-model="settings.projectSettings.startupFile" style="width:200px" />
+                        </div>
+                        <div class="form-item">
+                            <div class="form-lbl"></div>
+                            <button v-on:click="settings.saveProjectSettings()"><span class="fa fa-save"></span> Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+
+                <div >
+                    <h2>User settings</h2>
+                    <div>
+                        <div v-if="settings.userSettings != null">
+                            <!--<div class="form-item">
+        <div class="form-lbl">StartupProject:</div>
+        <input type="text" v-model="settings.userSettings.lastOpenedProjectFileName" style="width:400px" />
+    </div>-->
+                            <div v-if="settings.userSettings.ideSettings != null">
+                                <div class="form-item">
+                                    <div class="form-lbl">ACME compiler folder and filename:</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.acme.acmeFileName" style="width:400px" />
+                                </div>
+                                <!--<div class="form-item">
+            <div class="form-lbl">DASM compiler folder :</div>
+            <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFolder" style="width:400px" />
+        </div>
+        <div class="form-item">
+            <div class="form-lbl">VASM compiler folder :</div>
+            <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFolder" style="width:400px" />
+        </div>-->
+                                <div class="form-item">
+                                    <div class="form-lbl">Cc65 compiler folder :</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65Folder" style="width:400px" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <div class="form-lbl">ASMFunPlayer addrress:</div>
+                            <input type="text" v-model="settings.serverAddressWithPort" style="width:400px" />
+                        </div>
+                    </div>
+                    <div class="form-item">
+                        <div class="form-lbl"></div>
+                        <button v-on:click="settings.saveUserSettings()"><span class="fa fa-save"></span> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="projectManager" v-if="projectManager.isVisible" v-bind:class="{ 'pojectIsDownloading' : projectManager.projectIsDownloading}">
+            <div class="nav-btns">
+                <a class="close-btn" v-on:click="ProjectOpenManager(false)">X</a>
+            </div>
+            <div class="content">
+                <h3 v-if="projectManager.projectIsDownloading" style="float:right;">Downloading...</h3>
+                <p class="footernote">These are projects I found on GitHub. Hope you like it! If you have a nice project too, tell me, I'll will add it to the list.</p>
+                <div class="webProjects">
+
+
+                    <h3>The best way to learn, is to look at existing projects from other devs and noobs.</h3>
+
+                    <div class="project" v-for="project in projectManager.webProjects">
+                        <div v-on:click="ProjectLoadWeb(project)">
+                            <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
+                            <img class="pr-dev" v-bind:src="project.devPicUrl" v-bind:title="project.developerName" v-bind:alt="project.developerName" />
+                            <div class="pr-name">{{project.developerName}}'s {{project.name}}</div>
+                           
+                            <div class="pr-description">
+                                <a href="javascript:">Load</a> |
+                                <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a><br />
+                                <p>
+                                    <span v-if="project.underConstruction">Under Construction.<br /></span>
+                                    {{project.description}}
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="localProjects">
+                    <div v-for="project in projectManager.localProjects">
+                        <div class="project" v-on:click="ProjectLoadLocal(project)">
+                            <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
+                            <img class="pr-dev" v-bind:src="project.devPicUrl" v-bind:title="project.developerName" v-bind:alt="project.developerName" />
+                            <div class="pr-name">{{project.developerName}}'s {{project.name}}</div>
+                            <a href="javascript:">Load</a>
+                            |
+                            <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a>
+                            <div class="pr-description">{{project.description}}</div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="project-form">
+                    <div>
+                        <h2>Project</h2>
+                        <div>
+                            <div class="form-item">
+                                <div class="form-lbl">Projects folder:</div>
+                                <input type="text" v-model="projectManager.projectsFolder" style="width:400px" />
+                                <button v-on:click="ProjectSaveFolder()"><span class="fa fa-save"></span> Save</button>
+                            </div>
+                        </div>
+
+
+                        <br />
+                        <div>
+                            <div class="form-item">
+                                <div class="form-lbl">Load Local Project:</div>
+                                <span v-if="projectManager.showOpenFileFolder">
+                                    <input type="text" v-model="projectManager.openFileFolder" style="width:400px" title="Set full folder with filename"
+                                           placeholder="/home/myproject/myproject.asm" />
+                                </span>
+                                <button v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load</button>
+                            </div>
+                        </div>
+                        <br />
+                        <h2>New Project</h2>
+                        <div>
+                            <div class="form-item">
+                                <div class="form-lbl">Project folder:</div>
+                                <span>
+                                    <small>{{projectManager.projectsFolder}}{{projectManager.folderChar}}</small><input type="text" v-model="projectManager.newProjectFileName" style="width:140px"
+                                                                                                                        title="Set clean filename" placeholder="NewProjectName" />{{
+projectManager.folderChar
+                                    }}
+                                </span>
+
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Developer:</div>
+                                <input type="text" v-model="projectManager.newProjectDeveloperName" style="width:200px" placeholder="Dave Lopper" />
+                            </div>
+                            <div class="form-item">
+                                <span class="form-lbl">Compiler:</span>
+                                <select v-model="projectManager.newProjectCompiler" style="width:200px">
+                                    <option disabled value="0">Select the compiler</option>
+                                    <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
+                                </select>
+                                <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
+                            </div>
+                            <div class="form-item">
+                                <span class="form-lbl">ROM version:</span>
+                                <select v-model="projectManager.newProjectRomVersion" style="width:200px">
+                                    <option disabled value="">Select the ROM</option>
+                                    <option v-for="option in projectManager.romVersionNames" v-bind:value="option.value">{{ option.name }}</option>
+                                </select>
+                                <a href="https://github.com/commanderx16/x16-rom" target="_blank">Visit his website</a>
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl"> </div>
+                                <button v-on:click="ProjectRequestCreateNew();ProjectCreateNew();"><span class="fa fa-plus-circle"></span>Create</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="avatar">
+            <div class="entertainer" v-on:click="avatar:avatar.swapOpenMenu()" v-bind:class="{ 'mouseActive' : avatar.entertainer.isActive}">
+                <img v-bind:src="avatar.entertainer.imageUrl" v-bind:title="avatar.entertainer.name" v-bind:alt="avatar.entertainer.name" />
+            </div>
+            <div class="chat">
+                <div v-for="chatItem in avatar.entertainer.chat.chatItems">
+                    <div class="chatItem" v-bind:class="{ 'isEntertainer' : chatItem.who === 'entertainer'}">{{ chatItem.text}}</div>
+                </div>
+            </div>
+            <div class="avatar-menu" v-if="avatar.menu.isVisible">
+                <div v-for="menuItem in avatar.menu.menuItems">
+                    <div class="menu-item" v-if="menuItem.isVisible" v-bind:class="{ 'selected' : avatar.menu.isSelected}">
+                        <div class="menu-label" v-on:click="menuItem.action(menuItem)">{{menuItem.label}}</div>
+                        <div class="menu-childs">
+                            <div v-for="menuItemChild in menuItem.menuItems" v-if="menuItem.isSelected">
+                                <div class="menu-item-child">
+                                    <div class="menu-label" v-on:click="menuItemChild.action(menuItemChild)">{{menuItemChild.label}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="Compilation">
+            <div class="c-link-btn">
+                <a href="javascript:" v-on:click="SwapOutputWindow" ><span class="fa fa-microchip"></span> Output</a>
+            </div>
+            <div class="OutputWindow" v-if="compilation.isVisible">
+                <a href="javascript:" v-on:click="SwapOutputWindow" class="close-btn">X</a>
+                <div>
+                    <h3 v-on:click="SwapOutputWindow">Output</h3>
+                    <div class="CompilationResult">
+                        <div class="hasErrors" v-html="compilation.compilerErrors"></div>
+                        <br />
+                        <div v-html="compilation.compilerResult"></div>
+                    </div>
+                </div>
+            </div>
+
+                </div>
+    </div>
+
+        <div class="fullPageInfo" id="fullPageInfo" style="display:none;">
+            <div class="nav-btns">
+                <a id="fullPageInfoBtnClose" class="close-btn" v-on:click="avatar.fullPageInfo.close()">X</a>
+            </div>
+            <h1 id="fullPageInfoTitle"></h1>
+            <div id="fullPageInfoContent"></div>
+        </div>
+
+        <div class="footerbar">
+            <span class="mouseInfo" id="mouseInfo"> </span>
+        </div>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HTQ9YEL51"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-6HTQ9YEL51');
+        </script>
+</body>
+</html>

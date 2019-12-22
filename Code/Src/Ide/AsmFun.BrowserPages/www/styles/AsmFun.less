@@ -1,0 +1,306 @@
+﻿@import "colors";
+@import "appcomon";
+@import "settings";
+@import "pagelayout";
+@import "memoryviewer";
+@import "sourcecode";
+@import "codeassist";
+@import "memoryinfo";
+@import "home";
+@import "avatar";
+@import "fullpageinfo";
+@import "projectmanager";
+@import "computer";
+
+
+@font-face {
+    font-family: 'robot';
+    src: url('../fonts/roboto.ttf') format('truetype');
+}
+@footerHeight: 25px;
+
+a , a:link , a:visited, a:active , a:hover {
+    color: @color-yellow;
+    text-decoration:none;
+}
+a:hover {
+    color: @color-yellow-lighter;
+}
+
+    button.btn {
+        display: inline-block;
+        background: #666666;
+        border: none;
+        padding: 3px 0 3px 0;
+    }
+
+
+
+    .files {
+        padding-top: 10px;
+        position: fixed;
+        top: 30px;
+        left: 0;
+        height: 300px;
+        width: 150px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border-right: 1px solid #111111;
+        border-bottom: 1px solid #111111;
+
+        .fileName {
+            white-space: nowrap;
+            padding-left: 5px;
+            font-size: 11px;
+            line-height: 16px;
+        }
+
+        .selectableFile {
+            cursor: pointer;
+        }
+    }
+
+
+    .Dissasembly {
+        position: fixed;
+        left: 0px;
+        top: 340px;
+        overflow-y: no-display;
+        width: 140px;
+        z-index: 20;
+        border-right: 1px solid #111111;
+        border-bottom: 1px solid #111111;
+        padding: 5px;
+        font-size: 11px;
+        background: transparent;
+        color: #555555;
+
+        &:hover {
+            color: #999999;
+        }
+
+        .title {
+            margin-bottom: 8px;
+        }
+    }
+    //
+    .labels {
+        position: fixed;
+        right: 110px;
+        top: 144px;
+        bottom: 60px;
+        min-width: 185px;
+        min-height: 50px;
+        bottom: @footerHeight+2;
+        z-index: 51;
+
+        .listing {
+            height: 100%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            line-height: 13px;
+        }
+
+
+        .ad {
+            padding-right: 10px;
+        }
+
+        .hilite {
+            background: green;
+            color: black;
+        }
+
+        table, tr, td {
+            font-size: 11px;
+            color: #11b011;
+            margin: 0;
+            padding: 0;
+        }
+    }
+
+
+
+    .stack {
+        position: fixed;
+        right: 25px;
+        top: 35px;
+        color: #11b011;
+        width: 70px;
+        font-size: 12px;
+        padding: 5px;
+        z-index: 50;
+
+        .title {
+            margin-bottom: 8px;
+        }
+
+        .stackOpcode {
+            color: #f0f167;
+            -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+            -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+            animation: actifOpcode 0.5s ease-in-out infinite alternate;
+        }
+    }
+
+
+
+
+
+
+
+    .isSelected {
+        background: #333333;
+    }
+
+
+.statusRBar {
+    width: 7px;
+    font-size: 1px;
+    position: fixed;
+    top: 34px;
+    bottom: @footerHeight;
+    right: 0px;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    pointer-events:none;
+    .error {
+        position: absolute;
+        background: #9b0000;
+        height: 5px;
+        width: 7px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    }
+}
+
+
+.serverNotConnected {
+    position: fixed;
+    top: 50px;
+    left: 150px;
+    right: 50px;
+    bottom: 50px;
+    z-index: 130;
+    background: black;
+    border: 1px solid #bebe95;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    padding: 20px;
+    font-size: 12px;
+
+    a {
+        font-size: 12px;
+    }
+
+    h2 {
+        font-weight: 100;
+        font-size: 22px;
+    }
+
+    table, tr, td, th {
+        font-size: 12px;
+        text-align: left;
+        vertical-align: top;
+        font-weight: 100;
+    }
+
+    .download, .downloadheader {
+        display: inline-block;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .downloadheader {
+        font-size: 18px;
+    }
+    input{
+        cursor:pointer;
+    }
+    .linkdisabled {
+        opacity:0.4;
+        a {
+            pointer-events: none;
+        }
+    }
+}
+.Compilation {
+    position: absolute;
+    left: 150px;
+    bottom: 4px;
+    z-index: 1200;
+    text-align: left;
+
+    .c-link-btn {
+        .fa {
+            font-size: 14px;
+        }
+
+        a, a:link, a:visited, a:active {
+            color: #76765a;
+            background: transparent;
+            text-decoration: none;
+            font-size: 12px;
+            padding-right: 3px;
+        }
+
+        a:hover {
+            color: #bdbd92;
+            text-decoration: none;
+        }
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 3px;
+        top: 3px;
+        cursor: pointer;
+        font-size: 18px;
+        z-index: 10;
+    }
+
+    .OutputWindow {
+        position: absolute;
+        left: 0px;
+        bottom: 21px;
+        border: 1px solid #333333;
+        padding: 5px;
+        font-size: 11px;
+        background: black;
+        -webkit-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+        -moz-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+        box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+        z-index: 90;
+        word-wrap: break-word;
+
+        .CompilationResult {
+            min-width: 300px;
+            max-width: 600px;
+            max-height: 110px;
+            overflow-y: scroll;
+            padding-bottom: 20px;
+            .hasErrors{
+                color:#9b0000;
+            }
+        }
+
+
+
+        h3 {
+            font-size: 14px;
+            font-weight: 100;
+            padding: 0;
+            margin: 0;
+            padding-bottom: 5px;
+        }
+    }
+}

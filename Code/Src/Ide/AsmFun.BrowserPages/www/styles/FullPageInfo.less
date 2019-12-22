@@ -1,0 +1,15 @@
+﻿.table1 {
+    font-size:11px;
+    tr:hover{
+        background:#222222;
+    }
+    td {
+        vertical-align:top;
+        @t1: ~"nth-child(1)";
+        @t2: ~"nth-child(2)";
+        @t3: ~"nth-child(3)";
+
+        &:@{t1} {width: 180px;}
+        &:@{t2} {width: 160px;}
+    }
+}

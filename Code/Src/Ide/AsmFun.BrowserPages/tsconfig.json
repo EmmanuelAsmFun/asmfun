@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5",
+    "outDir": "www/out/",
+    "strict": true,
+    // if using webpack 2+ or rollup, to leverage tree shaking:
+    "module": "es2015",
+    "moduleResolution": "Classic",
+    "esModuleInterop": true,
+    "lib": [ "es6", "dom" ]
+  },
+  "typeRoots": [
+    "./www/typings"
+  ],
+  "files": [
+    "www/app/main.ts"
+  ],
+
+  "exclude": [
+    "node_modules"
+  ],
+  "compileOnSave": true
+}
+

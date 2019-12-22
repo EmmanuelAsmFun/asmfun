@@ -1,0 +1,67 @@
+﻿@import "colors";
+
+.home {
+    position: absolute;
+    top:0;
+    bottom:0;
+    width: 820px;
+    left: 50%;
+    margin-left: -390px;
+    overflow-y:scroll;
+    
+
+    .logo-home {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    a, a:link, a:visited, a:active {
+        color: @color-yellow;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #bdbd92;
+        text-decoration: none;
+    }
+
+    .CodeAssist, .screenshot1 {
+        border: 1px solid #000000;
+        -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    }
+}
+.nonresponsiveDesign {
+    display:none;
+}
+
+@media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    .nonresponsiveDesign{
+        display:block;
+        margin-bottom:40px;
+    }
+    body{
+        overflow:auto;
+        height:inherit;
+        padding:0;
+    }
+    .home {
+        width: 400px;
+        padding:5px;
+        margin-left: 0px;
+        left: 0;
+        position: relative;
+        overflow: auto;
+
+        .logo-home {
+            margin-top: 2px;
+        }
+
+        .screenshot1, .CodeAssist {
+            width: 380px;
+        }
+    }
+}
+    

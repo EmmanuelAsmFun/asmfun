@@ -1,0 +1,98 @@
+﻿
+/*******************************/
+/* Settings Viewer */
+.settingsViewer {
+    position: fixed;
+    top: 50px;
+    left: 150px;
+    right: 50px;
+    bottom: 50px;
+    z-index: 200;
+    background: black;
+    border: 1px solid #bebe95;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    a{
+        font-size: 11px;
+    }
+    h2 {
+        font-weight:100;
+        font-size:22px;
+    }
+
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 20px;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    input[type=text] {
+        border: none;
+        border-bottom: 1px solid #888888;
+        background-color: transparent;
+        color: #999999;
+        margin-top: 5px;
+    }
+
+    input[disabled=disabled] {
+        opacity: 0.5;
+    }
+
+    button {
+        background: #bebe95;
+        border: none;
+        cursor: pointer;
+        min-width: 100px;
+        padding: 3px;
+
+        .fa {
+            padding-right: 5px;
+        }
+
+        &:hover {
+            background: #a3a375;
+        }
+    }
+
+    .form-item {
+        margin-bottom: 10px;
+        .form-lbl{
+            display:inline-block;
+            font-size:12px;
+            width: 170px;
+            vertical-align:top;
+        }
+    }
+
+    .info {
+        float: right;
+    }
+
+    .info td {
+        font-size: 12px;
+    }
+
+    .nav-btns {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+        font-size: 18px;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        cursor: pointer;
+        font-size: 22px;
+        z-index: 10;
+    }
+}
+/* Settings Viewer */
+/*******************************/

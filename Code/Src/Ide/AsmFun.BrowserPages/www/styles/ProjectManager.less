@@ -1,0 +1,177 @@
+﻿@import "colors";
+
+.projectManager {
+    position: fixed;
+    top: 50px;
+    left: 170px;
+    right: 50px;
+    bottom: 50px;
+    z-index: 200;
+    border: 1px solid #bebe95;
+    background: black url('../images/editor-bg.jpg') no-repeat 0 0;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 20px;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    .project-form {
+        max-width: 550px;
+    }
+
+    h2 {
+        font-weight: 100;
+    }
+
+    a {
+        font-size: 11px;
+    }
+
+    &.pojectIsDownloading {
+
+        .webProjects {
+            opacity: 0.3;
+        }
+
+        .localProjects {
+            opacity: 0.3;
+        }
+    }
+
+    input[type=text] {
+        border: none;
+        border-bottom: 1px solid #888888;
+        background-color: transparent;
+        color: #999999;
+        margin-top: 5px;
+    }
+
+    input[disabled=disabled] {
+        opacity: 0.5;
+    }
+
+    button {
+        background: #bebe95;
+        border: none;
+        cursor: pointer;
+        min-width: 100px;
+        padding: 3px;
+
+        .fa {
+            padding-right: 5px;
+        }
+
+        &:hover {
+            background: #a3a375;
+        }
+    }
+
+    .form-item {
+        margin-bottom: 10px;
+        word-wrap:break-word;
+
+        .form-lbl {
+            width: 160px;
+            display: inline-block;
+            font-size: 13px;
+        }
+    }
+
+    .info {
+        float: right;
+    }
+
+    .info td {
+        font-size: 12px;
+    }
+
+    .nav-btns {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+        font-size: 18px;
+    }
+
+    .footernote {
+        position: fixed;
+        bottom: 45px;
+        right: 60px;
+        max-width: 500px;
+        font-size: 10px;
+    }
+
+    .webProjects {
+        float: right;
+        clear: right;
+        position: relative;
+        max-width: 720px;
+        margin-bottom: 30px;
+
+        .project {
+            border: 1px solid transparent;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 5px;
+            margin-left: 5px;
+            border-bottom: 1px solid #333333;
+            height: 100px;
+            font-size: 10px;
+            width: 350px;
+            float: left;
+            overflow-y: hidden;
+
+            .pr-name {
+                font-size: 14px;
+                margin-bottom: 5px;
+                margin-left: 120px;
+            }
+
+            .pr-description {
+                font-size: 10px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                margin-left: 120px;
+            }
+
+            .pr-scr {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                z-index: 1;
+                width: 110px;
+                max-height: 90px;
+            }
+
+            .pr-dev {
+                position: absolute;
+                left: 0px;
+                bottom: 0px;
+                height: 60px;
+                z-index: 2;
+            }
+
+
+            &:hover {
+                border: 1px solid @color-yellow;
+            }
+        }
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        cursor: pointer;
+        font-size: 22px;
+        z-index: 10;
+    }
+}
