@@ -49,7 +49,6 @@ Now I only used:
 - Linux/Max: SDL 
 
 
-
 # Front-End info
 All the code can be found in the folder:
 ```sh
