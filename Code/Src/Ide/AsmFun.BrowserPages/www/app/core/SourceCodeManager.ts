@@ -123,9 +123,13 @@ export class SourceCodeManager {
             if (errors != null) {
                 for (var i = 0; i < errors.length; i++) {
                     var error = errors[i];
-                    if (this.lastProjectSettings != null && error.filePath != null)
-                        error.filePath = error.filePath.replace(this.lastProjectSettings.folder, "");
                     var file = this.mainData.sourceCode?.files.find(x => x.data.fileName == error.fileName);
+                    if (file == null) {
+                        if (this.lastProjectSettings != null && error.filePath != null)
+                            error.filePath = error.filePath.replace(this.lastProjectSettings.folder, "").replace("..\\", "").replace("../", "");
+                        var fileWithPath = error.filePath + error.fileName;
+                        file = this.mainData.sourceCode?.files.find(x => x.data.fileName == fileWithPath);
+                    }
                     if (file != null) {
                         var line = file.lines.find(x => x.data.lineNumber == error.lineNumber);
                         if (line != null) {
