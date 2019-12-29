@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -16,7 +16,8 @@ export var CompilerNames: { name: string, value: number, webAddress: string }[] 
 ];
 export var RomVersionNames: { name: string, value: string }[] = [
     { value: "R33", name: "Michael Steil's ROM R33" },
-    { value: "R34", name: "Michael Steil's ROM R34 (Under construction)" }];
+    { value: "R34", name: "Michael Steil's ROM R34" },
+    { value: "R35", name: "Michael Steil's ROM R35" }];
 
 export interface ISourceCodeBundle {
     sourceFileName: string;
@@ -76,6 +77,7 @@ export interface IUserSettings {
     computerSettings: IComputerSettings;
     ideSettings: IIdeSettings;
     platform: string;
+    serverVersion: string;
     projectsFolder: string;
     localProjects: IProjectDetail[],
 }

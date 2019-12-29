@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -48,10 +48,7 @@ var NewAsmFunAppData: IAsmFunAppData = {
     computer: ComputerManager.NewData(),
     spritesManager: SpritesManager.NewData(),
     scfiles: [],
-    ide: {
-        serverNotConnected: false,
-        hasConfirmedLicense: false,
-    },
+    ide: ASMFunPlayerManager.NewData(),
     compilation: {
         compilationIsValid: true,
         isVisible: false,

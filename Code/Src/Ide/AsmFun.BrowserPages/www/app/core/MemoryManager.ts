@@ -1,6 +1,6 @@
 // #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -12,12 +12,14 @@ import { IMemoryBlock, IMemoryBlockItem, IMemoryViewerData } from "../data/Memor
 import { IEditorLine, IEditorLabel } from "../data/EditorData.js";
 import { MemoryOpenManagerCommand, MemoryScrollCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryItemHoverCommand } from "../data/commands/MemoryCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
+import { EditorManager } from "./EditorManager.js";
 
 
 export class MemoryManager {
    
     
-    private debuggerService: DebuggerService
+    private debuggerService: DebuggerService;
+    private editorManager: EditorManager;
     private mainData: IMainData;
     private data: IMemoryViewerData;
     private myAppData: IAsmFunAppData;
@@ -25,14 +27,21 @@ export class MemoryManager {
     public currentPage: number = 2048 / (this.pageSize / 2); // = 0x0800 = is start address program
     public totalPages: number = 16 * 16 -2;
     private previousHiliteLabel?:IMemoryBlockItem = undefined;
-    private previousCodeGroup?:IMemoryBlockItem[] = undefined;
+    private previousCodeGroup?: IMemoryBlockItem[] = undefined;
+    private memoryAddressNamesA: number[] = [0x0000, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x9F00, 0x9F20, 0x9F40, 0x9F60, 0x9F70, 0x9F80, 0x9FA0]
+    private memoryAddressNames: string[] = ["User zero page", "KERNAL and BASIC zero page variables", "CPU stack", "KERNAL and BASIC variables, vectors",
+        "Available for code programs or storage", "BASIC program/variables available to the user",
+        "Reserved for audio controller", "VERA video controller", "Reserved", "VIA I/O controller #1", "VIA I/O controller #2", "Real time clock","Future Expansion"
+
+    ]
 
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.memoryViewer;
-        this.debuggerService = new DebuggerService();
+        this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
+        this.editorManager = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData);
         this.mainData.commandManager.Subscribe2(new MemoryOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new MemoryScrollCommand(0), this, x => this.Scroll(x.deltaY));
         this.mainData.commandManager.Subscribe2(new MemoryNextPageCommand(0), this, x => this.NextPage(x.factor));
@@ -115,24 +124,40 @@ export class MemoryManager {
                 }
             }
            
-
+            
             for (let index = 0; index < memBlock.count; index++) {
                 const element = binary_string.charCodeAt(index);
                 const addr=index + startAddress;
                 const hexAddress = AsmTools.numToHex4(addr)
                 lineString += AsmTools.numToStringChar(element);
-               
-
+                var addressTitle = "";
+                var addressTitleInner = "<br />";
+                var addEnter = "<br />";
                 var lineResult = "";
+                var addressNameIndexPre = this.memoryAddressNamesA.indexOf(addr);
+                var addressNameIndex = this.memoryAddressNamesA.indexOf(addr+1);
+                if (addressNameIndex > -1) {
+                    addressTitleInner = "<br /><br /><div class=\"addrtname\">" + this.memoryAddressNames[addressNameIndex] + "</div>";
+                    addEnter = "";
+                }
+                if (addressNameIndexPre > -1 && index ==0)
+                    addressTitle = "<br /><div class=\"addrtname\">" + this.memoryAddressNames[addressNameIndexPre] + "</div>";
+
+                
                 if ((index +1)%8 ==0) lineResult = "&nbsp;";
-                if ((index +1)%16 ==0){ lineResult = "&nbsp;"+lineString+"<br />";
+                if ((index + 1) % 16 == 0) {
+                    lineResult = "&nbsp;" + lineString + addressTitleInner;
                     lineString = "";
                 }
-                if ((index + 1) % 128 == 0) { lineResult += "<br />" + "<span class=\"addr\">" + AsmTools.numToHex4(addr + 1) +"&nbsp;</span>"; }
+                if ((index + 1) % 128 == 0) {
+                    lineResult += addEnter+"<span class=\"addr\">" + AsmTools.numToHex4(addr + 1) + "&nbsp;</span>";
+                }
                 else if (((index + 1) % 16 == 0)) lineResult += "<span class=\"addr\">" + AsmTools.numToHex4(addr + 1) +"&nbsp;</span>";
-                
-                const txt = startText + "<span class=\"memItm\" onmouseover=\"MemoryItemHover(" + index + "," + addr + "," + element + ")\">" +
+
+
+                let txt = addressTitle+ startText + "<span class=\"memItm\" onmouseover=\"MemoryItemHover(" + index + "," + addr + "," + element + ")\">" +
                     AsmTools.numToHex2(element) + '&nbsp;</span>' + lineResult;
+                startText = "";
 
                 var item:IMemoryBlockItem = {
                     code:txt,
@@ -235,6 +260,9 @@ export class MemoryManager {
         var hexAddress = AsmTools.numToHex4(address);
         // Try to find in labels
         if (item.isLabel && item.label != null) {
+            if (item.label.file != null) {
+                this.editorManager.SelectFile(item.label.file);
+            }
             item.hilite = true;
             item.label.hilite = true;
             this.previousHiliteLabel = item;
@@ -260,6 +288,9 @@ export class MemoryManager {
             }
             if (item.sourceCodeLine != null)
             {
+                //if (item.sourceCodeLine.file != null) {
+                //    this.editorManager.SelectFile(item.sourceCodeLine.file);
+                //}
                 var el = document.getElementById('line'+(item.sourceCodeLine.data.lineNumber-3));
                 if (el != null) {
                     el.scrollIntoView({ behavior: "smooth", block: "start", });

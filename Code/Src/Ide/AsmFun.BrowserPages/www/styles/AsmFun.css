@@ -367,6 +367,7 @@ body {
   padding-left: 100px;
   padding-top: 5px;
   font-size: 13px;
+  display: inline-block;
 }
 .top-buttons a,
 .top-buttons a:link,
@@ -381,6 +382,12 @@ body {
 .top-buttons a:hover {
   color: #bdbd92;
   text-decoration: none;
+}
+.newVersionText {
+  display: inline-block;
+  font-size: 11px;
+  padding-left: 20px;
+  vertical-align: text-top;
 }
 .logo {
   position: absolute;
@@ -410,7 +417,23 @@ body {
 }
 .footerbar .mouseInfo {
   position: absolute;
-  right: 40px;
+  right: 140px;
+}
+.serverVersionFooter {
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  z-index: 1001;
+  font-size: 10px;
+  height: 22px;
+  padding-top: 2px;
+  line-height: 24px;
+}
+.serverVersionFooter a,
+.serverVersionFooter a:link,
+.serverVersionFooter a:visited {
+  color: #888888;
+  cursor: pointer;
 }
 /** SCOLLBAR */
 /* width */
@@ -431,8 +454,8 @@ body {
 }
 .memoryViewer {
   position: fixed;
-  top: 40px;
-  right: 500px;
+  top: 30px;
+  right: 310px;
   min-width: 520px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -486,6 +509,11 @@ body {
   background: #929271;
   color: black;
 }
+.memoryViewer .addrtname {
+  color: #6a783d;
+  font-size: 13px;
+  font-weight: 100;
+}
 .memoryViewer .addr {
   color: #bebe95;
 }
@@ -529,7 +557,7 @@ body {
 .memoryViewerSel {
   border: 1px dashed #bebe95;
   height: 20px;
-  top: 82px;
+  top: 83px;
   position: fixed;
   z-index: 55;
   left: 150px;
@@ -1265,6 +1293,107 @@ body {
   font-weight: 100;
   font-size: 25px;
 }
+.asmPlayerManager {
+  position: fixed;
+  top: 50px;
+  left: 150px;
+  right: 50px;
+  bottom: 50px;
+  z-index: 130;
+  background: black;
+  border: 1px solid #bebe95;
+  -webkit-box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  padding: 20px;
+  font-size: 12px;
+}
+.asmPlayerManager a {
+  font-size: 12px;
+}
+.asmPlayerManager h2 {
+  font-weight: 100;
+  font-size: 22px;
+}
+.asmPlayerManager .confirmLicense {
+  margin-left: 250px;
+}
+.asmPlayerManager .downloadheader {
+  margin-top: 50px;
+  margin-bottom: 40px;
+  text-align: center;
+  margin-left: 250px;
+  display: inline-block;
+}
+.asmPlayerManager .downloadheader .osSelected img {
+  width: 80px;
+}
+.asmPlayerManager .downloadheader .osSelected:hover {
+  transform: scale(1);
+}
+.asmPlayerManager .downloadheader .osSelected:hover img {
+  width: 80px;
+}
+.asmPlayerManager .downloadheader .osSelected a,
+.asmPlayerManager .downloadheader .osSelected a:link,
+.asmPlayerManager .downloadheader .osSelected a:visited,
+.asmPlayerManager .downloadheader .osSelected a:active {
+  color: #bebe95;
+}
+.asmPlayerManager .downloadheader a {
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 40px;
+  width: 70px;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+.asmPlayerManager .downloadheader a img {
+  width: 50px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+.asmPlayerManager .downloadheader a:hover {
+  transform: scale(1.2);
+}
+.asmPlayerManager .downloadheader a:hover img {
+  width: 70px;
+}
+.asmPlayerManager .downloadBlock {
+  margin-bottom: 10px;
+}
+.asmPlayerManager .downloadBlock .downloadText {
+  display: inline-block;
+  width: 250px;
+}
+.asmPlayerManager .downloadBlock .download,
+.asmPlayerManager .downloadBlock .downloadheader {
+  display: inline-block;
+  margin-right: 10px;
+}
+.asmPlayerManager input {
+  cursor: pointer;
+}
+.asmPlayerManager .linkdisabled {
+  opacity: 0.4;
+}
+.asmPlayerManager .linkdisabled a {
+  pointer-events: none;
+}
+.asmPlayerManager .nav-btns {
+  position: absolute;
+  right: 5px;
+  top: 2px;
+  font-size: 18px;
+}
+.asmPlayerManager .close-btn {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  cursor: pointer;
+  font-size: 22px;
+  z-index: 10;
+}
 @font-face {
   font-family: 'robot';
   src: url('../fonts/roboto.ttf') format('truetype');
@@ -1418,55 +1547,6 @@ button.btn {
   /* Internet Explorer/Edge */
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome and Opera */
-}
-.serverNotConnected {
-  position: fixed;
-  top: 50px;
-  left: 150px;
-  right: 50px;
-  bottom: 50px;
-  z-index: 130;
-  background: black;
-  border: 1px solid #bebe95;
-  -webkit-box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
-  box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
-  padding: 20px;
-  font-size: 12px;
-}
-.serverNotConnected a {
-  font-size: 12px;
-}
-.serverNotConnected h2 {
-  font-weight: 100;
-  font-size: 22px;
-}
-.serverNotConnected table,
-.serverNotConnected tr,
-.serverNotConnected td,
-.serverNotConnected th {
-  font-size: 12px;
-  text-align: left;
-  vertical-align: top;
-  font-weight: 100;
-}
-.serverNotConnected .download,
-.serverNotConnected .downloadheader {
-  display: inline-block;
-  margin-left: 10px;
-  margin-right: 10px;
-}
-.serverNotConnected .downloadheader {
-  font-size: 18px;
-}
-.serverNotConnected input {
-  cursor: pointer;
-}
-.serverNotConnected .linkdisabled {
-  opacity: 0.4;
-}
-.serverNotConnected .linkdisabled a {
-  pointer-events: none;
 }
 .Compilation {
   position: absolute;

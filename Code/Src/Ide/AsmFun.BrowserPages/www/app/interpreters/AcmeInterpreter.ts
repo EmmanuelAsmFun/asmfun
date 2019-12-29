@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -55,7 +55,7 @@ export class AcmeInterpreter implements IInterpreter{
             return line.context;
         }
 
-        //if (line.data.lineNumber === 241) {
+        //if (line.data.lineNumber === 113) {
         //    var test = lineWithoutComment;
         //    debugger;
         //}
@@ -162,7 +162,7 @@ export class AcmeInterpreter implements IInterpreter{
 
 
     private InterpretZoneCreation(line: IEditorLine, lineWithoutComment: string, wordWithoutSpace: string, isRootZone:boolean): ICodeBlockContext {
-        var zoneName = isRootZone ? wordWithoutSpace.replace(":","") : wordWithoutSpace;
+        var zoneName = isRootZone ? wordWithoutSpace : wordWithoutSpace;
         var isLocalZone = wordWithoutSpace[0] == ".";
         line.context.CreateZone(line, zoneName, isLocalZone);
         line.dataCode = lineWithoutComment.replace(wordWithoutSpace, "");
@@ -262,7 +262,8 @@ export class AcmeInterpreter implements IInterpreter{
             dataType: propType,
             defaultNumValue: 0,
             isBigEndian: false,
-            name: name
+            name: name.replace(":",""),
+            nameDirty: name,
         };
         switch (propType) {
             case "!8":

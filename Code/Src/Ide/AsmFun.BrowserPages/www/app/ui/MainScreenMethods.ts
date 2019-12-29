@@ -1,9 +1,8 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
-
 
 // TODO : clean up this mess
 
@@ -16,6 +15,7 @@ import { IBaseCommand } from "../data/commands/CommandsCommon.js";
 import { IProjectDetail } from "../data/ProjectData.js";
 import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand } from "../data/commands/EditorCommands.js";
 import { SettingsOpenManagerCommand } from "../data/commands/SettingsCommands.js";
+import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "../data/commands/ASMFunPlayerManagerCommands.js";
 import {
     ProcessorOpenDebuggerCommand, ProcessorNextStepCommand, ProcessorStepOverCommand, ProcessorDebuggerRunCommand, ProcessorReloadValuesCommand,
     ProcessorDebuggerSetBreakpointCommand
@@ -117,6 +117,10 @@ export class MainScreenMethods {
 
     // Settings
     public SettingsOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new SettingsOpenManagerCommand(state)); }
+
+    // ASMFun player manager
+    public ASMFunPlayerOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ASMFunPlayerOpenManagerCommand(state)); }
+    public ASMFunPlayerSelectOS(osName: string) { MainScreenMethods.ExecuteCommand(new ASMFunPlayerSelectOSCommand(osName)); }
     
     // Editor
     private SetEditorEnable(state: boolean) { MainScreenMethods.ExecuteCommand(new EditorEnableCommand(state)); }

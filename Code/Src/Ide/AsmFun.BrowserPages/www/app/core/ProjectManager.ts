@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -172,7 +172,7 @@ export class ProjectManager  {
             projectIsDownloading: false,
             compilerNames: CompilerNames,
             newProjectCompiler: 1,
-            newProjectRomVersion: "R34",
+            newProjectRomVersion: "R33",
             romVersionNames: RomVersionNames,
             newProjectDeveloperName:""
         }

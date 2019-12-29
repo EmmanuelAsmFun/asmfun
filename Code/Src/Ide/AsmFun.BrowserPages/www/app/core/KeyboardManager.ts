@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -112,7 +112,8 @@ export class KeyboardManager {
         this.ctrlIsDown = keyy.ctrlKey;
         this.shiftIsDown = keyy.shiftKey;
         this.altGrIsDown = keyy.altKey;
-        this.HandlePressedKey(new KeyQueueItem(keyy.key, keyy.which, true));
+        if(this.HandlePressedKey(new KeyQueueItem(keyy.key, keyy.which, true)))
+            return false;
     }
 
     public KeyUp(keyy: IKeyboardKey) {
@@ -120,7 +121,8 @@ export class KeyboardManager {
         this.ctrlIsDown = keyy.ctrlKey;
         this.shiftIsDown = keyy.shiftKey;
         this.altGrIsDown = keyy.altKey;
-        this.HandlePressedKey(new KeyQueueItem(keyy.key, keyy.which, false));
+        if (this.HandlePressedKey(new KeyQueueItem(keyy.key, keyy.which, false)))
+            return false;
     }
 
     public PressText(data: string) {
@@ -173,6 +175,7 @@ export class KeyboardManager {
             else if (scancode == -1)
                 this.MappingUp(toWorkOn.TheKey);
         }
+        return scancode > -1;
     }
 
     private MappingDown(key: string) {
@@ -243,6 +246,18 @@ export class KeyboardManager {
             case "Control": scancode = 89; this.shiftIsDown = isDown; break;   // RSHIFT
             case "Shift": scancode = 0x12; this.shiftIsDown = isDown; break;     // LSHIFT
             case "Shift": scancode = 0x14; this.ctrlIsDown = isDown; break;     // LCTRL
+            case "F1": scancode = 0x3A; break;     // F1
+            case "F2": scancode = 0x3B; break;     // F2
+            case "F3": scancode = 0x3C; break;     // F3
+            case "F4": scancode = 0x3D; break;     // F4
+            case "F5": scancode = 0x3E; break;     // F5
+            case "F6": scancode = 0x3F; break;     // F6
+            case "F7": scancode = 0x40; break;     // F7
+            case "F8": scancode = 0x41; break;     // F8
+            case "F9": scancode = 0x42; break;     // F9
+            case "F10": scancode = 0x43; break;     // F10
+            case "F11": scancode = 0x44; break;     // F11
+            case "F12": scancode = 0x45; break;     // F12
             //case 121:
             //    // 0x14, 0xE0, 0x11 ---- ~0xF0, 0x14, 0xE0,~0xF0, 0x11,
             //    if (isDown) {

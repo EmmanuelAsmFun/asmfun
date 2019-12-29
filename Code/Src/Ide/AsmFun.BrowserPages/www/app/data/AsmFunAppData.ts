@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -45,8 +45,15 @@ export interface IAsmFunAppData {
 }
 
 export interface IAsmFunIdeData {
+    isVisiblePlayerManager: boolean;
     serverNotConnected: boolean;
     hasConfirmedLicense: boolean;
+    isWindows: boolean;
+    isMac: boolean;
+    isLinux: boolean;
+    newVersionAvailable: boolean;
+    currentVersion: string;
+    latestVersion: string;
 }
 
 
@@ -77,4 +84,14 @@ export var NewProcessorExtraData: IProcessorExtraData = {
 
 export var NewProgramData: IProgramData = {
     language: "",
+}
+
+
+export enum BrowserTypes {
+    Unknown,
+    Windows,
+    iOS,
+    MacOS,
+    Linux,
+    Android
 }

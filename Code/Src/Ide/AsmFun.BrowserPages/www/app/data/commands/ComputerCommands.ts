@@ -1,4 +1,10 @@
-﻿import { BaseCommand } from './CommandsCommon.js'
+﻿// #region license
+// ASM Fun
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
+//
+// #endregion
+
+import { BaseCommand } from './CommandsCommon.js'
 
 export class ComputerOpenManagerCommand extends BaseCommand {
     public state: boolean | null;

@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -107,11 +107,11 @@ export class ComputerManager {
 
     public KeyUp(keyy: IKeyboardKey): any {
         //this.computerService.KeyUp(keyy, () => { });
-        this.keyboardManager?.KeyUp(keyy);
+        return this.keyboardManager?.KeyUp(keyy);
     }
     public KeyDown(keyy: IKeyboardKey): any {
         //this.computerService.KeyDown(keyy, () => { });
-        this.keyboardManager?.KeyDown(keyy);
+        return this.keyboardManager?.KeyDown(keyy);
     }
 
 

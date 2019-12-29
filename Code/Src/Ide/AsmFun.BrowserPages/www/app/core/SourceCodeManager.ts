@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -132,7 +132,8 @@ export class SourceCodeManager {
                     for (var j = 0; j < file.lines.length; j++) {
                         var lineCompiled = fileCompiled.lines[j];
                         var line = file.lines[j];
-                        line.data.resultMemoryAddress = lineCompiled.resultMemoryAddress;
+                        if (line.data != null && lineCompiled != null)
+                            line.data.resultMemoryAddress = lineCompiled.resultMemoryAddress;
                     }
                 }
             }

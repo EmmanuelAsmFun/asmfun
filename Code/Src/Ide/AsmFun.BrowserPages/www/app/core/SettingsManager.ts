@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -34,8 +34,8 @@ export class SettingsManager {
         if (address != null && address.startsWith("http"))
             this.settings.serverAddressWithPort = address;
         this.mainData.appData.settings = this.settings;
-        this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.UpdateServerAddress();
+        this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
     }
 
     private OpenManager(state: boolean | null) {

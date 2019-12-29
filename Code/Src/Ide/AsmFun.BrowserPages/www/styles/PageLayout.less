@@ -31,6 +31,7 @@ body {
     padding-left: 100px;
     padding-top: 5px;
     font-size: 13px;
+    display:inline-block;
 
     a, a:link, a:visited, a:active {
         color: #76765a;
@@ -45,11 +46,20 @@ body {
         text-decoration: none;
     }
 }
+.newVersionText {
+    display: inline-block;
+    font-size: 11px;
+    padding-left:20px;
+    vertical-align:text-top;
+}
 .logo {
-    position:absolute;
+    position: absolute;
     left: 10px;
-    top:2px;
-    img { height:26px;}
+    top: 2px;
+
+    img {
+        height: 26px;
+    }
 }
 /*******************************/
 .footerbar {
@@ -71,11 +81,24 @@ body {
 
     .mouseInfo {
         position: absolute;
-        right: 40px;
+        right: 140px;
     }
 }
+.serverVersionFooter {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    z-index: 1001;
+    font-size: 10px;
+    height: 22px;
+    padding-top: 2px;
+    line-height: 24px;
 
-
+    a, a:link, a:visited {
+        color: #888888;
+        cursor:pointer;
+    }
+}
 /** SCOLLBAR */
 /* width */
 ::-webkit-scrollbar {

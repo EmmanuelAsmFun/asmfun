@@ -11,7 +11,7 @@
 @import "fullpageinfo";
 @import "projectmanager";
 @import "computer";
-
+@import "asmplayermanager";
 
 @font-face {
     font-family: 'robot';
@@ -183,56 +183,6 @@ a:hover {
 }
 
 
-.serverNotConnected {
-    position: fixed;
-    top: 50px;
-    left: 150px;
-    right: 50px;
-    bottom: 50px;
-    z-index: 130;
-    background: black;
-    border: 1px solid #bebe95;
-    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
-    padding: 20px;
-    font-size: 12px;
-
-    a {
-        font-size: 12px;
-    }
-
-    h2 {
-        font-weight: 100;
-        font-size: 22px;
-    }
-
-    table, tr, td, th {
-        font-size: 12px;
-        text-align: left;
-        vertical-align: top;
-        font-weight: 100;
-    }
-
-    .download, .downloadheader {
-        display: inline-block;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .downloadheader {
-        font-size: 18px;
-    }
-    input{
-        cursor:pointer;
-    }
-    .linkdisabled {
-        opacity:0.4;
-        a {
-            pointer-events: none;
-        }
-    }
-}
 .Compilation {
     position: absolute;
     left: 150px;

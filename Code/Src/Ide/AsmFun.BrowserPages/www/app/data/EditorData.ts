@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -50,6 +50,7 @@ export interface ICodeBlockContext{
     lines: IEditorLine[];
     isMacro: boolean;
     name: string;
+    nameDirty?: string;
     isZone: boolean;
     isFile: boolean;
     isRoot: boolean;
@@ -186,6 +187,7 @@ export interface IPropertyData {
     defaultNumValue: number,
     isBigEndian: boolean,
     name: string,
+    nameDirty: string,
 }
 export function ResetLineProperties(line: IEditorLine) {
     if (line == null) return;

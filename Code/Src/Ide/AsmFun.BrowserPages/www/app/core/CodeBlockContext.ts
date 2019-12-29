@@ -1,6 +1,6 @@
 // #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -82,9 +82,10 @@ export class CodeBlockContext implements ICodeBlockContext {
         if (name == null || name === "") {
             return line.context;
         }
+        var cleanName = name.replace(":", "");
      
         // check if it already exists
-        var zoneContext = this.bundle.zones.find(x => x.name === name);
+        var zoneContext = this.bundle.zones.find(x => x.name === cleanName);
         if (zoneContext == null) {
             // Create new zone
             // if we where already in a zone, go back to the parent to create a new context
@@ -92,11 +93,12 @@ export class CodeBlockContext implements ICodeBlockContext {
                 zoneContext = this.parent.CreateChild();
             else
                 zoneContext = this.CreateChild();
-            zoneContext.name = name;
+            zoneContext.name = cleanName;
+            zoneContext.nameDirty = name;
             zoneContext.isLocalZone = isLocalZone;
             zoneContext.isZone = true;
-            var isNextAn = name == "+" || name.indexOf("++") > -1;
-            var isPrevAn = name == "-" || name.indexOf("--") > -1;
+            var isNextAn = cleanName == "+" || cleanName.indexOf("++") > -1;
+            var isPrevAn = cleanName == "-" || cleanName.indexOf("--") > -1;
 
             if (isNextAn || isPrevAn) {
                 zoneContext.isAnonymous = true;
@@ -105,7 +107,7 @@ export class CodeBlockContext implements ICodeBlockContext {
             this.bundle.zones.push(zoneContext);
             //if (!line.isAnonymousZone) {
                 // create label
-                var label = this.CreateNewLabel(line.file, line, name, true);
+            var label = this.CreateNewLabel(line.file, line, cleanName, true);
                 label.isZone = true;
                 label.showValueInCode = false;
                 line.labelZoneSource = label;
@@ -113,10 +115,10 @@ export class CodeBlockContext implements ICodeBlockContext {
             //    if (line.indent == null) line.indent = "";
             //    line.indentAfterZone = name + line.indent;
             //}
-            console.log("Add zone:" + name);
+            console.log("Add zone:" + cleanName);
         } else {
-            console.log("Update zone:" + name);
-            line.potentialLabel = name;
+            console.log("Update zone:" + cleanName);
+            line.potentialLabel = cleanName;
             this.parseLabel(line);
             line.labelZoneSource = line.label;
         }
@@ -152,33 +154,38 @@ export class CodeBlockContext implements ICodeBlockContext {
     }
 
     public CreateCodeBlock(line: IEditorLine, name: string): ICodeBlockContext {
+        var cleanName = name.replace(":", "");
         var codeBlockContext: ICodeBlockContext;
         codeBlockContext = this.CreateChild();
-        codeBlockContext.name = name;
+        codeBlockContext.name = cleanName;
+        codeBlockContext.nameDirty = name;
         codeBlockContext.isMacro = true;
         line.context = codeBlockContext;
         //this.bundle.zones.push(macroContext);
         return codeBlockContext;
     }
     
-    public CreateMacro(line: IEditorLine, name: string, parameters: string[]): ICodeBlockContext {
+    public CreateMacro(line: IEditorLine, nameDirty: string, parameters: string[]): ICodeBlockContext {
+        var cleanName = nameDirty.replace(":", "");
         // if we where already in a macro, go back to the parent to create a new context
         var macroContext: ICodeBlockContext;
         // check if it already exists
-        var macroContext = this.bundle.macros.find(x => x.name === name);
+        var macroContext = this.bundle.macros.find(x => x.name === cleanName);
+        
         if (macroContext == null) {
             // Create new macro
             if (line.context.isMacro && this.parent != null)
                 macroContext = this.parent.CreateChild();
             else
                 macroContext = this.CreateChild();
-            macroContext.name = name;
+            macroContext.name = cleanName;
+            macroContext.nameDirty = nameDirty;
             macroContext.isMacro = true;
             this.bundle.macros.push(macroContext);
-            console.log("Add macro:" + name);
+            console.log("Add macro:" + cleanName);
         }
         else {
-            console.log("Update macro:" + name);
+            console.log("Update macro:" + cleanName);
         }
         macroContext.parameters = parameters;
         line.isMacro = true;
@@ -207,10 +214,11 @@ export class CodeBlockContext implements ICodeBlockContext {
     }
 
 
-    public AddAddressSetter(line: IEditorLine, name: string, address: number) {
-        if (name == null || name === "") {
+    public AddAddressSetter(line: IEditorLine, nameDirty: string, address: number) {
+        if (nameDirty == null || nameDirty === "") {
             return line.context;
         }
+        var name = nameDirty.replace(":", "");
         var hexValue = AsmTools.numToHex4(address);
         // check if it already exists
         var label = this.bundle.labels.find(x => x.data.name === name);

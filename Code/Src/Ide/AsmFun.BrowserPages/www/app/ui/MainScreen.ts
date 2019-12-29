@@ -1,6 +1,6 @@
 ﻿// #region license
 // ASM Fun
-// Copyright (c) 2013-2020 Emmanuel from ASMFun.
+// Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
@@ -16,15 +16,10 @@ import { ComputerManager } from "../core/ComputerManager.js";
 import { ProjectManager } from "../core/ProjectManager.js";
 import { EditorManager } from "../core/EditorManager.js";
 
-// TODO : clean up this mess
-
-
-(<any>Vue).config.devtools = true;
-// initialize base objects
+// Initialize base objects
 var reg = new ServiceRegisterer();
 reg.Register();
 export var myMainData = reg.myMainData;
-
 
 // Create main vue
 var myRootV = new Vue({
@@ -50,16 +45,18 @@ var myRootV = new Vue({
 
 reg.Init();
 
-// program start
-if (document.location.host.indexOf("localhost:5001") > -1) {
-    var svc = reg.myMainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName);
-    if (svc != null)
-        svc.LoadOne();
-}
-else {
-    reg.myMainData.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.ServiceName)?.Launch();
-}
+// Program start
+reg.myMainData.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.ServiceName)?.Launch();
 
+
+
+
+
+// --------------------------------------
+// TODO : clean up this mess, move them all to correxponding classes.
+
+
+(<any>Vue).config.devtools = true;
 var scStartPosX = 0;
 var scStartPosY = 0;
 (<any>window).moveTheCursor = function (htmlObj, evt) {
