@@ -52,10 +52,13 @@ export class ASMFunPlayerManager {
     private Open() {
         var thiss = this;
         this.data.isVisiblePlayerManager = true;
+        setTimeout(() => { thiss.data.isVisiblePopup = true;},10)
     }
 
     private Close() {
-        this.data.isVisiblePlayerManager = false;
+        var thiss = this;
+        setTimeout(() => { thiss.data.isVisiblePlayerManager = false; },200)
+        this.data.isVisiblePopup = false;
     }
     public Launch() {
         if (document.location.host.indexOf("localhost:5001") <= -1) {
@@ -150,6 +153,7 @@ export class ASMFunPlayerManager {
             newVersionAvailable: false,
             latestVersion: "0.0.0.0",
             isVisiblePlayerManager:false,
+            isVisiblePopup:false,
         };
     }
 

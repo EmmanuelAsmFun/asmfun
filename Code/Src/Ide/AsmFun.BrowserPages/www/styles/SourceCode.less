@@ -65,142 +65,168 @@
         max-width: 850px;
     }
 
+     .ln {
+        /* border-right: 2px solid #454511;*/
+        height: @editorLineHeight;
+        padding: 0;
+
+
+        &.hasError {
+            color: #9b0000;
+        }
+    }
+ }
+
+
+
+.ScLines {
+    margin-left: 108px;
+
+    .ln {
+        width: 100%;
+        min-width: 400px;
+        white-space: nowrap;
+
+        &:hover {
+            background: #222222;
+        }
+
+        &.isSelected {
+            background: #312d23;
+            border-right: 1px solid #f6b741;
+        }
+
+        &.hilite {
+            background: green;
+            color: black;
+            font-size: 20px;
+            border: 1px solid green;
+        }
+
+        .scline {
+            background: transparent;
+            margin-left: 5px;
+            display: inline-block;
+            -webkit-touch-callout: text; /* iOS Safari */
+            -webkit-user-select: text; /* Safari */
+            -khtml-user-select: text; /* Konqueror HTML */
+            -moz-user-select: text; /* Firefox */
+            -ms-user-select: text; /* Internet Explorer/Edge */
+            user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
+        }
+
+    }
 }
 
-.sourceCode .ln {
-    /* border-right: 2px solid #454511;*/
-    height: @editorLineHeight;
-    padding: 0;
-    white-space: nowrap;
-    width: 100%;
-    min-width: 400px;
+.PreScLines {
+    position: absolute;
+    width:105px;
+    left: 0px;
+    
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -khtml-user-select: none; /* Konqueror HTML */
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-    &.isSelected {
-        background: #312d23;
-        border-right:1px solid #f6b741;
+    .breakPoint {
+        color: transparent;
+        cursor: pointer;
     }
 
-    &.hilite {
-        background: green;
-        color: black;
-        font-size: 20px;
-        border: 1px solid green;
-    }
+    .ln {
+        white-space: nowrap;
 
-    &.hasError {
-        color: #9b0000;
-    }
 
-    .scline {
-        background: transparent;
-        min-width: 400px;
-        margin-left: 5px;
-        display: inline-block;
-        -webkit-touch-callout: text; /* iOS Safari */
-        -webkit-user-select: text; /* Safari */
-        -khtml-user-select: text; /* Konqueror HTML */
-        -moz-user-select: text; /* Firefox */
-        -ms-user-select: text; /* Internet Explorer/Edge */
-        user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
-    }
+        .debugInfo {
+            width: 60px;
+            display: inline-block;
+        }
 
-    &:hover {
-        background: #222222;
-    }
-
-    .debugInfo {
-        width: 60px;
-        display: inline-block;
-    }
-
-    .l-address {
-        /*position: absolute;*/
-        line-height: 10px;
-        font-size: 5px;
-        display: inline-block;
-        width: 40px;
-        font-size: 11px;
-        text-align: right;
-    }
-
-    .asmFunCode {
-        /*position: absolute;*/
-        left: 550px;
-        min-width: 240px;
-        display: inline-block;
-        text-align: left;
-        color: #999999;
-        -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none; /* Safari */
-        -khtml-user-select: none; /* Konqueror HTML */
-        -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-        height: @editorLineHeight;
-    }
-
-    .lnn {
-        text-align: right;
-        display: inline-block;
-        height: @editorLineHeight;
-        width: 34px;
-        /*position: absolute;*/
-        left: -50px;
-        -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none; /* Safari */
-        -khtml-user-select: none; /* Konqueror HTML */
-        -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-        .errorDetail {
-            left: 10px;
-            position: absolute;
+        .l-address {
+            /*position: absolute;*/
+            line-height: 10px;
+            font-size: 5px;
+            display: inline-block;
+            width: 40px;
             font-size: 11px;
-            background: black;
-            display: none;
+            text-align: right;
+        }
+
+        .asmFunCode {
+            position: absolute;
+            left: 500px;
+            min-width: 240px;
+            display: inline-block;
+            text-align: left;
+            color: #999999;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+            height: @editorLineHeight;
+        }
+
+        .lnn {
+            text-align: right;
+            display: inline-block;
+            height: @editorLineHeight;
+            width: 34px;
+            /*position: absolute;*/
+            left: -50px;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+            .errorDetail {
+                left: 10px;
+                position: absolute;
+                font-size: 11px;
+                background: black;
+                display: none;
+            }
+        }
+
+        &:hover .errorDetail {
+            display: block;
         }
     }
 
-    &:hover .errorDetail {
-        display: block;
+    .sc-value {
+        position: absolute;
+        margin-top: 0px;
+        left: 400px;
+        color: #9a8255;
+        font-size: 11px;
+        padding-left: 50px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        input {
+            width: 40px;
+            border: 1px solid #999999;
+            padding: 2px;
+        }
     }
 }
 
-.sourceCode .sc-value {
-    position: absolute;
-    margin-top: 0px;
-    left: 400px;
-    color: #9a8255;
-    font-size: 11px;
-    padding-left: 50px;
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-    input {
-        width: 40px;
-        border: 1px solid #999999;
-        padding: 2px;
+
+
+
+    .sourceCode .debugable {
+        /*position: absolute;*/
+        display: inline-block;
+        z-index: 10;
+        left: -70px;
+        color: #111111;
     }
-}
-
- 
-
-
-.sourceCode .debugable {
-    /*position: absolute;*/
-    display: inline-block;
-    z-index: 10;
-    left: -70px;
-    color: #111111;
-}
 
     .sourceCode .debugable.isBpSelected {
         color: darkred;
@@ -244,9 +270,6 @@
 
 
 
-    .breakPoint {
-        color: transparent;
-        cursor: pointer;
-    }
+
 
 

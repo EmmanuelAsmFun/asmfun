@@ -159,7 +159,7 @@ export class SourceCodeManager {
         this.mainData.appData.labelsWithoutZones = [];
 
         // Create root context
-        var rootContext: ICodeBlockContext = new CodeBlockContext(this.mainData,editorBundle);
+        var rootContext: ICodeBlockContext = new CodeBlockContext(this.mainData.appData, editorBundle);
          rootContext.name = "root";
          rootContext.isRoot = true;
          editorBundle.allContext.push(rootContext);

@@ -56,6 +56,7 @@ export class EditorWriter  {
         if (context.currentLine == null || context.sourceCode == null) return true;
         var line = context.currentLine.data.sourceCode;
         if (context.editorData.cursorX <= line.length) {
+            this.DeleteSelection(context);
             this.AddUndoChar(context.currentLine, theKey, context.editorData.cursorX, context.editorData.cursorY);
             context.currentLine.data.sourceCode = line.substring(0, context.editorData.cursorX) + theKey + line.substring(context.editorData.cursorX);
             context.RedrawLine();
@@ -71,6 +72,7 @@ export class EditorWriter  {
 
     public EnterKey(context: IEditorContext, isPaste: boolean = false): boolean {
         if (context.currentLine == null || context.currentFile == null || context.currentFile.lines == null) return false;
+        this.DeleteSelection(context);
         var lineIndex = context.currentLine.data.lineNumber;
         var previousLine = context.currentLine;
         
@@ -115,15 +117,7 @@ export class EditorWriter  {
 
         if (context.currentLine == null || context.sourceCode == null || context.currentFile == null) return false;
         var line = context.currentLine.data.sourceCode;
-        var selection = context.cursorLogic.GetSelection();
-        var sameLine = selection.startLine == selection.endLine;
-        if (selection.startLine > 0 && selection.endLine > 0 && selection.startOffset !== selection.endOffset) {
-            if (sameLine)
-                return this.DeleteSelectionSameLine(context, selection);
-            else
-                return this.DeleteSelectionMultiLine(context,selection);
-        }
-        
+        if (this.DeleteSelection(context)) return false;
         if (context.editorData.cursorX === 0) {
             if (context.editorData.cursorY > 1) {
                 this.AddUndoBackspaceLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
@@ -152,18 +146,9 @@ export class EditorWriter  {
         context.requireSave = true;
         return false;
     }
-   
 
     public DeleteKey(context: IEditorContext): boolean {
-        var selection = context.cursorLogic.GetSelection();
-        console.log(selection);
-        var sameLine = selection.startLine == selection.endLine;
-        if (selection.startLine > 0 && selection.endLine > 0 && selection.startOffset !== selection.endOffset) {
-            if (sameLine)
-                return this.DeleteSelectionSameLine(context, selection);
-            else
-                return this.DeleteSelectionMultiLine(context, selection);
-        }
+        if (this.DeleteSelection(context)) return false;
         if (context.editorData.maxX > 0 && context.editorData.cursorX > context.editorData.maxX - 1) return false;
         if (context.currentLine == null || context.sourceCode == null) return false;
        
@@ -191,6 +176,19 @@ export class EditorWriter  {
         return false;
     }
 
+    private DeleteSelection(context: IEditorContext): boolean {
+        var selection = context.cursorLogic.GetSelection();
+        if (selection == null) return false;
+        var sameLine = selection.startLine == selection.endLine;
+        if (selection.startLine > 0 && selection.endLine > 0) {
+            if (sameLine)
+                return this.DeleteSelectionSameLine(context, selection);
+            else
+                return this.DeleteSelectionMultiLine(context, selection);
+        }
+        return false;
+    }
+
     private DeleteSelectionSameLine(context: IEditorContext, selection: IEditorSelection): boolean {
         if (context.currentFile == null || context.sourceCode == null) return false;
         var line = context.currentFile.lines[selection.startLine - 1];
@@ -202,7 +200,7 @@ export class EditorWriter  {
         context.cursorLogic.MoveLeft(context,false,false);
         context.cursorLogic.MoveCursor(context, selection.startOffset, selection.startLine - 1);
         context.requireSave = true;
-        return false;
+        return true;
     }
 
     private DeleteSelectionMultiLine(context: IEditorContext,selection: IEditorSelection): boolean {
@@ -211,8 +209,8 @@ export class EditorWriter  {
         var lastLine = context.currentFile.lines[selection.endLine - 1];
         if (firstLine == null || lastLine == null) return false;
         var toDelete = selection.endLine - selection.startLine;
-        var x = context.editorData.cursorX;
-        var y = context.editorData.cursorY;
+        var x = selection.startOffset;
+        var y = selection.startLine;
         var undoLineTexts:string[] = [];
         if (toDelete > 0) {
             // Get lines for undo
@@ -233,7 +231,7 @@ export class EditorWriter  {
         context.cursorLogic.Deselect();
         context.cursorLogic.MoveCursor(context, selection.startOffset, selection.startLine - 1);
         context.requireSave = true;
-        return false;
+        return true;
     }
 
 

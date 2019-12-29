@@ -8,10 +8,11 @@ import { IEditorFile, IEditorLine, IEditorBundle, ICodeBlockContext, CreateNewFi
 import { ISourceCodeLabel } from "../data/ProjectData.js";
 import { AsmTools } from "../Tools.js";
 import { IMainData } from "../data/MainData.js";
+import { IAsmFunAppData } from "../data/AsmFunAppData.js";
 
 export class CodeBlockContext implements ICodeBlockContext {
 
-    public mainData: IMainData;
+    public appData: IAsmFunAppData;
     public parent? : ICodeBlockContext;
     public file: IEditorFile;
     public children: ICodeBlockContext[];
@@ -34,9 +35,9 @@ export class CodeBlockContext implements ICodeBlockContext {
     public bundle: IEditorBundle;
     public parameters?: string[];
 
-    constructor(mainData: IMainData,bundle:IEditorBundle,file?:IEditorFile, parent?:ICodeBlockContext)
+    constructor(appData: IAsmFunAppData,bundle:IEditorBundle,file?:IEditorFile, parent?:ICodeBlockContext)
     {
-        this.mainData = mainData;
+        this.appData = appData;
         this.file = file != null? file:parent != null
             ? parent.file
             : CreateNewFile({exists:false,fileName:"",fileNameFull:"",folder:"",isBinary:false,isCodeFile:false,lines:[]})
@@ -48,7 +49,7 @@ export class CodeBlockContext implements ICodeBlockContext {
 
     public CreateChild(file?:IEditorFile): ICodeBlockContext {
        var thiss = this;
-        var child = new CodeBlockContext(this.mainData,thiss.bundle, file != null? file: thiss.file,thiss);
+        var child = new CodeBlockContext(this.appData,thiss.bundle, file != null? file: thiss.file,thiss);
        thiss.children.push(child);
        child.parent = this;
        thiss.bundle.allContext.push(child)
@@ -343,12 +344,14 @@ export class CodeBlockContext implements ICodeBlockContext {
                     continue;
                 }
             }
-            line.hasError = true;
-            line.error = {
-                line: line,
-                message: "Don't know what you mean, or haven't implemented yet."
+            var codeOnly = line.data.sourceCode.trim();
+            if (codeOnly != "") {
+                line.hasError = true;
+                line.error = {
+                    line: line,
+                    message: "Don't know what you mean, or haven't implemented yet."
+                }
             }
-           
         }
     }
 
@@ -365,10 +368,10 @@ export class CodeBlockContext implements ICodeBlockContext {
         const label = CreateNewEditorLabel({ name: name, address: 0, value: 0, variableLength: 1 }, file, line);
         label.isZone = isZone;
         this.bundle.labels.push(label);
-        if (this.mainData.appData.labelsWithoutZones != null && !isZone) {
-            var exists = this.mainData.appData.labelsWithoutZones.find(x => x.data.name === name);
+        if (this.appData.labelsWithoutZones != null && !isZone) {
+            var exists = this.appData.labelsWithoutZones.find(x => x.data.name === name);
             if (exists == null )
-                this.mainData.appData.labelsWithoutZones.push(label);
+                this.appData.labelsWithoutZones.push(label);
         }
         return label;
     }

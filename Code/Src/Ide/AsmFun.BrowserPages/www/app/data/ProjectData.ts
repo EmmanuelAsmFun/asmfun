@@ -15,9 +15,9 @@ export var CompilerNames: { name: string, value: number, webAddress: string }[] 
     { value: 4, name: "Cc65  not implemented yet", webAddress: "https://www.cc65.org/index.php#Download" }
 ];
 export var RomVersionNames: { name: string, value: string }[] = [
-    { value: "R33", name: "Michael Steil's ROM R33" },
-    { value: "R34", name: "Michael Steil's ROM R34" },
-    { value: "R35", name: "Michael Steil's ROM R35" }];
+    { value: "R33", name: "ROM R33" },
+    { value: "R34", name: "ROM R34" },
+    { value: "R35", name: "ROM R35" }];
 
 export interface ISourceCodeBundle {
     sourceFileName: string;
@@ -113,6 +113,7 @@ export interface ISettings {
     userSettings?: IUserSettings | null;
     projectSettings?: IProjectSettings | null;
     isVisible: boolean;
+    isVisiblePopup: boolean;
     configuration?: IBuildConfiguration | null;
     saveProjectSettings: () => void;
     saveUserSettings: () => void;
@@ -131,6 +132,7 @@ export interface IProjectSettings {
 export interface IProjectManagerData {
     settings?: IProjectSettings;
     isVisible: boolean;
+    isVisiblePopup: boolean;
     isNewProject: boolean;
     projectsFolder: string;
     localProjects: IProjectDetail[],

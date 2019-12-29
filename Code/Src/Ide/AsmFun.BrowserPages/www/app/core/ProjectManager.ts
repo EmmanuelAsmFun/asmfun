@@ -69,13 +69,23 @@ export class ProjectManager  {
                 thiss.data.folderChar = "/";
             thiss.service.GetWebProjects((w) => {
                 thiss.data.webProjects = w;
-                thiss.data.isVisible = true;
+                this.Show();
             });
         }, e => { });
     }
     public Close() {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
-        this.data.isVisible = false;
+        this.Hide();
+    }
+    private Show() {
+        var thiss = this;
+        this.data.isVisible = true;
+        setTimeout(() => { thiss.data.isVisiblePopup = true; }, 10)
+    }
+    private Hide() {
+        var thiss = this;
+        setTimeout(() => { thiss.data.isVisible = false; }, 200)
+        this.data.isVisiblePopup = false;
     }
 
     public SaveProjectsFolder() {
@@ -161,6 +171,7 @@ export class ProjectManager  {
         return {
             isNewProject: false,
             isVisible: false,
+            isVisiblePopup: false,
             projectsFolder: "",
             localProjects: [],
             webProjects: [],

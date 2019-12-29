@@ -46,6 +46,7 @@ export interface IAsmFunAppData {
 
 export interface IAsmFunIdeData {
     isVisiblePlayerManager: boolean;
+    isVisiblePopup: boolean;
     serverNotConnected: boolean;
     hasConfirmedLicense: boolean;
     isWindows: boolean;

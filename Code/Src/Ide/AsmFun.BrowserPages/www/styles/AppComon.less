@@ -1,5 +1,40 @@
 ﻿@import "colors";
+.v-fade {
+    display: inherit !important; /* override v-show display: none */
+    transition: opacity 0.5s;
+}
+.v-fade[style*="display: none;"] {
+    opacity: 0;
+    pointer-events: none; /* disable user interaction */
+    user-select: none; /* disable user selection */
+}
+.v-scaler {
+    display: inherit !important; /* override v-show display: none */
+    transition: all 0.1s;
+}
 
+.v-scaler[style*="display: none;"] {
+    transform: scale(0.01);
+}
+.v-scaler-l {
+    display: inherit !important; /* override v-show display: none */
+    -webkit-animation: scaler-l 0.3s ease-out;
+}
+
+.v-scaler-l[style*="display: none;"] {
+    -webkit-animation: none;
+    transform: scale(0.01) translateY(0%) translateX(0%);
+}
+@keyframes scaler-l {
+
+    0% {
+        transform: scale(5.0) translateY(20%) translateX(-20%);
+    }
+
+    100% {
+        transform: scale(1.0) translateY(0%) translateX(0%);
+    }
+}
 /*----------------------*/
 /*#region common */
 

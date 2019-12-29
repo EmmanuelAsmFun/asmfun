@@ -12,7 +12,7 @@ export interface ICursorUI {
     GetRealPosition();
     Hide();
     Show();
-    GetSelection(): IEditorSelection;
+    GetSelection(): IEditorSelection | null;
     SetSelectionStart(x, y);
     SetSelectionEnd(x, y);
 }
@@ -72,13 +72,14 @@ export class CursorUI implements ICursorUI{
         return null;
     }
 
-    public GetSelection(): IEditorSelection {
+    public GetSelection(): IEditorSelection | null {
         // todo: use this https://stackoverflow.com/questions/52240216/how-to-wrap-text-inside-multiple-nodes-with-a-html-tag
         var returnData: IEditorSelection = {
             endLine: 0, endOffset: 0, startLine: 0, startOffset: 0, reversed:false
         }
         if (<any>window.getSelection) {
             var selection: Selection = (<any>window).getSelection();
+            if (selection.type === "None" || selection.type === "Caret") return null;
             console.log(selection);
             var startLineNode: any = (<any>selection).anchorNode;
             var endLineNode: Node | null = (<any>selection).extentNode;
@@ -97,10 +98,27 @@ export class CursorUI implements ICursorUI{
                             if (attr != null && attr.value != null)
                                 startLineNumber = attr.value;
                         }
+                        else {
+                            debugger;
+                        }
                     }
                 }
                 if (startLineNumber == null || startLineNumber == "") {
-
+                    if (startLineNode.firstChild != undefined) {
+                        var attr = startLineNode.firstChild.attributes["data-ln"];
+                        if (attr != null && attr.value != null)
+                            startLineNumber = attr.value;
+                        else {
+                            if (startLineNode.firstChild?.firstChild != undefined) {
+                                attr = startLineNode.firstChild.firstChild.attributes["data-ln"];
+                                if (attr != null && attr.value != null)
+                                    startLineNumber = attr.value;
+                            }
+                        }
+                    }
+                }
+                if (startLineNumber == null || startLineNumber == "") {
+                    debugger;
                 }
             }
             if (endLineNode != null && endLineNode.nodeType === 3) // 3 = #text
@@ -111,6 +129,20 @@ export class CursorUI implements ICursorUI{
                         if (endLineNode.parentNode.parentNode != undefined) {
                             endLineNumber = (<any>endLineNode.parentNode.parentNode).getAttribute("data-ln");
                         }
+                }
+            }
+            if ((endLineNumber == null || endLineNumber == "") && endLineNode != null) {
+                if (endLineNode.firstChild != undefined) {
+                    var attr = (<any>endLineNode.firstChild).attributes["data-ln"];
+                    if (attr != null && attr.value != null)
+                        endLineNumber = attr.value;
+                    else {
+                        if (endLineNode.firstChild?.firstChild != undefined && (<any>endLineNode.firstChild.firstChild).attributes != null) {
+                            attr = (<any>endLineNode.firstChild.firstChild).attributes["data-ln"];
+                            if (attr != null && attr.value != null)
+                                endLineNumber = attr.value;
+                        }
+                    }
                 }
             }
 
@@ -136,6 +168,7 @@ export class CursorUI implements ICursorUI{
                 }
             }
         }
+        console.log(returnData);
         return returnData;
     }
     public Deselect() {

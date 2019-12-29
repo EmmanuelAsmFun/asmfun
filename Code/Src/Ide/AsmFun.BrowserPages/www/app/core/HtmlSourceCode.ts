@@ -22,7 +22,7 @@ export class HtmlSourceCode {
 
     public convertLineLogicToHtml(line: IEditorLine): HTMLElement {
 
-        //if (line.data.lineNumber === 14) {
+        //if (line.data.lineNumber === 49) {
         //    var test = line;
         //    debugger;
         //}
@@ -72,11 +72,13 @@ export class HtmlSourceCode {
         if (line.isCompilerData) 
             return this.CreateCompilerData(lineRoot, line, writtenChars);
         
-        if (line.data != null) 
+        if (line.dataCode != null) 
             this.CreateSpan(lineRoot, this.varToHtml(line.dataCode), writtenChars)
 
-        // We need to have at least one character shown to be able to select an empty line.
-        if (lineRoot.innerText === "" && (line.comment === "" || line.comment === undefined)) lineRoot.innerHTML = "&nbsp;";
+        if (lineRoot.innerText === "" && (line.comment === "" || line.comment === undefined)) {
+            line.data.sourceCode = " ";
+            lineRoot.innerHTML = "&nbsp;";
+        }
         return lineRoot;
     }
 

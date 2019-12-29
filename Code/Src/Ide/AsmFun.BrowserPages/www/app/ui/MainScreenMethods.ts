@@ -41,8 +41,8 @@ export class MainScreenMethods {
 
     // Todo: Clean this mess up
 
-    public SourCodeLineClick(domObj, evt: any, line) {
-        (<any>window).moveTheCursor(domObj, evt);
+    public SourCodeLineClick(evt: any) {
+        (<any>window).moveTheCursor(evt);
         return true;
     }
   

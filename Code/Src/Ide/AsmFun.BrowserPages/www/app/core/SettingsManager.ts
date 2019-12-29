@@ -57,24 +57,33 @@ export class SettingsManager {
             this.myAppData.ide.serverNotConnected = false;
             thiss.projectService.GetProjectSettings((r) => {
                 thiss.settings.projectSettings = r;
-                thiss.settings.isVisible = true;
+                thiss.Show();
                 if (r != null && r.configurations != null && r.configurations.length > 0) {
                     thiss.settings.configuration = r.configurations[0];
                 }
             }, e => {
-                
-                thiss.settings.isVisible = true;
+                    thiss.Show();
             });
         }, er => {
             thiss.myAppData.ide.serverNotConnected = true;
-            thiss.settings.isVisible = true;
+                thiss.Show();
         });
         
+    }
+    private Show() {
+        var thiss = this;
+        this.settings.isVisible = true;
+        setTimeout(() => { thiss.settings.isVisiblePopup = true; }, 10)
+    }
+    private Hide() {
+        var thiss = this;
+        setTimeout(() => { thiss.settings.isVisible = false; }, 200)
+        this.settings.isVisiblePopup = false;
     }
 
     private Close() {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
-        this.settings.isVisible = false;
+        this.Hide();
     }
 
     public SaveUserSettings() {
@@ -98,6 +107,7 @@ export class SettingsManager {
     public static NewData(): ISettings {
         return {
             isVisible: false,
+            isVisiblePopup: false,
             saveProjectSettings: () => { },
             saveUserSettings: () => { },
             serverAddressWithPort: "http://localhost:5001"

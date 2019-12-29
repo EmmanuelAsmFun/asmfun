@@ -59,7 +59,7 @@ reg.myMainData.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.Servic
 (<any>Vue).config.devtools = true;
 var scStartPosX = 0;
 var scStartPosY = 0;
-(<any>window).moveTheCursor = function (htmlObj, evt) {
+(<any>window).moveTheCursor = function (evt) {
     var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
     if (editorManager == null) return;
     var sc = document.getElementById('sourceCode');

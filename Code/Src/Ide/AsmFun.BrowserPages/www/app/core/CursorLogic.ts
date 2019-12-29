@@ -33,8 +33,10 @@ export class CursorLogic {
     }
 
     public MoveHome(ctx: IEditorContext, shiftisDown: boolean): boolean {
-        if (shiftisDown)
-            this.SetSelectionStart(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+        if (shiftisDown) 
+            this.SetSelectionStart(ctx, 0, ctx.editorData.cursorY);
+        
+        var prevC = ctx.editorData.cursorX;
         var newPos = 0;
         if (ctx.currentLine != null) {
             for (var i = 0; i < ctx.currentLine.data.sourceCode.length; i++) {
@@ -49,7 +51,7 @@ export class CursorLogic {
             ctx.editorData.cursorX = newPos;
         this.UpdateCursor(ctx);
         if (shiftisDown)
-            this.SetSelectionEnd(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+            this.SetSelectionEnd(ctx, prevC, ctx.editorData.cursorY);
         return false;
     }
 
@@ -70,6 +72,8 @@ export class CursorLogic {
     public MoveUp(ctx: IEditorContext, ctrlIsDown: boolean, shiftisDown: boolean, rows: number = 1) {
         if (shiftisDown)
             this.SetSelectionStart(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+        else
+            this.Deselect();
         if (ctx.editorData.cursorY - rows  <= 0)
             rows = ctx.editorData.cursorY;
         ctx.editorData.cursorY -= rows;
@@ -84,6 +88,8 @@ export class CursorLogic {
     public MoveDown(ctx: IEditorContext, ctrlIsDown: boolean, shiftisDown: boolean, rows: number = 1) {
         if (shiftisDown)
             this.SetSelectionStart(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+        else
+            this.Deselect();
         if (ctx.editorData.cursorY > ctx.editorData.maxY - rows -1)
             rows = ctx.editorData.maxY - ctx.editorData.cursorY-1;
         ctx.editorData.cursorY += rows;
@@ -100,6 +106,8 @@ export class CursorLogic {
         var hasMovedNewLine = false;
         if (shiftisDown && recurence === 0)
             this.SetSelectionStart(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+        else
+            this.Deselect();
         if (ctrlIsDown && ctx.currentLine != null) {
             var match: RegExpExecArray | null = null;
             var prevText = ctx.currentLine.data.sourceCode.substr(0,ctx.editorData.cursorX);
@@ -149,6 +157,8 @@ export class CursorLogic {
         var hasMovedNewLine = false;
         if (shiftisDown && recurence === 0)
             this.SetSelectionStart(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+        else
+            this.Deselect();
         if (ctrlIsDown && ctx.currentLine != null) {
             var match: RegExpExecArray | null = null;
             var nextText = ctx.currentLine.data.sourceCode.substr(ctx.editorData.cursorX);

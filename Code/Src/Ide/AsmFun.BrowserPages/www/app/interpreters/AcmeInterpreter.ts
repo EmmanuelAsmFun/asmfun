@@ -26,6 +26,7 @@ export class AcmeInterpreter implements IInterpreter{
     }
 
     public InterpretLine(context: ICodeBlockContext, line: IEditorLine, fullParse: boolean = true): ICodeBlockContext {
+       
         // remove tabs
         line.data.sourceCode = line.data.sourceCode.replace(/\t/g, "  ");
         var sc = line.data.sourceCode;
@@ -51,7 +52,7 @@ export class AcmeInterpreter implements IInterpreter{
 
         // if there is no code left, we are done with this line.
         if (lineWithoutComment.length === 0) {
-            line.dataCode = "";
+            line.dataCode = lineWithoutCommentNotrim;
             return line.context;
         }
 
