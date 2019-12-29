@@ -347,10 +347,13 @@ export class CodeBlockContext implements ICodeBlockContext {
             var codeOnly = line.data.sourceCode.trim();
             if (codeOnly != "") {
                 line.hasError = true;
-                line.error = {
-                    line: line,
-                    message: "Don't know what you mean, or haven't implemented yet."
-                }
+                if (line.error == null || !line.error.isFromCompiler)
+                    line.error = {
+                        line: line,
+                        message: "Don't know what you mean, or haven't implemented yet.",
+                        isFromCompiler: false,
+                        compilerName:"Emmanuel"
+                    }
             }
         }
     }

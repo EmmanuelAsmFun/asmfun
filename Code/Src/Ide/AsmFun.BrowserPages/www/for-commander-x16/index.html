@@ -240,7 +240,7 @@ programItem.address  | toHex2
                         </span>
                         <span v-bind:id="'line'+sourceCodeLine.data.lineNumber" class="lnn" v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
                             {{sourceCodeLine.data.lineNumber}}
-                            <span class="errorDetail" v-if="sourceCodeLine.hasError && sourceCodeLine.error != null">{{avatar.entertainer.name}}: {{sourceCodeLine.error.message}}</span>
+                            
                         </span>
                         <span v-html="sourceCodeLine.asmFunCode"></span>
                         <span class="sc-value" v-if="isShowDebugger && sourceCodeLine.label != null && sourceCodeLine.label.showValueInCode">
@@ -254,8 +254,9 @@ programItem.address  | toHex2
                 <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)">
                     <span class="ln" v-for="sourceCodeLine in selectedFile.lines"
                           v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
-                        <span class="scline" v-html="sourceCodeLine.sourceCodeHtml" > </span>
+                        <span class="scline" v-html="sourceCodeLine.sourceCodeHtml"> </span>
                         <br />
+                        <span class="errorDetail" v-if="sourceCodeLine.hasError && sourceCodeLine.error != null">{{sourceCodeLine.error.compilerName}}: {{sourceCodeLine.error.message}}</span>
                     </span>
                 </div>
             </div>

@@ -115,6 +115,17 @@
             user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
         }
 
+        .errorDetail {
+            position: absolute;
+            font-size: 11px;
+            font-weight:bold;
+            background: black;
+            display: none;
+        }
+
+        &:hover .errorDetail {
+            display: block;
+        }
     }
 }
 
@@ -182,18 +193,10 @@
             -moz-user-select: none; /* Firefox */
             -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-            .errorDetail {
-                left: 10px;
-                position: absolute;
-                font-size: 11px;
-                background: black;
-                display: none;
-            }
+            
         }
 
-        &:hover .errorDetail {
-            display: block;
-        }
+        
     }
 
     .sc-value {

@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine } from '../data/ProjectData.js'
+import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings } from '../data/ProjectData.js'
 import { OpcodeManager } from './OpcodeManager.js';
 import { CodeBlockContext } from './CodeBlockContext.js';
 import { HtmlSourceCode } from './HtmlSourceCode.js';
@@ -14,11 +14,12 @@ import { ProjectSaveCommand, ProjectLoadCommand } from "../data/commands/Project
 import { IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorLine, IEditorLabel, CreateNewFile, CreateNewBundle, CreateNewEditorLabel, ICodeBlockContext } 
         from '../data/EditorData.js';
 import { ProjectService } from '../services/projectService.js';
-import { NotifyIconName, NotifyIcon } from '../common/Enums.js';
+import { NotifyIconName, NotifyIcon, ErrorIcon } from '../common/Enums.js';
 import { AcmeInterpreter } from '../interpreters/AcmeInterpreter.js';
 import { IInterpreter } from '../interpreters/IInterpreter.js';
 import { ServiceName } from '../serviceLoc/ServiceName.js';
 import { EditorManager } from './EditorManager.js';
+import { ICompilationResult } from '../data/CompilationDatas.js';
 
 export class SourceCodeManager {
   
@@ -28,6 +29,7 @@ export class SourceCodeManager {
     private htmlSourceCode: HtmlSourceCode;
     private mainData: IMainData;
     private interpreter: IInterpreter;
+    private lastProjectSettings?: IProjectSettings;
 
 
     constructor(mainData: IMainData) {
@@ -73,6 +75,8 @@ export class SourceCodeManager {
             thiss.mainData.appData.alertMessages.Notify("Backup, Saved and Compiled", NotifyIcon.OK);
             //  reload sourcecode to reinterpret all labels
             thiss.LoadSourceCode(() => {});
+        }, e => {
+            thiss.mainData.appData.alertMessages.ShowError("Error on save", e, ErrorIcon.Exclamation);
         });
         
         return true;
@@ -81,6 +85,7 @@ export class SourceCodeManager {
     private LoadSourceCode(doneMethod: () => void) {
         var thiss = this;
         this.projectService.GetSourceCode(s => {
+            thiss.projectService.GetProjectSettings(r => { thiss.lastProjectSettings = r; }, e => { });
             thiss.InterpretSourceCode(s);
             var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName)
             if (svc != null)
@@ -104,15 +109,41 @@ export class SourceCodeManager {
         });
     }
 
-    private ParseCompilerResult(c) {
-        var txt:string = c.rawText;
+    private ParseCompilerResult(c: ICompilationResult) {
+        var txt = c.rawText;
         if (txt != null)
             txt = txt.replace(/(?:\r\n|\r|\n)/g,"<br/>");
         this.mainData.appData.compilation.compilerResult = txt;
         this.mainData.appData.compilation.compilerErrors = c.errorText;
         this.mainData.appData.compilation.hasErrors = c.hasErrors;
-        if (c.hasErrors)
+        if (c.hasErrors) {
             this.mainData.appData.compilation.isVisible = true;
+            var errors = this.interpreter.GetCompilerResultErrors(c);
+            if (errors != null) {
+                for (var i = 0; i < errors.length; i++) {
+                    var error = errors[i];
+                    if (this.lastProjectSettings != null && error.filePath != null)
+                        error.filePath = error.filePath.replace(this.lastProjectSettings.folder, "");
+                    var file = this.mainData.sourceCode?.files.find(x => x.data.fileName == error.fileName);
+                    if (file != null) {
+                        var line = file.lines.find(x => x.data.lineNumber == error.lineNumber);
+                        if (line != null) {
+                            line.hasError = true;
+                            line.error = {
+                                line: line,
+                                message: error.error + " " + error.description,
+                                isFromCompiler: true,
+                                compilerName: this.interpreter.GetCompilerName()
+                            }
+                        }
+                    }
+                }
+            }
+            this.mainData.appData.compilation.errors = errors;
+        }
+        else {
+            this.mainData.appData.compilation.errors = [];
+        }
     }
 
     private MergeCompile(s: ISourceCodeBundle) {

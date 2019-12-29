@@ -121,6 +121,7 @@ export interface ISettings {
 }
 
 export interface IProjectSettings {
+    folder: string;
     sourceCodeFolder: string;
     configurations: IBuildConfiguration[];
     selectedConfiguration: number;

@@ -66,7 +66,7 @@ export class CursorLogic {
         ctx.editorData.cursorY = y;
         ctx.editorData.cursorWishedX = x;
         this.UpdateCursor(ctx);
-        ctx.RedrawLine();
+       // ctx.RedrawLine();
     }
 
     public MoveUp(ctx: IEditorContext, ctrlIsDown: boolean, shiftisDown: boolean, rows: number = 1) {

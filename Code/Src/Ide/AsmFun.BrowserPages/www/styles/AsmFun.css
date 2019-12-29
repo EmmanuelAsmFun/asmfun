@@ -708,6 +708,16 @@ body {
   user-select: text;
   /* Non-prefixed version, currently supported by Chrome and Opera */
 }
+.ScLines .ln .errorDetail {
+  position: absolute;
+  font-size: 11px;
+  font-weight: bold;
+  background: black;
+  display: none;
+}
+.ScLines .ln:hover .errorDetail {
+  display: block;
+}
 .PreScLines {
   position: absolute;
   width: 105px;
@@ -785,16 +795,6 @@ body {
   /* Internet Explorer/Edge */
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome and Opera */
-}
-.PreScLines .ln .lnn .errorDetail {
-  left: 10px;
-  position: absolute;
-  font-size: 11px;
-  background: black;
-  display: none;
-}
-.PreScLines .ln:hover .errorDetail {
-  display: block;
 }
 .PreScLines .sc-value {
   position: absolute;

@@ -110,10 +110,17 @@ export class ApiService {
                     if (error != null)
                         error(r);
                 });
-            }).catch(er => {
-                console.error("Error posting " + uri, er);
-                if (error != null)
-                    error(er);
+            }).catch(err => {
+                console.error("Error posting " + uri, err);
+                if (err.text) {
+                    err.text().then(errorMessage => {
+                        if (error != null)
+                            error(errorMessage);
+                    })
+                } else {
+                    if (error != null)
+                        error(err);
+                }
             });
     }
 

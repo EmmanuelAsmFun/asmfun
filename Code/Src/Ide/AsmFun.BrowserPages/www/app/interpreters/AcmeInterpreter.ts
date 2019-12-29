@@ -11,6 +11,7 @@ import {IEditorLine, ICodeBlockContext, IPropertyData, PropertyNumType }
 import { IInterpreter } from './IInterpreter.js';
 import { AsmTools } from '../Tools.js';
 import { ServiceName } from '../serviceLoc/ServiceName.js';
+import { ICompilationResult, ICompilationError } from "../data/CompilationDatas.js";
 
 
 export class AcmeInterpreter implements IInterpreter{
@@ -23,6 +24,9 @@ export class AcmeInterpreter implements IInterpreter{
         var thiss = this;
         this.opcodeManager = mainData.container.Resolve<OpcodeManager>(OpcodeManager.ServiceName) ?? new OpcodeManager();
         this.mainData = mainData;
+    }
+    public GetCompilerName() {
+        return "ACME";
     }
 
     public InterpretLine(context: ICodeBlockContext, line: IEditorLine, fullParse: boolean = true): ICodeBlockContext {
@@ -475,6 +479,48 @@ export class AcmeInterpreter implements IInterpreter{
         line.indent = Array(opcodePlace - 3 + 1).join(' ');
         line.dataCode = lineWithoutCommentNotrim.substring(opcodePlace, lineWithoutCommentNotrim.length);
         return true;
+    }
+
+    public GetCompilerResultErrors(c: ICompilationResult): ICompilationError[] {
+        var results: ICompilationError[] = [];
+        if (c.errorText == null) return results;
+        var errors = c.errorText.split(/\n/);
+        if (errors != null) {
+            for (var i = 0; i < errors.length; i++) {
+                var errortxt = errors[i];
+                try {
+                    if(errortxt.trim() === "") continue;
+                    var firstWordIndex = errortxt.indexOf(' ');
+                    var filePart = errortxt.substring(0, firstWordIndex);
+                    var lineNumberEntries = filePart.match(/\((.*?)\)/);
+                    if (lineNumberEntries != null && lineNumberEntries.length > 0) {
+
+                        var lineNumber = Number(lineNumberEntries[0].replace("(", "").replace(")", ""));
+                        var filePart = filePart.replace(lineNumberEntries[0], "");
+                        var folderParts = filePart.replace(/\\/g, "/").split('/');
+                        var fileName = folderParts[folderParts.length-1];
+                        var folder = filePart.replace(fileName, "");
+                        var lineErrorRest = errortxt.substring(firstWordIndex).trim();
+                        var parts = lineErrorRest.split(':');
+                        var errorKey = "";
+                        if (parts.length > 0) errorKey = parts[1].trim();
+                        var errorDescription = "";
+                        if (parts.length > 1) errorDescription = parts[2].trim();
+                        var error: ICompilationError = {
+                            lineNumber: lineNumber,
+                            error: errorKey,
+                            description: errorDescription,
+                            fileName: fileName,
+                            filePath: folder
+                        };
+                        results.push(error);
+                    }
+                } catch (e) {
+                    console.error("could not parse error:" + errortxt,e)
+                }
+            }
+        }
+        return results;
     }
 
     public static ServiceName: ServiceName = { Name: "AcmeInterpreter" };

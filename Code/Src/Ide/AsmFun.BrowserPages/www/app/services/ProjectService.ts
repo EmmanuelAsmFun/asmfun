@@ -34,8 +34,8 @@ export class ProjectService extends ApiService {
         this.callApi("LoadCompiled", doneMethod);
     }
 
-    public Save(bundle:ISourceCodeBundle, doneMethod) {
-        this.post("Save",bundle, doneMethod);
+    public Save(bundle: ISourceCodeBundle, doneMethod, error: (e) => void) {
+        this.post("Save", bundle, doneMethod, error);
     }
 
     public SaveUserSettings(data: IUserSettings, doneMethod) {

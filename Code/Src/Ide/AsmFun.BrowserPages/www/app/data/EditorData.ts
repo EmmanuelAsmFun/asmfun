@@ -7,13 +7,6 @@
 import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLine, ISourceCodeLabel } from "./ProjectData.js";
 import { IOpcodeData } from "./IOpcodeData.js";
 
-export interface ICompilationData {
-    hasErrors: boolean;
-    compilerErrors: string;
-    compilerResult: string;
-    compilationIsValid: boolean;
-    isVisible: boolean;
-}
 
 export class EditorData {
     public cursorX: number = 0;
@@ -77,6 +70,8 @@ export interface ICodeBlockContext{
 export interface ILineError {
     line: IEditorLine;
     message: string,
+    compilerName: string,
+    isFromCompiler:boolean,
 }
 export interface IErrorForStatusBar {
     className: string;

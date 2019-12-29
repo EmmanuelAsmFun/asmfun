@@ -7,7 +7,7 @@
 import { IProcessorData, IProcessorExtraData, IMemoryData, IProgramData, IStackData, IInstructionItemData } from 'ProcessorData.js'
 import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, ISettings, IProjectManagerData } from 'ProjectData.js'
 import { IAlertMessages } from '../common/IAlertMessages.js'
-import { IErrorForStatusBar, IEditorBundle, IEditorLine, IEditorFile, IEditorLabel, ICompilationData } from './EditorData.js'
+import { IErrorForStatusBar, IEditorBundle, IEditorLine, IEditorFile, IEditorLabel } from './EditorData.js'
 import { IMemoryBlock, IMemoryViewerData } from './MemoryData.js'
 import { IOpcodeData } from './IOpcodeData.js'
 import { IEntertainer } from './EntertainerData.js'
@@ -15,6 +15,7 @@ import { ICodeAssistPopupData } from './ICodeAssistPopupData.js'
 import { IAvatarData } from './AvatarData.js'
 import { IComputerData } from './ComputerData.js'
 import { ISpritesData } from './SpritesData.js'
+import { ICompilationData } from './CompilationDatas.js'
 
 
 export interface IAsmFunAppData {
