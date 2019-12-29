@@ -1519,7 +1519,10 @@ button.btn {
   height: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
-  line-height: 13px;
+  line-height: 12px;
+}
+.labels .listing::-webkit-scrollbar {
+  display: none;
 }
 .labels .ad {
   padding-right: 10px;
@@ -1531,7 +1534,7 @@ button.btn {
 .labels table,
 .labels tr,
 .labels td {
-  font-size: 11px;
+  font-size: 10px;
   color: #11b011;
   margin: 0;
   padding: 0;
@@ -1540,11 +1543,13 @@ button.btn {
   position: fixed;
   right: 25px;
   top: 35px;
+  bottom: 30px;
   color: #11b011;
   width: 70px;
-  font-size: 12px;
+  font-size: 10px;
   padding: 5px;
   z-index: 50;
+  overflow-y: scroll;
 }
 .stack .title {
   margin-bottom: 8px;
@@ -1554,6 +1559,9 @@ button.btn {
   -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
   -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
   animation: actifOpcode 0.5s ease-in-out infinite alternate;
+}
+.stack::-webkit-scrollbar {
+  display: none;
 }
 .isSelected {
   background: #333333;

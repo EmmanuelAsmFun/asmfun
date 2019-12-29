@@ -13,7 +13,7 @@ import { IEditorFile, IEditorLine, IEditorLabel } from "../data/EditorData.js";
 import { ProjectSaveCommand, ProjectSaveFolderCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand } from "../data/commands/ProjectsCommands.js";
 import { IBaseCommand } from "../data/commands/CommandsCommon.js";
 import { IProjectDetail } from "../data/ProjectData.js";
-import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand } from "../data/commands/EditorCommands.js";
+import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
 import { SettingsOpenManagerCommand } from "../data/commands/SettingsCommands.js";
 import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "../data/commands/ASMFunPlayerManagerCommands.js";
 import {
@@ -72,9 +72,9 @@ export class MainScreenMethods {
                 el.focus();
         }, 50);
     }
-    public ChangeLabelValue(evt, label: IEditorLabel) {
+    public ChangeLabelValue(e: KeyboardEvent, label: IEditorLabel) {
         
-        if (evt.keyCode === 13) {
+        if (e.keyCode === 13) {
             console.log("ChangeLabelValue:" + label.data.name + " = " + label.newValue);
             if (label.newValue == null || label.newValue === "") return;
             var newValue = AsmTools.hexToNum(label.newValue);
@@ -82,11 +82,22 @@ export class MainScreenMethods {
             MainScreenMethods.S.mainData.container.Resolve<ProcessorManager>(ProcessorManager.ServiceName)?.ChangeLabelValue(label, newValue);
             label.isInEditMode = false;
             MainScreenMethods.S.SetEditorEnable(true);
+            e.stopPropagation();
+            e.preventDefault();
+            e.returnValue = false;
+            e.cancelBubble = true;
+            return false;
         }
-        else if (evt.keyCode === 27) {
+        else if (e.keyCode === 27) {
             label.isInEditMode = false;
             MainScreenMethods.S.SetEditorEnable(true);
+            e.stopPropagation();
+            e.preventDefault();
+            e.returnValue = false;
+            e.cancelBubble = true;
+            return false;
         }
+       
     }
   
    
@@ -126,6 +137,7 @@ export class MainScreenMethods {
     private SetEditorEnable(state: boolean) { MainScreenMethods.ExecuteCommand(new EditorEnableCommand(state)); }
     public SelectFile(file: IEditorFile) { MainScreenMethods.ExecuteCommand(new EditorSelectFileCommand(file));}
     public SwapOutputWindow() { MainScreenMethods.ExecuteCommand(new EditorSwapOutputCommand(null));}
+    public EditorReloadLine(line) { MainScreenMethods.ExecuteCommand(new EditorReloadLineCommand(line));}
 
     // Project manager
     public ProjectOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ProjectOpenManagerCommand(state)); }

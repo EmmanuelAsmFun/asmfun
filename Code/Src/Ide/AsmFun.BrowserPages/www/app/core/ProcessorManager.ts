@@ -78,6 +78,7 @@ export class ProcessorManager {
         this.reloadStack();
         this.reloaddissasembly();
         this.loadBreakPoints();
+        this.LoadLabelValues();
     }
 
     public reloadStack() {
@@ -264,17 +265,21 @@ export class ProcessorManager {
     public Run() {
         var thiss = this;
         this.debuggerService.run(() => {
-            thiss.LoadLabelValues();
-            thiss.reloaddissasembly();
+           
+            setTimeout(() => {
+                thiss.updateAll();
+                setTimeout(() => {
+                    thiss.ScrollToDebuggerLine();
+                    thiss.LoadLabelValues();
+                }, 500);
+            },500);
         })
     }
 
     public NextStep() {
         var thiss = this;
         this.debuggerService.nextStep((r0) => {
-            thiss.parseData6502(r0);
-            thiss.LoadLabelValues();
-            thiss.reloaddissasembly();
+            thiss.updateAll();
             setTimeout(() => thiss.ScrollToDebuggerLine(), 500);
         })
     }
@@ -282,9 +287,7 @@ export class ProcessorManager {
     public StepOver() {
         var thiss = this;
         this.debuggerService.stepOver((r0) => {
-            thiss.parseData6502(r0);
-            thiss.LoadLabelValues();
-            thiss.reloaddissasembly();
+            thiss.updateAll();
             setTimeout(() => thiss.ScrollToDebuggerLine(), 500);
         })
     }
@@ -300,6 +303,7 @@ export class ProcessorManager {
         this.debuggerService.changeLabelValue(label.data.name, newValue, (r0) => {
             thiss.LoadLabelValues();
         })
+        return false;
     }
 
     public static ServiceName: ServiceName = { Name: "ProcessorManager" };

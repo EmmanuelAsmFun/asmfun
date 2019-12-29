@@ -6,7 +6,7 @@
 
 import { BaseCommand } from './CommandsCommon.js'
 import { ISourceCodeLabel } from '../ProjectData.js';
-import { IEditorLabel, IEditorFile } from '../EditorData.js';
+import { IEditorLabel, IEditorFile, IEditorLine } from '../EditorData.js';
 
 
 export class KeyboardKeyCommand extends BaseCommand{
@@ -87,6 +87,15 @@ export class EditorSwapOutputCommand extends BaseCommand {
         super();
         this.state = state;
         this.commandName = "SwapOutput";
+        this.nameSpace = "Editor";
+    }
+}
+export class EditorReloadLineCommand extends BaseCommand {
+    public line: IEditorLine | null;
+    public constructor(line: IEditorLine | null) {
+        super();
+        this.line = line;
+        this.commandName = "ReloadLine";
         this.nameSpace = "Editor";
     }
 }

@@ -81,7 +81,7 @@
         <div class="top-bar">
             <a class="logo" href="https://asmfun.com"><img src="../images/Logo_ASMFun.png" alt="Logo ASM Fun" title="Logo ASM Fun" /></a>
             <div class="top-buttons">
-                <span> (ALPHA) For Commander X16</span>
+                <span> For Commander X16</span>
                 &nbsp;
                 &nbsp;
                 <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
@@ -230,7 +230,7 @@ programItem.address  | toHex2
                     <div class="ln" v-for="sourceCodeLine in selectedFile.lines"
                           v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                         <span class="debugInfo">
-                            <span class="l-address" v-if="isShowDebugger">{{sourceCodeLine.data.resultMemoryAddress}}</span>
+                            <span class="l-address" v-if="isShowDebugger" >{{sourceCodeLine.data.resultMemoryAddress}}</span>
                             <span class="breakPoint" v-if="isShowDebugger">
                                 <a v-on:click="DbgSetBreakpointCurrentLine(selectedFile,sourceCodeLine)"
                                    v-bind:class="{ 'debugable' :sourceCodeLine.resultMemoryAddress !=='', 'isBpSelected' : sourceCodeLine.hasBreakPoint }">
@@ -238,7 +238,9 @@ programItem.address  | toHex2
                                 </a>
                             </span>
                         </span>
-                        <span v-bind:id="'line'+sourceCodeLine.data.lineNumber" class="lnn" v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
+                        <span v-bind:id="'line'+sourceCodeLine.data.lineNumber" class="lnn" 
+                              v-on:click="EditorReloadLine(sourceCodeLine)"
+                              v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
                             {{sourceCodeLine.data.lineNumber}}
                             
                         </span>

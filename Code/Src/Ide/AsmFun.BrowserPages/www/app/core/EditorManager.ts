@@ -6,7 +6,7 @@
 
 import { IMainData } from "../data/MainData.js";
 import { EditorData, IEditorFile, IEditorLine, IEditorBundle, CreateNewEditorLine, IEditorLabel, ResetLineProperties } from "../data/EditorData.js";
-import { KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand } from "../data/commands/EditorCommands.js";
+import { KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
 import { ICommandEvent } from "../framework/ICommandManager.js";
 import { IAsmFunAppData } from "../data/AsmFunAppData.js";
 import { SourceCodeManager } from "./SourceCodeManager.js";
@@ -63,6 +63,7 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorEnableCommand(null), this, (c) => thiss.SetEnableState(c.state));
         mainData.commandManager.Subscribe2(new EditorSelectFileCommand(null), this, (c) => thiss.SelectFile(c.file));
         mainData.commandManager.Subscribe2(new EditorSwapOutputCommand(null), this, (c) => thiss.SwapOutputWindow(c.state));
+        mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLine2(c.line); } });
     }
 
   
@@ -96,7 +97,7 @@ export class EditorManager implements IEditorContext {
 
     public LoadFirstFile() {
         this.sourceCode = this.mainData.sourceCode;
-        if (this.sourceCode != null && this.sourceCode.files != null && this.sourceCode.files.length > 0) {
+        if (this.sourceCode != null && this.sourceCode.files != null && this.sourceCode.files.length > 0 && this.currentFile == null) {
             this.SelectFile(this.sourceCode.files[0]);
         }
     }

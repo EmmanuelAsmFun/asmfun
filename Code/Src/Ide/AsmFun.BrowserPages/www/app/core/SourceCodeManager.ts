@@ -91,7 +91,8 @@ export class SourceCodeManager {
             if (svc != null)
                 svc.LoadFirstFile();
             thiss.RedrawErrorsBar(thiss.mainData.appData.selectedFile);
-            thiss.LoadCompiled(() => {});
+            thiss.LoadCompiled(() => { });
+            
             if (doneMethod != null)
                 doneMethod();
         });
