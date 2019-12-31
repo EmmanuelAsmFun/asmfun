@@ -14,7 +14,8 @@
     "devPicUrl": "https://asmfun.com/Images/avatar/thrawn/thrawn.gif",
     "romVersion": "R33",
     "underConstruction": true,
-    "compilerVariables": null
+    "compilerVariables": null,
+    "internetVersion": ""
   },
   {
     "id": "1d90a0cf-0f1a-4a7e-b09b-ffb3513a2288",
@@ -31,7 +32,8 @@
     "devPicUrl": "https://asmfun.com/images/avatar/erik-dansbo/Erik_Dansbo.gif",
     "romVersion": "R33",
     "underConstruction": true,
-    "compilerVariables": null
+    "compilerVariables": null,
+    "internetVersion": "902fefcea779eaef2660e2045397a6ea58390bbb"
   },
   {
     "id": "7b49b3c8-0480-4065-a047-043622f31567",
@@ -48,7 +50,8 @@
     "devPicUrl": "https://asmfun.com/Images/avatar/david-murray/David-Murray.gif",
     "romVersion": "R33",
     "underConstruction": false,
-    "compilerVariables": null
+    "compilerVariables": null,
+    "internetVersion": "fd7c3fc9a5caf1e6232acc5f674170fc8e6011db"
   },
   {
     "id": "001070ed-fe61-4f93-919d-3f9515b3ac55",
@@ -65,7 +68,8 @@
     "devPicUrl": "https://asmfun.com/projects/DemoGames/Pixel_Demo.gif",
     "romVersion": "R33",
     "underConstruction": false,
-    "compilerVariables": null
+    "compilerVariables": null,
+    "internetVersion": "693247378b96ac5a08ec9526104ab7d8d8c5f32a"
   },
   {
     "id": "906b9f8a-ed36-460a-974d-3e2e324a61ed",
@@ -82,6 +86,43 @@
     "devPicUrl": "https://asmfun.com/Images/avatar/Stephen_Horn/Stephen_Horn.gif",
     "romVersion": "R33",
     "underConstruction": false,
-    "compilerVariables": " -DMACHINE_C64=0"
+    "compilerVariables": " -DMACHINE_C64=0",
+    "internetVersion": "6d042717fa451f6f3245fb0c94db93ce9a3cdb42"
+  },
+  {
+    "id": "8462aedf-fa48-4bf4-82c2-8afca65d2922",
+    "name": "Sprite Demo",
+    "fullFolderName": null,
+    "projectUrl": "https://github.com/commanderx16/x16-demo/tree/master/assembly",
+    "imageUrl": "https://asmfun.com/projects/DemoGames/Sprite-Demo.png",
+    "internetSource": "https://github.com/commanderx16/x16-demo/tree/master/assembly",
+    "internetSourceType": 2,
+    "description": "Test sprite demo project.",
+    "startFile": "sprite-demo.asm",
+    "addonBuildFolders": null,
+    "developerName": "Michael Steil",
+    "devPicUrl": "https://asmfun.com/Images/avatar/michael-steil/michael-steil.gif",
+    "romVersion": "R35",
+    "underConstruction": false,
+    "compilerVariables": " -DMACHINE_C64=0",
+    "internetVersion": "f3f3c3307c6e013beeea9cd5e5d14552e6166136"
+  },
+  {
+    "id": "8fb6e527-3968-4bec-b8a3-877a0ba878b2",
+    "name": "Tiles Demo",
+    "fullFolderName": null,
+    "projectUrl": "https://github.com/commanderx16/x16-demo/tree/master/assembly",
+    "imageUrl": "https://asmfun.com/projects/DemoGames/Tiles-Demo.jpg",
+    "internetSource": "https://github.com/commanderx16/x16-demo/tree/master/assembly",
+    "internetSourceType": 2,
+    "description": "Tiles test demo project.",
+    "startFile": "mode4-demo.asm",
+    "addonBuildFolders": null,
+    "developerName": "Michael Steil",
+    "devPicUrl": "https://asmfun.com/Images/avatar/michael-steil/michael-steil.gif",
+    "romVersion": "R33",
+    "underConstruction": false,
+    "compilerVariables": " -DMACHINE_C64=0",
+    "internetVersion": "f3f3c3307c6e013beeea9cd5e5d14552e6166136"
   }
 ]

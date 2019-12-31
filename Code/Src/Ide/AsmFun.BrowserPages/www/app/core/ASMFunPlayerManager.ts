@@ -97,7 +97,8 @@ export class ASMFunPlayerManager {
                 ok();
             }, () => {
                 thiss.data.serverNotConnected = true;
-                thiss.data.isVisiblePlayerManager = true;
+                    thiss.data.isVisiblePlayerManager = true;
+                    thiss.Open();
                 notOk();
                 this.mainData.appData.alertMessages.Notify("Nope, not running.", NotifyIcon.Alert);
             });
