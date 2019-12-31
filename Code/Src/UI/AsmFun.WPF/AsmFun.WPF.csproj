@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <StartupObject>AsmFun.WPF.Startup.Program</StartupObject>
+    <AssemblyName>ASMFunPlayer</AssemblyName>
+    <RootNamespace>AsmFun</RootNamespace>
+    <Version>1.0.2.1</Version>
+    <Authors>Emmanuel From ASMFun</Authors>
+    <Product>ASMFun Player</Product>
+    <Description>https://asmfun.com</Description>
+    <RepositoryUrl>https://github.com/EmmanuelAsmFun/asmfun</RepositoryUrl>
+    <PackageTags>Assembler, learn, IDE</PackageTags>
+    <Copyright />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AsmFun.Common\AsmFun.Common.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.NetCore\AsmFun.NetCore.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.CommanderX16\AsmFun.CommanderX16.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.Computer.Common\AsmFun.Computer.Common.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.Computer.Core\AsmFun.Computer.Core.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.Ide.Common\AsmFun.Ide.Common.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.Ide.Core\AsmFun.Ide.Core.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.WebServer\AsmFun.WebServer.csproj" />
+    <ProjectReference Include="..\AsmFun.UI\AsmFun.UI.csproj" />
+  </ItemGroup>
+
+</Project>

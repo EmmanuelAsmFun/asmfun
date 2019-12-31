@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="X16\R33\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AsmFun.Common\AsmFun.Common.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
+    <ProjectReference Include="..\AsmFun.Computer.Common\AsmFun.Computer.Common.csproj" />
+    <ProjectReference Include="..\AsmFun.Computer.Core\AsmFun.Computer.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="X16\R33\rom.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="X16\R33\rom.sym">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="X16\R34\rom.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="X16\R34\rom.sym">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="X16\R35\rom.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="X16\R35\rom.sym">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

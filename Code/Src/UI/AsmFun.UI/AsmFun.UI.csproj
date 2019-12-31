@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Consolee\Data\" />
+    <Folder Include="Data\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.CommanderX16\AsmFun.CommanderX16.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.Computer.Core\AsmFun.Computer.Core.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.Ide.Core\AsmFun.Ide.Core.csproj" />
+  </ItemGroup>
+
+</Project>

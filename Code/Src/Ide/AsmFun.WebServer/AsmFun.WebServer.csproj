@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AsmFun.Common\AsmFun.Common.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.Computer.Core\AsmFun.Computer.Core.csproj" />
+    <ProjectReference Include="..\..\UI\AsmFun.UI\AsmFun.UI.csproj" />
+    <ProjectReference Include="..\AsmFun.Ide.Common\AsmFun.Ide.Common.csproj" />
+    <ProjectReference Include="..\AsmFun.Ide.Core\AsmFun.Ide.Core.csproj" />
+  </ItemGroup>
+
+</Project>

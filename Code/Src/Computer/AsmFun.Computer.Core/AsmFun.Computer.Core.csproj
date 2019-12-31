@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AsmFun.Common\AsmFun.Common.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.Ide.Common\AsmFun.Ide.Common.csproj" />
+    <ProjectReference Include="..\AsmFun.Computer.Common\AsmFun.Computer.Common.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>ASMFunPlayerSDL</AssemblyName>
+    <RootNamespace>AsmFun</RootNamespace>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <Version>1.0.2.1</Version>
+    <Authors>Emmanuel From ASMFun</Authors>
+    <Product>ASMFun Player</Product>
+    <Description>https://asmfun.com</Description>
+    <RepositoryUrl>https://github.com/EmmanuelAsmFun/asmfun</RepositoryUrl>
+    <PackageTags>Assembler, learn, IDE</PackageTags>
+    <Copyright />
+    <Company>Emmanuel</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="sdl2" Version="2.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AsmFun.Common\AsmFun.Common.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
+    <ProjectReference Include="..\..\Common\AsmFun.NetCore\AsmFun.NetCore.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.CommanderX16\AsmFun.CommanderX16.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.Computer.Common\AsmFun.Computer.Common.csproj" />
+    <ProjectReference Include="..\..\Computer\AsmFun.Computer.Core\AsmFun.Computer.Core.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.Ide.Common\AsmFun.Ide.Common.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.Ide.Core\AsmFun.Ide.Core.csproj" />
+    <ProjectReference Include="..\..\Ide\AsmFun.WebServer\AsmFun.WebServer.csproj" />
+    <ProjectReference Include="..\AsmFun.UI\AsmFun.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="SDL2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
