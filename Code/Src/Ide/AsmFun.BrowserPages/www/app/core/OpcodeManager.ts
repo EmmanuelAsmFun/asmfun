@@ -76,6 +76,7 @@ export class OpcodeManager {
             .replace("&minus;", "<span class=\"op\">&minus;</span>")
             .replace(' and ', "<span class=\"instr\"> and </span>")
             .replace(/\[SStack\]/g, "<span class=\"instr\">stack</span>")
+            .replace(/\[Memory\]/g, "<span class=\"instr\">mem</span>")
             .replace(/\[BBranch\]/g, "<span class=\"instr\">goto</span>")
             .replace(/\[Return\]/g, "<span class=\"instr\">return</span>")
             .replace(/\[BBreakR\]/g, "<span class=\"instr\">return_i</span>")
@@ -125,9 +126,9 @@ export class OpcodeManager {
         this.opcodes.push({ code: "lda", asmFunCode: 'a = [dataSp]' });         // Load Accumulator from RAM or IO
         this.opcodes.push({ code: "ldx", asmFunCode: 'x = [dataSp]' });         // Load X from RAM or IO   
         this.opcodes.push({ code: "ldy", asmFunCode: 'y = [dataSp]' });         // Load Y from RAM or IO
-        this.opcodes.push({ code: "sta", asmFunCode: '[dataSp] = a' });         // Store Accumulator to RAM or IO
-        this.opcodes.push({ code: "stx", asmFunCode: '[dataSp] = x' });         // Store X to RAM or IO
-        this.opcodes.push({ code: "sty", asmFunCode: '[dataSp] = y' });         // Store Y to RAM or IO
+        this.opcodes.push({ code: "sta", asmFunCode: '[Memory] [dataSp] = a' });         // Store Accumulator to RAM or IO
+        this.opcodes.push({ code: "stx", asmFunCode: '[Memory] [dataSp] = x' });         // Store X to RAM or IO
+        this.opcodes.push({ code: "sty", asmFunCode: '[Memory] [dataSp] = y' });         // Store Y to RAM or IO
 
 
         this.opcodes.push({ code: "cmp", asmFunCode: 'if a and [dataSp]' });      // Compare and set the carry flag + negative flag
@@ -156,14 +157,14 @@ export class OpcodeManager {
         this.opcodes.push({ code: "clv", asmFunCode: 'f = 0' });                //  Clear Overflow
 
         // Math
-        this.opcodes.push({ code: "inx", asmFunCode: 'x ++' });                  //  Increase X
-        this.opcodes.push({ code: "dex", asmFunCode: 'x --' });                  //  Decrease X
-        this.opcodes.push({ code: "iny", asmFunCode: 'y ++' });                  //  Increase Y
-        this.opcodes.push({ code: "dey", asmFunCode: 'y --' });                  //  Decrease Y
-        this.opcodes.push({ code: "inc", asmFunCode: 'a ++' });                  //  Increase
-        this.opcodes.push({ code: "dec", asmFunCode: 'a --' });                  //  Decrease
-        this.opcodes.push({ code: "adc", asmFunCode: 'a ++c' });                 //  Add with carry
-        this.opcodes.push({ code: "sbc", asmFunCode: 'a --c' });                 //  Subtract with carry
+        this.opcodes.push({ code: "inx", asmFunCode: 'x ++ [dataSp]' });                  //  Increase X
+        this.opcodes.push({ code: "dex", asmFunCode: 'x -- [dataSp]' });                  //  Decrease X
+        this.opcodes.push({ code: "iny", asmFunCode: 'y ++ [dataSp]' });                  //  Increase Y
+        this.opcodes.push({ code: "dey", asmFunCode: 'y -- [dataSp]' });                  //  Decrease Y
+        this.opcodes.push({ code: "inc", asmFunCode: 'a ++ [dataSp]' });                  //  Increase
+        this.opcodes.push({ code: "dec", asmFunCode: 'a -- [dataSp]' });                  //  Decrease
+        this.opcodes.push({ code: "adc", asmFunCode: 'a ++c [dataSp]' });                 //  Add with carry
+        this.opcodes.push({ code: "sbc", asmFunCode: 'a --c [dataSp]' });                 //  Subtract with carry
 
         this.opcodes.push({ code: "asl", asmFunCode: 'a << ' });                 //  Arithmetic Shift Left
         this.opcodes.push({ code: "lsr", asmFunCode: 'a >> ' });                 //  Logic Shift Right

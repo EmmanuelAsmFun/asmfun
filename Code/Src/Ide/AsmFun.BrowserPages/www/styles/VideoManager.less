@@ -1,0 +1,175 @@
+﻿@import "colors";
+@media-column-width: 208px;
+
+.videoManager {
+    position: fixed;
+    top: 50px;
+    left: 150px;
+    right: 50px;
+    bottom: 50px;
+    z-index: 200;
+    background: black;
+    border: 1px solid #bebe95;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+
+    h3 {
+        color: #c4c480;
+    }
+
+    .vAddress {
+        color: #a9a98b;
+    }
+
+    .rawBinaryData {
+        margin-top: 8px;
+        margin-bottom: 20px;
+        font-size: 8px;
+        color: #777777;
+    }
+
+    .table-cont {
+        min-height: 170px;
+    }
+
+    a {
+        font-size: 13px;
+        cursor: pointer;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    }
+
+    h2 {
+        font-weight: 100;
+        font-size: 22px;
+    }
+
+    select {
+        background: #222222;
+        border: 1px solid #666666;
+        color: #999999;
+        font-size: 11px;
+    }
+
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 20px;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    .nav-btns {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+        font-size: 18px;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        cursor: pointer;
+        font-size: 22px;
+        z-index: 10;
+    }
+
+    .btn-reload{
+        position:absolute;
+        top:10px; right:100px;
+    }
+    .palette {
+        float: left;
+        margin-right: 20px;
+        font-size: 10px;
+
+        .paletteColors {
+            width: @media-column-width;
+        }
+
+        .paletteColor {
+            display: inline-block;
+            float: left;
+            width: 13px;
+            height: 13px;
+            font-size: 1px;
+            cursor: pointer;
+        }
+
+        .selectedColor {
+            clear: both;
+            padding-top: 10px;
+        }
+
+        .pallete-adr-list {
+            font-size: 8px;
+            color: #666666;
+            max-width: @media-column-width;
+            height: 150px;
+            max-height: 150px;
+            overflow-y: scroll;
+
+            span {
+                display: inline-block;
+                width: 68px;
+            }
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    }
+
+    table tr, table td {
+        font-size: 10px;
+    }
+
+    .layers {
+        float: left;
+        margin-right: 20px;
+        font-size: 10px;
+
+        .layerInfo {
+            float: left;
+            margin-right: 20px;
+        }
+
+        .Canvas-cont {
+            width: @media-column-width;
+        }
+
+        .LayerCanvas {
+            width: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .Sprites {
+        float: left;
+        margin-right: 20px;
+        font-size: 10px;
+
+        .spriteCanvas {
+            cursor: pointer;
+        }
+
+        select {
+            width: 90px;
+        }
+    }
+
+    .Composer {
+        float: left;
+        margin-right: 20px;
+        font-size: 10px;
+    }
+}

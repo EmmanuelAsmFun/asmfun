@@ -95,10 +95,11 @@ export class EditorManager implements IEditorContext {
         this.cursorLogic.UpdateCursor(this, false);
     }
 
-    public LoadFirstFile() {
+    public LoadFirstFile(force:boolean = false) {
         this.sourceCode = this.mainData.sourceCode;
-        if (this.sourceCode != null && this.sourceCode.files != null && this.sourceCode.files.length > 0 && this.currentFile == null) {
-            this.SelectFile(this.sourceCode.files[0]);
+        if (this.sourceCode != null && this.sourceCode.files != null && this.sourceCode.files.length > 0) {
+            if (force || this.currentFile == null)
+                this.SelectFile(this.sourceCode.files[0]);
         }
     }
 

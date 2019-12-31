@@ -65,10 +65,12 @@ export class SourceCodeManager {
         for (var i = 0; i < bundle.files.length; i++) {
             var file = bundle.files[i];
             var scFile = scBundle.files[i];
-            scFile.lines = [];
-            for (var j = 0; j < file.lines.length; j++) {
-                var line = file.lines[j];
-                scFile.lines.push(line.data);
+            if (scFile != null) {
+                scFile.lines = [];
+                for (var j = 0; j < file.lines.length; j++) {
+                    var line = file.lines[j];
+                    scFile.lines.push(line.data);
+                }
             }
         }
         this.projectService.Save(scBundle, (r) => {
@@ -89,7 +91,7 @@ export class SourceCodeManager {
             thiss.InterpretSourceCode(s);
             var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName)
             if (svc != null)
-                svc.LoadFirstFile();
+                svc.LoadFirstFile(true);
             thiss.RedrawErrorsBar(thiss.mainData.appData.selectedFile);
             thiss.LoadCompiled(() => { });
             

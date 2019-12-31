@@ -6,7 +6,7 @@
 
 import { ApiService } from "./ApiService.js";
 import { IPropertyData } from "../data/EditorData.js";
-import { IKeyboardKey } from "../data/ComputerData.js";
+import { IKeyboardKey, IMemoryDump } from "../data/ComputerData.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 
 
@@ -67,6 +67,9 @@ export class ComputerService extends ApiService {
     }
     public KeyRawDown(data: number[], doneMethod) {
         this.post("KeyRawDown", data, doneMethod);
+    }
+    public VideoMemoryDump(doneMethod: (m:IMemoryDump[]) => void) {
+        this.callApi("VideoMemoryDump", doneMethod);
     }
 
     public static ServiceName: ServiceName = { Name: "ComputerService" };

@@ -26,6 +26,7 @@ import {
     ComputerRunProgramCommand, ComputerOpenDetailCommand
 } from "../data/commands/ComputerCommands.js";
 import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
+import { VideoOpenManagerCommand, VideoReloadAllCommand } from "../data/commands/VideoCommands.js";
 
 
 export class MainScreenMethods {
@@ -137,7 +138,11 @@ export class MainScreenMethods {
     private SetEditorEnable(state: boolean) { MainScreenMethods.ExecuteCommand(new EditorEnableCommand(state)); }
     public SelectFile(file: IEditorFile) { MainScreenMethods.ExecuteCommand(new EditorSelectFileCommand(file));}
     public SwapOutputWindow() { MainScreenMethods.ExecuteCommand(new EditorSwapOutputCommand(null));}
-    public EditorReloadLine(line) { MainScreenMethods.ExecuteCommand(new EditorReloadLineCommand(line));}
+    public EditorReloadLine(line) { MainScreenMethods.ExecuteCommand(new EditorReloadLineCommand(line)); }
+
+    // Video
+    public VideoOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoOpenManagerCommand(state)); }
+    public VideoReloadAll() { MainScreenMethods.ExecuteCommand(new VideoReloadAllCommand()); }
 
     // Project manager
     public ProjectOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ProjectOpenManagerCommand(state)); }

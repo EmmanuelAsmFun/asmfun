@@ -16,9 +16,11 @@ import { IAvatarData } from './AvatarData.js'
 import { IComputerData } from './ComputerData.js'
 import { ISpritesData } from './SpritesData.js'
 import { ICompilationData } from './CompilationDatas.js'
+import { IVideoManagerData } from './VideoData.js'
 
 
 export interface IAsmFunAppData {
+    videoManager: IVideoManagerData;
     scfiles?: IEditorFile[];
     brain?: IProcessorExtraData;
     stack?: IStackData;

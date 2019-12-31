@@ -69,7 +69,7 @@ export class ProjectManager  {
                 thiss.data.folderChar = "/";
             thiss.service.GetWebProjects((w) => {
                 thiss.data.webProjects = w;
-                this.Show();
+                thiss.Show();
             });
         }, e => { });
     }

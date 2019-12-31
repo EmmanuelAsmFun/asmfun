@@ -49,6 +49,18 @@ export class AsmTools {
         if (val === 62) return "&gt;";
         return String.fromCharCode(val);
     }
+    public static numToHex5(val): string {
+        var address = val.toString(16);
+        if (address.length < 4)
+            address = "0" + address;
+        if (address.length < 4)
+            address = "0" + address;
+        if (address.length < 4)
+            address = "0" + address;
+        if (address.length < 4)
+            address = "0" + address;
+        return address.toUpperCase();;
+    }
     public static numToHex4(val): string {
         var address = val.toString(16);
         if (address.length < 4)
@@ -75,7 +87,13 @@ export class AsmTools {
     public static hexToNum(value: string) {
         return parseInt(value, 16);
     }
-    
+    public static ArrayToHexString(data: Uint8Array) {
+        var rawDataString = "";
+        data.forEach(x => rawDataString += AsmTools.numToHex2(x) + ",");
+        rawDataString = rawDataString.substring(0, rawDataString.length - 1);
+        return rawDataString;
+    }
+
     public static scrollIntoViewIfOutOfView(el, directScroll:boolean = false) {
         setTimeout(() => {
             var ell = document.getElementById(el);

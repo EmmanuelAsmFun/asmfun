@@ -15,3 +15,11 @@ export interface IKeyboardKey {
     shiftKey: boolean;
     altKey: boolean;
 }
+
+export interface IMemoryDump {
+    startAddress: number;
+    endAddress: number;
+    endAddressForUI: number;
+    name: string;
+    data: string;
+}
