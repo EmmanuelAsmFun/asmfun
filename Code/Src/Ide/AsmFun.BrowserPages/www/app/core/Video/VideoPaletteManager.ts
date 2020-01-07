@@ -46,14 +46,15 @@ export class VideoPaletteManager {
                 colorNumber: numColor,
                 colorRGB: r + "," + g + "," + b,
                 colorHex: "#" + AsmTools.numToHex5(numColor),
-                r:r,g:g,b:b
+                r: r, g: g, b: b,
+                index:(i/2),
             });
         }
         return entries;
     }
 
     public static NewEmptyColor(): IVideoColor {
-        return { colorHex: "#000000", colorNumber: 0, colorRGB: "0,0,0",r:0,g:0,b:0 };
+        return { colorHex: "#000000", colorNumber: 0, colorRGB: "0,0,0",r:0,g:0,b:0,index:0 };
     }
 
     public GetColor(colorIndex: number): IVideoColor {

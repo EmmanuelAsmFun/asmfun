@@ -56,7 +56,7 @@ export class VideoManager {
                 var memDump = r[i];
                 var numBytes = Uint8Array.from(atob(memDump.data), c => c.charCodeAt(0))
                 switch (memDump.name) {
-                    case "Composer": thiss.videoComposerManager.Parse(memDump, numBytes); break;
+                    case "Composer": thiss.videoComposerManager.Parse(memDump, numBytes, this.videoPaletteManager); break;
                     case "Palette": thiss.videoPaletteManager.Parse(memDump, numBytes); break;
                     case "SpriteAttributes": this.videoSpriteManager.Parse(memDump, numBytes); break;
                     case "Layer1": 

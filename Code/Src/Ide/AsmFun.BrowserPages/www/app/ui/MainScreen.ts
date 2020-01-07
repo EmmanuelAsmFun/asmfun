@@ -10,6 +10,7 @@ import { ServiceRegisterer } from "../ServiceRegisterer.js";
 import { KeyboardKeyCommand, EditorCodeAssistCommand, EditorPasteCommand } from "../data/commands/EditorCommands.js";
 import { ProjectSaveCommand } from "../data/commands/ProjectsCommands.js";
 import { MainScreenMethods } from "./MainScreenMethods.js";
+import { myEditableFieldInit } from "./EditableField.js";
 import { IKeyboardKey } from "../data/ComputerData.js";
 import { ASMFunPlayerManager } from "../Core/AsmFunPlayerManager.js";
 import { ComputerManager } from "../core/ComputerManager.js";
@@ -20,6 +21,8 @@ import { EditorManager } from "../core/EditorManager.js";
 var reg = new ServiceRegisterer();
 reg.Register();
 export var myMainData = reg.myMainData;
+
+
 
 // Create main vue
 var myRootV = new Vue({
@@ -42,6 +45,7 @@ var myRootV = new Vue({
         }
     }
 });
+myEditableFieldInit(myRootV);
 
 reg.Init();
 
@@ -66,8 +70,8 @@ var scStartPosY = 0;
     if (sc == null) return;
     if (scStartPosX == 0) {
         var rect = sc.getBoundingClientRect();
-        scStartPosX = rect.left ;
-        scStartPosY = rect.top ;
+        scStartPosX = rect.left;
+        scStartPosY = rect.top;
     }
     // console.log(evt.clientX, evt.clientY, evt.pageX, evt.pageY);
     var xOffset = evt.pageX - scStartPosX - 115 + sc.scrollLeft;
@@ -103,9 +107,9 @@ var scStartPosY = 0;
     setTimeout(() => {
         AsmTools.scrollIntoViewIfOutOfView(labelName);
     }, 50);
-    
+
 };
-(<any>window).jumpToMacro = function (htmlObj,evt, name, ignoreCTRLkey = false) {
+(<any>window).jumpToMacro = function (htmlObj, evt, name, ignoreCTRLkey = false) {
     if (!myMainData.ctrlKeyIsDown && !ignoreCTRLkey) return;
     var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
     if (editorManager == null) return;
@@ -155,62 +159,62 @@ document.onkeydown = function (e) {
     }
     var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
     if (!editorManager?.GetIsEnabled()) return;
-   
-        var handled = false;
-        myMainData.ctrlKeyIsDown = e.ctrlKey;
-        if (e.ctrlKey) {
-        
-            if (e.which === 32) {
-                // CTRL + space
-                handled = sendCommand(new EditorCodeAssistCommand());
-            }
-            
-            if (e.which === 83) { 
-                console.log("save project");
-                // CTRL + S
-                if (myMainData.sourceCode != null) {
-                    sendCommand(new ProjectSaveCommand(myMainData.sourceCode));
-                    handled = true;
-                }
-            }
-        }
-        switch (e.which) {
-            case 113: reg.mainScreenMethods.DbResetPc(); handled = true; break;       // F2
-            case 116: reg.mainScreenMethods.DbgRun(); handled = true; break;       // F5
-            case 121: reg.mainScreenMethods.DbgStepOver(); handled = true; break;  // F10
-            case 122: reg.mainScreenMethods.DbgNextStep(); handled = true; break;  // F11
-        }
-        if (!handled) {
-            var keyCommand = new KeyboardKeyCommand();
-            keyCommand.key = e.key;
-            keyCommand.which = e.which;
-            keyCommand.ctrlKey = e.ctrlKey;
-            keyCommand.altKey = e.altKey;
-            keyCommand.shiftKey = e.shiftKey;
-            myMainData.commandManager.InvokeCommand(keyCommand);
 
-            var domObj = document.getElementById('MyCursor');
-            if (domObj != null && domObj.style != null && domObj.style !== undefined) {
-                // restart cursor animation
-                domObj.classList.remove("myCursorA");
-                void domObj.offsetWidth;
-                domObj.classList.add("myCursorA");
-            }
-            if (e.key === "v") {
-                paste(null);
-                return;
-            }
-            // myRootV.$forceUpdate()
-            handled = !keyCommand.allowContinueEmit;
+    var handled = false;
+    myMainData.ctrlKeyIsDown = e.ctrlKey;
+    if (e.ctrlKey) {
+
+        if (e.which === 32) {
+            // CTRL + space
+            handled = sendCommand(new EditorCodeAssistCommand());
         }
-        if (handled) {
-            e.stopPropagation();
-            e.preventDefault();
-            e.returnValue = false;
-            e.cancelBubble = true;
-            return false;
+
+        if (e.which === 83) {
+            console.log("save project");
+            // CTRL + S
+            if (myMainData.sourceCode != null) {
+                sendCommand(new ProjectSaveCommand(myMainData.sourceCode));
+                handled = true;
+            }
         }
-    
+    }
+    switch (e.which) {
+        case 113: reg.mainScreenMethods.DbResetPc(); handled = true; break;       // F2
+        case 116: reg.mainScreenMethods.DbgRun(); handled = true; break;       // F5
+        case 121: reg.mainScreenMethods.DbgStepOver(); handled = true; break;  // F10
+        case 122: reg.mainScreenMethods.DbgNextStep(); handled = true; break;  // F11
+    }
+    if (!handled) {
+        var keyCommand = new KeyboardKeyCommand();
+        keyCommand.key = e.key;
+        keyCommand.which = e.which;
+        keyCommand.ctrlKey = e.ctrlKey;
+        keyCommand.altKey = e.altKey;
+        keyCommand.shiftKey = e.shiftKey;
+        myMainData.commandManager.InvokeCommand(keyCommand);
+
+        var domObj = document.getElementById('MyCursor');
+        if (domObj != null && domObj.style != null && domObj.style !== undefined) {
+            // restart cursor animation
+            domObj.classList.remove("myCursorA");
+            void domObj.offsetWidth;
+            domObj.classList.add("myCursorA");
+        }
+        if (e.key === "v") {
+            paste(null);
+            return;
+        }
+        // myRootV.$forceUpdate()
+        handled = !keyCommand.allowContinueEmit;
+    }
+    if (handled) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.returnValue = false;
+        e.cancelBubble = true;
+        return false;
+    }
+
 
 };
 

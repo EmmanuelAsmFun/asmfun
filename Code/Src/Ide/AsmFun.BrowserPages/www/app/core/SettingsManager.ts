@@ -34,6 +34,8 @@ export class SettingsManager {
         if (address != null && address.startsWith("http"))
             this.settings.serverAddressWithPort = address;
         this.mainData.appData.settings = this.settings;
+        var showAsmFunCode = localStorage.getItem('showASMFunCode');
+        this.myAppData.showASMFunCode = showAsmFunCode == "true" || showAsmFunCode == null || showAsmFunCode == undefined;
         this.UpdateServerAddress();
         this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
     }
@@ -62,13 +64,13 @@ export class SettingsManager {
                     thiss.settings.configuration = r.configurations[0];
                 }
             }, e => {
-                    thiss.Show();
+                thiss.Show();
             });
         }, er => {
             thiss.myAppData.ide.serverNotConnected = true;
-                thiss.Show();
+            thiss.Show();
         });
-        
+
     }
     private Show() {
         var thiss = this;
@@ -88,6 +90,7 @@ export class SettingsManager {
 
     public SaveUserSettings() {
         localStorage.setItem('serverAddressWithPort', this.settings.serverAddressWithPort);
+        localStorage.setItem('showASMFunCode', this.myAppData.showASMFunCode.toString());
         this.UpdateServerAddress();
         if (this.settings.userSettings == null) return;
         this.projectService.SaveUserSettings(this.settings.userSettings, () => {

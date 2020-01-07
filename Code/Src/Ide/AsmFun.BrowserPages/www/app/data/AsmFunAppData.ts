@@ -31,6 +31,7 @@ export interface IAsmFunAppData {
     //sourceCode?: IEditorBundle;
     breakPoints?: string[];
     isShowDebugger: boolean;
+    showASMFunCode: boolean;
     labelsWithoutZones?: IEditorLabel[];
     alertMessages: IAlertMessages,
     errorsForStatusBar: IErrorForStatusBar[];

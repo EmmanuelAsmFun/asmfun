@@ -124,5 +124,23 @@
     "underConstruction": false,
     "compilerVariables": " -DMACHINE_C64=0",
     "internetVersion": "f3f3c3307c6e013beeea9cd5e5d14552e6166136"
+  },
+  {
+    "id": "5421ade7-bf38-4b84-932f-44e76c70ee1a",
+    "name": "CX16 Maze",
+    "fullFolderName": null,
+    "projectUrl": "https://github.com/JimmyDansbo/cx16-maze/",
+    "imageUrl": "https://asmfun.com/projects/DemoGames/cx16maze.jpg",
+    "internetSource": "https://github.com/JimmyDansbo/cx16-maze/",
+    "internetSourceType": 2,
+    "description": "Game inspired by the Android game Amaze.",
+    "startFile": "cx16maze.asm",
+    "addonBuildFolders": null,
+    "developerName": "Jimmy Dansbo",
+    "devPicUrl": "https://asmfun.com/Images/avatar/jimmy-dansbo/jimmy-dansbo.gif",
+    "romVersion": "R35",
+    "underConstruction": false,
+    "compilerVariables": "",
+    "internetVersion": "8f7c83f6f3e32bcf9be83ddf8d4be334842909d9"
   }
 ]

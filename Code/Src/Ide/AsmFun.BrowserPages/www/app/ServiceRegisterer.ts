@@ -41,6 +41,7 @@ var NewAsmFunAppData: IAsmFunAppData = {
     labelsWithoutZones: [],
     dissasembly: NewProgramData,
     isShowDebugger: false,
+    showASMFunCode: true,
     alertMessages: new AlertMessages(),
     errorsForStatusBar: [],
     currentOpcode: { code: '', asmFunCode: '', },

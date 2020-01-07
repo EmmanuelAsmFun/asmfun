@@ -41,7 +41,7 @@ export class VideoComposerManager {
     }
 
 
-    public Parse(memDump: IMemoryDump, data: Uint8Array) {
+    public Parse(memDump: IMemoryDump, data: Uint8Array, videoPaletteManager: VideoPaletteManager) {
         if (this.videoSettings == null) return;
 
         if (this.videoManagerData == null) return;
@@ -49,10 +49,18 @@ export class VideoComposerManager {
         composer.startAddress = AsmTools.numToHex5(memDump.startAddress);
         composer.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
         this.SetBaseData(data);
+        
         for (var i = 0; i < 9; i++) {
             this.ParseByte(composer, i, data[i]);
         }
-        composer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0,9));
+        composer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+        composer.valueChanged = v => {
+            //alert("oo");
+            this.recalculateArray(composer, videoPaletteManager);
+        };
+        composer.OutModes = AsmTools.EnumToArray(VideoOutModes)
+        composer.HScales = AsmTools.EnumToArray(HScales).map(x => x.replace("HorizontalScale_", "").replace("_", ":"));
+        composer.VScales = AsmTools.EnumToArray(VScales).map(x => x.replace("VerticalScale_", "").replace("_", ":"));
     }
 
     private SetBaseData(data: Uint8Array) {
@@ -63,6 +71,39 @@ export class VideoComposerManager {
         this.b_VStartDisplayArea = data[6];
         this.b_VEndDisplayArea = data[7];
         this.b_CourseAdjustmentsDispayArea = data[8];
+    }
+    private recalculateArray(composer: IVideoDisplayComposer, videoPaletteManager: VideoPaletteManager) {
+        // Set enum strings back to numeric
+        composer.OutMode = VideoOutModes[composer.OutModeString];
+        composer.b_HScale = HScales["HorizontalScale_" + composer.HScaleString.replace(":", "_")];
+        composer.b_VScale = VScales["VerticalScale_" + composer.VScaleString.replace(":", "_")];
+
+        var data: Uint8Array = new Uint8Array(9);
+        data[0] = (composer.ChromaDisable ? 1 : 0) <<2 | composer.OutMode;
+        // HScale
+        data[1] = composer.b_HScale;
+        // VScale
+        data[2] = composer.b_VScale;
+        // Border color
+        data[3] = composer.BorderColor;
+        // HSTART/HSTOP and VSTART/VSTOP
+        data[4] = composer.HStart & 0xFF;
+        data[5] = composer.HStop & 0xFF;
+        data[6] = composer.VStart & 0xFF;
+        data[7] = composer.VStop & 0xFF;
+        data[8] = (composer.HStart >> 8) |
+            (composer.HStop >> 8) << 2 |
+            (composer.VStart >> 8) << 4 |
+            (composer.VStop >> 8) << 5 
+            ;
+        this.SetBaseData(data);
+        for (var i = 0; i < 9; i++) {
+            this.ParseByte(composer, i, data[i]);
+        }
+        composer.RawDataString = AsmTools.ArrayToHexString(data);
+
+        if (composer.BorderColor != null && composer.BorderColor !== undefined && composer.BorderColor >= 0 && composer.BorderColor < 256)
+            composer.BorderColorData = videoPaletteManager.GetColor(composer.BorderColor);
     }
 
     private ParseByte(composer: IVideoDisplayComposer, pos: number, value: number) {
@@ -75,7 +116,7 @@ export class VideoComposerManager {
                 // Setting CHROMA_DISABLE disables output of chroma in NTSC composite mode and will give a better picture on a monochrome display.
                 // BIT 2
                 composer.ChromaDisable = ((value >> 2) & 1) != 0;
-                composer.OutMode = (b_OutMode & 2) != 0 ? VideoOutModes.NTSC : VideoOutModes.VGA;
+                composer.OutMode = b_OutMode == 0 ? VideoOutModes.DisabledVideo:(b_OutMode & 2) != 0 ? VideoOutModes.NTSC : VideoOutModes.VGA;
                 composer.OutModeString = VideoOutModes[composer.OutMode];
                 break;
 
@@ -85,13 +126,13 @@ export class VideoComposerManager {
                 //b_HScale: HScale;
                 composer.HScale = (128.0 / value);
                 composer.b_HScale = value;
-                composer.HScaleString = HScales[this.GetHScale(composer.b_HScale)].replace("HorizontalScale_","");
+                composer.HScaleString = HScales[this.GetHScale(composer.b_HScale)].replace("HorizontalScale_","").replace("_",":");
                 break;
             case 2:
                 //b_VScale: VScale;
                 composer.VScale = (128.0 / value);
                 composer.b_VScale = value;
-                composer.VScaleString = VScales[this.GetVScale(composer.b_VScale)].replace("VerticalScale_", "");
+                composer.VScaleString = VScales[this.GetVScale(composer.b_VScale)].replace("VerticalScale_", "").replace("_", ":");
                 break;
             case 3: // DC_BORDER_COLOR
                 // BORDER_COLOR determines the palette index which is used for the non-active area of the screen.
@@ -187,7 +228,12 @@ export class VideoComposerManager {
             VScaleString: "",
             VStart: 0,
             VStop: 0,
-            RawDataString:"",
+            RawDataString: "",
+
+            OutModes: [],
+            HScales: [],
+            VScales: [],
+            valueChanged: () => { }
         }
     }
 

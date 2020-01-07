@@ -110,4 +110,10 @@ export class AsmTools {
     //    $('html, body').animate({ scrollTop: offset }, { duration: 400 });
     //}
     }
+
+    public static EnumToArray(enumType) {
+        return Object.keys(enumType)
+            .filter(key => typeof enumType[key] !== 'number')
+            .map(key => enumType[key]);
+    }
 }

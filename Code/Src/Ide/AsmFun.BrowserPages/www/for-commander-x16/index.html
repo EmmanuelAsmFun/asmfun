@@ -246,7 +246,7 @@ programItem.address  | toHex2
                                 {{sourceCodeLine.data.lineNumber}}
 
                             </span>
-                            <span v-html="sourceCodeLine.asmFunCode"></span>
+                            <span v-html="sourceCodeLine.asmFunCode" v-if="showASMFunCode"></span>
                             <span class="sc-value" v-if="isShowDebugger && sourceCodeLine.label != null && sourceCodeLine.label.showValueInCode">
                                 <input v-bind:id="'labelEdit'+sourceCodeLine.data.lineNumber" v-if="sourceCodeLine.label != null && sourceCodeLine.label.isInEditMode"
                                        type="text" v-model="sourceCodeLine.label.newValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.label)" />
@@ -425,6 +425,7 @@ programItem.address  | toHex2
                                     <td>Server version: </td>
                                     <td>{{settings.userSettings.serverVersion}} </td>
                                 </tr>
+
                             </table>
                         </div>
 
@@ -503,22 +504,22 @@ programItem.address  | toHex2
                         <div>
                             <div v-if="settings.userSettings != null">
                                 <!--<div class="form-item">
-                                <div class="form-lbl">StartupProject:</div>
-                                <input type="text" v-model="settings.userSettings.lastOpenedProjectFileName" style="width:400px" />
-                            </div>-->
+                                    <div class="form-lbl">StartupProject:</div>
+                                    <input type="text" v-model="settings.userSettings.lastOpenedProjectFileName" style="width:400px" />
+                                </div>-->
                                 <div v-if="settings.userSettings.ideSettings != null">
                                     <div class="form-item">
                                         <div class="form-lbl">ACME compiler folder and filename:</div>
                                         <input type="text" v-model="settings.userSettings.ideSettings.acme.acmeFileName" style="width:400px" />
                                     </div>
                                     <!--<div class="form-item">
-                                    <div class="form-lbl">DASM compiler folder :</div>
-                                    <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFolder" style="width:400px" />
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">VASM compiler folder :</div>
-                                    <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFolder" style="width:400px" />
-                                </div>-->
+                                        <div class="form-lbl">DASM compiler folder :</div>
+                                        <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFolder" style="width:400px" />
+                                    </div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">VASM compiler folder :</div>
+                                        <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFolder" style="width:400px" />
+                                    </div>-->
                                     <div class="form-item">
                                         <div class="form-lbl">Cc65 compiler folder :</div>
                                         <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65Folder" style="width:400px" />
@@ -529,6 +530,10 @@ programItem.address  | toHex2
                             <div class="form-item">
                                 <div class="form-lbl">ASMFunPlayer addrress:</div>
                                 <input type="text" v-model="settings.serverAddressWithPort" style="width:400px" />
+                            </div>
+                            <div class="form-item">
+                                <div class="form-lbl">Show ASMFun Code:</div>
+                                <input type="checkbox" v-model="showASMFunCode" />
                             </div>
                         </div>
                         <div class="form-item">
@@ -554,13 +559,42 @@ programItem.address  | toHex2
                         <div class="vAddress">0x{{videoManager.composer.startAddress}} - 0x{{videoManager.composer.endAddress}}</div>
                         <div class="rawBinaryData">{{videoManager.composer.RawDataString}}</div>
                         <table>
-                            <tr><td>OutMode</td><td>{{videoManager.composer.OutModeString}}</td></tr>
-                            <tr><td>ChromaDisable</td><td>{{videoManager.composer.ChromaDisable}}</td></tr>
-                            <tr><td>Scale</td><td>{{videoManager.composer.HScaleString}} x {{videoManager.composer.VScaleString}}</td></tr>
-                            <tr><td>Range</td><td>{{videoManager.composer.HStart}}-{{videoManager.composer.HStop}} x {{videoManager.composer.VStart}}-{{videoManager.composer.VStop}}</td></tr>
-                            <tr><td>BorderColor</td><td v-bind:style="{ backgroundColor: videoManager.composer.BorderColorData.colorHex}">{{videoManager.composer.BorderColor}} <div></div></td></tr>
+                            <tr><td>OutMode</td><td>
+                                  <editable-select v-model="videoManager.composer.OutModeString" :options="videoManager.composer.OutModes" 
+                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-select></td></tr>
+                            <tr><td>ChromaDisable</td><td>
+                                <editable-checkbox v-model="videoManager.composer.ChromaDisable" 
+                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox></td></tr>
+                            <tr><td>Scale</td><td>
+                                <editable-select v-model="videoManager.composer.HScaleString" :options="videoManager.composer.HScales"
+                                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                x
+                                <editable-select v-model="videoManager.composer.VScaleString" :options="videoManager.composer.VScales"
+                                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                               </td></tr>
+                            <tr><td>Range H</td><td>
+                                <editable-field v-model="videoManager.composer.HStart"
+                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field> 
+                                -
+                                <editable-field v-model="videoManager.composer.HStop"
+                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field>
+                                 </td></tr>
+                            <tr><td>Range V</td><td>
+                                <editable-field v-model="videoManager.composer.VStart"
+                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field> 
+                                -
+                                <editable-field v-model="videoManager.composer.VStop"
+                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field><br />
+</td></tr>
+                            <tr>
+                                <td>BorderColor</td>
+                                <td v-bind:style="{ backgroundColor: videoManager.composer.BorderColorData.colorHex}">
+                                    <editable-field v-model="videoManager.composer.BorderColor"
+                                                    v-on:valuechanged="videoManager.composer.valueChanged" ></editable-field></td>
+                            </tr>
                         </table>
-
+                        <div>
+                        </div>
                     </div>
 
                     <div class="palette">
@@ -576,19 +610,22 @@ programItem.address  | toHex2
                         </div>
                         <div class="paletteColors">
                             <span v-for="color in videoManager.palette.colors" class="paletteColor"
-                                    v-on:click="videoManager.palette.changeColor(color)"
-                                    v-bind:title=" color.colorRGB+' | '+color.colorHex"
-                                    v-bind:style="{ backgroundColor: color.colorHex}">
+                                  v-on:click="videoManager.palette.changeColor(color)"
+                                  v-bind:title=" color.colorRGB+' | '+color.colorHex"
+                                  v-bind:style="{ backgroundColor: color.colorHex}">
                                 &nbsp;
                             </span>
                         </div>
                         <div class="selectedColor" v-if="videoManager.palette.selectedColor != null">
                             <table>
-                                <tr><td>Hex</td><td>
-                                    &nbsp;
-    {{videoManager.palette.selectedColor.colorHex}} ({{videoManager.palette.selectedColor.colorNumber}})
-    <span class="paletteColor" v-bind:style="{ backgroundColor: videoManager.palette.selectedColor.colorHex}">&nbsp;</span>
-</td></tr>
+                                <tr>
+                                    <td>Hex</td>
+                                    <td>
+                                        &nbsp;
+                                        {{videoManager.palette.selectedColor.colorHex}} ({{videoManager.palette.selectedColor.index}}, {{videoManager.palette.selectedColor.colorNumber}})
+                                        <span class="paletteColor" v-bind:style="{ backgroundColor: videoManager.palette.selectedColor.colorHex}">&nbsp;</span>
+                                    </td>
+                                </tr>
                                 <tr><td>R</td><td>{{videoManager.palette.selectedColor.r}}</td></tr>
                                 <tr><td>G</td><td>{{videoManager.palette.selectedColor.g}}</td></tr>
                                 <tr><td>B</td><td>{{videoManager.palette.selectedColor.b}}</td></tr>
@@ -632,7 +669,7 @@ programItem.address  | toHex2
                             </div>
                         </div>
 
-                        
+
 
                     </div>
 
@@ -642,7 +679,7 @@ programItem.address  | toHex2
                         <div v-if="videoManager.spriteDatas.selectedSprite != null">
                             <div class="rawBinaryData">{{videoManager.spriteDatas.selectedSprite.RawDataString}}</div>
                             <div class="table-cont">
-                                <select v-model="videoManager.spriteDatas.selectedSprite" >
+                                <select v-model="videoManager.spriteDatas.selectedSprite">
                                     <option v-for="option in videoManager.spriteDatas.sprites" v-bind:value="option">{{ option.name }}</option>
                                 </select>
                                 <a v-on:click="videoManager.spriteDatas.changeSprite(-1)">&lt;</a>
@@ -669,8 +706,8 @@ programItem.address  | toHex2
 
 
                 </div>
-                </div>
-         </div>
+            </div>
+        </div>
 
         <div v-if="projectManager.isVisible" v-bind:class="{ 'pojectIsDownloading' : projectManager.projectIsDownloading}">
             <div v-show="projectManager.isVisiblePopup" class="projectManager v-scaler">
@@ -735,7 +772,7 @@ programItem.address  | toHex2
                                     <div class="form-lbl">Load Local Project:</div>
                                     <span v-if="projectManager.showOpenFileFolder">
                                         <input type="text" v-model="projectManager.openFileFolder" style="width:400px" title="Set full folder with filename"
-                                                placeholder="/home/myproject/myproject.asm" />
+                                               placeholder="/home/myproject/myproject.asm" />
                                     </span>
                                     <button v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load</button>
                                 </div>

@@ -36,6 +36,18 @@
   }
 }
 /*----------------------*/
+.editableField {
+  display: inline-block;
+}
+.editableField input {
+  width: 50px;
+}
+.editableField .ef-view {
+  display: inline-block;
+  min-width: 25px;
+  cursor: pointer;
+}
+/*----------------------*/
 /*#region common */
 .alertWithCorrectSpacings {
   margin: 10px 0px 0px 0px;
@@ -757,7 +769,7 @@ body {
 }
 .PreScLines .ln .asmFunCode {
   position: absolute;
-  left: 500px;
+  left: 620px;
   min-width: 240px;
   display: inline-block;
   text-align: left;

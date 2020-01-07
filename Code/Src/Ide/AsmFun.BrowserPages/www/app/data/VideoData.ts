@@ -86,7 +86,8 @@ export interface IVideoColor {
     colorNumber: number;
     colorRGB: string;
     colorHex: string;
-    r:number,g:number,b:number,
+    r: number, g: number, b: number,
+    index: number;
 }
 export interface ISpritesData {
     sprites: IVideoSpriteProperties[];
@@ -131,20 +132,20 @@ export interface IVideoSpriteProperties {
 }
 
 export enum HScales {
-    HorizontalScale_1_1,
-    HorizontalScale_2_1,
-    HorizontalScale_4_1,
-    HorizontalScale_8_1,
-    HorizontalScale_16_1,
-    HorizontalScale_32_1,
-    HorizontalScale_64_1,
+    HorizontalScale_1_1 = 128,
+    HorizontalScale_2_1 = 64,
+    HorizontalScale_4_1 = 32,
+    HorizontalScale_8_1 = 16,
+    HorizontalScale_16_1 = 8,
+    HorizontalScale_32_1 = 4,
+    HorizontalScale_64_1 = 2 | 1,
 }
 export enum VScales {
-    VerticalScale_1_1,
-    VerticalScale_2_1,
-    VerticalScale_4_1,
-    VerticalScale_8_1,
-    VerticalScale_16_1,
+    VerticalScale_1_1 = 128,
+    VerticalScale_2_1 = 64,
+    VerticalScale_4_1 = 32,
+    VerticalScale_8_1 = 16,
+    VerticalScale_16_1 = 8 | 4 | 2 | 1,
 }
 export enum VideoOutModes {
     DisabledVideo,
@@ -178,6 +179,10 @@ export interface IVideoDisplayComposer {
     FrontPorch: number;
     IrqLine: number;
 
+    valueChanged: (v) => void;
+    OutModes: VideoOutModes[]
+    HScales: HScales[]
+    VScales: VScales[]
 }
 
 export interface IVideoRenderLineContext {
