@@ -43,6 +43,26 @@ export class MemoryPreviousPageCommand extends BaseCommand {
         this.nameSpace = "Memory";
     }
 }
+export class MemorySelectPageCommand extends BaseCommand {
+    public startAddress: number;
+    public constructor(startAddress: number) {
+        super();
+        this.startAddress = startAddress;
+        this.commandName = "SelectPage";
+        this.nameSpace = "Memory";
+    }
+}
+export class MemoryEditCommand extends BaseCommand {
+    public address: number;
+    public element?: HTMLElement;
+    public constructor(address: number, element?: HTMLElement) {
+        super();
+        this.address = address;
+        this.element = element;
+        this.commandName = "Edit";
+        this.nameSpace = "Memory";
+    }
+}
 export class MemoryItemHoverCommand extends BaseCommand {
     public index: number;
     public address: number;

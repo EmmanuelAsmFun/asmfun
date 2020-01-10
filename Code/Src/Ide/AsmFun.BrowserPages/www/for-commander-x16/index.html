@@ -284,17 +284,29 @@ programItem.address  | toHex2
                 <span class="paging"> {{memoryViewer.memoryBlock.currentPage +1}}/ {{memoryViewer.memoryBlock.totalPages+ 1}} </span>
                 <span class="address">{{memoryViewer.memoryBlock.startAddressHex}} - {{memoryViewer.memoryBlock.endAddressHex}} </span>
                 <span class="pageControl">
-                    <a v-on:click="PreviousMemoryPage(64)"> &lt;&lt;&lt; </a>
-                    <a v-on:click="PreviousMemoryPage(16)"> &lt;&lt; </a>
-                    <a v-on:click="PreviousMemoryPage(1)"> &lt; </a>
+                    <a v-on:click="SelectMemoryPage(-1)" title="Reload data"><span class="fa fa-refresh"></span></a>
                     &nbsp;
-                    <a v-on:click="NextMemoryPage(1)"> &gt;</a>
-                    <a v-on:click="NextMemoryPage(16)"> &gt;&gt;</a>
-                    <a v-on:click="NextMemoryPage(64)"> &gt;&gt;&gt;</a>
+                    <a v-on:click="PreviousMemoryPage(64)" title="Previous 16 kb"> &lt;&lt;&lt; </a>
+                    <a v-on:click="PreviousMemoryPage(16)" title="Previous 4 kb"> &lt;&lt; </a>
+                    <a v-on:click="PreviousMemoryPage(1)" title="Previous 256 b"> &lt; </a>
+                    &nbsp;
+                    <a v-on:click="NextMemoryPage(1)" title="Next 256 b"> &gt;</a>
+                    <a v-on:click="NextMemoryPage(16)" title="Next 4 kb"> &gt;&gt;</a>
+                    <a v-on:click="NextMemoryPage(64)"  title="Next 16 kb"> &gt;&gt;&gt;</a>
                 </span>
 
             </div>
-            <div class="memoryblock" v-if="memoryViewer.memoryBlock != null">
+            
+            <a class="memoryTableOfContentHeader" v-on:click="memoryViewer.swapShowTOC()">Memory - table of content</a>
+            <div class="memoryTableOfContent" v-if="memoryViewer.showTOC">
+                <div v-for="add in memoryViewer.addressNames">
+                <a v-on:click="SelectMemoryPage(add.startAddress)">{{add.startAddressHex}} - {{add.endAddressHex}} : {{add.name}}</a></div>
+            </div>
+            <div class="memoryEdit" v-if="!memoryViewer.showTOC && memoryViewer.isMemoryEditing" v-bind:style="{top: (memoryViewer.memoryEditYOffset - 2)}">
+                <input type="text" v-model="memoryViewer.memoryEditText" v-on:input="$emit('input',$event.target.value)"
+                       v-on:keyup="memoryViewer.memoryEditKeyUp(event)" autofocus />
+            </div>
+            <div class="memoryblock" v-if="memoryViewer.memoryBlock != null && !memoryViewer.showTOC">
                 <span v-for="data in memoryViewer.memoryBlock.datas" v-html="data.code"
                       v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
             </div>

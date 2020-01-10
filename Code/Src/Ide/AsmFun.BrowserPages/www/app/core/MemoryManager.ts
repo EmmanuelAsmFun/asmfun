@@ -10,25 +10,30 @@ import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
 import { IMemoryBlock, IMemoryBlockItem, IMemoryViewerData } from "../data/MemoryData.js";
 import { IEditorLine, IEditorLabel } from "../data/EditorData.js";
-import { MemoryOpenManagerCommand, MemoryScrollCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryItemHoverCommand } from "../data/commands/MemoryCommands.js";
+import { MemoryOpenManagerCommand, MemoryScrollCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryItemHoverCommand, MemorySelectPageCommand, MemoryEditCommand } from "../data/commands/MemoryCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { EditorManager } from "./EditorManager.js";
+import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 
 
 export class MemoryManager {
    
-    
+   
+    private memData: string = "";
     private debuggerService: DebuggerService;
     private editorManager: EditorManager;
     private mainData: IMainData;
     private data: IMemoryViewerData;
     private myAppData: IAsmFunAppData;
     private pageSize: number = 512;
+    private addressStart: number = 0;
+    private addressStartEdit: number = 0;
     public currentPage: number = 2048 / (this.pageSize / 2); // = 0x0800 = is start address program
     public totalPages: number = 16 * 16 -2;
     private previousHiliteLabel?:IMemoryBlockItem = undefined;
     private previousCodeGroup?: IMemoryBlockItem[] = undefined;
     private memoryAddressNamesA: number[] = [0x0000, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x9F00, 0x9F20, 0x9F40, 0x9F60, 0x9F70, 0x9F80, 0x9FA0]
+    private memoryAddressNamesB: number[] = [0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x9EFF, 0x9F1F, 0x9F3F, 0x9F5F, 0x9F6F, 0x9F7F, 0x9F9F, 0x9FFF]
     private memoryAddressNames: string[] = ["User zero page", "KERNAL and BASIC zero page variables", "CPU stack", "KERNAL and BASIC variables, vectors",
         "Available for code programs or storage", "BASIC program/variables available to the user",
         "Reserved for audio controller", "VERA video controller", "Reserved", "VIA I/O controller #1", "VIA I/O controller #2", "Real time clock","Future Expansion"
@@ -46,7 +51,38 @@ export class MemoryManager {
         this.mainData.commandManager.Subscribe2(new MemoryScrollCommand(0), this, x => this.Scroll(x.deltaY));
         this.mainData.commandManager.Subscribe2(new MemoryNextPageCommand(0), this, x => this.NextPage(x.factor));
         this.mainData.commandManager.Subscribe2(new MemoryPreviousPageCommand(0), this, x => this.PreviousPage(x.factor));
-        this.mainData.commandManager.Subscribe2(new MemoryItemHoverCommand(0, 0, 0), this, x => this.MemoryItemHover(x.index, x.address,x.value));
+        this.mainData.commandManager.Subscribe2(new MemorySelectPageCommand(0), this, x => this.SelectPageByAddress(x.startAddress));
+        this.mainData.commandManager.Subscribe2(new MemoryItemHoverCommand(0, 0, 0), this, x => this.MemoryItemHover(x.index, x.address, x.value));
+        this.mainData.commandManager.Subscribe2(new MemoryEditCommand(0), this, x => this.MemoryEdit(x.address, x.element));
+        for (var i = 0; i < this.memoryAddressNames.length; i++) {
+            this.data.addressNames.push({
+                startAddress: this.memoryAddressNamesA[i],
+                startAddressHex: AsmTools.numToHex4(this.memoryAddressNamesA[i]),
+                endAddress: this.memoryAddressNamesB[i],
+                endAddressHex: AsmTools.numToHex4(this.memoryAddressNamesB[i]),
+                name : this.memoryAddressNames[i],
+            });
+        }
+        this.data.swapShowTOC = () => this.data.showTOC = !this.data.showTOC;
+        this.data.memoryEditText = "hallo";
+        this.data.memoryEditKeyUp = (evt) => {
+            if (evt.which === 13) {
+                // ENTER
+                this.data.isMemoryEditing = false;
+                var txt = this.data.memoryEditText;
+                var bytes = txt.replace(/|/g, "").replace(/  /g, " ").split(' ').map(x => parseInt(x,16));
+                this.debuggerService.WriteMemoryBlock(this.addressStartEdit, bytes, bytes.length, () => {
+                    this.getMemoryBlock(this.currentPage * this.pageSize / 2, this.pageSize);
+                });
+                this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
+            }
+            else if (evt.which === 27) {
+                // ESC
+                this.data.isMemoryEditing = false;
+                this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
+            }
+            return true;
+        };
     }
 
     private OpenManager(state: boolean | null) {
@@ -90,18 +126,30 @@ export class MemoryManager {
         this.currentPage = wantedCurrentPage;
         this.getMemoryBlock(this.currentPage * this.pageSize/2, this.pageSize);
     }
+    private SelectPageByAddress(startAddress: number): void {
+        if (startAddress >= 0) {
+            var page = Math.floor(startAddress / (this.pageSize / 2));
+            if (page < 0) page = 0;
+            this.currentPage = page;
+        }
+        this.getMemoryBlock(this.currentPage * this.pageSize / 2, this.pageSize);
+        this.data.showTOC = false;
+    }
 
 
     private getMemoryBlock(startAddress: number, count: number,doneMethod?: (r0:IMemoryBlock) => void) {
         var thiss = this;
+        this.data.isMemoryEditing = false;
         this.debuggerService.getMemoryBlock(startAddress,count,(memBlock:IMemoryBlock) => {
             if (memBlock == null || memBlock.data == null) return;
             if (this.mainData.sourceCode == null) return;
+            this.addressStart = startAddress;
             var labels = this.mainData.sourceCode.labels;
-            var startText =  "<span class=\"addr\">"+AsmTools.numToHex4(startAddress)+"</span>&nbsp;";
+            var startText = "<span class=\"addr\" onclick=\"MemoryEdit(" + (startAddress) +",this)\">"+AsmTools.numToHex4(startAddress)+"</span>&nbsp;";
             var lineString = "";
             memBlock.datas = [];
-            const binary_string  = window.atob(memBlock.data);
+            const binary_string = window.atob(memBlock.data);
+            this.memData = binary_string;
             var totalAddress = 0;
             var groupp:IMemoryBlockItem[] = [];
             
@@ -150,13 +198,14 @@ export class MemoryManager {
                     lineString = "";
                 }
                 if ((index + 1) % 128 == 0) {
-                    lineResult += addEnter+"<span class=\"addr\">" + AsmTools.numToHex4(addr + 1) + "&nbsp;</span>";
+                    lineResult += addEnter + "<span class=\"addr\" onclick=\"MemoryEdit(" + (addr + 1) +",this)\">" + AsmTools.numToHex4(addr + 1) + "&nbsp;</span>";
                 }
-                else if (((index + 1) % 16 == 0)) lineResult += "<span class=\"addr\">" + AsmTools.numToHex4(addr + 1) +"&nbsp;</span>";
+                else if (((index + 1) % 16 == 0)) lineResult += "<span class=\"addr\" onclick=\"MemoryEdit(" + (addr + 1) +",this)\">"
+                    + AsmTools.numToHex4(addr + 1) + "&nbsp;</span>";
 
 
-                let txt = addressTitle+ startText + "<span class=\"memItm\" onmouseover=\"MemoryItemHover(" + index + "," + addr + "," + element + ")\">" +
-                    AsmTools.numToHex2(element) + '&nbsp;</span>' + lineResult;
+                let txt = addressTitle + startText + "<span class=\"memItm\" onmouseover=\"MemoryItemHover(" + index + "," + addr + "," + element + ")\">"
+                    + AsmTools.numToHex2(element) + '&nbsp;</span>' + lineResult;
                 startText = "";
 
                 var item:IMemoryBlockItem = {
@@ -300,12 +349,38 @@ export class MemoryManager {
         }
     }
 
+    private MemoryEdit(address: number, element?: HTMLElement) {
+        this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(false));
+        this.data.isMemoryEditing = true;
+        this.addressStartEdit = address;
+        var indexStart = address - this.addressStart;
+        if (indexStart < 0) indexStart = address;
+        var index = indexStart;
+        var txt = "";
+        for (var i = 0; i < 16; i++) {
+            const element = this.memData.charCodeAt(index + i);
+            txt += " " + AsmTools.numToHex2(element);
+            if ((i + 1 )% 8 === 0) txt += " ";
+        }
+        this.data.memoryEditText = txt.trim().substr(0,(16*3 +2));
+        if (element != null) {
+            this.data.memoryEditYOffset = element.offsetTop;
+        }
+    }
+
     
 
     public static NewData(): IMemoryViewerData {
         return {
             isVisible: false,
-            memoryBlock: MemoryManager.NewMemoryBlock()
+            memoryBlock: MemoryManager.NewMemoryBlock(),
+            addressNames: [],
+            showTOC: false,
+            swapShowTOC: () => { },
+            memoryEditText: "",
+            memoryEditYOffset:0,
+            memoryEditKeyUp: () => { },
+            isMemoryEditing: false,
         };
     }
 

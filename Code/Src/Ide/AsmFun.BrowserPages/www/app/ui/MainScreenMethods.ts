@@ -20,7 +20,7 @@ import {
     ProcessorOpenDebuggerCommand, ProcessorNextStepCommand, ProcessorStepOverCommand, ProcessorDebuggerRunCommand, ProcessorReloadValuesCommand,
     ProcessorDebuggerSetBreakpointCommand
 } from "../data/commands/ProcessorCommands.js";
-import { MemoryOpenManagerCommand, MemoryItemHoverCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryScrollCommand } from "../data/commands/MemoryCommands.js";
+import { MemoryOpenManagerCommand, MemoryItemHoverCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryScrollCommand, MemorySelectPageCommand, MemoryEditCommand } from "../data/commands/MemoryCommands.js";
 import {
     ComputerStopCommand, ComputerStartCommand, ComputerOpenManagerCommand, ComputerResetCommand, ComputerLoadProgramCommand,
     ComputerRunProgramCommand, ComputerOpenDetailCommand
@@ -124,8 +124,10 @@ export class MainScreenMethods {
     public MemoryOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new MemoryOpenManagerCommand(state)); }
     public MemoryScroll(element) { MainScreenMethods.ExecuteCommand(new MemoryScrollCommand(element.deltaY)); }
     public MemoryItemHover(index: number, address: number, value: number) { MainScreenMethods.ExecuteCommand(new MemoryItemHoverCommand(index, address, value)); }
+    public MemoryEdit(address: number, el?: HTMLElement) { MainScreenMethods.ExecuteCommand(new MemoryEditCommand(address,el)); }
     public NextMemoryPage(factor: number) { MainScreenMethods.ExecuteCommand(new MemoryNextPageCommand(factor)); }
     public PreviousMemoryPage(factor: number) { MainScreenMethods.ExecuteCommand(new MemoryPreviousPageCommand(factor)); }
+    public SelectMemoryPage(startAddress: number) { MainScreenMethods.ExecuteCommand(new MemorySelectPageCommand(startAddress)); }
 
     // Settings
     public SettingsOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new SettingsOpenManagerCommand(state)); }

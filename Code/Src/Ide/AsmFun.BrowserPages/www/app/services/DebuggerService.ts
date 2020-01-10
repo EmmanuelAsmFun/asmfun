@@ -47,7 +47,7 @@ export class DebuggerService extends ApiService {
         this.callApi("GetMemoryBlock?startAddress="+startAddress+"&count="+count, doneMethod);
     }
     public WriteMemoryBlock(startAddress: number, data: any, count: number, doneMethod) {
-        this.post("WriteMemoryBlock?startAddress=" + startAddress + "&count=" + count,data, doneMethod);
+        this.post("WriteMemoryBlock", { startAddress: startAddress, data: btoa(String.fromCharCode.apply(null, data)), count: count }, doneMethod);
     }
     public WriteVideoMemoryBlock(startAddress: number, data: any, count: number, doneMethod) {
         this.post("WriteVideoMemoryBlock", { startAddress: startAddress, data: btoa(String.fromCharCode.apply(null, data)), count: count }, doneMethod);

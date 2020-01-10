@@ -125,10 +125,10 @@ var scStartPosY = 0;
     }, 50);
 };
 
-(<any>window).MemoryItemHover = function (index: number, address: number, value: number) {
-    if (MainScreenMethods != null && MainScreenMethods.S != null)
-        MainScreenMethods.S.MemoryItemHover(index, address, value);
-};
+(<any>window).MemoryItemHover = function (index: number, address: number, value: number) { if (MainScreenMethods != null && MainScreenMethods.S != null)
+        MainScreenMethods.S.MemoryItemHover(index, address, value);};
+(<any>window).MemoryEdit = function (address: number, el?: HTMLElement) { if (MainScreenMethods != null && MainScreenMethods.S != null) 
+    MainScreenMethods.S.MemoryEdit(address,el); };
 
 
 

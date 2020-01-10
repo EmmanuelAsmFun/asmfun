@@ -34,4 +34,18 @@ export interface IMemoryBlockItem {
 export interface IMemoryViewerData {
     isVisible: boolean;
     memoryBlock: IMemoryBlock;
+    addressNames: IMemoryAddressInfo[];
+    isMemoryEditing: boolean;
+    memoryEditText: string;
+    memoryEditKeyUp: (k) => void;
+    memoryEditYOffset:number,
+    showTOC: boolean;
+    swapShowTOC: () => void;
+}
+export interface IMemoryAddressInfo {
+    startAddress: number;
+    startAddressHex: string;
+    endAddress: number;
+    endAddressHex: string;
+    name: string;
 }
