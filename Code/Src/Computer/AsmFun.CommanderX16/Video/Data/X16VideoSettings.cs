@@ -34,6 +34,9 @@ namespace AsmFun.CommanderX16.Video
         public uint SpiStartADD = 0xF7000;
         public uint SpiEndADD = 0xF8000;
         public uint SpiEndADDForUI = 0xF7001;
+        public uint UartStartADD = 0xF8000;
+        public uint UartStartADDForUI = 0xF8000;
+        public uint UartEndADD = 0xF9000;
 
         public int ScanWidth = 800;
         public int ScanHeight = 525;

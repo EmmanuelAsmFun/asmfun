@@ -183,7 +183,7 @@ export class ProjectManager  {
             projectIsDownloading: false,
             compilerNames: CompilerNames,
             newProjectCompiler: 1,
-            newProjectRomVersion: "R33",
+            newProjectRomVersion: "R36",
             romVersionNames: RomVersionNames,
             newProjectDeveloperName:""
         }
@@ -196,7 +196,7 @@ export class ProjectManager  {
             computerType: ProjectComputerTypes.CommanderX16,
             outputFolderName: "output",
             programFileName: "",
-            romVersion: "R33"
+            romVersion: "R36"
         };
     }
 

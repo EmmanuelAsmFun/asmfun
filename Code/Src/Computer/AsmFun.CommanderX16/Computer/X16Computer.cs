@@ -62,16 +62,19 @@ namespace AsmFun.CommanderX16.Computer
         private IDebuggerInternal debugger;
         private IComputerDisplay display;
         private VideoProcessor videoProcessor;
+        private IUart uart;
 
 
         public X16Computer(X16JoystickData joystickData, IVideoAccess videoAccess, IComputerAccess computerAccess,
             IX16PS2Access ps2Data, X16VeraSpi veraSpi, IEmServiceResolverFactory container, IDebugger debugger,
-            ComputerSetupSettings computerSettings, IProcessor processor, ProcessorData processorData, IComputerDiagnose diagnose, IKeyboardAccess keyboardAccess
+            ComputerSetupSettings computerSettings, IProcessor processor, ProcessorData processorData, IComputerDiagnose diagnose, 
+            IKeyboardAccess keyboardAccess, IUart uart
             )
         {
             IsStarting = true;
             display = new DummyComputerDisplay();
             this.veraSpi = veraSpi;
+            this.uart = uart;
             this.processor = processor;
             this.videoAccess = videoAccess;
             this.computerAccess = computerAccess;
@@ -144,6 +147,7 @@ namespace AsmFun.CommanderX16.Computer
                     ps2.Step();
                     joystick.Step();
                     veraSpi.Step();
+                    uart.Step();
                     videoAccess.ProcessorStep();
                     display.ClockTick(processorData.ProgramCounter, mhzRunning);
                     CheckFps();

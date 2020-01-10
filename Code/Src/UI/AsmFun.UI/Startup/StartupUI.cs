@@ -95,6 +95,11 @@ namespace AsmFun.UI.Startup
                     ComputerType = X16ComputerFactory.ComputerTypenS,
                     ComputerVersion = X16ComputerFactoryR35.ComputerVersionS
                 }, () => container.Resolve<X16ComputerFactoryR35>())
+                .AddFactory(new ComputerSettings
+                {
+                    ComputerType = X16ComputerFactory.ComputerTypenS,
+                    ComputerVersion = X16ComputerFactoryR36.ComputerVersionS
+                }, () => container.Resolve<X16ComputerFactoryR36>())
                 ;
         }
 

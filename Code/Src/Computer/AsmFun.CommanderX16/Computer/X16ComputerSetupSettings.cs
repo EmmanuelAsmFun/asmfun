@@ -21,7 +21,7 @@ namespace AsmFun.CommanderX16
             RomBankSize = 16384;
             ComputerType = "CommanderX16";
             ComputerTypeShort = "X16";
-            Version = "R33";
+            Version = "R36";
             Mhz = 8;
         }
 

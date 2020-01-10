@@ -19,7 +19,7 @@ namespace AsmFun.Computer.Common.Data
         public ComputerSettings()
         {
             ComputerType = "CommanderX16";
-            ComputerVersion = "R33";
+            ComputerVersion = "R36";
         }
     }
 }

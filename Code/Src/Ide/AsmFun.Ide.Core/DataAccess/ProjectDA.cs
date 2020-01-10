@@ -135,7 +135,7 @@ namespace AsmFun.Core.DataAccess
                     InternetVersion = "f3f3c3307c6e013beeea9cd5e5d14552e6166136",
                     ProjectUrl = "https://github.com/commanderx16/x16-demo/tree/master/assembly",
                     StartFile = $"sprite-demo.asm",
-                    RomVersion = "R35",
+                    RomVersion = "R36",
                     UnderConstruction = false,
                     CompilerVariables = " -DMACHINE_C64=0"
                 }, new ProjectDetail
@@ -164,10 +164,10 @@ namespace AsmFun.Core.DataAccess
                     ImageUrl="https://asmfun.com/projects/DemoGames/cx16maze.jpg",
                     InternetSourceType = InternetSourceType.GitHub,
                     InternetSource = "https://github.com/JimmyDansbo/cx16-maze/",
-                    InternetVersion = "8f7c83f6f3e32bcf9be83ddf8d4be334842909d9",
+                    InternetVersion = "c9793771b672e650b72ee4cfad22248e588c3cde",
                     ProjectUrl = "https://github.com/JimmyDansbo/cx16-maze/",
                     StartFile = $"cx16maze.asm",
-                    RomVersion = "R35",
+                    RomVersion = "R36",
                     UnderConstruction = false,
                     CompilerVariables = ""
                 }

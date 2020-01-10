@@ -17,7 +17,9 @@ export var CompilerNames: { name: string, value: number, webAddress: string }[] 
 export var RomVersionNames: { name: string, value: string }[] = [
     { value: "R33", name: "ROM R33" },
     { value: "R34", name: "ROM R34" },
-    { value: "R35", name: "ROM R35" }];
+    { value: "R35", name: "ROM R35" },
+    { value: "R36", name: "ROM R36" },
+];
 
 export interface ISourceCodeBundle {
     sourceFileName: string;

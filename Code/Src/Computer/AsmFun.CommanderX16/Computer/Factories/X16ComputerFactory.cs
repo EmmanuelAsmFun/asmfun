@@ -78,6 +78,7 @@ namespace AsmFun.CommanderX16.Computer.Factories
             Add<ComputerSetupSettings, X16ComputerSetupSettings>().WithLifestyle(EmServiceLifestyle.Singleton);
             // Computer
             Add<X16VeraSpi>().WithLifestyle(EmServiceLifestyle.Singleton);
+            Add<IUart,X16Uart>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<IProcessor, X16Processor>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<ProcessorData>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<P65c02OpcodeModes>().WithLifestyle(EmServiceLifestyle.Singleton);
@@ -134,6 +135,7 @@ namespace AsmFun.CommanderX16.Computer.Factories
             accessors.AddInOrder(Resolve<ISpriteRegistersAccess>(), v.SpritesStartADD, v.SpritesEndADD, a => a & 0xf,null, v.SpritesEndADDForUI);
             accessors.AddInOrder(Resolve<ISpriteAttributesAccess>(), v.SpriteDataStartADD, v.SpriteDataEndADD, a => a,null, v.SpriteDataEndADDForUI);
             accessors.AddInOrder(Resolve<X16VeraSpi>(), v.SpiStartADD, v.SpiEndADD, a => a & 1, null,v.SpiEndADDForUI);
+            accessors.AddInOrder(Resolve<IUart>(), v.UartStartADD, v.UartEndADD, a => a & 3, null,v.UartStartADDForUI);
         }
 
 

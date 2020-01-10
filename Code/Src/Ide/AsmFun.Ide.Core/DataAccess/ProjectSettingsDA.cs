@@ -205,7 +205,7 @@ namespace AsmFun.Core.DataAccess
                 OutputFolderName = "output",
                 CompilerType = ProjectCompilerTypes.ACME,
                 ComputerType = ProjectComputerTypes.CommanderX16,
-                RomVersion = "R33",
+                RomVersion = "R36",
                 AddonCommandLine = "",
                 ProgramFileName = "",
                 CompilerVariables = "",
