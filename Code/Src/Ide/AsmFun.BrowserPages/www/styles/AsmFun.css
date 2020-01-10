@@ -1612,6 +1612,14 @@ body {
   margin-right: 20px;
   font-size: 10px;
 }
+.videoManager .documentation {
+  clear: both;
+  font-size: 10px;
+  padding-top: 80px;
+}
+.videoManager .documentation a {
+  font-size: 9px;
+}
 @font-face {
   font-family: 'robot';
   src: url('../fonts/roboto.ttf') format('truetype');
