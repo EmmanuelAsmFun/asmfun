@@ -128,30 +128,166 @@ namespace AsmFun.Startup
             bool quit = false;
             while (!quit && !isDisposed)
             {
-                while (SDL2.SDL.SDL_PollEvent(out e) != 0 && !isDisposed)
+                try
                 {
-                    Thread.Sleep(100);
-                    switch (e.type)
+                    while (SDL2.SDL.SDL_PollEvent(out e) != 0 && !isDisposed)
                     {
-                        case SDL2.SDL.SDL_EventType.SDL_QUIT:
-                            {
-                                quit = true;
-                                var computerManager = Container.Resolve<IComputerManager>();
-                                computerManager.StopComputer();
-                                break;
-                            }
-                        case SDL2.SDL.SDL_EventType.SDL_KEYDOWN:
-                            switch (e.key.keysym.sym)
-                            {
-                                case SDL2.SDL.SDL_Keycode.SDLK_q:
+                        Thread.Sleep(100);
+                        switch (e.type)
+                        {
+                            case SDL2.SDL.SDL_EventType.SDL_QUIT:
+                                {
                                     quit = true;
                                     var computerManager = Container.Resolve<IComputerManager>();
                                     computerManager.StopComputer();
                                     break;
-                            }
-                            break;
+                                }
+                            case SDL2.SDL.SDL_EventType.SDL_KEYDOWN:
+                                switch (e.key.keysym.sym)
+                                {
+                                    case SDL2.SDL.SDL_Keycode.SDLK_WWW:
+                                        quit = true;
+                                        var computerManager = Container.Resolve<IComputerManager>();
+                                        computerManager.StopComputer();
+                                        break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_SPACE: keyboardAccess.KeyDown(' ', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_BACKSPACE: keyboardAccess.KeyDown(' ', 2); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_ENTER:
+                                    case SDL2.SDL.SDL_Keycode.SDLK_RETURN2:
+                                    case SDL2.SDL.SDL_Keycode.SDLK_RETURN: keyboardAccess.KeyDown(' ', 6); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_UP: keyboardAccess.KeyDown(' ', 24); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_DOWN: keyboardAccess.KeyDown(' ', 26); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_LEFT: keyboardAccess.KeyDown(' ', 23); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_RIGHT: keyboardAccess.KeyDown(' ', 25); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F1: keyboardAccess.KeyDown(' ', 90); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F2: keyboardAccess.KeyDown(' ', 91); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F3: keyboardAccess.KeyDown(' ', 92); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F4: keyboardAccess.KeyDown(' ', 93); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F5: keyboardAccess.KeyDown(' ', 94); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F6: keyboardAccess.KeyDown(' ', 95); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F7: keyboardAccess.KeyDown(' ', 96); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F8: keyboardAccess.KeyDown(' ', 97); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F9: keyboardAccess.KeyDown(' ', 98); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F10: keyboardAccess.KeyDown(' ', 99); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F11: keyboardAccess.KeyDown(' ', 100); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_F12: keyboardAccess.KeyDown(' ', 101); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_LCTRL: keyboardAccess.KeyDown(' ', 119); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_RSHIFT: keyboardAccess.KeyDown(' ', 117); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_LSHIFT: keyboardAccess.KeyDown(' ', 116); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_RALT: keyboardAccess.KeyDown(' ', 121); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_LALT: keyboardAccess.KeyDown(' ', 156); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_MINUS:
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_MINUS: keyboardAccess.KeyDown('-', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_PLUS:
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_PLUS: keyboardAccess.KeyDown('+', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_MULTIPLY: keyboardAccess.KeyDown('*', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_DIVIDE: keyboardAccess.KeyDown('/', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_COMMA:
+                                    case SDL2.SDL.SDL_Keycode.SDLK_COMMA: keyboardAccess.KeyDown(',', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_SEMICOLON: keyboardAccess.KeyDown(';', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_COLON: keyboardAccess.KeyDown(':', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_EQUALS:
+                                    case SDL2.SDL.SDL_Keycode.SDLK_EQUALS: keyboardAccess.KeyDown('=', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_DOLLAR: keyboardAccess.KeyDown('$', 0); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_CARET: keyboardAccess.KeyDown((char)32, 151); break;
+                                    case SDL2.SDL.SDL_Keycode.SDLK_BACKSLASH: keyboardAccess.KeyDown('µ', 0); break;
+                                    default:
+                                        if ((int)e.key.keysym.sym == 249)
+                                        {
+                                            keyboardAccess.KeyUp('ù', 0);
+                                            break;
+                                        }
+                                        var charr = e.key.keysym.sym.ToString().Replace("SDLK_", "");
+                                        if (charr.IndexOf("KP_") > -1)
+                                        {
+                                            charr = charr.Replace("KP_", "");
+                                            if (charr.Length == 1)
+                                            {
+                                                keyboardAccess.KeyDown(charr[0], int.Parse(charr) + 74);
+                                                continue;
+                                            }
+                                        }
+                                        else if (charr.Length == 1)
+                                            keyboardAccess.KeyDown(charr[0], 0);
+                                        Console.WriteLine(charr);
+                                        break;
+                                }
+                                break;
+                            case SDL2.SDL.SDL_EventType.SDL_KEYUP:
+                                {
+                                    switch (e.key.keysym.sym)
+                                    {
+                                        case SDL2.SDL.SDL_Keycode.SDLK_SPACE: keyboardAccess.KeyUp(' ', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_BACKSPACE:keyboardAccess.KeyUp(' ', 2);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_ENTER:
+                                        case SDL2.SDL.SDL_Keycode.SDLK_RETURN2:
+                                        case SDL2.SDL.SDL_Keycode.SDLK_RETURN:keyboardAccess.KeyUp(' ', 6);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_UP:keyboardAccess.KeyUp(' ', 24);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_DOWN:keyboardAccess.KeyUp(' ', 26);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_LEFT:keyboardAccess.KeyUp(' ', 23);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_RIGHT:keyboardAccess.KeyUp(' ', 25);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F1:keyboardAccess.KeyUp(' ', 90);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F2:keyboardAccess.KeyUp(' ', 91);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F3:keyboardAccess.KeyUp(' ', 92);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F4:keyboardAccess.KeyUp(' ', 93);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F5:keyboardAccess.KeyUp(' ', 94);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F6:keyboardAccess.KeyUp(' ', 95);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F7:keyboardAccess.KeyUp(' ', 96);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F8:keyboardAccess.KeyUp(' ', 97);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F9:keyboardAccess.KeyUp(' ', 98);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F10:keyboardAccess.KeyUp(' ', 99);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F11:keyboardAccess.KeyUp(' ', 100);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_F12:keyboardAccess.KeyUp(' ', 101);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_LCTRL:keyboardAccess.KeyUp(' ', 119);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_RSHIFT:keyboardAccess.KeyUp(' ', 117);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_LSHIFT:keyboardAccess.KeyUp(' ', 116);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_RALT:keyboardAccess.KeyUp(' ', 121);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_LALT:keyboardAccess.KeyUp(' ', 156);break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_MINUS:
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_MINUS: keyboardAccess.KeyUp('-', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_PLUS:
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_PLUS: keyboardAccess.KeyUp('+', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_MULTIPLY: keyboardAccess.KeyUp('*', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_DIVIDE: keyboardAccess.KeyUp('/', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_COMMA:
+                                        case SDL2.SDL.SDL_Keycode.SDLK_COMMA: keyboardAccess.KeyUp(',', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_SEMICOLON: keyboardAccess.KeyUp(';', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_COLON: keyboardAccess.KeyUp(':', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_EQUALS:
+                                        case SDL2.SDL.SDL_Keycode.SDLK_EQUALS: keyboardAccess.KeyUp('=', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_DOLLAR: keyboardAccess.KeyUp('$', 0); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_CARET: keyboardAccess.KeyUp((char)32, 151); break;
+                                        case SDL2.SDL.SDL_Keycode.SDLK_BACKSLASH: keyboardAccess.KeyUp('µ', 0); break;
+                                        default:
+                                            if ((int)e.key.keysym.sym == 249)
+                                            {
+                                                keyboardAccess.KeyUp('ù', 0);
+                                                break;
+                                            }
+                                            var charr = e.key.keysym.sym.ToString().Replace("SDLK_", "");
+                                            if (charr.IndexOf("KP_") > -1)
+                                            {
+                                                charr = charr.Replace("KP_", "");
+                                                if (charr.Length == 1)
+                                                {
+                                                    keyboardAccess.KeyUp(charr[0], int.Parse(charr) + 74);
+                                                    continue;
+                                                }
+                                            }
+                                            else if (charr.Length == 1)
+                                                keyboardAccess.KeyUp(charr[0], 0);
+                                            break;
+                                    }
+                                    break;
+                                }
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    ConsoleHelper.WriteError<SDLWindow>(ex);
+                }
+               
             }
         }
         public void Stop()
