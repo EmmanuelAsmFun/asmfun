@@ -81,6 +81,20 @@ namespace AsmFun.WebServer.Controllers
         {
             var data = debugger.GetMemory(startAddress, count);
             return data;
+        } 
+        [HttpPost]
+        public object WriteMemoryBlock([FromBody] MemoryBlock data)
+        {
+            if (data == null || data.Data == null) return new { isValid = true };
+            debugger.WriteMemoryBlock(data.StartAddress, data.Data,data.Count);
+            return new { isValid = true };
+        } 
+        [HttpPost]
+        public object WriteVideoMemoryBlock([FromBody] MemoryBlock data)
+        {
+            if (data == null || data.Data == null) return new { isValid = true };
+            debugger.WriteVideoMemoryBlock(data.StartAddress, data.Data, data.Count);
+            return new { isValid = true };
         }
     }
 }

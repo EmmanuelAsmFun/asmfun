@@ -41,5 +41,7 @@ namespace AsmFun.Computer.Common.Computer.Data
         void KeyRawDown(int[] keyboardKey);
         void KeyRawUp(int[] keyboardKey, bool withBreak);
         MemoryDumpData[] VideoMemoryDump();
+        void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
+        void WriteMemoryBlock(int startAddress, byte[] data, int count);
     }
 }

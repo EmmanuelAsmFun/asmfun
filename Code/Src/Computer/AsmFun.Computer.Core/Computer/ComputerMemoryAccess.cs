@@ -129,6 +129,12 @@ namespace AsmFun.Computer.Common.Data.Computer
             //lock (ByType)
                 ByType[type].WriteUShort(address, value);
         }
+        public void WriteBlock(int startAddress, byte[] data, int count)
+        {
+            var type = computerAccess.GetAddressType(startAddress, 0);
+            //lock (ByType)
+            ByType[type].WriteBlock(data, 0, startAddress, count);
+        }
 
 
         public virtual ProcessorStackModel ReadStack(int bytesCount)
@@ -157,5 +163,7 @@ namespace AsmFun.Computer.Common.Data.Computer
             };
             return returnData;
         }
+
+       
     }
 }

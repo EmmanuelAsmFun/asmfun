@@ -27,14 +27,14 @@ namespace AsmFun.Core.DataAccess
         private readonly IUserSettingsDA userSettingsDA;
         private readonly IProjectSettingsDA projectSettingsDA;
 
-        public ProjectDA(IAsmJSonSerializer serializer, IEmServiceResolverFactory container, IUserSettingsDA userSettingsDA, 
+        public ProjectDA(IAsmJSonSerializer serializer, IEmServiceResolverFactory container, IUserSettingsDA userSettingsDA,
             IProjectSettingsDA projectSettingsDA)
         {
             this.serializer = serializer;
             this.container = container;
             this.userSettingsDA = userSettingsDA;
             this.projectSettingsDA = projectSettingsDA;
-            
+
         }
 
         public List<ProjectDetail> GetWebProjects()
@@ -154,6 +154,22 @@ namespace AsmFun.Core.DataAccess
                     RomVersion = "R33",
                     UnderConstruction = false,
                     CompilerVariables = " -DMACHINE_C64=0"
+                }, new ProjectDetail
+                {
+                    Id = new Guid("{5421ADE7-BF38-4B84-932F-44E76C70EE1A}"),
+                    DeveloperName = "Jimmy Dansbo",
+                    DevPicUrl = "https://asmfun.com/Images/avatar/jimmy-dansbo/jimmy-dansbo.gif",
+                    Name = "CX16 Maze",
+                    Description = "Game inspired by the Android game Amaze.",
+                    ImageUrl="https://asmfun.com/projects/DemoGames/cx16maze.jpg",
+                    InternetSourceType = InternetSourceType.GitHub,
+                    InternetSource = "https://github.com/JimmyDansbo/cx16-maze/",
+                    InternetVersion = "8f7c83f6f3e32bcf9be83ddf8d4be334842909d9",
+                    ProjectUrl = "https://github.com/JimmyDansbo/cx16-maze/",
+                    StartFile = $"cx16maze.asm",
+                    RomVersion = "R35",
+                    UnderConstruction = false,
+                    CompilerVariables = ""
                 }
 
                 // ASM6
@@ -228,18 +244,18 @@ namespace AsmFun.Core.DataAccess
             var cleanName = ReplaceInvalidChars(nameForFileSystem);
             if (string.IsNullOrWhiteSpace(cleanName)) return null;
             var projectFolder = EnsureProjectsFolder(cleanName);
-            var settings = projectSettingsDA.TryLoadByFolderOrCreate(projectFolder,null);
+            var settings = projectSettingsDA.TryLoadByFolderOrCreate(projectFolder, null);
             settings.Configurations[0] = buildConfiguration;
             settings.Detail.FullFolderName = projectFolder;
             settings.Detail.DeveloperName = developerName;
             projectSettingsDA.Save(settings);
-            File.WriteAllText(Path.Combine(projectFolder,"Main.asm"), "!cpu 65c02\r\n\r\n" +
+            File.WriteAllText(Path.Combine(projectFolder, "Main.asm"), "!cpu 65c02\r\n\r\n" +
                     ";Basic Command SYS $8010\r\n" +
                 " *=$0801\r\n" +
                 "    !8 $0E, $08, $0A, $00, $9E, $20, $28, $32, $30 , $36, $34, $29, $00, $00, $00\r\n" +
                 " *=$0810\r\n" +
                 "\r\n" +
-                "\r\n" 
+                "\r\n"
                 );
             return settings;
         }
@@ -299,7 +315,7 @@ namespace AsmFun.Core.DataAccess
             if (File.Exists(fileStart)) return projectSettingsDA.TryLoadByFolderOrCreate(projectFolder, projectDetail.StartFile);
 
             var gitHub = new GitHubDataAccess();
-            gitHub.Load(projectFolder,projectDetail);
+            gitHub.Load(projectFolder, projectDetail);
             return TryLoadLocal(projectFolder, projectDetail);
         }
         private string PrepareProjectFolder(ProjectDetail projectDetail)
@@ -309,14 +325,14 @@ namespace AsmFun.Core.DataAccess
             return projectFolder;
         }
 
-        private ProjectSettings TryLoadLocal(string projectFolder,ProjectDetail projectDetail)
+        private ProjectSettings TryLoadLocal(string projectFolder, ProjectDetail projectDetail)
         {
             var settings = projectSettingsDA.TryLoadByFolderOrCreate(projectFolder, projectDetail.StartFile);
             if (settings == null) return null;
             settings.Detail = projectDetail;
             settings.Detail.FullFolderName = projectFolder;
-                settings.Configurations[0].RomVersion = projectDetail.RomVersion;
-                settings.Configurations[0].CompilerVariables = projectDetail.CompilerVariables;
+            settings.Configurations[0].RomVersion = projectDetail.RomVersion;
+            settings.Configurations[0].CompilerVariables = projectDetail.CompilerVariables;
             projectSettingsDA.Save(settings);
             return settings;
         }
@@ -327,7 +343,7 @@ namespace AsmFun.Core.DataAccess
             return null;
         }
 
-       
+
         private string EnsureProjectsFolder(string projectName)
         {
             var projectFolder = GetProjectsFolder();

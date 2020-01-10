@@ -15,6 +15,7 @@ import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { VideoPaletteManager } from "./Video/VideoPaletteManager.js";
 import { VideoSpriteManager } from "./Video/VideoSpriteManager.js";
 import { VideoComposerManager } from "./Video/VideoComposerManager.js";
+import { DebuggerService } from "../services/DebuggerService.js";
 
 
 export class VideoManager {
@@ -40,10 +41,11 @@ export class VideoManager {
         this.videoComposerManager = mainData.container.Resolve<VideoComposerManager>(VideoComposerManager.ServiceName) ?? new VideoComposerManager();
         this.mainData.commandManager.Subscribe2(new VideoOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new VideoReloadAllCommand(), this, () => this.ReloadData());
-        this.videoLayerManager.Init(this.data);
+        var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
+        this.videoLayerManager.Init(this.data, debugSvc);
         this.videoPaletteManager.Init(this.data);
-        this.videoSpriteManager.Init(this.data);
-        this.videoComposerManager.Init(this.data);
+        this.videoSpriteManager.Init(this.data, debugSvc);
+        this.videoComposerManager.Init(this.data, debugSvc);
     }
 
     private ReloadData() {

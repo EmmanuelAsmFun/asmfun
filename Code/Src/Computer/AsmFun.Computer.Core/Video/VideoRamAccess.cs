@@ -60,9 +60,9 @@ namespace AsmFun.Computer.Core.Video
             return buf;
         }
 
-        public virtual void WriteBlock(byte[] bytes, int sourceIndex, int targetIndex, int length)
+        public virtual void WriteBlock(byte[] bytes, int sourceIndex, int address, int length)
         {
-            throw new NotImplementedException();
+            Marshal.Copy(bytes, sourceIndex, videoRAM + (int)address, length); ;
         }
 
         public void MemoryDumpToFile(string fileName = @"c:\temp\RAMDump.bin")

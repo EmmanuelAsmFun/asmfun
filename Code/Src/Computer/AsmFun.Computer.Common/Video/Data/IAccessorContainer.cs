@@ -21,5 +21,6 @@ namespace AsmFun.Computer.Common.Video.Data
         void Write(uint address, byte value);
 
         MemoryDumpData[] MemoryDump();
+        void WriteBlock(int startAddress, byte[] data, int count);
     }
 }

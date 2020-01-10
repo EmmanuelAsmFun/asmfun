@@ -1,8 +1,9 @@
-﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoColor, IVideoSpriteProperties, X16SpriteMode, ISpritesData } from "../../data/VideoData.js";
+﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoColor, IVideoSpriteProperties, X16SpriteModes, ISpritesData } from "../../data/VideoData.js";
 import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
 import { AsmTools } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
+import { DebuggerService } from "../../services/DebuggerService.js";
 
 // #region license
 // ASM Fun
@@ -16,10 +17,12 @@ export class VideoSpriteManager {
     private usedSprites = 0;
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
+    private debuggerService?: DebuggerService;
 
-    public Init(videoManagerData: IVideoManagerData) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService) {
         this.videoSettings = videoManagerData.settings;
         this.videoManagerData = videoManagerData;
+        this.debuggerService = debuggerService;
     }
 
     public Reset() {
@@ -37,10 +40,26 @@ export class VideoSpriteManager {
         spData.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
         var sprites: IVideoSpriteProperties[] = [];
         for (var i = 0; i < this.videoSettings.NumberOfSprites; i++) {
-            var spriteData = this.RefreshSpriteAttributes(i, data.subarray(i * 8, i * 8 + 8));
+            const dataAr = data.subarray(i * 8, i * 8 + 8);
+            var spriteData = this.RefreshSpriteAttributes(i, dataAr);
             if (spriteData.SpriteAddress == 0) {
                 this.usedSprites = i -1;
                 break;
+            }
+            spriteData.Modes = AsmTools.EnumToArray(X16SpriteModes);
+            spriteData.valueChanged = v => {
+                if (this.videoManagerData != null && this.videoManagerData.spriteDatas.selectedSprite != null) {
+                    const spr = this.videoManagerData.spriteDatas.selectedSprite;
+                    let data2 = this.RecalculateArray(spr);
+                    spr.RawDataString = AsmTools.ArrayToHexString(data2);
+                    if (this.debuggerService != null)
+                        this.debuggerService.WriteVideoMemoryBlock(memDump.startAddress + spr.SpriteIndex * 8, data2, data2.length, () => { });
+                    this.ParseData(spr, data2);
+                }
+            };
+            spriteData.CopyToClipBoard = () => {
+                if (this.videoManagerData == null || this.videoManagerData.spriteDatas.selectedSprite == null) return;
+                AsmTools.CopyToClipBoard(this.videoManagerData.spriteDatas.selectedSprite.RawDataString);
             }
             sprites.push(spriteData);
         }
@@ -73,19 +92,40 @@ export class VideoSpriteManager {
         this.videoManagerData.spriteDatas.selectedSpriteIndex = this.videoManagerData.spriteDatas.sprites.indexOf(sprite);
     }
 
-    private RefreshSpriteAttributes(spriteIndex:number, newData: Uint8Array): IVideoSpriteProperties {
+    private RecalculateArray(sprite: IVideoSpriteProperties) {
+        sprite.Mode = X16SpriteModes[sprite.ModeString];
+        var address = parseInt(sprite.SpriteAddressHex,16);
+        var data: Uint8Array = new Uint8Array(8);
+        data[0] = (address >>5) & 0xff;
+        data[1] = ((address >> 13) & 0xf) | (sprite.Mode == X16SpriteModes.Bpp8 ? 1 : 0) << 7;
+        data[2] = (sprite.X & 0xff);
+        data[3] = ((sprite.X >> 8) & 0xff);
+        data[4] = (sprite.Y & 0xff);
+        data[5] = ((sprite.Y >> 8) & 0xff);
+        data[6] = (sprite.HFlip ? 1 : 0) | ((sprite.VFlip ? 1 : 0) << 1) | ((sprite.ZDepth & 3) << 2) | ((sprite.CollisionMask & 0x0f) << 4);
+        data[7] = ((Math.log2(sprite.Width) - 3) << 4) | ((Math.log2(sprite.Height) - 3) << 6) | ((sprite.palette_offset >>4) & 0x0f);
+        return data;
+    }
+
+    private RefreshSpriteAttributes(spriteIndex: number, newData: Uint8Array): IVideoSpriteProperties {
         var thiss = this;
         var props = VideoSpriteManager.NewSpriteData();
+        props.SpriteIndex = spriteIndex;
+        this.ParseData(props, newData);
+        return props;
+    }
+    private ParseData(props: IVideoSpriteProperties, newData: Uint8Array): IVideoSpriteProperties {
+        
         props.RawDataString = AsmTools.ArrayToHexString(newData);
-        props.name = "Sprite_" + (spriteIndex+1);
-        props.select = (s) => { thiss.SelectSprite(s); };
+        props.name = "Sprite_" + (props.SpriteIndex+1);
+        props.select = (s) => { this.SelectSprite(s); };
         // Offset 0 : BIT 1 - 8 | Offset 1 : BIT 0- 3
         props.SpriteAddress = (newData[0] << 5 | (newData[1] & 0xf) << 13);
         props.SpriteAddressHex = AsmTools.numToHex5(props.SpriteAddress);
         // Offset 1 : BIT 7
-        props.Mode = ((newData[1] >> 7) & 1) == 1 ? X16SpriteMode.Bpp8 : X16SpriteMode.Bpp4;
-        props.ModeString = X16SpriteMode[props.Mode];
-        props.Bpp = props.Mode == X16SpriteMode.Bpp8 ? 8 : 4;
+        props.Mode = ((newData[1] >> 7) & 1) == 1 ? X16SpriteModes.Bpp8 : X16SpriteModes.Bpp4;
+        props.ModeString = X16SpriteModes[props.Mode];
+        props.Bpp = props.Mode == X16SpriteModes.Bpp8 ? 8 : 4;
         // Offset 2: BIT 0  - 7 | Offset 3 : BIT 1 2
         props.X = (newData[2] | (newData[3] & 3) << 8);
         // Offset 4: BIT 0  - 7 | Offset 5 : BIT 1 2
@@ -178,10 +218,11 @@ export class VideoSpriteManager {
             Height: 0,
             HFlip: false,
             VFlip: false,
-            Mode: X16SpriteMode.Bpp4,
+            Mode: X16SpriteModes.Bpp4,
             ModeString: "Bpp4",
             Bpp:4,
             palette_offset: 0,
+            SpriteIndex: 0,
             SpriteAddress: 0,
             SpriteAddressHex:"",
             Width: 0,
@@ -190,7 +231,10 @@ export class VideoSpriteManager {
             ZDepth: 0,
             select: () => { },
             
-            name:"",
+            name: "",
+            valueChanged: () => { },
+            CopyToClipBoard: () => { },
+            Modes:[],
         };
     }
     public static ServiceName: ServiceName = { Name: "VideoSpriteManager" };

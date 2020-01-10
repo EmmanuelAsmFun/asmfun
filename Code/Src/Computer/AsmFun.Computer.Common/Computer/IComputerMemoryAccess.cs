@@ -28,7 +28,9 @@ namespace AsmFun.Computer.Common.Computer
         void WriteRAM(byte[] bytes, int sourceOffest, int targetOffset, int length);
         void WriteROM(byte[] bytes, int startIndex = 0);
         void WriteUShort(int address, ushort value);
+        void WriteBlock(int startAddress, byte[] data, int count);
 
         ProcessorStackModel ReadStack(int bytesCount);
+        
     }
 }

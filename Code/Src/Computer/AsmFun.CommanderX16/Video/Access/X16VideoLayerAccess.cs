@@ -285,9 +285,14 @@ namespace AsmFun.CommanderX16.Video
 
         public void WriteBlock(byte[] bytes, int startIndex, int address, int length)
         {
+            byte layerIndex = 0;
             if (address >= 0x1000)
-                address += layerSize;
+            {
+                address = layerSize;
+                layerIndex = 1;
+            }
             Marshal.Copy(bytes, startIndex, layerMemory_P + address, length);
+            ReloadLayer(layerIndex);
         }
        
         public byte[] MemoryDump(int startAddress)

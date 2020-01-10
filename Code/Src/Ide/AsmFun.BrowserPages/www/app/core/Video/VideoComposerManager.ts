@@ -3,6 +3,7 @@ import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
 import { AsmTools } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
+import { DebuggerService } from "../../services/DebuggerService.js";
 
 // #region license
 // ASM Fun
@@ -15,6 +16,7 @@ export class VideoComposerManager {
 
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
+    private debuggerService?: DebuggerService;
     /**$0F:$0000 : Output mode and chroma toggle. */
     b_OutputModeAndChromaToggle: number = 0;
     // $0F:$0001 :Horizontal Scale
@@ -35,9 +37,10 @@ export class VideoComposerManager {
     b_CourseAdjustmentsDispayArea: number = 0;
 
 
-    public Init(videoManagerData: IVideoManagerData) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService) {
         this.videoSettings = videoManagerData.settings;
         this.videoManagerData = videoManagerData;
+        this.debuggerService = debuggerService;
     }
 
 
@@ -56,11 +59,16 @@ export class VideoComposerManager {
         composer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
         composer.valueChanged = v => {
             //alert("oo");
-            this.recalculateArray(composer, videoPaletteManager);
+            let data = this.RecalculateArray(composer, videoPaletteManager);
+            if (this.debuggerService != null)
+                this.debuggerService.WriteVideoMemoryBlock(memDump.startAddress, data, data.length, () => { });
         };
+        composer.CopyToClipBoard = () => AsmTools.CopyToClipBoard(composer.RawDataString);
+        
         composer.OutModes = AsmTools.EnumToArray(VideoOutModes)
         composer.HScales = AsmTools.EnumToArray(HScales).map(x => x.replace("HorizontalScale_", "").replace("_", ":"));
         composer.VScales = AsmTools.EnumToArray(VScales).map(x => x.replace("VerticalScale_", "").replace("_", ":"));
+        
     }
 
     private SetBaseData(data: Uint8Array) {
@@ -72,7 +80,7 @@ export class VideoComposerManager {
         this.b_VEndDisplayArea = data[7];
         this.b_CourseAdjustmentsDispayArea = data[8];
     }
-    private recalculateArray(composer: IVideoDisplayComposer, videoPaletteManager: VideoPaletteManager) {
+    private RecalculateArray(composer: IVideoDisplayComposer, videoPaletteManager: VideoPaletteManager) {
         // Set enum strings back to numeric
         composer.OutMode = VideoOutModes[composer.OutModeString];
         composer.b_HScale = HScales["HorizontalScale_" + composer.HScaleString.replace(":", "_")];
@@ -104,6 +112,7 @@ export class VideoComposerManager {
 
         if (composer.BorderColor != null && composer.BorderColor !== undefined && composer.BorderColor >= 0 && composer.BorderColor < 256)
             composer.BorderColorData = videoPaletteManager.GetColor(composer.BorderColor);
+        return data;
     }
 
     private ParseByte(composer: IVideoDisplayComposer, pos: number, value: number) {
@@ -233,7 +242,8 @@ export class VideoComposerManager {
             OutModes: [],
             HScales: [],
             VScales: [],
-            valueChanged: () => { }
+            valueChanged: () => { },
+            CopyToClipBoard: () => { },
         }
     }
 

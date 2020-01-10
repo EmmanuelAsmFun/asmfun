@@ -26,5 +26,7 @@ namespace AsmFun.Computer.Common.Managers
         SourceCodeLabel ChangeLabelValue(string name, int newValue);
 
         MemoryBlock GetMemory(int startAddress, int count);
+        void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
+        void WriteMemoryBlock(int startAddress, byte[] data, int count);
     }
 }

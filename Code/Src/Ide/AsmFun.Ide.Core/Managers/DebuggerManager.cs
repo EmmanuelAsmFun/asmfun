@@ -119,5 +119,22 @@ namespace AsmFun.Ide.Core.Managers
             var memoryBlock = computerManager.GetMemoryBlock(startAddress, count);
             return memoryBlock;
         }
+
+        public void WriteMemoryBlock(int startAddress, byte[] data, int count)
+        {
+            if (startAddress < 0) startAddress = 0;
+            if (count > 2048*10) count = 2048*10;
+            var comp = computerManager.GetComputer();
+            if (comp == null) return;
+            computerManager.WriteMemoryBlock(startAddress, data, count);
+        }
+        public void WriteVideoMemoryBlock(int startAddress, byte[] data, int count)
+        {
+            if (startAddress < 0) startAddress = 0;
+            if (count > 2048*10) count = 2048*10;
+            var comp = computerManager.GetComputer();
+            if (comp == null) return;
+            computerManager.WriteVideoMemoryBlock(startAddress, data, count);
+        }
     }
 }

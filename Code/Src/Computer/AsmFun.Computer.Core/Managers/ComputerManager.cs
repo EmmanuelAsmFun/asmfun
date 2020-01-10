@@ -171,6 +171,17 @@ namespace AsmFun.Computer.Core.Managers
             return Computer.VideoMemoryDump();
         }
 
+        public void WriteVideoMemoryBlock(int startAddress, byte[] data, int count)
+        {
+            if (Computer == null) return;
+            Computer.WriteVideoMemoryBlock(startAddress, data, count);
+        }
+        public void WriteMemoryBlock(int startAddress, byte[] data, int count)
+        {
+            if (Computer == null) return;
+            Computer.WriteMemoryBlock(startAddress, data, count);
+        }
+
         private class ComputerFactoryItem
         {
             public ComputerSettings ComputerSettings { get; set; }

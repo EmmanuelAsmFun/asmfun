@@ -61,11 +61,23 @@ export interface IVideoLayerData {
     name: string;
     startAddress: string;
     endAddress: string;
-    
+
+    valueChanged: (v) => void;
+    CopyToClipBoard: () => void;
+    Modes: string[],
+}
+export enum LayerModes {
+    Text_16_color_1 = 0 ,
+    Text_256_color_1 = 1 ,
+    TileMode_2 = 2,
+    TileMode_4 = 3,
+    TileMode_8 = 4,
+    BitmapMode_2 = 5,
+    BitmapMode_4 = 6,
+    BitmapMode_8 = 7,
 }
 
 export interface IVideoSettings {
-
     Width: number;
     Height: number;
     PaletteSize: number;
@@ -100,7 +112,7 @@ export interface ISpritesData {
 }
 
 
-export enum X16SpriteMode {
+export enum X16SpriteModes {
     Bpp4 = 0,
     Bpp8 = 1,
 }
@@ -118,9 +130,11 @@ export interface IVideoSpriteProperties {
     Height: number;
     HFlip: boolean;
     VFlip: boolean;
-    Mode: X16SpriteMode;
+    Mode: X16SpriteModes;
+    Modes: X16SpriteModes[];
     ModeString:string,
     Bpp:number,
+    SpriteIndex: number;
     SpriteAddress: number;
     SpriteAddressHex: string;
     palette_offset: number;
@@ -128,7 +142,9 @@ export interface IVideoSpriteProperties {
     name: string;
     RawDataString: string;
     select: (IVideoSpriteProperties) => void;
-    
+
+    valueChanged: (v) => void;
+    CopyToClipBoard: () => void;
 }
 
 export enum HScales {
@@ -183,6 +199,7 @@ export interface IVideoDisplayComposer {
     OutModes: VideoOutModes[]
     HScales: HScales[]
     VScales: VScales[]
+    CopyToClipBoard: () => void;
 }
 
 export interface IVideoRenderLineContext {

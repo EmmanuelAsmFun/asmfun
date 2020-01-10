@@ -551,13 +551,13 @@ programItem.address  | toHex2
                     <a class="close-btn" v-on:click="VideoOpenManager(false)">X</a>
                 </div>
                 <div class="content">
-                    <h2>Video</h2>
+                    <h2><span class="fa fa-image"></span> Video</h2>
                     <a class="btn-reload" v-on:click="VideoReloadAll">Reload</a>
 
                     <div class="Composer">
                         <h3>Composer</h3>
                         <div class="vAddress">0x{{videoManager.composer.startAddress}} - 0x{{videoManager.composer.endAddress}}</div>
-                        <div class="rawBinaryData">{{videoManager.composer.RawDataString}}</div>
+                        <div class="rawBinaryData">{{videoManager.composer.RawDataString}} <a v-on:click="videoManager.composer.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
                         <table>
                             <tr><td>OutMode</td><td>
                                   <editable-select v-model="videoManager.composer.OutModeString" :options="videoManager.composer.OutModes" 
@@ -637,31 +637,58 @@ programItem.address  | toHex2
                         <div v-for="layerInfo in videoManager.layers" class="layerInfo">
                             <h3>{{layerInfo.name}}</h3>
                             <div class="vAddress">0x{{layerInfo.startAddress}} - 0x{{layerInfo.endAddress}}</div>
-                            <div class="rawBinaryData">{{layerInfo.RawDataString}}</div>
+                            <div class="rawBinaryData">{{layerInfo.RawDataString}} <a v-on:click="layerInfo.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
                             <div class="table-cont">
                                 <table v-bind:style="{opacity : layerInfo.IsEnabled? 1:0.7}">
-                                    <tr><td>IsEnabled</td><td>{{layerInfo.IsEnabled}}</td></tr>
-                                    <tr><td>Mode</td><td>{{layerInfo.ModeString}} {{layerInfo.BitsPerPixel}}bpp</td></tr>
+                                    <tr><td>IsEnabled</td><td>
+                                        <editable-checkbox v-model="layerInfo.IsEnabled" v-on:valuechanged="layerInfo.valueChanged"></editable-checkbox>
+                                    </td></tr>
+                                    <tr><td>Mode</td><td>
+                                        <editable-select v-model="layerInfo.ModeString" :options="layerInfo.Modes"
+                                                        v-on:valuechanged="layerInfo.valueChanged"></editable-select>
+                                        </td></tr>
                                     <tr title="Specifies the base address where tile map data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
                                         <td>Map Address</td>
-                                        <td>0x{{layerInfo.MapBaseHex}}</td>
+                                        <td>
+                                            0x<editable-field v-model="layerInfo.MapBaseHex" v-on:valuechanged="layerInfo.valueChanged">
+                                        </td>
                                     </tr>
                                     <tr title="Specify the map width and map height respectively:">
                                         <td>Map Size</td>
-                                        <td>{{layerInfo.MapWidth}} x {{layerInfo.MapHeight}} tiles</td>
+                                        <td>
+                                            <span>
+                                                <editable-field v-model="layerInfo.MapWidth" v-on:valuechanged="layerInfo.valueChanged">
+                                            </span> x
+                                            <span>
+                                                <editable-field v-model="layerInfo.MapHeight" v-on:valuechanged="layerInfo.valueChanged">
+                                            </span> tiles
+                                        </td>
                                     </tr>
                                     <tr title="Specifies the base address where tile data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
                                         <td>Tile Address</td>
-                                        <td>0x{{layerInfo.TileBaseHex}}</td>
+                                        <td>
+                                            0x<editable-field v-model="layerInfo.TileBaseHex" v-on:valuechanged="layerInfo.valueChanged">
+                                        </td>
                                     </tr>
                                     <tr title="Specify the tile width and tile height respectively">
                                         <td>Tile Size</td>
-                                        <td>{{layerInfo.TileWidth}} x {{layerInfo.TileHeight}} ({{layerInfo.TileSize}})</td>
+                                        <td>
+                                         <span>
+                                                <editable-field v-model="layerInfo.TileWidth" v-on:valuechanged="layerInfo.valueChanged">
+                                            </span> x
+                                            <span>
+                                                <editable-field v-model="layerInfo.TileHeight" v-on:valuechanged="layerInfo.valueChanged">
+                                            </span>
+                                       ({{layerInfo.TileSize}})</td>
                                     </tr>
 
                                     <tr><td>Layer Size</td><td>{{layerInfo.LayerWidth}} x {{layerInfo.LayerHeight}}</td></tr>
-                                    <tr><td>Scroll</td><td>{{layerInfo.HorizontalScroll}} x {{layerInfo.VerticalScroll}}</td></tr>
-                                    <tr><td>Palette Offset</td><td>{{layerInfo.PaletteOffset}}</td></tr>
+                                    <tr><td>Scroll</td><td>
+                                        <span><editable-field v-model="layerInfo.HorizontalScroll" v-on:valuechanged="layerInfo.valueChanged"></span> x
+                                        <span><editable-field v-model="layerInfo.VerticalScroll" v-on:valuechanged="layerInfo.valueChanged"></span>
+                                    <tr><td>Palette Offset</td><td>
+                                         <editable-field v-model="layerInfo.PaletteOffset" v-on:valuechanged="layerInfo.valueChanged">
+                                         </td></tr>
                                 </table>
                             </div>
                             <div class="Canvas-cont">
@@ -677,7 +704,7 @@ programItem.address  | toHex2
                         <h3>Sprites</h3>
                         <div class="vAddress">0x{{videoManager.spriteDatas.startAddress}} - 0x{{videoManager.spriteDatas.endAddress}}</div>
                         <div v-if="videoManager.spriteDatas.selectedSprite != null">
-                            <div class="rawBinaryData">{{videoManager.spriteDatas.selectedSprite.RawDataString}}</div>
+                            <div class="rawBinaryData">{{videoManager.spriteDatas.selectedSprite.RawDataString}} <a v-on:click="videoManager.spriteDatas.selectedSprite.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
                             <div class="table-cont">
                                 <select v-model="videoManager.spriteDatas.selectedSprite">
                                     <option v-for="option in videoManager.spriteDatas.sprites" v-bind:value="option">{{ option.name }}</option>
@@ -686,17 +713,45 @@ programItem.address  | toHex2
                                 <a v-on:click="videoManager.spriteDatas.changeSprite(1)">&gt;</a>
                                 <table>
                                     <tr>
-                                        <td>Position</td>
+                                        <td>Mode</td>
                                         <td>
-                                            {{videoManager.spriteDatas.selectedSprite.X}} x {{videoManager.spriteDatas.selectedSprite.Y}}
-                                            (z={{videoManager.spriteDatas.selectedSprite.ZDepth}})
+                                            <editable-select v-model="videoManager.spriteDatas.selectedSprite.ModeString" :options="videoManager.spriteDatas.selectedSprite.Modes"
+                                                             v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
                                         </td>
                                     </tr>
-                                    <tr><td>Size</td><td>{{videoManager.spriteDatas.selectedSprite.Width}} x {{videoManager.spriteDatas.selectedSprite.Height}}</td></tr>
-                                    <tr><td>Flip</td><td>{{videoManager.spriteDatas.selectedSprite.HFlip}} x {{videoManager.spriteDatas.selectedSprite.VFlip}}</td></tr>
-                                    <tr><td>Mode</td><td>{{videoManager.spriteDatas.selectedSprite.ModeString}}</td></tr>
-                                    <tr><td>Address</td><td>0x{{videoManager.spriteDatas.selectedSprite.SpriteAddressHex}}</td></tr>
-                                    <tr><td>Palette Offset</td><td>{{videoManager.spriteDatas.selectedSprite.palette_offset}}</td></tr>
+                                    <tr>
+                                        <td>Position</td>
+                                        <td>
+                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.X" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
+                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Y" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
+                                        </td>
+                                    </tr>
+                                    <tr><td>Z Depth</td><td><editable-field v-model="videoManager.spriteDatas.selectedSprite.ZDepth" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></td></tr>
+                                    <tr>
+                                        <td>Size</td>
+                                        <td>
+                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Width" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
+                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Height" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
+
+                                            {{videoManager.spriteDatas.selectedSprite.Width}} x {{videoManager.spriteDatas.selectedSprite.Height}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Flip</td>
+                                        <td>
+                                            <span><editable-checkbox v-model="videoManager.spriteDatas.selectedSprite.HFlip" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-checkbox></span> x
+                                            <span><editable-checkbox v-model="videoManager.spriteDatas.selectedSprite.VFlip" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-checkbox></span>
+                                        </td>
+                                    </tr>
+
+                                    <tr><td>Address</td><td>0x<editable-field v-model="videoManager.spriteDatas.selectedSprite.SpriteAddressHex" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></td></tr>
+                                    <tr>
+                                        <td>Palette Offset</td>
+                                        <td>
+                                            <editable-field v-model="videoManager.spriteDatas.selectedSprite.palette_offset" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged">
+                                                {{videoManager.spriteDatas.selectedSprite.palette_offset}}
+                                        </td>
+                                    </tr>
                                     <tr><td>Collision Mask</td><td>{{videoManager.spriteDatas.selectedSprite.CollisionMask}}</td></tr>
                                 </table>
                             </div>

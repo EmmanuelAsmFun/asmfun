@@ -34,5 +34,7 @@ namespace AsmFun.Computer.Common.Managers
         void KeyRawUp(int[] data, bool withBreak);
         void KeyRawDown(int[] data);
         MemoryDumpData[] VideoMemoryDump();
+        void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
+        void WriteMemoryBlock(int startAddress, byte[] data, int count);
     }
 }

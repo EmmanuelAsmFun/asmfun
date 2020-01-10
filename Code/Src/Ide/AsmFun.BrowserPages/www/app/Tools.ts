@@ -116,4 +116,15 @@ export class AsmTools {
             .filter(key => typeof enumType[key] !== 'number')
             .map(key => enumType[key]);
     }
+
+    public static async CopyToClipBoard(text: string) {
+        try {
+            const toCopy = text || location.href;
+            await navigator.clipboard.writeText(toCopy);
+            console.log('Text or Page URL copied');
+        }
+        catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    }
 }

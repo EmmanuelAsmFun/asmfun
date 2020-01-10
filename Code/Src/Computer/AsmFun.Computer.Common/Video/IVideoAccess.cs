@@ -25,5 +25,6 @@ namespace AsmFun.Computer.Common.Video
         void SetDisplay(IComputerDisplay display);
         void LockOnMhz(bool value);
         MemoryDumpData[] MemoryDump();
+        void WriteBlock(int startAddress, byte[] data, int count);
     }
 }

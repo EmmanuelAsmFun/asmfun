@@ -86,6 +86,11 @@ namespace AsmFun.CommanderX16.Video
         {
             return accessorContainer.MemoryDump();
         }
+
+        public void WriteBlock(int startAddress, byte[] data, int count)
+        {
+            accessorContainer.WriteBlock(startAddress, data, count);
+        }
     }
 }
 

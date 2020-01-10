@@ -276,9 +276,15 @@ namespace AsmFun.CommanderX16.Video
             Refresh((ushort)spriteIndex, datas);
         }
 
-        public void WriteBlock(byte[] bytes, int sourceIndex, int targetIndex, int length)
+        public void WriteBlock(byte[] bytes, int sourceIndex, int address, int length)
         {
-            throw new NotImplementedException();
+            // Receives full address
+            var add = address - spriteDataStartAddress;
+            var spriteIndex = (address >> 3) & 0xff;
+            var datas = sprite_data[spriteIndex];
+            Array.Copy(bytes, sourceIndex, datas, address & 0x7, length);
+            Array.Copy(bytes, sourceIndex, sprite_data_raw, add, length);
+            Refresh((ushort)spriteIndex, datas);
         }
         public void MemoryDump(byte[] data, int startInsertAddress)
         {

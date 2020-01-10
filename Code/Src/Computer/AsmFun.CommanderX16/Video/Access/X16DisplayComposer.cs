@@ -110,6 +110,11 @@ namespace AsmFun.CommanderX16.Video
 
         public override void Write(uint pos, byte value)
         {
+            WriteToProps(pos, value);
+            videoPainter.RequestUpdatePaintProcedure();
+        }
+        private void WriteToProps(uint pos, byte value)
+        { 
             //Console.WriteLine("Comp:" + pos + "=" + value);
             composerData[pos] = value;
             switch (pos)
@@ -187,7 +192,7 @@ namespace AsmFun.CommanderX16.Video
                     break;
             }
             
-            videoPainter.RequestUpdatePaintProcedure();
+            
         }
         public override byte Read(uint pos)
         {
@@ -214,7 +219,10 @@ namespace AsmFun.CommanderX16.Video
         }
         public override void WriteBlock(byte[] bytes, int sourceIndex, int targetIndex, int length)
         {
-            Array.Copy(bytes, sourceIndex, composerData, targetIndex, length);
+            if (length > composerData.Length) length = composerData.Length;
+            for (uint i = 0; i < length; i++)
+                WriteToProps(i, bytes[i]);
+            videoPainter.RequestUpdatePaintProcedure();
         }
         public override HScales GetHScale()
         {

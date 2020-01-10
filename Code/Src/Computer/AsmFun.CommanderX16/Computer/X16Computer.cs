@@ -22,7 +22,6 @@ using System.Threading;
 using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Core.Computer;
 using AsmFun.Computer.Common.IO;
-using System.Threading.Tasks;
 
 
 namespace AsmFun.CommanderX16.Computer
@@ -303,6 +302,14 @@ namespace AsmFun.CommanderX16.Computer
         {
             return videoAccess.MemoryDump();
         }
+        public void WriteVideoMemoryBlock(int startAddress, byte[] data, int count)
+        {
+            videoAccess.WriteBlock(startAddress,data,count);
+        }
+        public void WriteMemoryBlock(int startAddress, byte[] data, int count)
+        {
+            computerAccess.Memory.WriteBlock(startAddress,data,count);
+        }
         public void Dispose()
         {
             if (isDisposed) return;
@@ -314,5 +321,6 @@ namespace AsmFun.CommanderX16.Computer
                 container.Delete(usedService);
         }
 
+       
     }
 }

@@ -96,6 +96,19 @@ namespace AsmFun.Computer.Core.Video
             }
         }
 
+        public void WriteBlock(int address, byte[] data, int count)
+        {
+            foreach (AccessorItem accessor in accessors)
+            {
+                if (address >= accessor.StartAddress && address < accessor.EndAddress)
+                {
+                    accessor.Accessor.WriteBlock(data,0,(int)accessor.AddressTransform((uint)address), count);
+                    return;
+                }
+
+            }
+        }
+
         public MemoryDumpData[] MemoryDump()
         {
             var returnData = new List<MemoryDumpData>();
@@ -113,6 +126,8 @@ namespace AsmFun.Computer.Core.Video
             }
             return returnData.ToArray();
         }
+
+       
 
         [DebuggerDisplay("{StartAddress.ToString(\"X2\")}-{EndAddress.ToString(\"X2\")}:{Accessor.GetType().Name}")]
         private class AccessorItem

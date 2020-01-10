@@ -11,4 +11,8 @@
     <ProjectReference Include="..\AsmFun.Computer.Common\AsmFun.Computer.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="X16Computer\" />
+  </ItemGroup>
+
 </Project>

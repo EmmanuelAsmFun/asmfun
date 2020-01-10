@@ -1,8 +1,9 @@
-﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoRenderLineContext, IVideoMapTile, IVideoDisplayComposer } from "../../data/VideoData.js";
+﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoRenderLineContext, IVideoMapTile, IVideoDisplayComposer, LayerModes } from "../../data/VideoData.js";
 import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
 import { AsmTools } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
+import { DebuggerService } from "../../services/DebuggerService.js";
 
 // #region license
 // ASM Fun
@@ -17,29 +18,77 @@ export class VideoLayerManager {
     private videoWidth: number = 0 ;
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
+    private debuggerService?: DebuggerService;
 
-    public Init(videoManagerData: IVideoManagerData) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService) {
         this.videoSettings = videoManagerData.settings;
         this.videoHeight = videoManagerData.settings.Height;
         this.videoWidth = videoManagerData.settings.Width;
         this.videoManagerData = videoManagerData;
+        this.debuggerService = debuggerService;
     }
 
 
     public Parse(memDump: IMemoryDump, data: Uint8Array) {
         if (this.videoManagerData == null) return;
-        var vidLayer = this.Reload(data);
+        const vidLayer = this.Reload(data);
         vidLayer.name = memDump.name;
         vidLayer.startAddress = AsmTools.numToHex5(memDump.startAddress);
         vidLayer.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
-        vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0,9));
+        vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+        vidLayer.valueChanged = v => {
+            //alert("oo");
+            let data = this.RecalculateArray(vidLayer);
+            vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+            if (this.debuggerService != null)
+                this.debuggerService.WriteVideoMemoryBlock(memDump.startAddress, data, data.length, () => { });
+            this.ParseData(vidLayer, data);
+        };
+        vidLayer.CopyToClipBoard = () => AsmTools.CopyToClipBoard(vidLayer.RawDataString);
         this.videoManagerData.layers.push(vidLayer);
+        vidLayer.Modes = AsmTools.EnumToArray(LayerModes).map(x => x.replace(/_/g, " ")+" bpp");
         return vidLayer;
     }
 
-    public Reload(layerData: Uint8Array): IVideoLayerData {
+    private RecalculateArray(vidLayer: IVideoLayerData) {
+        // Set enum strings back to numeric
+        vidLayer.Mode = LayerModes[vidLayer.ModeString.replace(/ /g, "_").replace("_bpp","")];
+
+        var data: Uint8Array = new Uint8Array(10);
+        data[0] = (vidLayer.IsEnabled ? 1 : 0) | (vidLayer.Mode << 5);
+        if (!vidLayer.BitmapMode)
+            data[1] = (Math.log2(vidLayer.MapWidth) - 5) | ((Math.log2(vidLayer.MapHeight) - 5) << 2) | ((Math.log2(vidLayer.TileWidth) - 3) << 4) | ((Math.log2(vidLayer.TileHeight) - 3) << 5)
+        else
+            data[1] = vidLayer.TileWidth == 640 ? 1 : 0
         
+        if (vidLayer.MapBaseHex != null && vidLayer.MapBaseHex.length > 0) {
+            var num = parseInt(vidLayer.MapBaseHex, 16);
+            data[2] = (num >> 2) & 0xff;
+            data[3] = (num >> 10) & 0xff;
+        }
+        if (vidLayer.TileBaseHex != null && vidLayer.TileBaseHex.length > 0) {
+            var num = parseInt(vidLayer.TileBaseHex, 16);
+            data[4] = (num >> 2) & 0xff;
+            data[5] = (num >> 10) & 0xff;
+        }
+        data[6] = (vidLayer.HorizontalScroll) & 0xff;
+        if (vidLayer.BitmapMode)
+            data[7] = vidLayer.PaletteOffset & 0xff;
+        else
+            data[7] = ((vidLayer.HorizontalScroll >> 8) & 0xf) ;
+        data[8] = (vidLayer.VerticalScroll) & 0xff;
+        data[9] = (vidLayer.VerticalScroll >> 8) & 0xf;
+        return data;
+    }
+
+    public Reload(layerData: Uint8Array): IVideoLayerData {
+
         var props: IVideoLayerData = VideoLayerManager.NewVideoLayer();
+        
+        return this.ParseData(props, layerData);
+    }
+
+    private ParseData(props: IVideoLayerData, layerData: Uint8Array) {
         if (this.videoSettings == null) return props;
         // X can be 2 or 3, representing Layer 0 or Layer 1, respectively, 
         // the following memory-mapped addresses control display layer behavior:
@@ -70,7 +119,7 @@ export class VideoLayerManager {
         props.TextMode = (props.Mode == 0) || (props.Mode == 1);
         props.TileMode = (props.Mode == 2) || (props.Mode == 3) || (props.Mode == 4);
         props.BitmapMode = (props.Mode == 5) || (props.Mode == 6) || (props.Mode == 7);
-        props.ModeString = props.TextMode ? "Text" : props.TileMode ? "Tiles" : "Bitmap";
+        props.ModeString = LayerModes[props.Mode].replace(/_/g, " ") + " bpp";
 
         if (!props.BitmapMode) {
             // HSCROLL specifies the horizontal scroll offset. A value between 0 and 4095 can be used. 
@@ -157,7 +206,8 @@ export class VideoLayerManager {
         props.max_eff_x = Math.round( max_eff_x);
         
         props.TileSize = ((props.TileWidth * props.BitsPerPixel * props.TileHeight) >> 3);
-        props.PaletteOffset = (layerData[7] & 0xf); 
+        if (props.BitmapMode)
+            props.PaletteOffset = (layerData[7] & 0xf); 
         return props;
     }
 
@@ -381,7 +431,10 @@ export class VideoLayerManager {
             name: "",
             startAddress: "",
             endAddress: "",
-            RawDataString:"",
+            RawDataString: "",
+            valueChanged: () => { },
+            CopyToClipBoard: () => { },
+            Modes: [],
         };
     }
     public static ServiceName: ServiceName = { Name: "VideoLayerManager" };
