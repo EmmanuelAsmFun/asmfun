@@ -4,6 +4,7 @@
 //
 #endregion
 
+using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Computer.Common.Video.Enums;
 
@@ -16,5 +17,8 @@ namespace AsmFun.Computer.Common.Video
         void RefreshIfNeeded(VideoOutModes out_mode, bool chroma_disable);
         int GetFromPalette(byte address);
         void PaletteNeedsToReload();
+        void WriteColorInArray(byte col_index, byte[] data, int v);
+        byte[][] GetAllColors();
+        void SetDisplay(IComputerDisplay display);
     }
 }

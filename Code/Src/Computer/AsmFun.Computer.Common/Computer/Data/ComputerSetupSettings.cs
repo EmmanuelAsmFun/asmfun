@@ -20,7 +20,7 @@ namespace AsmFun.Computer.Common.Computer.Data
         public int RamBankSize;
         public int RomBankSize;
         public string Version;
-        public int Mhz;
+        public double Mhz;
         public bool LockOnMhz { get; set; }
     }
 }

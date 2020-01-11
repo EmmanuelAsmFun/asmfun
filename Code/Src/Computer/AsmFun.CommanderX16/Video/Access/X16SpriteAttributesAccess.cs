@@ -5,6 +5,7 @@
 #endregion
 
 using AsmFun.CommanderX16.Video.Data;
+using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using System;
@@ -12,9 +13,10 @@ using System.Linq;
 
 namespace AsmFun.CommanderX16.Video
 {
-    public class X16SpriteAttributesAccess : ISpriteAttributesAccess
+    public class X16SpriteAttributesAccess : ISpriteAttributesAccess, ISpriteAccess
     {
-        
+
+        public int NumberOfTotalSprites => NumberOfSprites;
         private int NumberOfSprites;
         private uint spriteDataStartAddress;
         private X16VideoSpriteProperties[] sprite_properties;
@@ -23,19 +25,25 @@ namespace AsmFun.CommanderX16.Video
         private byte[] sprite_line_z;
 
         public bool sprite_line_empty;
-        private byte[][] sprite_data;
-        private byte[] sprite_data_raw;
+        private byte[][] spriteData;
+        private byte[] spriteDataRaw;
         private readonly VideoSettings videoSettings;
         private readonly ISpriteRegistersAccess spriteRegisters;
+        private readonly IVideoPaletteAccess palette;
         private readonly IVideoRamAccess ramAccess;
-       
+        IComputerDisplay display;
+
+
 
         public string Name => "SpriteAttributes";
 
-        public X16SpriteAttributesAccess(VideoSettings videoSettings,  IVideoRamAccess ramAccess, ISpriteRegistersAccess spriteRegisters)
+        public X16SpriteAttributesAccess(VideoSettings videoSettings,  IVideoRamAccess ramAccess, ISpriteRegistersAccess spriteRegisters,
+            IVideoPaletteAccess videoPaletteAccess
+            )
         {
             this.videoSettings = videoSettings;
             this.spriteRegisters = spriteRegisters;
+            this.palette = videoPaletteAccess;
             NumberOfSprites = videoSettings.NumberOfSprites;    // = 128
             sprite_line_col = new byte[videoSettings.Width];
             sprite_line_z = new byte[videoSettings.Width];
@@ -46,10 +54,6 @@ namespace AsmFun.CommanderX16.Video
                 sprite_properties[i] = new X16VideoSpriteProperties();
         }
 
-        public void Init()
-        {
-        }
-
         public void Reset()
         {
             // Init sprite registers
@@ -57,10 +61,11 @@ namespace AsmFun.CommanderX16.Video
             // Register 1 = SPR_COLLISION
            
             // Init sprite data
-            sprite_data = new byte[256][];
+            spriteData = new byte[256][];
             for (int array1 = 0; array1 < 256; array1++)
-                sprite_data[array1] = new byte[8];
-            sprite_data_raw = new byte[256 * 8];
+                spriteData[array1] = new byte[8];
+            spriteDataRaw = new byte[256 * 8];
+            display?.InitSprites(this);
         }
 
        
@@ -105,17 +110,22 @@ namespace AsmFun.CommanderX16.Video
        
         public ushort RenderLine(ushort y)
         {
+            sprite_line_empty = !RenderLine(sprite_line_col, sprite_line_z, y);
+            return y;
+        }
+        public bool RenderLine(byte[] spriteLineCol,byte[] spriteLineZ,ushort y)
+        {
             if (spriteRegisters.IsSpritesDisabled())
             {
                 // sprites disabled
-                sprite_line_empty = true;
-                return y;
+                //sprite_line_empty = true;
+                return false;
             }
             sprite_line_empty = false;
             for (int i = 0; i < videoSettings.Width; i++)
             {
-                sprite_line_col[i] = 0;
-                sprite_line_z[i] = 0;
+                spriteLineCol[i] = 0;
+                spriteLineZ[i] = 0;
             }
             ushort sprite_budget = 800 + 1;
             for (int i = 0; i < NumberOfSprites; i++)
@@ -183,15 +193,82 @@ namespace AsmFun.CommanderX16.Video
                     if (col_index > 0)
                     {
                         col_index += (byte)(props.palette_offset);
-                        if (props.ZDepth > sprite_line_z[line_x])
+                        if (props.ZDepth > spriteLineZ[line_x])
                         {
-                            sprite_line_col[line_x] = col_index;
-                            sprite_line_z[line_x] = props.ZDepth;
+                            spriteLineCol[line_x] = col_index;
+                            spriteLineZ[line_x] = props.ZDepth;
                         }
                     }
                 }
             }
-            return y;
+            return true;
+        }
+        public VideoSpriteProperties GetSpriteInfo(int spriteIndex)
+        {
+            return sprite_properties[spriteIndex];
+        }
+        public byte[] ReadSpriteData(int spriteIndex)
+        {
+            var props = sprite_properties[spriteIndex];
+            var data = new byte[props.Width*props.Height*4];
+            var i = 0;
+            uint vaddr;
+            for (ushort y = 0; y < props.Height; y++)
+            {
+                for (ushort sx = 0; sx < props.Width; sx++)
+                {
+                    byte col_index = ReadSpriteColIndex(props, sx, y);
+                    palette.WriteColorInArray(col_index, data, i *4);
+                    i++;
+                }
+            }
+            return data;
+        } 
+        public byte[] ReadSpriteColIndexData(int spriteIndex)
+        {
+            var props = sprite_properties[spriteIndex];
+            var data = new byte[props.Width*props.Height];
+            var i = 0;
+            for (ushort y = 0; y < props.Height; y++)
+            {
+                for (ushort sx = 0; sx < props.Width; sx++)
+                {
+                    byte col_index = ReadSpriteColIndex(props, sx, y);
+                    data[i] = col_index;
+                    i++;
+                }
+            }
+            return data;
+        }
+
+        private byte ReadSpriteColIndex(X16VideoSpriteProperties props, ushort x, ushort y)
+        {
+            ushort eff_sx = x;
+            ushort eff_sy = y;
+
+            // flip
+            if (props.HFlip) eff_sx = (ushort)(props.Width - 1 - eff_sx);
+            if (props.VFlip) eff_sy = (ushort)(props.Height - 1 - eff_sy);
+            byte col_index;
+            if (props.Mode == X16SpriteMode.Bpp4)
+            {
+                // 4 bpp
+                var vaddr = (uint)(props.sprite_address + (eff_sy * props.Width >> 1) + (eff_sx >> 1));
+                byte byte1 = ramAccess.Read(vaddr);
+                if ((eff_sx & 1) != 0)
+                    col_index = (byte)(byte1 & 0xf);
+                else
+                    col_index = (byte)(byte1 >> 4);
+            }
+            else
+            {
+                // 8 bpp
+                var vaddr = (uint)(props.sprite_address + eff_sy * props.Width + eff_sx);
+                col_index = ramAccess.Read(vaddr);
+            }
+            if (col_index > 0)
+                col_index += (byte)props.palette_offset;
+            return col_index;
         }
 
         public void RenderByColIndex(byte[] spr_col_index, byte[] spr_zindex, int[] eff_x, ushort y)
@@ -244,13 +321,13 @@ namespace AsmFun.CommanderX16.Video
        
         internal byte GetSpriteData(uint spriteIndex, uint y)
         {
-            return sprite_data[spriteIndex][y];
+            return spriteData[spriteIndex][y];
         }
        
         public byte Read(uint address)
         {
             // Receives full address
-            return sprite_data_raw[address - spriteDataStartAddress];
+            return spriteDataRaw[address - spriteDataStartAddress];
             //var spriteIndex = (address >> 3) & 0xff;
             //var y = address & 0x7;
             //return sprite_data[spriteIndex][y];
@@ -261,7 +338,7 @@ namespace AsmFun.CommanderX16.Video
             // Receives full address
             var add = address - spriteDataStartAddress;
             var buf2 = new byte[length];
-            Array.Copy(sprite_data_raw, add, buf2, 0, length);
+            Array.Copy(spriteDataRaw, add, buf2, 0, length);
             return buf2;
         }
 
@@ -270,9 +347,9 @@ namespace AsmFun.CommanderX16.Video
             // Receives full address
             var add = address - spriteDataStartAddress;
             var spriteIndex = (address >> 3) & 0xff;
-            var datas = sprite_data[spriteIndex];
+            var datas = spriteData[spriteIndex];
             datas[address & 0x7] = value;
-            sprite_data_raw[add] = value;
+            spriteDataRaw[add] = value;
             Refresh((ushort)spriteIndex, datas);
         }
 
@@ -281,19 +358,32 @@ namespace AsmFun.CommanderX16.Video
             // Receives full address
             var add = address - spriteDataStartAddress;
             var spriteIndex = (address >> 3) & 0xff;
-            var datas = sprite_data[spriteIndex];
+            var datas = spriteData[spriteIndex];
             Array.Copy(bytes, sourceIndex, datas, address & 0x7, length);
-            Array.Copy(bytes, sourceIndex, sprite_data_raw, add, length);
+            Array.Copy(bytes, sourceIndex, spriteDataRaw, add, length);
             Refresh((ushort)spriteIndex, datas);
         }
         public void MemoryDump(byte[] data, int startInsertAddress)
         {
-            Array.Copy(sprite_data_raw, 0,data, startInsertAddress, sprite_data_raw.Length);
+            Array.Copy(spriteDataRaw, 0,data, startInsertAddress, spriteDataRaw.Length);
         }
 
         public byte[] MemoryDump(int startAddress)
         {
-            return sprite_data_raw.ToArray();
+            return spriteDataRaw.ToArray();
         }
+
+        public void SetDisplay(IComputerDisplay display)
+        {
+            this.display = display;
+            display.InitSprites(this);
+        }
+
+        public void Init()
+        {
+            
+        }
+
+      
     }
 }

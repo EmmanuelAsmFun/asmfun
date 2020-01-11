@@ -4,6 +4,8 @@
 //
 #endregion
 
+using AsmFun.Computer.Common.Video;
+using AsmFun.Computer.Common.Video.Data;
 using System;
 
 namespace AsmFun.Computer.Common.Data
@@ -17,5 +19,8 @@ namespace AsmFun.Computer.Common.Data
         void CloseDisplay();
 
         void ClockTick(ushort programCounter,double mhzRunning);
+        void InitSprites(ISpriteAccess spriteAccess);
+        void InitPalette(IVideoPaletteAccess palette);
+        void RequireRefreshPalette();
     }
 }

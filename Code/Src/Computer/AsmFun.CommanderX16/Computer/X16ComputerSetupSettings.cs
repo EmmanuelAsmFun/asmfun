@@ -22,7 +22,7 @@ namespace AsmFun.CommanderX16
             ComputerType = "CommanderX16";
             ComputerTypeShort = "X16";
             Version = "R36";
-            Mhz = 8;
+            Mhz = 8.33;
         }
 
         

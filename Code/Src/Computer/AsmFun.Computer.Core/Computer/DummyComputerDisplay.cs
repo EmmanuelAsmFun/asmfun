@@ -6,6 +6,8 @@
 
 using System;
 using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Video;
+using AsmFun.Computer.Common.Video.Data;
 
 namespace AsmFun.Computer.Core.Computer
 {
@@ -23,7 +25,19 @@ namespace AsmFun.Computer.Core.Computer
         {
         }
 
+        public void InitPalette(IVideoPaletteAccess palette)
+        {
+        }
+
+        public void InitSprites(ISpriteAccess spriteAccess)
+        {
+        }
+
         public void Paint(IntPtr ptr)
+        {
+        }
+
+        public void RequireRefreshPalette()
         {
         }
 

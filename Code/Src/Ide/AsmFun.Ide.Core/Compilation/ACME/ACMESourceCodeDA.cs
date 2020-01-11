@@ -110,7 +110,7 @@ namespace AsmFun.Ide.Core.Compilation.ACME
                 var line = new SourceCodeLine
                 {
                     LineNumber = lineNumber,
-                    //RawContent = txtLine,
+                    RawContent = "", //txtLine,
                     ResultMemoryAddress = resultMemoryAddress,
                     ByteValues = byteValue
                 };

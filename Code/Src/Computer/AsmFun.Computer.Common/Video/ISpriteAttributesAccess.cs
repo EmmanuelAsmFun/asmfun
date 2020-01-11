@@ -4,6 +4,9 @@
 //
 #endregion
 
+using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Video.Data;
+
 namespace AsmFun.Computer.Common.Video
 {
     public interface ISpriteAttributesAccess : IMemoryAccessable
@@ -14,5 +17,14 @@ namespace AsmFun.Computer.Common.Video
     
         void RenderByColIndex(byte[] spr_col_index, byte[] spr_zindex, int[] eff_x, ushort y);
         void RenderByColIndexNoScale(byte[] spr_col_index,byte[] spr_zindex,  int x, ushort y);
+        void SetDisplay(IComputerDisplay display);
+    }
+    public interface ISpriteAccess
+    {
+        int NumberOfTotalSprites { get; }
+
+        byte[] ReadSpriteData(int spriteIndex);
+        byte[] ReadSpriteColIndexData(int spriteIndex);
+        VideoSpriteProperties GetSpriteInfo(int spriteIndex);
     }
 }

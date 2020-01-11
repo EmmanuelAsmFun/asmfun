@@ -10,5 +10,8 @@ namespace AsmFun.CommanderX16.Video.Data
     public class X16VideoSpriteProperties : VideoSpriteProperties
     {
         public X16SpriteMode Mode;
+        public uint sprite_address;
+
+        public ushort palette_offset;
     }
 }

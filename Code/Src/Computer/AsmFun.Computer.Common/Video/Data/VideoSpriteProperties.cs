@@ -25,11 +25,6 @@ namespace AsmFun.Computer.Common.Video.Data
         public bool HFlip;
         public bool VFlip;
 
-        
-        public uint sprite_address;
-
-        public ushort palette_offset;
-
         public ushort CollisionMask;
     }
 }

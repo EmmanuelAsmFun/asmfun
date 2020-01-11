@@ -194,7 +194,6 @@ namespace AsmFun.CommanderX16.Video.Painter
                         for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
                             eff_x[i] = (composer.b_HScale * (x + i - hstart)) / 128;
 
-                        spriteAccess.RenderByColIndex(spr_col_index, spr_zindex, eff_x, y);
                         if (!LayerLinesEmpty[0])
                         {
                             for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
@@ -210,46 +209,17 @@ namespace AsmFun.CommanderX16.Video.Painter
                     else
                     {
                         // No scale, more performant because we can copy bytes
-                        spriteAccess.RenderByColIndexNoScale(spr_col_index, spr_zindex, x, y);
                         if (!LayerLinesEmpty[0])
                             Array.Copy(layer_lineV[0], x, l1_col_index, 0, LAYER_PIXELS_PER_ITERATION);
                         if (!LayerLinesEmpty[1])
                             Array.Copy(layer_lineV[1], x, l2_col_index, 0, LAYER_PIXELS_PER_ITERATION);
                     }
-                    bool same_sprite = true;
-                    for (int i = 1; same_sprite && i < LAYER_PIXELS_PER_ITERATION; ++i)
-                        same_sprite &= spr_zindex[0] == spr_zindex[i];
-
-                    if (same_sprite)
-                    {
-                        switch (spr_zindex[0])
-                        {
-                            case 3:
-                                for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                                    col_index[i] = spr_col_index[i] != 0 ? spr_col_index[i] : (l2_col_index[i] != 0 ? l2_col_index[i] : l1_col_index[i]);
-                                break;
-                            case 2:
-                                for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                                    col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : (spr_col_index[i] != 0 ? spr_col_index[i] : l1_col_index[i]);
-                                break;
-                            case 1:
-                                for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                                    col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : (l1_col_index[i] != 0 ? l1_col_index[i] : spr_col_index[i]);
-                                break;
-                            case 0:
-                                for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                                    col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : l1_col_index[i];
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                            col_index[i] = spriteAccess.CalculateLineColIndex(spr_zindex[i], spr_col_index[i], l1_col_index[i], l2_col_index[i]);
-                    }
 
                     for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
+                    {
+                        col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : l1_col_index[i];
                         col_line[x + i] = col_index[i];
+                    }
                 }
 
                 // Add border after if required.
@@ -357,7 +327,11 @@ namespace AsmFun.CommanderX16.Video.Painter
                     uint tile_offset = tileStart + y_add + x_add;
                     byte color = videoAccess.Read(layer.TileBase + tile_offset);
                     // Convert tile byte to indexed color
-                    colorIndex = BitsPerPxlCalculation[layer.LayerIndex](color, newX, tile);
+                    var layy = BitsPerPxlCalculation[layer.LayerIndex];
+                    if (layy == null)
+                        continue;
+
+                    colorIndex = layy(color, newX, tile);
 
                     // Apply Palette Offset
                     if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
@@ -410,6 +384,8 @@ namespace AsmFun.CommanderX16.Video.Painter
         {
             this.display = display;
             display.Init(width, height);
+            spriteAccess.SetDisplay(display);
+            videoPalette.SetDisplay(display);
         }
 
         public void Break(bool doBreak)

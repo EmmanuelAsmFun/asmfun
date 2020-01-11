@@ -8,10 +8,12 @@
         Title="AsmFun - CommanderX16" Width="640" Height="510" Background="Black">
     <Grid >
         <!-- 510 and not 480 because the title is there -->
-        <Image Margin="0" x:Name="img" SnapsToDevicePixels="True"
-                              RenderOptions.EdgeMode="Unspecified"
-               />
-
+        <Viewbox HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <Grid x:Name="myCont" >
+                <Image x:Name="img" HorizontalAlignment="Left" VerticalAlignment="Top" SnapsToDevicePixels="True"
+                                      RenderOptions.EdgeMode="Aliased"/>
+            </Grid>
+        </Viewbox>
         <StackPanel x:Name="DebugInfo" VerticalAlignment="Top" HorizontalAlignment="Right" Visibility="Collapsed">
             <StackPanel.Resources>
                 <Style TargetType="TextBlock">

@@ -5,13 +5,17 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Video;
+using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Core.Tools;
 
 namespace AsmFun.Startup
@@ -54,6 +58,7 @@ namespace AsmFun.Startup
         {
             if (isInitialized) return;
             var computerManager = Container.Resolve<IComputerManager>();
+            displayComposer = Container.Resolve<IDisplayComposer>();
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
@@ -79,9 +84,11 @@ namespace AsmFun.Startup
             {
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
             }
-            SDL2.SDL.SDL_CreateWindowAndRenderer(640, 480, 0, out window, out renderer);
-            //window = SDL2.SDL.SDL_CreateWindow("ASMFun - Commander X16", 0, 0, 640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE );
-            //renderer = SDL2.SDL.SDL_CreateRenderer(window, -1, SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
+            SDL2.SDL.SDL_CreateWindowAndRenderer(640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
+                | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL , out window, out renderer);
+            //window = SDL2.SDL.SDL_CreateWindow("ASMFun - Commander X16", 0, 0, 640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
+            //    | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL );
+            //renderer = SDL2.SDL.SDL_CreateRenderer(window, -1, SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE | SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             SDL2.SDL.SDL_SetWindowResizable(window, SDL2.SDL.SDL_bool.SDL_TRUE);
             sdlTexture = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_RGB888, 1, 640, 460);
             SDL2.SDL.SDL_SetWindowTitle(window, "ASMFun - Commander X16");
@@ -132,7 +139,7 @@ namespace AsmFun.Startup
                 {
                     while (SDL2.SDL.SDL_PollEvent(out e) != 0 && !isDisposed)
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                         switch (e.type)
                         {
                             case SDL2.SDL.SDL_EventType.SDL_QUIT:
@@ -209,7 +216,7 @@ namespace AsmFun.Startup
                                         }
                                         else if (charr.Length == 1)
                                             keyboardAccess.KeyDown(charr[0], 0);
-                                        Console.WriteLine(charr);
+                                        //Console.WriteLine(charr);
                                         break;
                                 }
                                 break;
@@ -292,6 +299,11 @@ namespace AsmFun.Startup
         }
         public void Stop()
         {
+
+            foreach (var spr in sprites) { try { Marshal.FreeHGlobal(spr); } catch { } }
+
+            foreach (var spr2 in drawPtrs) { try { Marshal.FreeHGlobal(spr2); } catch { } }
+
             SDL2.SDL.SDL_DestroyWindow(window);
 #if WINDOWS
 #if DEBUG
@@ -319,8 +331,11 @@ namespace AsmFun.Startup
             IntPtr rect4 = new IntPtr(0);
 
             SDL2.SDL.SDL_UpdateTexture(sdlTexture, IntPtr.Zero, framebuffer, 640 * 4);
+            
             SDL2.SDL.SDL_RenderClear(renderer);
+            
             SDL2.SDL.SDL_RenderCopy(renderer, sdlTexture, rect1, rect2);
+            StepSprite();
             CalculateFps();
             SDL2.SDL.SDL_RenderPresent(renderer);
         }
@@ -373,5 +388,93 @@ namespace AsmFun.Startup
             Stop();
         }
 
+        #region Sprites 
+        private ISpriteAccess spriteAccess;
+        private IDisplayComposer displayComposer;
+        private byte[][] palette;
+        private IVideoPaletteAccess paletteAccess;
+        private List<IntPtr> sprites;
+        private List<IntPtr> drawPtrs;
+        private bool requireRefreshPalette;
+        public void InitSprites(ISpriteAccess spriteAccess)
+        {
+            this.spriteAccess = spriteAccess;
+            sprites = new IntPtr[spriteAccess.NumberOfTotalSprites].ToList();
+            drawPtrs = new IntPtr[spriteAccess.NumberOfTotalSprites].ToList();
+            requireRefreshPalette = true;
+        }
+        public void RequireRefreshPalette()
+        {
+            requireRefreshPalette = true;
+        }
+        public void InitPalette(IVideoPaletteAccess paletteAccess)
+        {
+            this.paletteAccess = paletteAccess;
+            requireRefreshPalette = true;
+        }
+        private bool reloadPalette()
+        {
+            if (paletteAccess == null) return false;
+            var colorss = paletteAccess.GetAllColors();
+            if (colorss == null) return false;
+            var colors = paletteAccess.GetAllColors();
+            palette = colorss;
+            requireRefreshPalette = false;
+            return true;
+        }
+        private void StepSprite()
+        {
+            if (isDisposed) return;
+            if (requireRefreshPalette)
+                if (!reloadPalette()) return;
+            var transparent = new byte[] { 0, 0, 0, 0 };
+            for (int sprIndex = 0; sprIndex < sprites.Count; sprIndex++)
+            {
+                if (isDisposed) return;
+                var sprInfo = spriteAccess.GetSpriteInfo(sprIndex);
+                if (sprInfo == null || sprInfo.ZDepth == 0) return;
+                var w = (int)(sprInfo.Width * displayComposer.HScale);
+                var h = (int)(sprInfo.Height * displayComposer.VScale);
+                var x = (int)(sprInfo.X * displayComposer.HScale);
+                var y = (int)(sprInfo.Y * displayComposer.VScale);
+                // Check if it's in range
+                if (x > displayComposer.HStop || y > displayComposer.VStop)
+                    continue;
+
+                if (sprites[sprIndex] == IntPtr.Zero)
+                {
+                    //var spr = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+                    var spr = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_RGBA8888, 1, w, h);
+                    SDL2.SDL.SDL_SetTextureBlendMode(spr, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                    sprites[sprIndex] = spr;
+                    drawPtrs[sprIndex] = Marshal.AllocHGlobal(w*h * 4);
+                }
+                var drawPtr = drawPtrs[sprIndex];
+                var sprite = sprites[sprIndex];
+                SDL2.SDL.SDL_SetTextureBlendMode(sprite, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                var data = spriteAccess.ReadSpriteColIndexData(sprIndex);
+               
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (data[i] == 0)
+                        Marshal.Copy(transparent,0, drawPtr + (i * 4), 4);
+                    else
+                    {
+                        var col = palette[data[i]];
+                        Marshal.Copy(col, 0, drawPtr + (i * 4)+1, 3);
+                        Marshal.WriteByte(drawPtr + (i * 4) , 0xFF);
+                    }
+                }
+                SDL2.SDL.SDL_UpdateTexture(sprite, IntPtr.Zero, drawPtr, w * 4);
+                var srcRect = new SDL2.SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                var destRect = new SDL2.SDL.SDL_Rect { x = x, y = y, w = w, h = h };
+                SDL2.SDL.SDL_RenderCopy(renderer, sprite, ref srcRect, ref destRect);
+
+            }
+        }
+
+
+        #endregion
     }
 }

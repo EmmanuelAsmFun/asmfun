@@ -43,7 +43,7 @@ namespace AsmFun.CommanderX16.Computer
         private bool pcIsLoaded;
         private int stepCounter;
         private int mhzCounter;
-        private int mhzRequired;
+        private double mhzRequired;
         private bool lockOnMhz;
         private double mhzRunning;
         private List<Type> _usedServices = new List<Type>();

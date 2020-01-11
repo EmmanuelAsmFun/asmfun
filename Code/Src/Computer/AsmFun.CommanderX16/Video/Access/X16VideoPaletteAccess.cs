@@ -5,7 +5,9 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Computer.Common.Video.Enums;
@@ -40,6 +42,7 @@ namespace AsmFun.CommanderX16.Video
             0xc6b, 0xf7d, 0x201, 0x413, 0x615, 0x826, 0xa28, 0xc3a, 0xf3c, 0x201, 0x403, 0x604, 0x806, 0xa08, 0xc09, 0xf0b }; // 15
         private int[] entries = new int[256];
         private bool isDirty = true;
+        private IComputerDisplay display;
 
         public string Name => "Palette";
 
@@ -73,7 +76,12 @@ namespace AsmFun.CommanderX16.Video
             return rgb;
             //return paletteB[colorIndex];
         }
-       
+        public unsafe void WriteColorInArray(byte col_index, byte[] data, int offset)
+        {
+            fixed (byte* numPtr = &data[offset])
+                *(int*)numPtr = entries[col_index];
+        }
+
 
         private void RefreshPalette(VideoOutModes out_mode, bool chroma_disable)
         {
@@ -99,7 +107,8 @@ namespace AsmFun.CommanderX16.Video
                     if (chroma_disable)
                         r = g = b = (byte)((r + b + g) / 3);
                 }
-
+                //colors[i] = new PixelColor(r, g, b);
+                paletteB[i] = new[] { r, g, b };
                 entries[i] = (r << 16) | (g << 8) | (b);
             }
             isDirty = false;
@@ -108,6 +117,7 @@ namespace AsmFun.CommanderX16.Video
         {
             if (!isDirty) return;
             RefreshPalette(out_mode, chroma_disable);
+            display.RequireRefreshPalette();
         }
         public void PaletteNeedsToReload()
         {
@@ -176,6 +186,10 @@ namespace AsmFun.CommanderX16.Video
         {
             Array.Copy(bytes, sourceIndex, palette, targetIndex, length);
         }
+        public byte[][] GetAllColors()
+        {
+            return paletteB;
+        }
         public void MemoryDump(byte[] data, int startInsertAddress)
         {
             Array.Copy(palette, startInsertAddress, data, 0, palette.Length);
@@ -186,6 +200,11 @@ namespace AsmFun.CommanderX16.Video
             var buf = new byte[palette.Length];
             Array.Copy(palette, 0, buf, 0, palette.Length);
             return buf;
+        }
+        public void SetDisplay(IComputerDisplay display)
+        {
+            this.display = display;
+            display.InitPalette(this);
         }
 
         public void Dispose()
