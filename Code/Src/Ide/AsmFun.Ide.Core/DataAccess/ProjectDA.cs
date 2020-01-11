@@ -172,21 +172,21 @@ namespace AsmFun.Core.DataAccess
                     CompilerVariables = ""
                 },
                  //  ca65 assembler
-                new ProjectDetail
-                {
-                    Id = new Guid("{B14822A1-61E5-4D03-AF15-929D20E36495}"),
-                    DeveloperName = "StewBC",
-                    DevPicUrl = "",
-                    Name = "Penetrator",
-                    Description = "Penetrator for the commanderX16",
-                    InternetVersion = "2832485d20abdff21744c849af0d057d7abf5952",
-                    ImageUrl="",
-                    InternetSourceType = InternetSourceType.GitHub,
-                    InternetSource = "https://github.com/StewBC/penetrator",
-                    ProjectUrl = "https://github.com/StewBC/penetrator",
-                    StartFile = "src/penetrator.asm",
-                    RomVersion = "R34",
-                },
+                //new ProjectDetail
+                //{
+                //    Id = new Guid("{B14822A1-61E5-4D03-AF15-929D20E36495}"),
+                //    DeveloperName = "StewBC",
+                //    DevPicUrl = "",
+                //    Name = "Penetrator",
+                //    Description = "Penetrator for the commanderX16",
+                //    InternetVersion = "2832485d20abdff21744c849af0d057d7abf5952",
+                //    ImageUrl="",
+                //    InternetSourceType = InternetSourceType.GitHub,
+                //    InternetSource = "https://github.com/StewBC/penetrator",
+                //    ProjectUrl = "https://github.com/StewBC/penetrator",
+                //    StartFile = "src/penetrator.asm",
+                //    RomVersion = "R34",
+                //},
                 //new ProjectDetail
                 //{
                 //    Id = new Guid("{D5F86D14-B215-4C32-80DD-CB186BAE1A52}"),
