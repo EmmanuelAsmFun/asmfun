@@ -13,6 +13,7 @@ using AsmFun.Ide.Common.Data.Dissasembly;
 using AsmFun.Ide.Common.Managers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.IO;
 
 namespace AsmFun.WebServer.Controllers
 {
@@ -52,8 +53,10 @@ namespace AsmFun.WebServer.Controllers
         public object LoadProgram()
         {
             var buildConfiguration = projectManager.GetBuildConfiguration();
-            var program =  buildConfiguration?.ProgramFileName;
-            computerManager.LoadProgramInPc(program);
+            var programFileName = Path.GetFileNameWithoutExtension(buildConfiguration.ProgramFileName.Trim(Path.DirectorySeparatorChar));
+            var settings = projectManager.GetCurrentProjectSettings();
+            programFileName = Path.Combine(settings.Folder, buildConfiguration.OutputFolderName, programFileName + ".prg");
+            computerManager.LoadProgramInPc(programFileName);
             return new { ok = true};
         }
         [HttpGet]

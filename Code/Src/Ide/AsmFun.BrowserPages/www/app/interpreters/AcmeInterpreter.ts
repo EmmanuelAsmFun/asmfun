@@ -20,7 +20,6 @@ export class AcmeInterpreter implements IInterpreter{
     private commonInterpreter: CommonInterpreter;
     private opcodeManager: OpcodeManager;
     private mainData: IMainData;
-    private validReferenceChars = "abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890.";
 
     constructor(mainData: IMainData) {
         var thiss = this;

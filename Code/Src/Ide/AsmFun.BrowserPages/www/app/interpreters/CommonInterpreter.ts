@@ -28,7 +28,7 @@ export class CommonInterpreter  {
 
     private opcodeManager: OpcodeManager;
     private mainData: IMainData;
-    private validReferenceChars = "abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890.";
+    private validReferenceChars = "abcdefghijklmnopqrstuvwqxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890.@";
 
     constructor(mainData: IMainData) {
         var thiss = this;

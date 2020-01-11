@@ -68,10 +68,10 @@ namespace AsmFun.Core.DataAccess
                     ImageUrl="https://asmfun.com/projects/DemoGames/ErikDansbo_TicTacToe.jpg",
                     InternetSourceType = InternetSourceType.GitHub,
                     InternetSource = "https://github.com/Dansbo/tictactoe",
-                    InternetVersion="902fefcea779eaef2660e2045397a6ea58390bbb",
+                    InternetVersion="d18b05c881daa3308652e1faf889d9065188058d",
                     ProjectUrl = "https://github.com/Dansbo/tictactoe",
-                    StartFile = "tictactoe.a",
-                    RomVersion = "R33",
+                    StartFile = "tictactoe.asm",
+                    RomVersion = "R36",
                     UnderConstruction = true,
                 },
                 new ProjectDetail

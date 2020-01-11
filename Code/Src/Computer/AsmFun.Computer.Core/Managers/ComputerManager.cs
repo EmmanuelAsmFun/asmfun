@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AsmFun.Computer.Core.Managers
 {
@@ -103,7 +104,12 @@ namespace AsmFun.Computer.Core.Managers
             OnComputerLoaded?.Invoke(this, new ComputerEventArgs(Computer));
             OnComputerReady?.Invoke(this, new ComputerEventArgs(Computer));
             if (string.IsNullOrWhiteSpace(nextProgramToLoad)) return;
-            LoadProgramInPc(nextProgramToLoad);
+            // Todo: find out why this delay is needed.
+            Task.Run(() =>
+            {
+                Task.Delay(1000).Wait();
+                LoadProgramInPc(nextProgramToLoad);
+            });
         }
 
         public void LoadProgramInPc(string programFileName)
@@ -115,6 +121,7 @@ namespace AsmFun.Computer.Core.Managers
             //  -prg D:\Temp\x16-VS2\out\Debug\m.prg
             var data = File.ReadAllBytes(programFileName);
             Console.WriteLine("Load:" + programFileName);
+            if (Computer == null) return;
             Computer.LoadProgram(data);
             containerFactory.Resolve<ISourceCodeManager>().ParseCodeToDebugger(Computer);
         }

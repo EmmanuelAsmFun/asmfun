@@ -36,6 +36,7 @@ namespace AsmFun.CommanderX16.Video
 
         public VideoMapTile GetTile(uint mapAddress, VideoLayerData layer, bool forceReload = false,byte[] tile_bytesLinePreloaded = null)
         {
+            if (mapAddress > tiles.Length) return null;
             var tile = tiles[mapAddress];
             if (!forceReload && tile != null)
                 return tile;
@@ -62,37 +63,40 @@ namespace AsmFun.CommanderX16.Video
                     offset = mapAddress;
                     datas = tile_bytesLinePreloaded;
                 }
-                //var datas = spriteManager.ReadBlock(mapAddress & 0xf, 2);
-                if (offset > datas.Length)
-                    offset = 0;
-                var byte0 = datas[offset];
-                var byte1 = datas[offset+1];
-                if (layer.TextMode)
+                if (datas.Length > 1)
                 {
-                    tile.TileIndex = byte0;
+                    //var datas = spriteManager.ReadBlock(mapAddress & 0xf, 2);
+                    if (offset > datas.Length)
+                        offset = 0;
+                    var byte0 = datas[offset];
+                    var byte1 = datas[offset + 1];
+                    if (layer.TextMode)
+                    {
+                        tile.TileIndex = byte0;
 
-                    if (layer.Mode == 0)
-                    {
-                        tile.ForegroundColor = (byte)(byte1 & 15);
-                        tile.BackgroundColor = (byte)(byte1 >> 4);
+                        if (layer.Mode == 0)
+                        {
+                            tile.ForegroundColor = (byte)(byte1 & 15);
+                            tile.BackgroundColor = (byte)(byte1 >> 4);
+                        }
+                        else
+                        {
+                            tile.ForegroundColor = byte1;
+                            tile.BackgroundColor = 0;
+                        }
+                        tile.PaletteOffset = 0;
                     }
-                    else
+                    else if (layer.TileMode)
                     {
-                        tile.ForegroundColor = byte1;
+                        tile.ForegroundColor = 0;
                         tile.BackgroundColor = 0;
-                    }
-                    tile.PaletteOffset = 0;
-                }
-                else if (layer.TileMode)
-                {
-                    tile.ForegroundColor = 0;
-                    tile.BackgroundColor = 0;
-                    tile.TileIndex = (ushort)(byte0 | ((byte1 & 3) << 8));
+                        tile.TileIndex = (ushort)(byte0 | ((byte1 & 3) << 8));
 
-                    // Tile Flipping
-                    tile.VerticalFlip = ((byte1 >> 3) & 1) != 0;
-                    tile.HorizontalFlip = ((byte1 >> 2) & 1) != 0;
-                    tile.PaletteOffset = (byte)(byte1 >> 4);
+                        // Tile Flipping
+                        tile.VerticalFlip = ((byte1 >> 3) & 1) != 0;
+                        tile.HorizontalFlip = ((byte1 >> 2) & 1) != 0;
+                        tile.PaletteOffset = (byte)(byte1 >> 4);
+                    }
                 }
             }
             return tile;

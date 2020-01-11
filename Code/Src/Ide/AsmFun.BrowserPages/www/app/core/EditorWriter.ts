@@ -11,7 +11,7 @@ import { IEditorContext } from "./EditorManager.js";
 
 export class EditorWriter  {
   
-    private static allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!<>&\"'(^!{})-_$*%+-:/;.,? \t=#";
+    private static allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!<>&\"'(^!{})-_$*%+-:/;.,? \t=#@";
     private undos: IUndoData[] = [];
     private currentUndo: IUndoData | null = null;
 

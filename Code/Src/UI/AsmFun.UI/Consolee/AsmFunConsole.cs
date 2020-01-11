@@ -13,6 +13,7 @@ using AsmFun.UI.Consolee.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -89,7 +90,11 @@ namespace AsmFun.UI.Consolee
         {
             var projectManager = container.Resolve<IProjectManager>();
             var buildConfiguration = projectManager.GetBuildConfiguration();
-            return buildConfiguration?.ProgramFileName;
+            if (buildConfiguration == null) return null;
+            var programFileName = Path.GetFileNameWithoutExtension(buildConfiguration.ProgramFileName.Trim(Path.DirectorySeparatorChar));
+            var settings = projectManager.GetCurrentProjectSettings();
+            programFileName = Path.Combine(settings.Folder, buildConfiguration.OutputFolderName, programFileName +".prg");
+            return programFileName;
             //var projectManager = container.Resolve<IProjectManager>();
             //var buildConfiguration = projectManager.GetBuildConfiguration();
             //var programName = buildConfiguration?.ProgramFileName;
