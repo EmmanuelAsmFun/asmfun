@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings } from '../data/ProjectData.js'
+import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings, ProjectCompilerTypes } from '../data/ProjectData.js'
 import { OpcodeManager } from './OpcodeManager.js';
 import { CodeBlockContext } from './CodeBlockContext.js';
 import { HtmlSourceCode } from './HtmlSourceCode.js';
@@ -20,6 +20,7 @@ import { IInterpreter } from '../interpreters/IInterpreter.js';
 import { ServiceName } from '../serviceLoc/ServiceName.js';
 import { EditorManager } from './EditorManager.js';
 import { ICompilationResult } from '../data/CompilationDatas.js';
+import { Cc65Interpreter } from '../interpreters/Cc65Interpreter.js';
 
 export class SourceCodeManager {
   
@@ -28,7 +29,7 @@ export class SourceCodeManager {
     private opcodeManager: OpcodeManager;
     private htmlSourceCode: HtmlSourceCode;
     private mainData: IMainData;
-    private interpreter: IInterpreter;
+    private interpreter?: IInterpreter;
     private lastProjectSettings?: IProjectSettings;
 
 
@@ -38,9 +39,9 @@ export class SourceCodeManager {
         this.htmlSourceCode = mainData.container.Resolve<HtmlSourceCode>(HtmlSourceCode.ServiceName) ?? new HtmlSourceCode(mainData);
         this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService();
         this.mainData = mainData;
-        this.interpreter = mainData.container.Resolve<AcmeInterpreter>(AcmeInterpreter.ServiceName) ?? new AcmeInterpreter(mainData);
+        
         this.mainData.commandManager.Subscribe(new ProjectSaveCommand().GetType(), this, x => thiss.SaveSourceCode((<ProjectSaveCommand>x).bundle));
-        this.mainData.commandManager.Subscribe(new ProjectLoadCommand().GetType(), this, x => thiss.LoadSourceCode(() => { }));
+        this.mainData.commandManager.Subscribe(new ProjectLoadCommand().GetType(), this, x => thiss.LoadProject(() => { }));
     }
 
     public SelectFile(file?: IEditorFile) {
@@ -55,6 +56,21 @@ export class SourceCodeManager {
             }
         }
        
+    }
+
+    private PrepareInterpreter() {
+        var compilerType = this.lastProjectSettings?.configurations[0].compilerType;
+        switch (compilerType) {
+            case ProjectCompilerTypes.Cc65:
+                this.interpreter = this.mainData.container.Resolve<AcmeInterpreter>(Cc65Interpreter.ServiceName) ?? new Cc65Interpreter(this.mainData);
+                return this.interpreter;
+            case ProjectCompilerTypes.ACME:
+                this.interpreter = this.mainData.container.Resolve<AcmeInterpreter>(AcmeInterpreter.ServiceName) ?? new AcmeInterpreter(this.mainData);
+                return this.interpreter;
+            default:
+                this.interpreter = this.mainData.container.Resolve<AcmeInterpreter>(AcmeInterpreter.ServiceName) ?? new AcmeInterpreter(this.mainData);
+                return this.interpreter;
+        }
     }
 
     public SaveSourceCode(bundle?: IEditorBundle) {
@@ -84,9 +100,17 @@ export class SourceCodeManager {
         return true;
     }
 
+    private LoadProject(doneMethod: () => void) {
+        this.projectService.GetProjectSettings(s => {
+            this.lastProjectSettings = s;
+            this.LoadSourceCode(doneMethod);
+        }, e => { });
+    }
+
     private LoadSourceCode(doneMethod: () => void) {
         var thiss = this;
         this.projectService.GetSourceCode(s => {
+            thiss.PrepareInterpreter();
             thiss.projectService.GetProjectSettings(r => { thiss.lastProjectSettings = r; }, e => { });
             thiss.InterpretSourceCode(s);
             var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName)
@@ -113,6 +137,7 @@ export class SourceCodeManager {
     }
 
     private ParseCompilerResult(c: ICompilationResult) {
+        if (this.interpreter == null) this.interpreter = this.PrepareInterpreter();
         var txt = c.rawText;
         if (txt != null)
             txt = txt.replace(/(?:\r\n|\r|\n)/g,"<br/>");
@@ -316,6 +341,7 @@ export class SourceCodeManager {
     }
 
     public InterpretLine(context: ICodeBlockContext, line: IEditorLine, fullParse: boolean = true): ICodeBlockContext {
+        if (this.interpreter == null) this.interpreter = this.PrepareInterpreter();
         return this.interpreter.InterpretLine(context, line, fullParse);
     }
 

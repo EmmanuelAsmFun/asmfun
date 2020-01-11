@@ -110,13 +110,13 @@ namespace AsmFun.Ide.Core.Compilation.ACME
                 var line = new SourceCodeLine
                 {
                     LineNumber = lineNumber,
-                    RawContent = txtLine,
+                    //RawContent = txtLine,
                     ResultMemoryAddress = resultMemoryAddress,
                     ByteValues = byteValue
                 };
                 // Rest is original sourcecode text
-                if (txtLine.Length > 6 + 6 + 19)
-                    line.SourceCode = txtLine.Substring(6 + 6 + 20, txtLine.Length - (6 + 6 + 20));
+                //if (txtLine.Length > 6 + 6 + 19)
+                //    line.SourceCode = txtLine.Substring(6 + 6 + 20, txtLine.Length - (6 + 6 + 20));
                 sfile.Lines.Add(line);
             }
             sfile.HasBeenRead = true;

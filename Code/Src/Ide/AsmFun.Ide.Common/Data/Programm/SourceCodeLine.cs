@@ -4,8 +4,11 @@
 //
 #endregion
 
+using System.Diagnostics;
+
 namespace AsmFun.Ide.Common.Data.Programm
 {
+    [DebuggerDisplay("SourceCodeLine:{LineNumber}:{RawContent}")]
     public class SourceCodeLine
     {
         public int LineNumber { get; set; }

@@ -5,9 +5,11 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AsmFun.Ide.Common.Data.Programm
 {
+    [DebuggerDisplay("SourceCodeFile:{FileName}:Lines={Lines.Count}")]
     public class SourceCodeFile
     {
         public string Folder { get; set; }

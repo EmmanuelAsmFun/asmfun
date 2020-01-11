@@ -64,7 +64,7 @@ namespace AsmFun.Ide.DataAccess
 
             // Add root file
             InterpretFile(sourceCodeBundle, projectSettings, prgrm);
-
+            sourceCodeBundle.Files = sourceCodeBundle.Files.OrderBy(x => x.IsBinary).ThenBy(x => x.FileName).ToList();
             return sourceCodeBundle;
         }
 

@@ -104,6 +104,7 @@ export class MemoryManager {
     private Close(){
         this.DeselectPrevious();
         this.data.isVisible = false;
+        this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
     }
 
     private Scroll(deltaY: number): void {
@@ -140,6 +141,7 @@ export class MemoryManager {
     private getMemoryBlock(startAddress: number, count: number,doneMethod?: (r0:IMemoryBlock) => void) {
         var thiss = this;
         this.data.isMemoryEditing = false;
+        this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
         this.debuggerService.getMemoryBlock(startAddress,count,(memBlock:IMemoryBlock) => {
             if (memBlock == null || memBlock.data == null) return;
             if (this.mainData.sourceCode == null) return;

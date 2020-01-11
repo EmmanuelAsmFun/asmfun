@@ -34,6 +34,8 @@ import { ComputerService } from "./services/ComputerService.js";
 import { OpcodeManager } from "./core/OpcodeManager.js";
 import { HtmlSourceCode } from "./core/HtmlSourceCode.js";
 import { AcmeInterpreter } from "./interpreters/AcmeInterpreter.js";
+import { Cc65Interpreter } from "./interpreters/Cc65Interpreter.js";
+import { CommonInterpreter } from "./interpreters/CommonInterpreter.js";
 
 var NewAsmFunAppData: IAsmFunAppData = {
     data6502: NewProcessorData,
@@ -104,7 +106,7 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<HtmlSourceCode>(HtmlSourceCode.ServiceName, () => new HtmlSourceCode(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<KeyboardManager>(KeyboardManager.ServiceName, () => new KeyboardManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<OpcodeManager>(OpcodeManager.ServiceName, () => new OpcodeManager()).WithLifestyle(ServiceLifestyle.Singleton);
-        this.container.AddWithConstructor<AcmeInterpreter>(AcmeInterpreter.ServiceName, () => new AcmeInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        
         // Services
         this.container.AddWithConstructor<ProjectService>(ProjectService.ServiceName, () => new ProjectService()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<DebuggerService>(DebuggerService.ServiceName, () => new DebuggerService()).WithLifestyle(ServiceLifestyle.Singleton);
@@ -115,6 +117,11 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<VideoPaletteManager>(VideoPaletteManager.ServiceName, () => new VideoPaletteManager()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoSpriteManager>(VideoSpriteManager.ServiceName, () => new VideoSpriteManager()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoComposerManager>(VideoComposerManager.ServiceName, () => new VideoComposerManager()).WithLifestyle(ServiceLifestyle.Singleton);
+        // Interpreters
+        this.container.AddWithConstructor<CommonInterpreter>(CommonInterpreter.ServiceName, () => new CommonInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Transient);
+        this.container.AddWithConstructor<AcmeInterpreter>(AcmeInterpreter.ServiceName, () => new AcmeInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<Cc65Interpreter>(Cc65Interpreter.ServiceName, () => new Cc65Interpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        
     }
 
     public Init() {

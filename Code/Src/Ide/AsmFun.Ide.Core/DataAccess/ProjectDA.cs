@@ -170,7 +170,37 @@ namespace AsmFun.Core.DataAccess
                     RomVersion = "R36",
                     UnderConstruction = false,
                     CompilerVariables = ""
-                }
+                },
+                 //  ca65 assembler
+                new ProjectDetail
+                {
+                    Id = new Guid("{B14822A1-61E5-4D03-AF15-929D20E36495}"),
+                    DeveloperName = "StewBC",
+                    DevPicUrl = "",
+                    Name = "Penetrator",
+                    Description = "Penetrator for the commanderX16",
+                    InternetVersion = "2832485d20abdff21744c849af0d057d7abf5952",
+                    ImageUrl="",
+                    InternetSourceType = InternetSourceType.GitHub,
+                    InternetSource = "https://github.com/StewBC/penetrator",
+                    ProjectUrl = "https://github.com/StewBC/penetrator",
+                    StartFile = "src/penetrator.asm",
+                    RomVersion = "R34",
+                },
+                //new ProjectDetail
+                //{
+                //    Id = new Guid("{D5F86D14-B215-4C32-80DD-CB186BAE1A52}"),
+                //    DeveloperName = "Matt Heffernan",
+                //    DevPicUrl = "https://avatars2.githubusercontent.com/u/56282856?s=400&v=4",
+                //InternetVersion = "6d042717fa451f6f3245fb0c94db93ce9a3cdb42",
+                //    Name = "Chase Vault",
+                //    Description = "Chase Vault for the commanderX16",
+                //    ImageUrl="https://github.com/SlithyMatt/x16-chasevault/raw/master/cv9.gif",
+                //    InternetSourceType = InternetSourceType.GitHub,
+                //    InternetSource = "https://github.com/SlithyMatt/x16-chasevault",
+                //    ProjectUrl = "https://github.com/SlithyMatt/x16-chasevault",
+                //    StartFile = "chasevault.asm",
+                //},
 
                 // ASM6
                 // https://murray2.com/threads/wolf3d-like-bitmap-graphics.428/
@@ -206,35 +236,7 @@ namespace AsmFun.Core.DataAccess
                 //},
                 // kick assembler
                 // https://github.com/c64skate/commander_x16_samples
-                //  ca65 assembler
-                //new ProjectDetail
-                //{
-                //    Id = new Guid("{B14822A1-61E5-4D03-AF15-929D20E36495}"),
-                //    DeveloperName = "StewBC",
-                //    DevPicUrl = "",
-                //    Name = "Penetrator",
-                //    Description = "Penetrator for the commanderX16",
-                //InternetVersion = "6d042717fa451f6f3245fb0c94db93ce9a3cdb42",
-                //    ImageUrl="",
-                //    InternetSourceType = InternetSourceType.GitHub,
-                //    InternetSource = "https://github.com/StewBC/penetrator",
-                //    ProjectUrl = "https://github.com/StewBC/penetrator",
-                //    StartFile = "penetrator.asm",
-                //},
-                //new ProjectDetail
-                //{
-                //    Id = new Guid("{D5F86D14-B215-4C32-80DD-CB186BAE1A52}"),
-                //    DeveloperName = "Matt Heffernan",
-                //    DevPicUrl = "https://avatars2.githubusercontent.com/u/56282856?s=400&v=4",
-                //InternetVersion = "6d042717fa451f6f3245fb0c94db93ce9a3cdb42",
-                //    Name = "Chase Vault",
-                //    Description = "Chase Vault for the commanderX16",
-                //    ImageUrl="https://github.com/SlithyMatt/x16-chasevault/raw/master/cv9.gif",
-                //    InternetSourceType = InternetSourceType.GitHub,
-                //    InternetSource = "https://github.com/SlithyMatt/x16-chasevault",
-                //    ProjectUrl = "https://github.com/SlithyMatt/x16-chasevault",
-                //    StartFile = "chasevault.asm",
-                //},
+               
                 
             };
         }

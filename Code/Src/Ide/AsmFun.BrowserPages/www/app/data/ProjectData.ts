@@ -12,7 +12,7 @@ export var CompilerNames: { name: string, value: number, webAddress: string }[] 
     { value: 1, name: "ACME", webAddress:"https://sourceforge.net/projects/acme-crossass/" },
     //{ value: 2, name: "VASM  not implemented yet", webAddress: "http://sun.hasenbraten.de/vasm/index.php?view=relsrc" },
     //{ value: 3, name: "DASM not implemented yet", webAddress: "https://sourceforge.net/projects/dasm-dillon/" },
-    { value: 4, name: "Cc65  not implemented yet", webAddress: "https://www.cc65.org/index.php#Download" }
+    { value: 4, name: "Cc65", webAddress: "https://www.cc65.org/index.php#Download" }
 ];
 export var RomVersionNames: { name: string, value: string }[] = [
     { value: "R33", name: "ROM R33" },

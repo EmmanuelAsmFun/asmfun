@@ -188,6 +188,7 @@ export function ResetLineProperties(line: IEditorLine) {
     if (line == null) return;
     line.dataCode = "";
     line.comment = "";
+    line.preCode = "";
     line.isDataTransfer = false;
     line.isCompare = false;
     line.isJump = false;
