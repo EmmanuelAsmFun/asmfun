@@ -744,8 +744,6 @@ programItem.address  | toHex2
                                         <td>
                                             <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Width" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
                                             <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Height" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
-
-                                            {{videoManager.spriteDatas.selectedSprite.Width}} x {{videoManager.spriteDatas.selectedSprite.Height}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -760,9 +758,8 @@ programItem.address  | toHex2
                                     <tr>
                                         <td>Palette Offset</td>
                                         <td>
-                                            <editable-field v-model="videoManager.spriteDatas.selectedSprite.palette_offset" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged">
-                                                {{videoManager.spriteDatas.selectedSprite.palette_offset}}
-                                        </td>
+                                            <editable-field v-model="videoManager.spriteDatas.selectedSprite.PaletteOffset" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged">
+                                            </editable-field> (offset by 16)
                                     </tr>
                                     <tr><td>Collision Mask</td><td>{{videoManager.spriteDatas.selectedSprite.CollisionMask}}</td></tr>
                                 </table>

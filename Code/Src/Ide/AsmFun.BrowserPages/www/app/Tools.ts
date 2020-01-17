@@ -127,4 +127,11 @@ export class AsmTools {
             console.error('Failed to copy: ', err);
         }
     }
+    public static SaveDataToFile(content, fileName: string, contentType: string = "application/octet-stream") {
+        var a = document.createElement("a");
+        var file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+    }
 }

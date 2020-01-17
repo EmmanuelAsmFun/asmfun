@@ -41,7 +41,7 @@ namespace AsmFun.Startup
 
         private IntPtr window;
         private IntPtr renderer;
-        private IntPtr sdlTexture;
+        private IntPtr bgTexture;
         private IntPtr layer0;
         private IntPtr layer1;
         private IntPtr layerData0;
@@ -89,6 +89,7 @@ namespace AsmFun.Startup
         public void Start()
         {
             InitWindow();
+            InitBGLayer();
             InitLayers();
             InitFpsCounter();
             eventManagerSDL.RunPollEvent();
@@ -113,16 +114,19 @@ namespace AsmFun.Startup
                 return;
             }
             SDL2.SDL.SDL_SetWindowResizable(window, SDL2.SDL.SDL_bool.SDL_TRUE);
-            sdlTexture = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_RGB888, 1, ComputerWidth, ComputerHeight);
+            
             SDL2.SDL.SDL_SetWindowTitle(window, "ASMFun - Commander X16");
         }
 
 
         public void Stop()
         {
+            // first stop the events
+            eventManagerSDL?.Dispose();
             SDL2.SDL.SDL_DestroyWindow(window);
             DisposeFpsCounter();
             DisposeLayers();
+            DisposeBgLayer();
             SDL2.SDL.SDL_Quit();
             DisposeSprites();
            
@@ -147,12 +151,7 @@ namespace AsmFun.Startup
                 if (requireRefreshPalette)
                     reloadPalette();
                 if (requireRedrawBg)
-                {
-                    IntPtr rect1 = new IntPtr(0);
-                    IntPtr rect2 = new IntPtr(0);
-                    SDL2.SDL.SDL_UpdateTexture(sdlTexture, IntPtr.Zero, framebuffer, StrideSize);
-                    SDL2.SDL.SDL_RenderCopy(renderer, sdlTexture, rect1, rect2);
-                }
+                    StepBGLayer(framebuffer);
                 if (requireDrawLayers)
                     StepLayers();
                 StepSprite();
@@ -179,8 +178,31 @@ namespace AsmFun.Startup
             if (isDisposed) return;
             isDisposed = true;
             Stop();
-            eventManagerSDL?.Dispose();
+            
         }
+
+
+        #region BGLayer
+        private void InitBGLayer()
+        {
+            bgTexture = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_ARGB8888, 1, ComputerWidth, ComputerHeight);
+        }
+        private void StepBGLayer(IntPtr framebuffer)
+        {
+            IntPtr rect1 = new IntPtr(0);
+            IntPtr rect2 = new IntPtr(0);
+            //var w = displayComposer.HStop - displayComposer.HStart;
+            //var h = displayComposer.VStop - displayComposer.VStart;
+            //var srcRect = new SDL2.SDL.SDL_Rect { x = 0, y = 0, w = (int)(w / displayComposer.HScale), h = (int)(h / displayComposer.VScale) };
+            //var destRect = new SDL2.SDL.SDL_Rect { x = displayComposer.HStart, y = displayComposer.VStart, w = w, h = h };
+            SDL2.SDL.SDL_UpdateTexture(bgTexture, IntPtr.Zero, framebuffer, StrideSize);
+            SDL2.SDL.SDL_RenderCopy(renderer, bgTexture, rect1, rect2);
+        }
+        private void DisposeBgLayer()
+        {
+
+        } 
+        #endregion
 
 
         #region Fps Counter

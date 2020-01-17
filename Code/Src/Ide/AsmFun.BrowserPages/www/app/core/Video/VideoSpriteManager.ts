@@ -18,11 +18,13 @@ export class VideoSpriteManager {
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
+    private requestReloadMemory?: () => void;
 
-    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, requestReloadMemory: () => void) {
         this.videoSettings = videoManagerData.settings;
         this.videoManagerData = videoManagerData;
         this.debuggerService = debuggerService;
+        this.requestReloadMemory = requestReloadMemory;
     }
 
     public Reset() {
@@ -55,6 +57,8 @@ export class VideoSpriteManager {
                     if (this.debuggerService != null)
                         this.debuggerService.WriteVideoMemoryBlock(memDump.startAddress + spr.SpriteIndex * 8, data2, data2.length, () => { });
                     this.ParseData(spr, data2);
+                    if (this.requestReloadMemory != null)
+                        this.requestReloadMemory();
                 }
             };
             spriteData.CopyToClipBoard = () => {
@@ -103,7 +107,7 @@ export class VideoSpriteManager {
         data[4] = (sprite.Y & 0xff);
         data[5] = ((sprite.Y >> 8) & 0xff);
         data[6] = (sprite.HFlip ? 1 : 0) | ((sprite.VFlip ? 1 : 0) << 1) | ((sprite.ZDepth & 3) << 2) | ((sprite.CollisionMask & 0x0f) << 4);
-        data[7] = ((Math.log2(sprite.Width) - 3) << 4) | ((Math.log2(sprite.Height) - 3) << 6) | ((sprite.palette_offset >>4) & 0x0f);
+        data[7] = ((Math.log2(sprite.Width) - 3) << 4) | ((Math.log2(sprite.Height) - 3) << 6) | ((sprite.PaletteOffset >> 4) & 0x0f);
         return data;
     }
 
@@ -139,7 +143,7 @@ export class VideoSpriteManager {
         // Offset 6 : BIT 4-7
         props.CollisionMask = ((newData[6] & 0x0f) >> 4);
         // Offset 7 : BIT 0-3
-        props.palette_offset = ((newData[7] & 0x0f) << 4);
+        props.PaletteOffset = (newData[7] & 0x0f) << 4;
         // Offset 7 : BIT 4,5
         props.Width = (1 << (((newData[7] >> 4) & 3) + 3));
         // Offset 7 : BIT 6,7
@@ -175,21 +179,23 @@ export class VideoSpriteManager {
                 if (sprite.SpriteAddress == 0) break;
                 var imagedata = context.createImageData(sprite.Width, sprite.Height);
                 if (sprite.SpriteAddress < length) {
-                    var data = ramData.subarray(sprite.SpriteAddress, sprite.SpriteAddress + (sprite.Width + sprite.Height) * (sprite.Bpp+3));
-                    var color = palette.GetColor(sprite.palette_offset);
+                    var data = ramData.subarray(sprite.SpriteAddress, sprite.SpriteAddress + (sprite.Width * sprite.Height));
+                   
                     var i = -1;
                     for (var y = 0; y < sprite.Height; y++) {
                         for (var x = 0; x < sprite.Width; x++) {
                             i++;
-                            if (data[i] == 0) continue;
+                            var color = palette.GetColor(data[i] + sprite.PaletteOffset);
+                            if (color == null) continue;
                             var pixelindex = (y * sprite.Width + x) * 4;
                             imagedata.data[pixelindex] = color.r;     // Red
                             imagedata.data[pixelindex + 1] = color.g; // Green
                             imagedata.data[pixelindex + 2] = color.b;  // Blue
-                            imagedata.data[pixelindex + 3] = 255;   // Alpha
+                            imagedata.data[pixelindex + 3] = data[i] >0? 255:0;   // Alpha
                         }
                     }
                 }
+                
                 context.putImageData(imagedata, sprite.Width * hIndex, sprite.Height * vIndex);
                 hIndex++;
                 if (hIndex == thiss.numberOfHorizontalSprites) {
@@ -221,7 +227,7 @@ export class VideoSpriteManager {
             Mode: X16SpriteModes.Bpp4,
             ModeString: "Bpp4",
             Bpp:4,
-            palette_offset: 0,
+            PaletteOffset:0,
             SpriteIndex: 0,
             SpriteAddress: 0,
             SpriteAddressHex:"",

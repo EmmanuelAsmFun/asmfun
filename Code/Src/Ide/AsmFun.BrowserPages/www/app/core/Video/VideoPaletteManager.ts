@@ -38,9 +38,9 @@ export class VideoPaletteManager {
             var byte1: number = data[i];
             var byte2: number = data[i +1];
             var entry: number = byte1 << 4 | byte2;
-            var r = (((entry >> 8) & 0xf) << 4 | ((entry >> 8) & 0xf));
-            var g = (((entry >> 4) & 0xf) << 4 | ((entry >> 4) & 0xf));
-            var b = ((entry & 0xf) << 4 | (entry & 0xf));
+            var g = (((entry >> 8) & 0xf) << 4 | ((entry >> 8) & 0xf));
+            var b = (((entry >> 4) & 0xf) << 4 | ((entry >> 4) & 0xf));
+            var r = ((entry & 0xf) << 4 | (entry & 0xf));
             var numColor = (r << 16) | (g << 8) | (b);
             entries.push({
                 colorNumber: numColor,

@@ -1622,7 +1622,8 @@ body {
   margin-right: 20px;
 }
 .videoManager .layers .Canvas-cont {
-  width: 208px;
+  width: 320px;
+  /*width: @media-column-width;*/
 }
 .videoManager .layers .LayerCanvas {
   width: 100%;

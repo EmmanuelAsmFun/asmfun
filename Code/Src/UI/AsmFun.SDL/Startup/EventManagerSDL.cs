@@ -67,6 +67,7 @@ namespace AsmFun.Startup
         public void Dispose()
         {
             isDisposed = true;
+            Thread.Sleep(12);
         }
     }
 }

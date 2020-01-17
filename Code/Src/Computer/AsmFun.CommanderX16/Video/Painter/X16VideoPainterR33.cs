@@ -344,6 +344,8 @@ namespace AsmFun.CommanderX16.Video.Painter
         {
             this.display = display;
             display.Init(width, height);
+            spriteAccess.SetDisplay(display);
+            videoPalette.SetDisplay(display);
         }
 
         public void Break(bool doBreak)

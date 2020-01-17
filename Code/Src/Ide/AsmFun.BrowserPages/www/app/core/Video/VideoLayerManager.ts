@@ -228,20 +228,23 @@ export class VideoLayerManager {
             var context = canvas.getContext("2d");
             context.fillStyle = "#333";
             context.fillRect(0, 0, canvas.width, canvas.height);
+            var colIndexs = new Int8Array(canvas.width* canvas.height);
             var imagedata = context.createImageData(w, h);
             var renderContext: IVideoRenderLineContext = VideoLayerManager.NewContext(ram, layer, w);
             for (var y = 0; y < h; y++) {
                 renderContext.y = y;
-                this.RenderLayerLine(renderContext, imagedata, palette, this.videoManagerData.composer);
+                this.RenderLayerLine(renderContext, imagedata, palette, this.videoManagerData.composer, colIndexs);
                 
             }
+            // AsmTools.SaveDataToFile(colIndexs, "layer" + layer.name+".bin");
             context.putImageData(imagedata, 0,0);
         }, 50);
     }
-    public RenderLayerLine(context: IVideoRenderLineContext, imagedata: any, palette: VideoPaletteManager, composer: IVideoDisplayComposer) {
+    public RenderLayerLine(context: IVideoRenderLineContext, imagedata: any, palette: VideoPaletteManager, composer: IVideoDisplayComposer, colIndexes: Int8Array) {
         var layer = context.layer;
         // todo : add composer data
-        var y = (composer.b_VScale * (context.y - composer.VStart) / 128);
+        //var y = (composer.b_VScale *Math.floor( (context.y - composer.VStart) / 128));
+        var y = context.y;
         this.ReadSpaceReadRange(context);
         //console.log(context.y, context.map_addr_begin);
         for (var x = 0; x < context.width; x++)
@@ -289,14 +292,15 @@ export class VideoLayerManager {
             // Apply Palette Offset
             if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
                 colorIndex += (tile.PaletteOffset << 4);
+            colIndexes[x + y * context.width] = colorIndex;
             var colorp = palette.GetColor(colorIndex);
             if (colorp == null)
                 colorp = palette.GetColor(0);
             var pixelindex = (y * context.width + x) * 4;
-            imagedata.data[pixelindex] = colorp.r;     // Red
+            imagedata.data[pixelindex + 0] = colorp.r;     // Red
             imagedata.data[pixelindex + 1] = colorp.g; // Green
             imagedata.data[pixelindex + 2] = colorp.b;  // Blue
-            imagedata.data[pixelindex + 3] = 255;   // Alpha
+            imagedata.data[pixelindex + 3] = 0xff;   // Alpha
         }
     }
     public CalcLayerEffX(props: IVideoLayerData, x: number): number {
@@ -308,7 +312,8 @@ export class VideoLayerManager {
     }
 
     public CalcLayerMapAddress(props: IVideoLayerData, eff_x: number, eff_y: number): number {
-        return Math.floor((props.MapBase + (eff_y / props.TileHeight * props.MapWidth + eff_x / props.TileWidth) * 2));
+        if (props.TileWidth == 0 || props.TileHeight == 0) return 0;
+        return ((props.MapBase + (Math.floor(eff_y / props.TileHeight) * props.MapWidth + Math.floor(eff_x / props.TileWidth)))  * 2);
     }
 
     public ReadSpaceReadRange(context: IVideoRenderLineContext) {

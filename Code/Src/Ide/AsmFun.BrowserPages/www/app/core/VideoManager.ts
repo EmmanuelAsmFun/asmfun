@@ -44,11 +44,11 @@ export class VideoManager {
         var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
         this.videoLayerManager.Init(this.data, debugSvc);
         this.videoPaletteManager.Init(this.data);
-        this.videoSpriteManager.Init(this.data, debugSvc);
+        this.videoSpriteManager.Init(this.data, debugSvc, () => this.ReloadData());
         this.videoComposerManager.Init(this.data, debugSvc);
     }
 
-    private ReloadData() {
+    public ReloadData() {
         var thiss = this;
         this.computerService.VideoMemoryDump((r) => {
             if (r == null) return;

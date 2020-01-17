@@ -137,7 +137,7 @@ export interface IVideoSpriteProperties {
     SpriteIndex: number;
     SpriteAddress: number;
     SpriteAddressHex: string;
-    palette_offset: number;
+    PaletteOffset: number;
     CollisionMask: number;
     name: string;
     RawDataString: string;

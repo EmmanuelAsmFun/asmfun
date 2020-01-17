@@ -50,5 +50,6 @@ namespace AsmFun.Computer.Common.Video.Data
         {
             LayerIndex = layerIndex;
         }
+
     }
 }
