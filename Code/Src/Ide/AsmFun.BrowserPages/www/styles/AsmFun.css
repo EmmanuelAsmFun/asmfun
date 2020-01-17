@@ -1490,7 +1490,7 @@ body {
 .videoManager {
   position: fixed;
   top: 50px;
-  left: 150px;
+  left: 20px;
   right: 50px;
   bottom: 50px;
   z-index: 200;
@@ -1514,9 +1514,6 @@ body {
 }
 .videoManager .rawBinaryData a {
   font-size: 10px;
-}
-.videoManager .table-cont {
-  min-height: 170px;
 }
 .videoManager a {
   font-size: 13px;
@@ -1568,15 +1565,19 @@ body {
   font-size: 22px;
   z-index: 10;
 }
-.videoManager .btn-reload {
+.videoManager .top-btnbar {
   position: absolute;
   top: 10px;
   right: 100px;
+  font-size: 10px;
 }
 .videoManager .palette {
   float: left;
   margin-right: 20px;
   font-size: 10px;
+}
+.videoManager .palette .table-cont {
+  min-height: 170px;
 }
 .videoManager .palette .paletteColors {
   width: 208px;
@@ -1614,16 +1615,17 @@ body {
 }
 .videoManager .layers {
   float: left;
-  margin-right: 20px;
+  margin-right: 10px;
   font-size: 10px;
+  min-height: 400px;
 }
 .videoManager .layers .layerInfo {
   float: left;
   margin-right: 20px;
 }
 .videoManager .layers .Canvas-cont {
-  width: 320px;
-  /*width: @media-column-width;*/
+  /*width: 320px;*/
+  width: 208px;
 }
 .videoManager .layers .LayerCanvas {
   width: 100%;
@@ -1631,8 +1633,9 @@ body {
 }
 .videoManager .Sprites {
   float: left;
-  margin-right: 20px;
+  margin-right: 10px;
   font-size: 10px;
+  width: 208px;
 }
 .videoManager .Sprites .spriteCanvas {
   cursor: pointer;
@@ -1642,8 +1645,28 @@ body {
 }
 .videoManager .Composer {
   float: left;
-  margin-right: 20px;
+  margin-right: 10px;
   font-size: 10px;
+}
+.videoManager .fullVideo {
+  float: left;
+  margin-right: 10px;
+  position: relative;
+  width: 640px;
+  height: 480px;
+}
+.videoManager .fullVideo .Layer1CanvasFS,
+.videoManager .fullVideo .Layer2CanvasFS,
+.videoManager .fullVideo .spriteHolder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 640px;
+  height: 480px;
+}
+.videoManager .fullVideo .spriteHolder canvas {
+  position: absolute;
+  cursor: pointer;
 }
 .videoManager .documentation {
   clear: both;
@@ -1652,6 +1675,14 @@ body {
 }
 .videoManager .documentation a {
   font-size: 9px;
+}
+@media only screen and (max-width: 1660px) {
+  .videoManager .palette .paletteColors {
+    float: left;
+  }
+  .videoManager .palette .table-cont {
+    float: left;
+  }
 }
 @font-face {
   font-family: 'robot';

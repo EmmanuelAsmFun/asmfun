@@ -224,20 +224,23 @@ export class VideoLayerManager {
             var w = this.videoSettings.Width;
             var h = this.videoSettings.Height;
             var canvas = <any>document.getElementById(layer.name + "Canvas");
+            var canvasFS = <any>document.getElementById(layer.name + "CanvasFS");
+            
             if (canvas == null) return;
             var context = canvas.getContext("2d");
+            var contextFS = canvasFS.getContext("2d");
             context.fillStyle = "#333";
             context.fillRect(0, 0, canvas.width, canvas.height);
-            var colIndexs = new Int8Array(canvas.width* canvas.height);
+            var colIndexs = new Int8Array(w*h);
             var imagedata = context.createImageData(w, h);
             var renderContext: IVideoRenderLineContext = VideoLayerManager.NewContext(ram, layer, w);
             for (var y = 0; y < h; y++) {
                 renderContext.y = y;
                 this.RenderLayerLine(renderContext, imagedata, palette, this.videoManagerData.composer, colIndexs);
-                
             }
             // AsmTools.SaveDataToFile(colIndexs, "layer" + layer.name+".bin");
             context.putImageData(imagedata, 0,0);
+            contextFS.putImageData(imagedata, 0,0);
         }, 50);
     }
     public RenderLayerLine(context: IVideoRenderLineContext, imagedata: any, palette: VideoPaletteManager, composer: IVideoDisplayComposer, colIndexes: Int8Array) {

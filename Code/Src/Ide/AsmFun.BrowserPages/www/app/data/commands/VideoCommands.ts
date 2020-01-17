@@ -22,3 +22,12 @@ export class VideoReloadAllCommand extends BaseCommand {
         this.nameSpace = "Video";
     }
 }
+export class VideoEnableAutoReloadCommand extends BaseCommand {
+    public state: boolean | null;
+    public constructor(state: boolean | null) {
+        super();
+        this.state = state;
+        this.commandName = "EnableAutoReload";
+        this.nameSpace = "Video";
+    }
+}

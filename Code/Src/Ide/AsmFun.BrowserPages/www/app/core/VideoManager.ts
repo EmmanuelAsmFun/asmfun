@@ -6,7 +6,7 @@
 
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { VideoOpenManagerCommand, VideoReloadAllCommand } from "../data/commands/VideoCommands.js";
+import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand } from "../data/commands/VideoCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ComputerService } from "../services/ComputerService.js";
 import { IVideoManagerData } from "../data/VideoData.js";
@@ -20,6 +20,7 @@ import { DebuggerService } from "../services/DebuggerService.js";
 
 export class VideoManager {
 
+    private autoReloader: number = 0; 
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     public data: IVideoManagerData;
@@ -41,6 +42,7 @@ export class VideoManager {
         this.videoComposerManager = mainData.container.Resolve<VideoComposerManager>(VideoComposerManager.ServiceName) ?? new VideoComposerManager();
         this.mainData.commandManager.Subscribe2(new VideoOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new VideoReloadAllCommand(), this, () => this.ReloadData());
+        this.mainData.commandManager.Subscribe2(new VideoEnableAutoReloadCommand(null), this, (s) => this.SwapEnableAutoReload(s.state));
         var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
         this.videoLayerManager.Init(this.data, debugSvc);
         this.videoPaletteManager.Init(this.data);
@@ -114,12 +116,24 @@ export class VideoManager {
         this.data.isVisiblePopup = false;
     }
 
-   
+    public SwapEnableAutoReload(state: boolean | null) {
+        var newState = state != null ? state : !this.data.isEnableAutoReload;
+        if (this.autoReloader != 0)
+            clearInterval(this.autoReloader);
+        if (newState) {
+            if (this.data.intervalTime < 50)
+                this.data.intervalTime = 50;
+            this.autoReloader = setInterval(() => this.ReloadData(), this.data.intervalTime);
+        }
+        this.data.isEnableAutoReload = newState;
+    }
 
     public static NewData(): IVideoManagerData {
         return {
             isVisible: false,
             isVisiblePopup: false,
+            isEnableAutoReload: false,
+            intervalTime: 500,
             settings: {
                 Height: 480,
                 Width: 640,

@@ -10,6 +10,8 @@
 export interface IVideoManagerData {
     isVisible: boolean;
     isVisiblePopup: boolean;
+    isEnableAutoReload: boolean;
+    intervalTime: number;
     settings: IVideoSettings;
     palette: IVideoPalette;
     layers: IVideoLayerData[]
@@ -125,6 +127,7 @@ export interface IVideoSpriteProperties {
      */
     ZDepth: number;
     X: number;
+    
     Y: number;
     Width: number;
     Height: number;
@@ -145,6 +148,7 @@ export interface IVideoSpriteProperties {
 
     valueChanged: (v) => void;
     CopyToClipBoard: () => void;
+    
 }
 
 export enum HScales {

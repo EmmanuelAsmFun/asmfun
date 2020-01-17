@@ -564,45 +564,82 @@ programItem.address  | toHex2
                 </div>
                 <div class="content">
                     <h2><span class="fa fa-image"></span> Video</h2>
-                    <a class="btn-reload" v-on:click="VideoReloadAll">Reload</a>
+                    <div class="top-btnbar">
+                       
+                        <span v-if="!videoManager.isEnableAutoReload">
+                            <a class="btn-reload" v-on:click="VideoReloadAll" title="Manual reload"><span class="fa fa-refresh"></span> Reload</a>
+                            |
+                            <a class="btn-enableclock" v-on:click="VideoEnableAutoReload()" title="Auto reload"><span class="fa fa-clock-o"></span> Auto</a>
+                        </span>
+                        <span v-if="videoManager.isEnableAutoReload">
+                            Interval:
+                            <editable-field v-model="videoManager.intervalTime" v-on:valuechanged="VideoEnableAutoReload(true)"></editable-field>
+                            ms.
+                            <a class="btn-enableclock" v-on:click="VideoEnableAutoReload()" title="Auto reload"><span class="fa fa-clock-o"></span> Stop</a>
+                        </span>
+                    </div>
+
+                    <div class="fullVideo">
+                        <canvas class="Layer1CanvasFS" id="Layer2CanvasFS" width="640" height="480"></canvas>
+                        <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480"></canvas>
+                        <div class="spriteHolder" id="spriteHolder"></div>
+                    </div>
 
                     <div class="Composer">
                         <h3>Composer</h3>
                         <div class="vAddress">0x{{videoManager.composer.startAddress}} - 0x{{videoManager.composer.endAddress}}</div>
                         <div class="rawBinaryData">{{videoManager.composer.RawDataString}} <a v-on:click="videoManager.composer.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
                         <table>
-                            <tr><td>OutMode</td><td>
-                                  <editable-select v-model="videoManager.composer.OutModeString" :options="videoManager.composer.OutModes" 
-                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-select></td></tr>
-                            <tr><td>ChromaDisable</td><td>
-                                <editable-checkbox v-model="videoManager.composer.ChromaDisable" 
-                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox></td></tr>
-                            <tr><td>Scale</td><td>
-                                <editable-select v-model="videoManager.composer.HScaleString" :options="videoManager.composer.HScales"
-                                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
-                                x
-                                <editable-select v-model="videoManager.composer.VScaleString" :options="videoManager.composer.VScales"
-                                                                   v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
-                               </td></tr>
-                            <tr><td>Range H</td><td>
-                                <editable-field v-model="videoManager.composer.HStart"
-                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field> 
-                                -
-                                <editable-field v-model="videoManager.composer.HStop"
-                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field>
-                                 </td></tr>
-                            <tr><td>Range V</td><td>
-                                <editable-field v-model="videoManager.composer.VStart"
-                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field> 
-                                -
-                                <editable-field v-model="videoManager.composer.VStop"
-                                                v-on:valuechanged="videoManager.composer.valueChanged"></editable-field><br />
-</td></tr>
+                            <tr>
+                                <td>OutMode</td>
+                                <td>
+                                    <editable-select v-model="videoManager.composer.OutModeString" :options="videoManager.composer.OutModes"
+                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ChromaDisable</td>
+                                <td>
+                                    <editable-checkbox v-model="videoManager.composer.ChromaDisable"
+                                                       v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Scale</td>
+                                <td>
+                                    <editable-select v-model="videoManager.composer.HScaleString" :options="videoManager.composer.HScales"
+                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                    x
+                                    <editable-select v-model="videoManager.composer.VScaleString" :options="videoManager.composer.VScales"
+                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Range H</td>
+                                <td>
+                                    <editable-field v-model="videoManager.composer.HStart"
+                                                    v-on:valuechanged="videoManager.composer.valueChanged"></editable-field>
+                                    -
+                                    <editable-field v-model="videoManager.composer.HStop"
+                                                    v-on:valuechanged="videoManager.composer.valueChanged"></editable-field>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Range V</td>
+                                <td>
+                                    <editable-field v-model="videoManager.composer.VStart"
+                                                    v-on:valuechanged="videoManager.composer.valueChanged"></editable-field>
+                                    -
+                                    <editable-field v-model="videoManager.composer.VStop"
+                                                    v-on:valuechanged="videoManager.composer.valueChanged"></editable-field><br />
+                                </td>
+                            </tr>
                             <tr>
                                 <td>BorderColor</td>
                                 <td v-bind:style="{ backgroundColor: videoManager.composer.BorderColorData.colorHex}">
                                     <editable-field v-model="videoManager.composer.BorderColor"
-                                                    v-on:valuechanged="videoManager.composer.valueChanged" ></editable-field></td>
+                                                    v-on:valuechanged="videoManager.composer.valueChanged"></editable-field>
+                                </td>
                             </tr>
                         </table>
                         <div>
@@ -652,13 +689,19 @@ programItem.address  | toHex2
                             <div class="rawBinaryData">{{layerInfo.RawDataString}} <a v-on:click="layerInfo.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
                             <div class="table-cont">
                                 <table v-bind:style="{opacity : layerInfo.IsEnabled? 1:0.7}">
-                                    <tr><td>IsEnabled</td><td>
-                                        <editable-checkbox v-model="layerInfo.IsEnabled" v-on:valuechanged="layerInfo.valueChanged"></editable-checkbox>
-                                    </td></tr>
-                                    <tr><td>Mode</td><td>
-                                        <editable-select v-model="layerInfo.ModeString" :options="layerInfo.Modes"
-                                                        v-on:valuechanged="layerInfo.valueChanged"></editable-select>
-                                        </td></tr>
+                                    <tr>
+                                        <td>IsEnabled</td>
+                                        <td>
+                                            <editable-checkbox v-model="layerInfo.IsEnabled" v-on:valuechanged="layerInfo.valueChanged"></editable-checkbox>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mode</td>
+                                        <td>
+                                            <editable-select v-model="layerInfo.ModeString" :options="layerInfo.Modes"
+                                                             v-on:valuechanged="layerInfo.valueChanged"></editable-select>
+                                        </td>
+                                    </tr>
                                     <tr title="Specifies the base address where tile map data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
                                         <td>Map Address</td>
                                         <td>
@@ -685,22 +728,28 @@ programItem.address  | toHex2
                                     <tr title="Specify the tile width and tile height respectively">
                                         <td>Tile Size</td>
                                         <td>
-                                         <span>
+                                            <span>
                                                 <editable-field v-model="layerInfo.TileWidth" v-on:valuechanged="layerInfo.valueChanged">
                                             </span> x
                                             <span>
                                                 <editable-field v-model="layerInfo.TileHeight" v-on:valuechanged="layerInfo.valueChanged">
                                             </span>
-                                       ({{layerInfo.TileSize}})</td>
+                                            ({{layerInfo.TileSize}})
+                                        </td>
                                     </tr>
 
                                     <tr><td>Layer Size</td><td>{{layerInfo.LayerWidth}} x {{layerInfo.LayerHeight}}</td></tr>
-                                    <tr><td>Scroll</td><td>
-                                        <span><editable-field v-model="layerInfo.HorizontalScroll" v-on:valuechanged="layerInfo.valueChanged"></span> x
-                                        <span><editable-field v-model="layerInfo.VerticalScroll" v-on:valuechanged="layerInfo.valueChanged"></span>
-                                    <tr><td>Palette Offset</td><td>
-                                         <editable-field v-model="layerInfo.PaletteOffset" v-on:valuechanged="layerInfo.valueChanged">
-                                         </td></tr>
+                                    <tr>
+                                        <td>Scroll</td>
+                                        <td>
+                                            <span><editable-field v-model="layerInfo.HorizontalScroll" v-on:valuechanged="layerInfo.valueChanged"></span> x
+                                            <span><editable-field v-model="layerInfo.VerticalScroll" v-on:valuechanged="layerInfo.valueChanged"></span>
+                                    <tr>
+                                        <td>Palette Offset</td>
+                                        <td>
+                                            <editable-field v-model="layerInfo.PaletteOffset" v-on:valuechanged="layerInfo.valueChanged">
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="Canvas-cont">
@@ -759,14 +808,16 @@ programItem.address  | toHex2
                                         <td>Palette Offset</td>
                                         <td>
                                             <editable-field v-model="videoManager.spriteDatas.selectedSprite.PaletteOffset" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged">
-                                            </editable-field> (offset by 16)
+                                            </editable-field> (multi of 16)
                                     </tr>
                                     <tr><td>Collision Mask</td><td>{{videoManager.spriteDatas.selectedSprite.CollisionMask}}</td></tr>
                                 </table>
                             </div>
-                            <canvas class="spriteCanvas" id="spriteCanvas" width="256" height="512" v-on:click="videoManager.spriteDatas.selectByImage(event)"></canvas>
+                            <canvas class="spriteCanvas" id="spriteCanvas" width="194" height="512" v-on:click="videoManager.spriteDatas.selectByImage(event)"></canvas>
                         </div>
                     </div>
+
+
 
                     <div class="documentation">
 

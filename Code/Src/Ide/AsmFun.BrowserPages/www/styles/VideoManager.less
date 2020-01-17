@@ -4,7 +4,7 @@
 .videoManager {
     position: fixed;
     top: 50px;
-    left: 150px;
+    left: 20px;
     right: 50px;
     bottom: 50px;
     z-index: 200;
@@ -33,9 +33,7 @@
         }
     }
 
-    .table-cont {
-        min-height: 170px;
-    }
+
 
     a {
         font-size: 13px;
@@ -87,16 +85,21 @@
         z-index: 10;
     }
 
-    .btn-reload {
+    .top-btnbar {
         position: absolute;
         top: 10px;
         right: 100px;
+        font-size:10px;
     }
 
     .palette {
         float: left;
         margin-right: 20px;
         font-size: 10px;
+
+        .table-cont {
+            min-height: 170px;
+        }
 
         .paletteColors {
             width: @media-column-width;
@@ -141,8 +144,9 @@
 
     .layers {
         float: left;
-        margin-right: 20px;
+        margin-right: 10px;
         font-size: 10px;
+        min-height: 400px;
 
         .layerInfo {
             float: left;
@@ -150,8 +154,8 @@
         }
 
         .Canvas-cont {
-            width:320px;
-            /*width: @media-column-width;*/
+            /*width: 320px;*/
+            width: @media-column-width;
         }
 
         .LayerCanvas {
@@ -162,8 +166,10 @@
 
     .Sprites {
         float: left;
-        margin-right: 20px;
+        margin-right: 10px;
         font-size: 10px;
+        width: @media-column-width;
+
 
         .spriteCanvas {
             cursor: pointer;
@@ -176,17 +182,53 @@
 
     .Composer {
         float: left;
-        margin-right: 20px;
+        margin-right: 10px;
         font-size: 10px;
     }
 
-    .documentation{
-        clear:both;
-        font-size:10px;
-        padding-top:80px;
-        a{
-            font-size:9px;
+    .fullVideo {
+        float: left;
+        margin-right: 10px;
+        position: relative;
+        width: 640px;
+        height: 480px;
+
+        .Layer1CanvasFS, .Layer2CanvasFS, .spriteHolder {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 640px;
+            height: 480px;
+        }
+
+        .spriteHolder {
+            canvas {
+                position: absolute;
+                cursor: pointer;
+            }
         }
     }
 
+    .documentation {
+        clear: both;
+        font-size: 10px;
+        padding-top: 80px;
+
+        a {
+            font-size: 9px;
+        }
+    }
+}
+@media only screen and (max-width: 1660px) {
+    .videoManager {
+        .palette {
+            .paletteColors {
+                float: left;
+            }
+
+            .table-cont {
+                float: left;
+            }
+        }
+    }
 }

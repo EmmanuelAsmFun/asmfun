@@ -59,7 +59,7 @@ namespace AsmFun.WPF
             Closing += MainWindow_Closing;
             KeyDown += MainWindow_KeyDown;
             KeyUp += MainWindow_KeyUp;
-            //Topmost = true;
+            Topmost = true;
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

@@ -19,6 +19,7 @@ export class VideoSpriteManager {
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
     private requestReloadMemory?: () => void;
+    private htmlDragables: DragableSprite[] = new Array(512);
 
     public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, requestReloadMemory: () => void) {
         this.videoSettings = videoManagerData.settings;
@@ -40,6 +41,7 @@ export class VideoSpriteManager {
         var spData = this.videoManagerData.spriteDatas;
         spData.startAddress = AsmTools.numToHex5(memDump.startAddress);
         spData.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
+       
         var sprites: IVideoSpriteProperties[] = [];
         for (var i = 0; i < this.videoSettings.NumberOfSprites; i++) {
             const dataAr = data.subarray(i * 8, i * 8 + 8);
@@ -158,12 +160,15 @@ export class VideoSpriteManager {
         return props;
     }
 
-    public DrawSprites(ramData: Uint8Array, palette:VideoPaletteManager) {
+    public DrawSprites(ramData: Uint8Array, palette: VideoPaletteManager) {
+        
         var thiss = this;
         setTimeout(() => {
             if (thiss.videoManagerData == null) return;
             if (thiss.videoSettings == null) return;
             if (thiss.videoManagerData.spriteDatas.sprites.length === 0) return;
+            var spriteHolder = document.getElementById("spriteHolder");
+
             var canvas = <any>document.getElementById("spriteCanvas");
             if (canvas == null) return;
             var firstSprite = thiss.videoManagerData.spriteDatas.sprites[0];
@@ -175,9 +180,30 @@ export class VideoSpriteManager {
             var vIndex = 0;
             var hIndex = 0;
             for (var spriteIndex = 0; spriteIndex < thiss.videoManagerData.spriteDatas.sprites.length; spriteIndex++) {
-                var sprite: IVideoSpriteProperties = thiss.videoManagerData.spriteDatas.sprites[spriteIndex];
+                const sprite: IVideoSpriteProperties = thiss.videoManagerData.spriteDatas.sprites[spriteIndex];
                 if (sprite.SpriteAddress == 0) break;
+                let spriteHtml = spriteHolder?.children[spriteIndex] as HTMLCanvasElement;
+                if (spriteHtml == null && spriteHolder != null) {
+                    spriteHtml = document.createElement("canvas") as HTMLCanvasElement;
+                    spriteHtml.style.position = "absolute";
+                    this.htmlDragables[spriteIndex] = new DragableSprite(spriteHtml, sprite,s => thiss.SelectSprite(s));
+                    spriteHolder.appendChild(spriteHtml);
+                }
+                this.htmlDragables[spriteIndex].UpdateSprite(sprite);
+                if (sprite.X > thiss.videoSettings.Width || sprite.Y > thiss.videoSettings.Height)
+                    spriteHtml.style.display = "none";
+                else
+                    spriteHtml.style.display = "block";
+                spriteHtml.style.left = sprite.X + "px";
+                spriteHtml.style.top = sprite.Y + "px";
+                spriteHtml.width = sprite.Width;
+                spriteHtml.height = sprite.Height;
+                spriteHtml.style.height = sprite.Height + "px";
+                spriteHtml.style.height = sprite.Height + "px";
+                var contextSprite2D = spriteHtml.getContext("2d");
                 var imagedata = context.createImageData(sprite.Width, sprite.Height);
+                var imageData2D = contextSprite2D?.createImageData(sprite.Width, sprite.Height);
+                if (imageData2D == null) continue;
                 if (sprite.SpriteAddress < length) {
                     var data = ramData.subarray(sprite.SpriteAddress, sprite.SpriteAddress + (sprite.Width * sprite.Height));
                    
@@ -188,15 +214,24 @@ export class VideoSpriteManager {
                             var color = palette.GetColor(data[i] + sprite.PaletteOffset);
                             if (color == null) continue;
                             var pixelindex = (y * sprite.Width + x) * 4;
+                            // Preview Image
                             imagedata.data[pixelindex] = color.r;     // Red
                             imagedata.data[pixelindex + 1] = color.g; // Green
                             imagedata.data[pixelindex + 2] = color.b;  // Blue
-                            imagedata.data[pixelindex + 3] = data[i] >0? 255:0;   // Alpha
+                            imagedata.data[pixelindex + 3] = data[i] > 0 ? 255 : 0;   // Alpha 
+
+                            imageData2D.data[pixelindex] = color.r;     // Red
+                            imageData2D.data[pixelindex + 1] = color.g; // Green
+                            imageData2D.data[pixelindex + 2] = color.b;  // Blue
+                            imageData2D.data[pixelindex + 3] = data[i] > 0 ? 255 : 0;   // Alpha
                         }
                     }
                 }
                 
                 context.putImageData(imagedata, sprite.Width * hIndex, sprite.Height * vIndex);
+                if (contextSprite2D != null && imageData2D != null)
+                    contextSprite2D.putImageData(imageData2D, 0,0);
+                
                 hIndex++;
                 if (hIndex == thiss.numberOfHorizontalSprites) {
                     hIndex = 0;
@@ -205,6 +240,7 @@ export class VideoSpriteManager {
             }
         }, 10);
     }
+  
 
     public static NewData(): ISpritesData {
         return {
@@ -240,8 +276,72 @@ export class VideoSpriteManager {
             name: "",
             valueChanged: () => { },
             CopyToClipBoard: () => { },
-            Modes:[],
+            Modes: [],
+
         };
     }
     public static ServiceName: ServiceName = { Name: "VideoSpriteManager" };
 }
+
+class DragableSprite {
+   
+
+    private dragging = false;
+    private mouseDownPositionX = 0;
+    private mouseDownPositionY = 0;
+    private elementOriginalLeft = 0;
+    private elementOriginalTop = 0;
+    private element: HTMLElement;
+    private sprite: IVideoSpriteProperties;
+    private selectSpriteM: (s: IVideoSpriteProperties) => void;
+
+    constructor(element, sprite: IVideoSpriteProperties, selectSpriteM: (s: IVideoSpriteProperties) => void) {
+        this.dragging = false;
+        this.mouseDownPositionX = 0;
+        this.mouseDownPositionY = 0;
+        this.elementOriginalLeft = 0;
+        this.elementOriginalTop = 0;
+        this.element = element;
+        this.sprite = sprite;
+        this.selectSpriteM = selectSpriteM;
+        this.element.onmousedown = e => this.startDrag(e);
+        this.element.onmouseup = e => this.stopDrag(e);
+        window.addEventListener('onmousedown', d => this.unsetMouseMove());
+    }
+
+    private startDrag(e) {
+        e.preventDefault();
+        this.dragging = true;
+        this.mouseDownPositionX = e.clientX;
+        this.mouseDownPositionY = e.clientY;
+        this.elementOriginalLeft = parseInt(this.element.style.left);
+        this.elementOriginalTop = parseInt(this.element.style.top);
+        // set mousemove event
+        window.addEventListener('mousemove', d => this.dragElement(d));
+        this.selectSpriteM(this.sprite);
+    }
+
+    private unsetMouseMove() {
+        // unset mousemove event
+        window.removeEventListener('mousemove', d => this.dragElement(d));
+    }
+    private stopDrag(e) {
+        e.preventDefault();
+        this.dragging = false;
+        this.unsetMouseMove();
+    }
+    private dragElement(e) {
+        if (!this.dragging)
+            return;
+        e.preventDefault();
+        // move element
+        this.sprite.X = this.elementOriginalLeft + (e.clientX - this.mouseDownPositionX);
+        this.sprite.Y = this.elementOriginalTop + (e.clientY - this.mouseDownPositionY);
+        this.element.style.left = this.sprite.X + 'px';
+        this.element.style.top = this.sprite.Y + 'px';
+    }
+    public UpdateSprite(sprite: IVideoSpriteProperties) {
+        this.sprite = sprite;
+    }
+}
+
