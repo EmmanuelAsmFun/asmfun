@@ -45,6 +45,7 @@ namespace AsmFun.CommanderX16.Computer
         private int mhzCounter;
         private double mhzRequired;
         private bool lockOnMhz;
+        private bool lockOnFps;
         private double mhzRunning;
         private List<Type> _usedServices = new List<Type>();
 
@@ -226,6 +227,15 @@ namespace AsmFun.CommanderX16.Computer
                 var required = Math.Floor((decimal)(mhzRequired / 100000));
                 videoAccess.LockOnMhz(value);
                 Console.WriteLine($"Set LockOnMhz {required}Mhz :" + value);
+            }
+        } 
+        public bool LockOnFps
+        {
+            get { return lockOnFps; }
+            set
+            {
+                lockOnFps = value;
+                videoAccess.LockOnFps(value);
             }
         }
 

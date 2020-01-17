@@ -143,7 +143,8 @@ namespace AsmFun.WPF
             MymhzRunning.Text = (Math.Floor(mhzRunning / 1000) / 100).ToString();
             myprogramCounterLabel.Text = programCounter.ToString("X4");
             _frameCounterWpf++;
-            if (newFrame)
+
+            if (newFrame && paletteAccess != null)
             {
                 _framePaintCounter++; ;
                 _framePaintFpsCounter++; ;
@@ -153,10 +154,12 @@ namespace AsmFun.WPF
                     _framePaintFpsCounter = 0;
                     _stopwatchFramePaint.Restart();
                 }
+
+                if (requireRefreshPalette)
+                    if (!ReloadPalette()) return;
                 if (bgHasChanged)
                     StepBackground();
-                if (requireDrawLayers)
-                    StepLayers();
+                StepLayers();
                 StepSprite();
                 newFrame = false;
             }
@@ -207,6 +210,19 @@ namespace AsmFun.WPF
             {
             }
         }
+        public void MyfpsRunning_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                var computerManager = Container.Resolve<IComputerManager>();
+                var computer = computerManager.GetComputer();
+                if (computer == null) return;
+                computer.LockOnFps = !computer.LockOnFps;
+            }
+            catch (Exception)
+            {
+            }
+        }
 
 
         public void CloseDisplay()
@@ -234,6 +250,30 @@ namespace AsmFun.WPF
             bgHasChanged = false;
         }
 
+        #region Palette
+        public void InitPalette(IVideoPaletteAccess paletteAccess)
+        {
+            this.paletteAccess = paletteAccess;
+            requireRefreshPalette = true;
+        }
+        public void RequireRefreshPalette()
+        {
+            requireRefreshPalette = true;
+        }
+
+        private bool ReloadPalette()
+        {
+            if (paletteAccess == null) return false;
+            var colorss = paletteAccess.GetAllColors();
+            if (colorss == null) return false;
+            var colors = colorss.Select(x => Color.FromRgb(x[0], x[1], x[2])).ToList();
+            colors[0] = Color.FromArgb(0, 0, 0, 0);
+            palette = new BitmapPalette(colors);
+            requireRefreshPalette = false;
+            return true;
+        }
+        #endregion
+
 
         #region Sprites 
         private ISpriteAccess spriteAccess;
@@ -247,32 +287,9 @@ namespace AsmFun.WPF
             sprites = new Image[spriteAccess.NumberOfTotalSprites].ToList();
             requireRefreshPalette = true;
         }
-        public void RequireRefreshPalette()
-        {
-            requireRefreshPalette = true;
-        }
-        public void InitPalette(IVideoPaletteAccess paletteAccess)
-        {
-            this.paletteAccess = paletteAccess;
-            requireRefreshPalette = true;
-        }
-        private bool ReloadPalette()
-        {
-            if (paletteAccess == null) return false;
-            var colorss = paletteAccess.GetAllColors();
-            if (colorss == null) return false;
-            var colors = colorss.Select(x => Color.FromRgb(x[0], x[1], x[2])).ToList();
-            colors[0] = Color.FromArgb(0, 0, 0, 0);
-            palette = new BitmapPalette(colors);
-            requireRefreshPalette = false;
-            //var flatten = colorss.SelectMany(x => x).ToArray();
-            //AsmFun.Common.AsmTools.DumpMemory(flatten);
-            return true;
-        }
+
         private void StepSprite()
         {
-            if (requireRefreshPalette)
-                if (!ReloadPalette()) return;
             for (int sprIndex = 0; sprIndex < sprites.Count; sprIndex++)
             {
                 var sprInfo = spriteAccess.GetSpriteInfo(sprIndex);
@@ -313,28 +330,46 @@ namespace AsmFun.WPF
 
 
         #region Layers
-        private bool requireDrawLayers = false;
-        private IntPtr[] newLyerData;
+        private bool requireDrawLayer0 = false;
+        private bool requireDrawLayer1 = false;
+        private IntPtr newLyerData0;
+        private IntPtr newLyerData1;
         VideoLayerData[] videoLayerDatas;
-        public void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
+        public void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerDatas)
+        {
+            if (layerIndex == 0)
+            {
+                requireDrawLayer0 = true;
+                newLyerData0 = colorIndexes;
+            }
+            else
+            {
+                requireDrawLayer1 = true;
+                newLyerData1 = colorIndexes;
+            }
+        }
+        public void RequestRedrawLayers(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
         {
             this.videoLayerDatas = videoLayerDatas;
-            newLyerData = layer_lineV;
-            requireDrawLayers = true;
+            newLyerData0 = layer_lineV[0];
+            newLyerData1 = layer_lineV[1];
+            requireDrawLayer0 = true;
+            requireDrawLayer1 = true;
         }
         private void StepLayers()
         {
+            if (requireDrawLayer0)
+                RenderLayer(newLyerData0, layer0, videoLayerDatas[0]);
+            if (requireDrawLayer1)
+                RenderLayer(newLyerData1, layer1, videoLayerDatas[1]);
+            requireDrawLayer0 = false;
+            requireDrawLayer1 = false;
 
-            requireDrawLayers = false;
-            ReloadPalette();
-            var newData = newLyerData;
-            RenderLayer(newData[0], layer0, videoLayerDatas[0]);
-            RenderLayer(newData[1], layer1, videoLayerDatas[1]);
         }
-        public void RenderLayer(IntPtr layerData, Image layerImg, VideoLayerData videoLayerData)
+        private void RenderLayer(IntPtr layerData, Image layerImg, VideoLayerData videoLayerData)
         {
             if (!videoLayerData.IsEnabled) return;
-            //AsmFun.Common.AsmTools.DumpMemory(layerData, 640 * 480);
+
             var w = displayComposer.HStop - displayComposer.HStart;
             var h = displayComposer.VStop - displayComposer.VStart;
             var sRect = new Int32Rect(0, 0, (int)(w / displayComposer.HScale), (int)(h / displayComposer.VScale));

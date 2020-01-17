@@ -81,6 +81,10 @@ namespace AsmFun.CommanderX16.Video
         public void LockOnMhz(bool state)
         {
             videoPainter.LockOnProcessor(state);
+        }  
+        public void LockOnFps(bool state)
+        {
+            videoPainter.LockOnFps = state;
         } 
         public MemoryDumpData[] MemoryDump()
         {

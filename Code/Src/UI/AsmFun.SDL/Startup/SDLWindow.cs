@@ -395,7 +395,7 @@ namespace AsmFun.Startup
             SDL2.SDL.SDL_SetTextureBlendMode(layer1, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
         }
 
-        public void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
+        public void RequestRedrawLayers(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
         {
             this.videoLayerDatas = videoLayerDatas;
             newLyerData = layer_lineV;

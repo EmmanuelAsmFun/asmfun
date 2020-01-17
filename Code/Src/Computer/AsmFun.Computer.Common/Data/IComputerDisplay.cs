@@ -22,6 +22,7 @@ namespace AsmFun.Computer.Common.Data
         void InitSprites(ISpriteAccess spriteAccess);
         void InitPalette(IVideoPaletteAccess palette);
         void RequireRefreshPalette();
-        void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas);
+        void RequestRedrawLayers(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas);
+        void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerDatas);
     }
 }

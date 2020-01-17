@@ -4,9 +4,9 @@ using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
-using AsmFun.Computer.Common.Video.Enums;
+using AsmFun.Core.Tools;
 using System;
-using System.Linq;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -18,31 +18,35 @@ namespace AsmFun.CommanderX16.Video.Painter
         // Copy vars from settings for performance
         private int width;
         private int height;
-        private int scanWidth;
         private int scanHeight;
-        private double outsideL;
-        private double outsideR;
-        private double outsideT;
-        private double outsideB;
-        private bool lockOnProcessor;
+        private double fpsRequired;
+        private int totalLayerSize;
+        private bool doBreak = false;
         private bool isDisposed = false;
 
         private bool isRefreshingPainter = false;
-        private float scanX;
         private ushort scanY;
         private int frameCount = 0;
-        public byte[][] layer_lineV;
-        public bool[] LayerLinesEmpty = new bool[2];
         public bool IsPainting { get; protected set; }
-        private bool doBreak;
         public static int EXTENDED_FLAG = 0x100;
-        private static readonly ushort LAYER_PIXELS_PER_ITERATION = 8;
-        byte[] spr_col_index = new byte[LAYER_PIXELS_PER_ITERATION];
-        byte[] l1_col_index = new byte[LAYER_PIXELS_PER_ITERATION];
-        byte[] l2_col_index = new byte[LAYER_PIXELS_PER_ITERATION];
-        byte[] spr_zindex = new byte[LAYER_PIXELS_PER_ITERATION];
-        public IntPtr framebuffer; // = new byte[SCREEN_WIDTH * SCREEN_HEIGHT * 4];
+        public IntPtr framebufferBG; 
         public IntPtr[] layersbuffer = new IntPtr[2];
+        public IntPtr[] layersbufferReady = new IntPtr[2];
+        public IntPtr layersbuffer0;
+        public IntPtr layersbuffer1;
+
+        // Speed checker
+        Stopwatch elapsedWatcher = new Stopwatch();
+        private bool lockOnFps = false;
+        private int fpsCounter;
+        private bool lockOnMhz;
+        private double fpsRunning;
+        private int slower = 10;
+
+        // Thread 2
+        private bool thread2Finished;
+        private AutoResetEvent thread2Are = new AutoResetEvent(false);
+        private Thread threadDraw2;
 
         private IVideoAccess videoAccess;
         private ISpriteAttributesAccess spriteAccess;
@@ -52,6 +56,7 @@ namespace AsmFun.CommanderX16.Video.Painter
         private IX16VideoMapTileAccess mapTileAccess;
         private X16IOAccess ioAccess;
         private readonly IComputerDiagnose diagnose;
+        
 
         public X16VideoPainterR35(VideoSettings videoSettings, IVideoAccess videoAccess, IDisplayComposer composer,
             IVideoPaletteAccess videoPalette, IVideoLayerAccess layerAccess, ISpriteAttributesAccess spriteAccess,
@@ -68,26 +73,26 @@ namespace AsmFun.CommanderX16.Video.Painter
             LayerAccess = layerAccess;
             width = videoSettings.Width;
             height = videoSettings.Height;
-            scanWidth = videoSettings2.ScanWidth;
             scanHeight = videoSettings2.ScanHeight;
-            outsideL = width * videoSettings2.TitleSafeX;
-            outsideR = width * (1 - videoSettings2.TitleSafeX);
-            outsideT = height * videoSettings2.TitleSafeY;
-            outsideB = height * (1 - videoSettings2.TitleSafeY);
-            framebuffer = Marshal.AllocHGlobal(width * height * 4);
-            layersbuffer[0] = Marshal.AllocHGlobal(width * height * 4);
-            layersbuffer[1] = Marshal.AllocHGlobal(width * height * 4);
+            fpsRequired = videoSettings2.VgaPixelFrequency;
+            totalLayerSize = width * height;
+            framebufferBG = Marshal.AllocHGlobal(width * height * 4);
+            layersbuffer[0] = Marshal.AllocHGlobal(totalLayerSize);
+            layersbuffer[1] = Marshal.AllocHGlobal(totalLayerSize);
+            layersbufferReady[0] = Marshal.AllocHGlobal(totalLayerSize);
+            layersbufferReady[1] = Marshal.AllocHGlobal(totalLayerSize);
+            layersbuffer0 = Marshal.AllocHGlobal(totalLayerSize);
+            layersbuffer1 = Marshal.AllocHGlobal(totalLayerSize);
+
+            threadDraw2 = new Thread(DrawThread2);
+            threadDraw2.IsBackground = true;
+            threadDraw2.Start();
         }
 
         public void Reset()
         {
-            scanX = 0;
             scanY = 0;
-            layer_lineV = new byte[][]
-                      {
-                            new byte[width],
-                            new byte[width]
-                      };
+            elapsedWatcher.Start();
         }
 
 
@@ -95,56 +100,108 @@ namespace AsmFun.CommanderX16.Video.Painter
         public bool ProcessorStep()
         {
             processorHasStepped = true;
-            if (lockOnProcessor)
-            {
-                scanX += composer.StepXAdvance;
-                if (scanX > scanWidth)
-                {
-                    scanX -= scanWidth;
-                    StepPaint();
-                }
-            }
             return true;
         }
         private int step;
         public bool Step()
         {
-            if (!lockOnProcessor)
-            {
-                // Todo: is this required?
-                //if (!processorHasStepped)
-                //{
-                //    while (!processorHasStepped && !isDisposed)
-                //    { }
-                //}
-                processorHasStepped = false;
-                return StepPaint();
-            }
-            else
-            {
-                Thread.Sleep(5000);
-                return false;
-            }
+            if (doBreak) return false;
+            return StepPaint();
         }
 
         private byte lastBorderColor = 0;
+        public unsafe bool StepPaint2()
+        {
+            int y = 0;
+            thread2Are.Set();
+            var layer1 = LayerAccess.GetLayer(1);
+            for (y = 0; y < height; y++)
+            {
+                ushort eff_y = (ushort)(composer.b_VScale * (y - composer.VStart) / 128);
+                RenderLayerLine(layer1, 1, eff_y, layersbuffer1);
+                if (composer.OutMode != 0)
+                    videoPalette.RefreshIfNeeded(composer.OutMode, composer.ChromaDisable);
+                display.RequestRedrawLayer(1, layersbuffer1, layer1);
+            }
+            while (!thread2Finished && !isDisposed)
+            {
+
+            }
+
+            var isNewBg = lastBorderColor != composer.BorderColor;
+            if (isNewBg)
+            {
+                var col = videoPalette.GetFromPalette(composer.BorderColor);
+                // var byts = BitConverter.GetBytes(col);
+                var fillLine = new byte[width * 4];
+                var fillLineInt = new int[width];
+                for (int i = 0; i < width; i++)
+                    fillLineInt[i] = col;
+                Buffer.BlockCopy(fillLineInt, 0, fillLine, 0, fillLine.Length);
+                for (int i = 0; i < height; i++)
+                    Marshal.Copy(fillLine, 0, framebufferBG + i * width * 4, width * 4);
+
+                lastBorderColor = composer.BorderColor;
+            }
+            Buffer.MemoryCopy(layersbuffer[0].ToPointer(), layersbufferReady[0].ToPointer(), totalLayerSize, totalLayerSize);
+            Buffer.MemoryCopy(layersbuffer[1].ToPointer(), layersbufferReady[1].ToPointer(), totalLayerSize, totalLayerSize);
+            display.RequestRedrawLayers(layersbufferReady, LayerAccess.GetLayers());
+            ioAccess.FramePainted();
+            display.Paint(framebufferBG, isNewBg);
+            if (lockOnFps)
+                CheckSpeed();
+            frameCount++;
+            scanY = 480;
+            if (ioAccess.IsIrqLine())
+            {
+                y = (ushort)(scanY - composer.FrontPorch);
+                if (y < height && y == composer.IrqLine)
+                    ioAccess.SetIrqLine();
+            }
+            return true;
+        }
+        private void DrawThread2()
+        {
+            while (!isDisposed)
+            {
+                try
+                {
+                    while (!isDisposed)
+                    {
+                        thread2Are.WaitOne();
+                        thread2Finished = false;
+                        if (isDisposed) return;
+                        var layer0 = LayerAccess.GetLayer(0);
+                        for (ushort y = 0; y < height; y++)
+                        {
+                            ushort eff_y = (ushort)(composer.b_VScale * (y - composer.VStart) / 128);
+                            RenderLayerLine(layer0,0, eff_y, layersbuffer0);
+                        }
+                        display.RequestRedrawLayer(0, layersbuffer0, layer0);
+                        thread2Finished = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    ConsoleHelper.WriteError<X16VideoPainterR35>(e);
+                }
+            }
+        }
+
+
         public bool StepPaint()
         {
             bool isNewFrame = false;
-            //if (isRefreshingPainter)
-            //{
-            //    while (isRefreshingPainter && !isDisposed)
-            //        Thread.Sleep(20);
-            //}
             step++;
             IsPainting = true;
             ushort y = (ushort)(scanY - composer.FrontPorch);
             if (y < height)
             {
-                //RenderLine(y);
+                var layer0 = LayerAccess.GetLayer(0);
+                var layer1 = LayerAccess.GetLayer(1);
                 ushort eff_y = (ushort)(composer.b_VScale * (y - composer.VStart) / 128);
-                RenderLayerLine(0, eff_y, layersbuffer[0]);
-                RenderLayerLine(1, eff_y, layersbuffer[1]);
+                RenderLayerLine(layer0, 0, eff_y, layersbuffer[0]);
+                RenderLayerLine(layer1, 1, eff_y, layersbuffer[1]);
                 if (composer.OutMode != 0)
                     videoPalette.RefreshIfNeeded(composer.OutMode, composer.ChromaDisable);
             }
@@ -163,20 +220,16 @@ namespace AsmFun.CommanderX16.Video.Painter
                     for (int i = 0; i < width; i++)
                         fillLineInt[i] = col;
                     Buffer.BlockCopy(fillLineInt, 0, fillLine, 0, fillLine.Length);
-                    //for (int i = 0; i < fillLineInt.Length; i++)
-                    //{
-                    //    fillLine[(i * 4)] = byts[0];
-                    //    fillLine[(i * 4) + 1] = byts[1];
-                    //    fillLine[(i * 4) + 2] = byts[2];
-                    //}
                     for (int i = 0; i < height; i++)
-                        Marshal.Copy(fillLine, 0, framebuffer + i * width * 4, width * 4);
+                        Marshal.Copy(fillLine, 0, framebufferBG + i * width * 4, width * 4);
 
                     lastBorderColor = composer.BorderColor;
                 }
-                display.RequestRedrawLayer(layersbuffer, LayerAccess.GetLayers());
+                display.RequestRedrawLayers(layersbuffer, LayerAccess.GetLayers());
                 ioAccess.FramePainted();
-                display.Paint(framebuffer, isNewBg);
+                display.Paint(framebufferBG, isNewBg);
+                if (lockOnFps)
+                    CheckSpeed();
                 frameCount++;
             }
 
@@ -188,203 +241,88 @@ namespace AsmFun.CommanderX16.Video.Painter
             }
             IsPainting = false;
               
-            //while (doBreak)
-            //    Thread.Sleep(2);
-           
             return isNewFrame;
         }
 
-        
-        //private void RenderLine(ushort y)
-        //{
-        //    ushort eff_y = (ushort)(composer.b_VScale * (y - composer.VStart) / 128);
-        //    RenderLayerLine(0, eff_y, layersbuffer[0]);
-        //    RenderLayerLine(1, eff_y, layersbuffer[1]);
+      
 
-
-        //    if (composer.OutMode != 0)
-        //        videoPalette.RefreshIfNeeded(composer.OutMode, composer.ChromaDisable);
-
-
-        //    VideoOutModes out_mode = composer.OutMode;
-        //    byte border_color = composer.BorderColor;
-        //    ushort hstart = composer.HStart;
-        //    ushort hstop = composer.HStop;
-        //    ushort vstart = composer.VStart;
-        //    ushort vstop = composer.VStop;
-        //    byte[] col_line = new byte[width];
-        //    // If video output is enabled, calculate color indices for line.
-        //    if (out_mode != 0)
-        //    {
-        //        // Calculate color without border.
-        //        for (ushort x = 0; x < width; x += LAYER_PIXELS_PER_ITERATION)
-        //        {
-        //            byte[] col_index = new byte[LAYER_PIXELS_PER_ITERATION];
-
-        //            if (composer.HScale != 1)
-        //            {
-        //                // Scaled
-        //                int[] eff_x = new int[LAYER_PIXELS_PER_ITERATION];
-        //                for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-        //                    eff_x[i] = (composer.b_HScale * (x + i - hstart)) / 128;
-
-        //                if (!LayerLinesEmpty[0])
-        //                {
-        //                    for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-        //                        l1_col_index[i] = layer_lineV[0][eff_x[i]];
-        //                }
-
-        //                if (!LayerLinesEmpty[1])
-        //                {
-        //                    for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-        //                        l2_col_index[i] = layer_lineV[1][eff_x[i]];
-        //                }
-        //            }
-        //            else
-        //            {
-        //                // No scale, more performant because we can copy bytes
-        //                if (!LayerLinesEmpty[0])
-        //                    Array.Copy(layer_lineV[0], x, l1_col_index, 0, LAYER_PIXELS_PER_ITERATION);
-        //                if (!LayerLinesEmpty[1])
-        //                    Array.Copy(layer_lineV[1], x, l2_col_index, 0, LAYER_PIXELS_PER_ITERATION);
-        //            }
-
-        //            for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-        //            {
-        //                col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : l1_col_index[i];
-        //                col_line[x + i] = col_index[i];
-        //            }
-        //        }
-
-        //        // Add border after if required.
-        //        if (hstart > 0 || hstop < width || vstart > 0 || vstop < height)
-        //        {
-        //            for (ushort x = 0; x < width; x++)
-        //            {
-        //                if (x < hstart || x > hstop || y < vstart || y > vstop)
-        //                    col_line[x] = border_color;
-        //            }
-        //        }
-        //    }
-        //    // Look up all color indices.
-        //    var framebuffer4_begin = framebuffer + (y * width * 4);
-        //    {
-        //        var framebuffer4 = framebuffer4_begin;
-        //        for (ushort x = 0; x < width; x++)
-        //        {
-        //            Marshal.WriteInt32(framebuffer4, videoPalette.GetFromPalette(col_line[x]));
-        //            framebuffer4 = framebuffer4 + 4;
-        //        }
-        //    }
-
-
-        //    // NTSC overscan
-        //    if (out_mode == VideoOutModes.NTSC)
-        //    {
-        //        var framebuffer4 = framebuffer4_begin;
-        //        for (ushort x = 0; x < width; x++)
-        //        {
-        //            if (x < width * outsideL || x > outsideR || y < outsideT || y > outsideB)
-        //            {
-        //                var val = videoPalette.GetFromPalette(col_line[x]);
-        //                // Divide RGB elements by 4.
-        //                val &= 0x00fcfcfc;
-        //                Marshal.WriteInt32(framebuffer4, val);
-        //                framebuffer4 = framebuffer4 + 3;
-        //            }
-        //            framebuffer4 = framebuffer4 + 1;
-        //        }
-        //    }
-        //}
-
-
-        private void RenderLayerLine(byte layerIndex, ushort y,IntPtr layerBuffer)
+        private VideoLayerData RenderLayerLine(VideoLayerData layer, byte layerIndex, ushort y,IntPtr layerBuffer)
         {
-            VideoLayerData layer = LayerAccess.GetLayer(layerIndex);
+            
             if (layer.PaintRequireReload)
             {
                 UpdateBitPerPixelMethod(layer);
                 layer.PaintRequireReload = false;
             }
-            if (!layer.IsEnabled)
-            {
-                // LayerLinesEmpty[layerIndex] = true;
-                return;
-            }
-            else
-            {
-                // LayerLinesEmpty[layerIndex] = false;
-                // Load in tile bytes if not in bitmap mode.
-                byte[] tile_bytes = new byte[512]; // max 256 tiles, 2 bytes each.
-                uint map_addr_begin = 0;
+            if (!layer.IsEnabled) return layer;
+            // Load in tile bytes if not in bitmap mode.
+            byte[] tile_bytes = new byte[512]; // max 256 tiles, 2 bytes each.
+            uint map_addr_begin = 0;
                 
+            if (!layer.BitmapMode)
+                map_addr_begin = LayerAccess.ReadSpaceReadRange(out tile_bytes,layer, y);
+            //diagnose.StepPaint(frameCount,y, tile_bytes);
+
+            int realY = y;
+            for (int x = 0; x < width; x++)
+            {
+                byte colorIndex = 0;
+                int realX = x;
+                    
+                int newX;
+                int newY;
+                uint tileStart = 0;
+                VideoMapTile tile = null;
+
                 if (!layer.BitmapMode)
-                    map_addr_begin = LayerAccess.ReadSpaceReadRange(out tile_bytes,layer, y);
-                //diagnose.StepPaint(frameCount,y, tile_bytes);
-
-                int realY = y;
-                for (int x = 0; x < width; x++)
                 {
-                    byte colorIndex = 0;
-                    int realX = x;
-                    
-                    int newX;
-                    int newY;
-                    uint tileStart = 0;
-                    VideoMapTile tile = null;
-
-                    if (!layer.BitmapMode)
-                    {
-                        realX = LayerAccess.CalcLayerEffX(layer, x);
-                        realY = LayerAccess.CalcLayerEffY(layer, y);
-                        newX = realX & layer.TileWidthMax;
-                        newY = realY & layer.TileHeightMax;
-                        uint mapAddress = LayerAccess.CalcLayerMapAddress(layer, realX, realY) - map_addr_begin;
-                        // Todo: to enhance performance, do not always do a reload, only when data has changed
-                        tile = mapTileAccess.GetTile(mapAddress, layer,true, tile_bytes);
+                    realX = LayerAccess.CalcLayerEffX(layer, x);
+                    realY = LayerAccess.CalcLayerEffY(layer, y);
+                    newX = realX & layer.TileWidthMax;
+                    newY = realY & layer.TileHeightMax;
+                    uint mapAddress = LayerAccess.CalcLayerMapAddress(layer, realX, realY) - map_addr_begin;
+                    // Todo: to enhance performance, do not always do a reload, only when data has changed
+                    tile = mapTileAccess.GetTile(mapAddress, layer,true, tile_bytes);
                       
-                        // offset within tilemap of the current tile
-                        tileStart = tile.TileIndex * layer.TileSize;
-                        if (tile.VerticalFlip)
-                            newY = newY ^ layer.TileHeight - 1;
-                        if (tile.HorizontalFlip)
-                            newX = newX ^ layer.TileWidth - 1;
-                    }
-                    else
-                    {
-                        newX = realX % layer.TileWidth;
-                        newY = realY % layer.TileHeight;
-                    }
-                    // Additional bytes to reach the correct line of the tile
-                    uint y_add = (uint)(newY * layer.TileWidth * layer.BitsPerPixel >> 3);
-                    // Additional bytes to reach the correct column of the tile
-                    ushort x_add = (ushort)(newX * layer.BitsPerPixel >> 3);
-                    // Get the offset address of the tile.
-                    uint tile_offset = tileStart + y_add + x_add;
-                    byte color = videoAccess.Read(layer.TileBase + tile_offset);
-                    // Convert tile byte to indexed color
-                    var layy = BitsPerPxlCalculation[layer.LayerIndex];
-                    if (layy == null)
-                        continue;
-
-                    colorIndex = layy(color, newX, tile);
-
-                    // Apply Palette Offset
-                    if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
-                        colorIndex += (byte)(tile.PaletteOffset << 4);
-
-                    layer_lineV[layerIndex][x] = colorIndex;
-                    
+                    // offset within tilemap of the current tile
+                    tileStart = tile.TileIndex * layer.TileSize;
+                    if (tile.VerticalFlip)
+                        newY = newY ^ layer.TileHeight - 1;
+                    if (tile.HorizontalFlip)
+                        newX = newX ^ layer.TileWidth - 1;
                 }
-                var dataToRead = y * width;
-                if (y< 65531)
-                    Marshal.Copy(layer_lineV[layerIndex] , 0, layerBuffer + dataToRead, width);
+                else
+                {
+                    newX = realX % layer.TileWidth;
+                    newY = realY % layer.TileHeight;
+                }
+                // Additional bytes to reach the correct line of the tile
+                uint y_add = (uint)(newY * layer.TileWidth * layer.BitsPerPixel >> 3);
+                // Additional bytes to reach the correct column of the tile
+                ushort x_add = (ushort)(newX * layer.BitsPerPixel >> 3);
+                // Get the offset address of the tile.
+                uint tile_offset = tileStart + y_add + x_add;
+                byte color = videoAccess.Read(layer.TileBase + tile_offset);
+                // Convert tile byte to indexed color
+                var layy = BitsPerPxlCalculation[layer.LayerIndex];
+                if (layy == null)
+                    continue;
+
+                colorIndex = layy(color, newX, tile);
+
+                // Apply Palette Offset
+                if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
+                    colorIndex += (byte)(tile.PaletteOffset << 4);
+                Marshal.WriteByte(layerBuffer+ x + y * width, colorIndex);
             }
+            return layer;
         }
 
 
-        private Func<byte, int, VideoMapTile, byte>[] BitsPerPxlCalculation = new Func<byte, int, VideoMapTile, byte>[2];
-        private void UpdateBitPerPixelMethod(VideoLayerData layer)
+        private static Func<byte, int, VideoMapTile, byte>[] BitsPerPxlCalculation = new Func<byte, int, VideoMapTile, byte>[2];
+       
+
+        private static void UpdateBitPerPixelMethod(VideoLayerData layer)
         {
             // Convert tile byte to indexed color
             switch (layer.BitsPerPixel)
@@ -417,9 +355,14 @@ namespace AsmFun.CommanderX16.Video.Painter
         public void Dispose()
         {
             isDisposed = true;
+            thread2Finished = true;
             Marshal.FreeHGlobal(layersbuffer[0]);
             Marshal.FreeHGlobal(layersbuffer[1]);
-            Marshal.FreeHGlobal(framebuffer);
+            Marshal.FreeHGlobal(layersbufferReady[0]);
+            Marshal.FreeHGlobal(layersbufferReady[1]);
+            Marshal.FreeHGlobal(layersbuffer0);
+            Marshal.FreeHGlobal(layersbuffer1);
+            Marshal.FreeHGlobal(framebufferBG);
         }
 
         public void SetDisplay(IComputerDisplay display)
@@ -437,6 +380,45 @@ namespace AsmFun.CommanderX16.Video.Painter
         public void LockOnProcessor(bool state)
         {
             // lockOnProcessor = state;
+        }
+
+        private void CheckSpeed()
+        {
+            fpsCounter++;
+            var totalFramesReq = elapsedWatcher.Elapsed.TotalSeconds * fpsRequired;
+            var offset = fpsCounter - totalFramesReq; 
+            var offf = totalFramesReq / fpsCounter;
+            if (fpsCounter >= 100)
+            {
+                // Console.WriteLine(Math.Round(offset) + " " + fpsCounter +" "+ elapsedWatcher.Elapsed.TotalSeconds+" "+ offf+" "+ totalFramesReq);
+                fpsCounter = 0;
+                elapsedWatcher.Restart();
+            }
+
+            
+            if (offset > 1)
+            {
+                var sleepp = offset;
+                slower = Convert.ToInt32(sleepp*10);
+                if (slower > 500)
+                    slower = 500;
+                Thread.Sleep(slower);
+            }
+            else
+            {
+                slower = Convert.ToInt32(offset / 1000);
+                if (slower < 5)
+                    slower = 5;
+            }
+        }
+        public bool LockOnFps
+        {
+            get { return lockOnFps; }
+            set
+            {
+                lockOnFps = value;
+                Console.WriteLine($"Set Video LockOnFps {fpsRequired}fps :" + value);
+            }
         }
 
     }

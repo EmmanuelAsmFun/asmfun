@@ -18,6 +18,7 @@ namespace AsmFun.Computer.Common.Computer.Data
         /// If we want to lock on the Mhz ,like lock on 8 Mhz, depending on the computersettings.
         /// </summary>
         bool LockOnMhz { get; set; }
+        bool LockOnFps { get; set; }
         bool IsStarting { get; }
         bool IsRunning { get; }
 

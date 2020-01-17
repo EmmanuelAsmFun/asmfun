@@ -23,7 +23,8 @@ namespace AsmFun.Computer.Common.Video
         void Write(uint address, byte value);
         bool GetIrqOut();
         void SetDisplay(IComputerDisplay display);
-        void LockOnMhz(bool value);
+        void LockOnMhz(bool state);
+        void LockOnFps(bool state);
         MemoryDumpData[] MemoryDump();
         void WriteBlock(int startAddress, byte[] data, int count);
     }

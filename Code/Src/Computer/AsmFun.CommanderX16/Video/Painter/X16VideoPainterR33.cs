@@ -37,6 +37,8 @@ namespace AsmFun.CommanderX16.Video.Painter
         public byte[][] layer_lineV;
         public bool[] LayerLinesEmpty = new bool[2];
         public bool IsPainting { get; protected set; }
+        public bool LockOnFps { get; set; }
+
         private bool doBreak;
         public static int EXTENDED_FLAG = 0x100;
 

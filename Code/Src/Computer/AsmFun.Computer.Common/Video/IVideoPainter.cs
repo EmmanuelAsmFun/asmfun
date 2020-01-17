@@ -18,5 +18,6 @@ namespace AsmFun.Computer.Common.Video
         void Break(bool doBreak);
         bool ProcessorStep();
         void LockOnProcessor(bool state);
+        bool LockOnFps { get; set; }
     }
 }

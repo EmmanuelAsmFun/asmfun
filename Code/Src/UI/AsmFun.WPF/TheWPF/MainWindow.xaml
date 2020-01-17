@@ -27,8 +27,8 @@
                 <TextBlock Grid.Column="2" Grid.Row="1" x:Name="myFrameCounterGameLabel"></TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Grid.Column="1" Grid.Row="1" Width="120">Paint FPS:</TextBlock>
-                <TextBlock Grid.Column="2" Grid.Row="1" x:Name="myFramePaintLabel"></TextBlock>
+                <TextBlock Grid.Column="1" Grid.Row="1" Width="120"  MouseDown="MyfpsRunning_MouseDown">Paint FPS:</TextBlock>
+                <TextBlock Grid.Column="2" Grid.Row="1" x:Name="myFramePaintLabel"  MouseDown="MyfpsRunning_MouseDown"></TextBlock>
             </StackPanel>
             <!--<StackPanel Orientation="Horizontal">
                     <TextBlock Grid.Column="1" Grid.Row="2" Width="120">UI Frame:</TextBlock>
@@ -39,7 +39,7 @@
                 <TextBlock Grid.Column="2" Grid.Row="2" x:Name="myFrameRateWpfLabel"></TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Grid.Column="1" Grid.Row="2" Width="120">Engine Mhz:</TextBlock>
+                <TextBlock Grid.Column="1" Grid.Row="2" Width="120" MouseDown="MymhzRunning_MouseDown">Engine Mhz:</TextBlock>
                 <TextBlock Grid.Column="2" Grid.Row="2" x:Name="MymhzRunning" MinWidth="50" MouseDown="MymhzRunning_MouseDown"></TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">

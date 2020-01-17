@@ -37,7 +37,12 @@ namespace AsmFun.Computer.Core.Computer
         {
         }
 
-        public void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
+        public void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerDatas)
+        {
+            
+        }
+
+        public void RequestRedrawLayers(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
         {
         }
 
