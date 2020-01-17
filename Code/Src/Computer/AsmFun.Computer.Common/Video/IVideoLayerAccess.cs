@@ -12,6 +12,7 @@ namespace AsmFun.Computer.Common.Video
     {
         void Dispose();
         VideoLayerData GetLayer(byte layerIndex);
+        VideoLayerData[] GetLayers();
         bool IsLayerEnabled(int layerIndex);
         uint ReadSpaceReadRange(out byte[] tile_bytes, VideoLayerData layer, ushort y);
         int CalcLayerEffX(VideoLayerData layer, int x);

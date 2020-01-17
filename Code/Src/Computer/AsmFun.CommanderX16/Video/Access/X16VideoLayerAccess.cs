@@ -229,6 +229,10 @@ namespace AsmFun.CommanderX16.Video
         public VideoLayerData GetLayer(byte layerIndex)
         {
             return layers[layerIndex];
+        } 
+        public VideoLayerData[] GetLayers()
+        {
+            return layers;
         }
         public bool IsLayerEnabled(int layerIndex)
         {

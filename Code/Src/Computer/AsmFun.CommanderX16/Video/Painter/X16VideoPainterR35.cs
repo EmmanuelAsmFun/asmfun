@@ -42,6 +42,7 @@ namespace AsmFun.CommanderX16.Video.Painter
         byte[] l2_col_index = new byte[LAYER_PIXELS_PER_ITERATION];
         byte[] spr_zindex = new byte[LAYER_PIXELS_PER_ITERATION];
         public IntPtr framebuffer; // = new byte[SCREEN_WIDTH * SCREEN_HEIGHT * 4];
+        public IntPtr[] layersbuffer = new IntPtr[2];
 
         private IVideoAccess videoAccess;
         private ISpriteAttributesAccess spriteAccess;
@@ -74,6 +75,8 @@ namespace AsmFun.CommanderX16.Video.Painter
             outsideT = height * videoSettings2.TitleSafeY;
             outsideB = height * (1 - videoSettings2.TitleSafeY);
             framebuffer = Marshal.AllocHGlobal(width * height * 4);
+            layersbuffer[0] = Marshal.AllocHGlobal(width * height * 4);
+            layersbuffer[1] = Marshal.AllocHGlobal(width * height * 4);
         }
 
         public void Reset()
@@ -123,25 +126,58 @@ namespace AsmFun.CommanderX16.Video.Painter
                 return false;
             }
         }
+
+        private byte lastBorderColor = 0;
         public bool StepPaint()
         {
             bool isNewFrame = false;
-            if (isRefreshingPainter)
-            {
-                while (isRefreshingPainter && !isDisposed)
-                    Thread.Sleep(20);
-            }
+            //if (isRefreshingPainter)
+            //{
+            //    while (isRefreshingPainter && !isDisposed)
+            //        Thread.Sleep(20);
+            //}
             step++;
             IsPainting = true;
             ushort y = (ushort)(scanY - composer.FrontPorch);
             if (y < height)
-                RenderLine(y);
+            {
+                //RenderLine(y);
+                ushort eff_y = (ushort)(composer.b_VScale * (y - composer.VStart) / 128);
+                RenderLayerLine(0, eff_y, layersbuffer[0]);
+                RenderLayerLine(1, eff_y, layersbuffer[1]);
+                if (composer.OutMode != 0)
+                    videoPalette.RefreshIfNeeded(composer.OutMode, composer.ChromaDisable);
+            }
             scanY++;
             if (scanY == scanHeight)
             {
                 scanY = 0;
                 isNewFrame = true;
+                var isNewBg = lastBorderColor != composer.BorderColor;
+                if (isNewBg)
+                {
+                    var col = videoPalette.GetFromPalette(composer.BorderColor);
+                    // var byts = BitConverter.GetBytes(col);
+                    var fillLine = new byte[width * 4];
+                    var fillLineInt = new int[width];
+                    for (int i = 0; i < width; i++)
+                        fillLineInt[i] = col;
+                    Buffer.BlockCopy(fillLineInt, 0, fillLine, 0, fillLine.Length);
+                    //for (int i = 0; i < fillLineInt.Length; i++)
+                    //{
+                    //    fillLine[(i * 4)] = byts[0];
+                    //    fillLine[(i * 4) + 1] = byts[1];
+                    //    fillLine[(i * 4) + 2] = byts[2];
+                    //}
+                    for (int i = 0; i < height; i++)
+                        Marshal.Copy(fillLine, 0, framebuffer + i * width * 4, width * 4);
+
+                    lastBorderColor = composer.BorderColor;
+                }
+                display.RequestRedrawLayer(layersbuffer, LayerAccess.GetLayers());
                 ioAccess.FramePainted();
+                display.Paint(framebuffer, isNewBg);
+                frameCount++;
             }
 
             if (ioAccess.IsIrqLine())
@@ -152,118 +188,117 @@ namespace AsmFun.CommanderX16.Video.Painter
             }
             IsPainting = false;
               
-            while (doBreak)
-                Thread.Sleep(2);
-            if (isNewFrame)
-            {
-                display.Paint(framebuffer);
-                frameCount++;
-            }
+            //while (doBreak)
+            //    Thread.Sleep(2);
+           
             return isNewFrame;
         }
 
-        private void RenderLine(ushort y)
-        {
-            VideoOutModes out_mode = composer.OutMode;
-            byte border_color = composer.BorderColor;
-            ushort hstart = composer.HStart;
-            ushort hstop = composer.HStop;
-            ushort vstart = composer.VStart;
-            ushort vstop = composer.VStop;
-
-            ushort eff_y = (ushort)(composer.b_VScale * (y - vstart) / 128);
-            spriteAccess.RenderLine(eff_y);
-            RenderLayerLine(0, eff_y);
-            RenderLayerLine(1, eff_y);
-            
-            byte[] col_line = new byte[width];
-            videoPalette.RefreshIfNeeded(out_mode, composer.ChromaDisable);
-
-            // If video output is enabled, calculate color indices for line.
-            if (out_mode != 0)
-            {
-                // Calculate color without border.
-                for (ushort x = 0; x < width; x += LAYER_PIXELS_PER_ITERATION)
-                {
-                    byte[] col_index = new byte[LAYER_PIXELS_PER_ITERATION];
-
-                    if (composer.HScale != 1)
-                    {
-                        // Scaled
-                        int[] eff_x = new int[LAYER_PIXELS_PER_ITERATION];
-                        for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                            eff_x[i] = (composer.b_HScale * (x + i - hstart)) / 128;
-
-                        if (!LayerLinesEmpty[0])
-                        {
-                            for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                                l1_col_index[i] = layer_lineV[0][eff_x[i]];
-                        }
-
-                        if (!LayerLinesEmpty[1])
-                        {
-                            for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                                l2_col_index[i] = layer_lineV[1][eff_x[i]];
-                        }
-                    }
-                    else
-                    {
-                        // No scale, more performant because we can copy bytes
-                        if (!LayerLinesEmpty[0])
-                            Array.Copy(layer_lineV[0], x, l1_col_index, 0, LAYER_PIXELS_PER_ITERATION);
-                        if (!LayerLinesEmpty[1])
-                            Array.Copy(layer_lineV[1], x, l2_col_index, 0, LAYER_PIXELS_PER_ITERATION);
-                    }
-
-                    for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
-                    {
-                        col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : l1_col_index[i];
-                        col_line[x + i] = col_index[i];
-                    }
-                }
-
-                // Add border after if required.
-                if (hstart > 0 || hstop < width || vstart > 0 || vstop < height)
-                {
-                    for (ushort x = 0; x < width; x++)
-                    {
-                        if (x < hstart || x > hstop || y < vstart || y > vstop)
-                            col_line[x] = border_color;
-                    }
-                }
-            }
-            // Look up all color indices.
-            var framebuffer4_begin = framebuffer + (y * width * 4);
-            {
-                var framebuffer4 = framebuffer4_begin;
-                for (ushort x = 0; x < width; x++)
-                {
-                    Marshal.WriteInt32(framebuffer4, videoPalette.GetFromPalette(col_line[x]));
-                    framebuffer4 = framebuffer4 + 4;
-                }
-            }
+        
+        //private void RenderLine(ushort y)
+        //{
+        //    ushort eff_y = (ushort)(composer.b_VScale * (y - composer.VStart) / 128);
+        //    RenderLayerLine(0, eff_y, layersbuffer[0]);
+        //    RenderLayerLine(1, eff_y, layersbuffer[1]);
 
 
-            // NTSC overscan
-            if (out_mode == VideoOutModes.NTSC)
-            {
-                var framebuffer4 = framebuffer4_begin;
-                for (ushort x = 0; x < width; x++)
-                {
-                    if (x < width * outsideL || x > outsideR || y < outsideT || y > outsideB)
-                    {
-                        var val = videoPalette.GetFromPalette(col_line[x]);
-                        // Divide RGB elements by 4.
-                        val &= 0x00fcfcfc;
-                        Marshal.WriteInt32(framebuffer4, val);
-                        framebuffer4 = framebuffer4 + 3;
-                    }
-                    framebuffer4 = framebuffer4 + 1;
-                }
-            }
-        }
+        //    if (composer.OutMode != 0)
+        //        videoPalette.RefreshIfNeeded(composer.OutMode, composer.ChromaDisable);
 
-        private void RenderLayerLine(byte layerIndex, ushort y)
+
+        //    VideoOutModes out_mode = composer.OutMode;
+        //    byte border_color = composer.BorderColor;
+        //    ushort hstart = composer.HStart;
+        //    ushort hstop = composer.HStop;
+        //    ushort vstart = composer.VStart;
+        //    ushort vstop = composer.VStop;
+        //    byte[] col_line = new byte[width];
+        //    // If video output is enabled, calculate color indices for line.
+        //    if (out_mode != 0)
+        //    {
+        //        // Calculate color without border.
+        //        for (ushort x = 0; x < width; x += LAYER_PIXELS_PER_ITERATION)
+        //        {
+        //            byte[] col_index = new byte[LAYER_PIXELS_PER_ITERATION];
+
+        //            if (composer.HScale != 1)
+        //            {
+        //                // Scaled
+        //                int[] eff_x = new int[LAYER_PIXELS_PER_ITERATION];
+        //                for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
+        //                    eff_x[i] = (composer.b_HScale * (x + i - hstart)) / 128;
+
+        //                if (!LayerLinesEmpty[0])
+        //                {
+        //                    for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
+        //                        l1_col_index[i] = layer_lineV[0][eff_x[i]];
+        //                }
+
+        //                if (!LayerLinesEmpty[1])
+        //                {
+        //                    for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
+        //                        l2_col_index[i] = layer_lineV[1][eff_x[i]];
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // No scale, more performant because we can copy bytes
+        //                if (!LayerLinesEmpty[0])
+        //                    Array.Copy(layer_lineV[0], x, l1_col_index, 0, LAYER_PIXELS_PER_ITERATION);
+        //                if (!LayerLinesEmpty[1])
+        //                    Array.Copy(layer_lineV[1], x, l2_col_index, 0, LAYER_PIXELS_PER_ITERATION);
+        //            }
+
+        //            for (int i = 0; i < LAYER_PIXELS_PER_ITERATION; ++i)
+        //            {
+        //                col_index[i] = l2_col_index[i] != 0 ? l2_col_index[i] : l1_col_index[i];
+        //                col_line[x + i] = col_index[i];
+        //            }
+        //        }
+
+        //        // Add border after if required.
+        //        if (hstart > 0 || hstop < width || vstart > 0 || vstop < height)
+        //        {
+        //            for (ushort x = 0; x < width; x++)
+        //            {
+        //                if (x < hstart || x > hstop || y < vstart || y > vstop)
+        //                    col_line[x] = border_color;
+        //            }
+        //        }
+        //    }
+        //    // Look up all color indices.
+        //    var framebuffer4_begin = framebuffer + (y * width * 4);
+        //    {
+        //        var framebuffer4 = framebuffer4_begin;
+        //        for (ushort x = 0; x < width; x++)
+        //        {
+        //            Marshal.WriteInt32(framebuffer4, videoPalette.GetFromPalette(col_line[x]));
+        //            framebuffer4 = framebuffer4 + 4;
+        //        }
+        //    }
+
+
+        //    // NTSC overscan
+        //    if (out_mode == VideoOutModes.NTSC)
+        //    {
+        //        var framebuffer4 = framebuffer4_begin;
+        //        for (ushort x = 0; x < width; x++)
+        //        {
+        //            if (x < width * outsideL || x > outsideR || y < outsideT || y > outsideB)
+        //            {
+        //                var val = videoPalette.GetFromPalette(col_line[x]);
+        //                // Divide RGB elements by 4.
+        //                val &= 0x00fcfcfc;
+        //                Marshal.WriteInt32(framebuffer4, val);
+        //                framebuffer4 = framebuffer4 + 3;
+        //            }
+        //            framebuffer4 = framebuffer4 + 1;
+        //        }
+        //    }
+        //}
+
+
+        private void RenderLayerLine(byte layerIndex, ushort y,IntPtr layerBuffer)
         {
             VideoLayerData layer = LayerAccess.GetLayer(layerIndex);
             if (layer.PaintRequireReload)
@@ -273,11 +308,12 @@ namespace AsmFun.CommanderX16.Video.Painter
             }
             if (!layer.IsEnabled)
             {
-                LayerLinesEmpty[layerIndex] = true;
+                // LayerLinesEmpty[layerIndex] = true;
+                return;
             }
             else
             {
-                LayerLinesEmpty[layerIndex] = false;
+                // LayerLinesEmpty[layerIndex] = false;
                 // Load in tile bytes if not in bitmap mode.
                 byte[] tile_bytes = new byte[512]; // max 256 tiles, 2 bytes each.
                 uint map_addr_begin = 0;
@@ -285,13 +321,13 @@ namespace AsmFun.CommanderX16.Video.Painter
                 if (!layer.BitmapMode)
                     map_addr_begin = LayerAccess.ReadSpaceReadRange(out tile_bytes,layer, y);
                 //diagnose.StepPaint(frameCount,y, tile_bytes);
-                
-                
+
+                int realY = y;
                 for (int x = 0; x < width; x++)
                 {
                     byte colorIndex = 0;
                     int realX = x;
-                    int realY = y;
+                    
                     int newX;
                     int newY;
                     uint tileStart = 0;
@@ -338,7 +374,11 @@ namespace AsmFun.CommanderX16.Video.Painter
                         colorIndex += (byte)(tile.PaletteOffset << 4);
 
                     layer_lineV[layerIndex][x] = colorIndex;
+                    
                 }
+                var dataToRead = y * width;
+                if (y< 65531)
+                    Marshal.Copy(layer_lineV[layerIndex] , 0, layerBuffer + dataToRead, width);
             }
         }
 
@@ -377,6 +417,8 @@ namespace AsmFun.CommanderX16.Video.Painter
         public void Dispose()
         {
             isDisposed = true;
+            Marshal.FreeHGlobal(layersbuffer[0]);
+            Marshal.FreeHGlobal(layersbuffer[1]);
             Marshal.FreeHGlobal(framebuffer);
         }
 

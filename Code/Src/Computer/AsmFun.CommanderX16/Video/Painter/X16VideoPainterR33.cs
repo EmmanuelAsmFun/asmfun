@@ -135,7 +135,7 @@ namespace AsmFun.CommanderX16.Video.Painter
 
             if (isNewFrame)
             {
-                display.Paint(framebuffer);
+                display.Paint(framebuffer, true);
                 frameCount++;
             }
             return isNewFrame;

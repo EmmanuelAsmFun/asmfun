@@ -8,11 +8,12 @@
         Title="AsmFun - CommanderX16" Width="640" Height="510" Background="Black">
     <Grid >
         <!-- 510 and not 480 because the title is there -->
-        <Viewbox HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <Grid x:Name="myCont" >
-                <Image x:Name="img" HorizontalAlignment="Left" VerticalAlignment="Top" SnapsToDevicePixels="True"
-                                      RenderOptions.EdgeMode="Aliased"/>
-            </Grid>
+        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <Canvas x:Name="myCont" >
+                <Image Canvas.ZIndex="499" x:Name="img" HorizontalAlignment="Left" VerticalAlignment="Top" SnapsToDevicePixels="True" RenderOptions.EdgeMode="Aliased"/>
+                <Image Canvas.ZIndex="999" x:Name="layer0" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SnapsToDevicePixels="True" RenderOptions.EdgeMode="Aliased" Stretch="Fill"/>
+                <Image Canvas.ZIndex="1499" x:Name="layer1" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SnapsToDevicePixels="True" RenderOptions.EdgeMode="Aliased" Stretch="Fill"/>
+            </Canvas>
         </Viewbox>
         <StackPanel x:Name="DebugInfo" VerticalAlignment="Top" HorizontalAlignment="Right" Visibility="Collapsed">
             <StackPanel.Resources>

@@ -33,7 +33,11 @@ namespace AsmFun.Computer.Core.Computer
         {
         }
 
-        public void Paint(IntPtr ptr)
+        public void Paint(IntPtr ptr, bool bgHasChanged)
+        {
+        }
+
+        public void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
         {
         }
 

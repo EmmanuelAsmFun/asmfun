@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using AsmFun.Common;
 using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.IO;
@@ -26,13 +27,13 @@ namespace AsmFun.Startup
         private bool isDisposed;
         private int ComputerWidth;
         private int ComputerHeight;
+        private int ComputerSize;
         private int StrideSize;
         public IEmServiceResolverFactory Container { get; set; }
-        private IKeyboardAccess keyboardAccess;
         private int programCounter = 0;
-        private Stopwatch _stopwatchWPF = new Stopwatch();
+        private Stopwatch _stopwatchSDL = new Stopwatch();
         private Stopwatch _stopwatchFramePaint = new Stopwatch();
-        private int _frameCounterWpf = 0;
+        private int _frameCounterSDL = 0;
         private int _framePaintCounter = 0;
         private int _framePaintFpsCounter = 0;
         private int _frameCounterGameEngine = 0;
@@ -41,15 +42,23 @@ namespace AsmFun.Startup
         private IntPtr window;
         private IntPtr renderer;
         private IntPtr sdlTexture;
+        private IntPtr layer0;
+        private IntPtr layer1;
+        private IntPtr layerData0;
+        private IntPtr layerData1;
         private IntPtr font;
-        SDL2.SDL.SDL_Color textColor;
-        SDL2.SDL.SDL_Rect Message_rect = new SDL2.SDL.SDL_Rect();
-        IntPtr surfaceMessage;
-        IntPtr messageSurf;
+        private SDL2.SDL.SDL_Color textColor;
+        private SDL2.SDL.SDL_Rect Message_rect = new SDL2.SDL.SDL_Rect();
+        private IntPtr surfaceMessage;
+        private IntPtr messageSurf;
+        
+        private EventManagerSDL eventManagerSDL;
 
 
         public SDLWindow()
         {
+            layerData0 = Marshal.AllocHGlobal(640 * 480*4);
+            layerData1 = Marshal.AllocHGlobal(640 * 480*4);
         }
 
        
@@ -62,9 +71,9 @@ namespace AsmFun.Startup
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
-            keyboardAccess = computer.GetKeyboard();
+            eventManagerSDL = new EventManagerSDL(Container, computer.GetKeyboard());
             _stopwatchFramePaint.Start();
-            _stopwatchWPF.Start();
+            _stopwatchSDL.Start();
             isInitialized = true;
         }
 
@@ -72,32 +81,112 @@ namespace AsmFun.Startup
         {
             ComputerWidth = width;
             ComputerHeight = height;
-            StrideSize = ComputerWidth * ComputerHeight * 4;
+            StrideSize = ComputerWidth * 4;
+            ComputerSize = ComputerWidth * ComputerHeight;
         }
 
 
         public void Start()
         {
+            InitWindow();
+            InitLayers();
+            InitFpsCounter();
+            eventManagerSDL.RunPollEvent();
+        }
+
+
+        private void InitWindow()
+        {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
             if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_VIDEO) < 0)
-            {
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
-            }
             SDL2.SDL.SDL_CreateWindowAndRenderer(640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
-                | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL , out window, out renderer);
+                | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL, out window, out renderer);
             //window = SDL2.SDL.SDL_CreateWindow("ASMFun - Commander X16", 0, 0, 640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
             //    | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL );
             //renderer = SDL2.SDL.SDL_CreateRenderer(window, -1, SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE | SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-            SDL2.SDL.SDL_SetWindowResizable(window, SDL2.SDL.SDL_bool.SDL_TRUE);
-            sdlTexture = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_RGB888, 1, 640, 460);
-            SDL2.SDL.SDL_SetWindowTitle(window, "ASMFun - Commander X16");
 
             if (window == IntPtr.Zero)
             {
                 Console.WriteLine("Unable to create a window. SDL. Error: {0}", SDL2.SDL.SDL_GetError());
                 return;
             }
+            SDL2.SDL.SDL_SetWindowResizable(window, SDL2.SDL.SDL_bool.SDL_TRUE);
+            sdlTexture = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_RGB888, 1, ComputerWidth, ComputerHeight);
+            SDL2.SDL.SDL_SetWindowTitle(window, "ASMFun - Commander X16");
+        }
+
+
+        public void Stop()
+        {
+            SDL2.SDL.SDL_DestroyWindow(window);
+            DisposeFpsCounter();
+            DisposeLayers();
+            SDL2.SDL.SDL_Quit();
+            DisposeSprites();
+           
+        }
+
+        public void Paint(IntPtr framebuffer, bool requireRedrawBg)
+        {
+            
+            if (isDisposed) return;
+            _framePaintCounter++;
+            _framePaintFpsCounter++; ;
+            if (_framePaintFpsCounter == 100)
+            {
+                _framePaintFpsCounter = 0;
+                _stopwatchFramePaint.Restart();
+            }
+            
+            SDL2.SDL.SDL_RenderClear(renderer);
+           
+            if (paletteAccess != null)
+            {
+                if (requireRefreshPalette)
+                    reloadPalette();
+                if (requireRedrawBg)
+                {
+                    IntPtr rect1 = new IntPtr(0);
+                    IntPtr rect2 = new IntPtr(0);
+                    SDL2.SDL.SDL_UpdateTexture(sdlTexture, IntPtr.Zero, framebuffer, StrideSize);
+                    SDL2.SDL.SDL_RenderCopy(renderer, sdlTexture, rect1, rect2);
+                }
+                if (requireDrawLayers)
+                    StepLayers();
+                StepSprite();
+            }
+            CalculateFps();
+            SDL2.SDL.SDL_RenderPresent(renderer);
+        }
+
+        public void ClockTick(ushort programCounter, double mhzRunning)
+        {
+            if (isDisposed) return;
+            this.mhzRunning = mhzRunning;
+            this.programCounter = programCounter;
+            _frameCounterGameEngine++;
+        }
+
+        public void CloseDisplay()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            if (isDisposed) return;
+            isDisposed = true;
+            Stop();
+            eventManagerSDL?.Dispose();
+        }
+
+
+        #region Fps Counter
+        private void InitFpsCounter()
+        {
+
 #if WINDOWS
 #if DEBUG
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -130,221 +219,6 @@ namespace AsmFun.Startup
             }
 #endif
 #endif
-
-            SDL2.SDL.SDL_Event e;
-            bool quit = false;
-            while (!quit && !isDisposed)
-            {
-                try
-                {
-                    while (SDL2.SDL.SDL_PollEvent(out e) != 0 && !isDisposed)
-                    {
-                        Thread.Sleep(10);
-                        switch (e.type)
-                        {
-                            case SDL2.SDL.SDL_EventType.SDL_QUIT:
-                                {
-                                    quit = true;
-                                    var computerManager = Container.Resolve<IComputerManager>();
-                                    computerManager.StopComputer();
-                                    break;
-                                }
-                            case SDL2.SDL.SDL_EventType.SDL_KEYDOWN:
-                                switch (e.key.keysym.sym)
-                                {
-                                    case SDL2.SDL.SDL_Keycode.SDLK_WWW:
-                                        quit = true;
-                                        var computerManager = Container.Resolve<IComputerManager>();
-                                        computerManager.StopComputer();
-                                        break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_SPACE: keyboardAccess.KeyDown(' ', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_BACKSPACE: keyboardAccess.KeyDown(' ', 2); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_ENTER:
-                                    case SDL2.SDL.SDL_Keycode.SDLK_RETURN2:
-                                    case SDL2.SDL.SDL_Keycode.SDLK_RETURN: keyboardAccess.KeyDown(' ', 6); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_UP: keyboardAccess.KeyDown(' ', 24); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_DOWN: keyboardAccess.KeyDown(' ', 26); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_LEFT: keyboardAccess.KeyDown(' ', 23); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_RIGHT: keyboardAccess.KeyDown(' ', 25); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F1: keyboardAccess.KeyDown(' ', 90); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F2: keyboardAccess.KeyDown(' ', 91); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F3: keyboardAccess.KeyDown(' ', 92); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F4: keyboardAccess.KeyDown(' ', 93); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F5: keyboardAccess.KeyDown(' ', 94); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F6: keyboardAccess.KeyDown(' ', 95); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F7: keyboardAccess.KeyDown(' ', 96); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F8: keyboardAccess.KeyDown(' ', 97); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F9: keyboardAccess.KeyDown(' ', 98); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F10: keyboardAccess.KeyDown(' ', 99); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F11: keyboardAccess.KeyDown(' ', 100); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_F12: keyboardAccess.KeyDown(' ', 101); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_LCTRL: keyboardAccess.KeyDown(' ', 119); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_RSHIFT: keyboardAccess.KeyDown(' ', 117); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_LSHIFT: keyboardAccess.KeyDown(' ', 116); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_RALT: keyboardAccess.KeyDown(' ', 121); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_LALT: keyboardAccess.KeyDown(' ', 156); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_MINUS:
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_MINUS: keyboardAccess.KeyDown('-', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_PLUS:
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_PLUS: keyboardAccess.KeyDown('+', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_MULTIPLY: keyboardAccess.KeyDown('*', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_DIVIDE: keyboardAccess.KeyDown('/', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_COMMA:
-                                    case SDL2.SDL.SDL_Keycode.SDLK_COMMA: keyboardAccess.KeyDown(',', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_SEMICOLON: keyboardAccess.KeyDown(';', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_COLON: keyboardAccess.KeyDown(':', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_KP_EQUALS:
-                                    case SDL2.SDL.SDL_Keycode.SDLK_EQUALS: keyboardAccess.KeyDown('=', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_DOLLAR: keyboardAccess.KeyDown('$', 0); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_CARET: keyboardAccess.KeyDown((char)32, 151); break;
-                                    case SDL2.SDL.SDL_Keycode.SDLK_BACKSLASH: keyboardAccess.KeyDown('µ', 0); break;
-                                    default:
-                                        if ((int)e.key.keysym.sym == 249)
-                                        {
-                                            keyboardAccess.KeyUp('ù', 0);
-                                            break;
-                                        }
-                                        var charr = e.key.keysym.sym.ToString().Replace("SDLK_", "");
-                                        if (charr.IndexOf("KP_") > -1)
-                                        {
-                                            charr = charr.Replace("KP_", "");
-                                            if (charr.Length == 1)
-                                            {
-                                                keyboardAccess.KeyDown(charr[0], int.Parse(charr) + 74);
-                                                continue;
-                                            }
-                                        }
-                                        else if (charr.Length == 1)
-                                            keyboardAccess.KeyDown(charr[0], 0);
-                                        //Console.WriteLine(charr);
-                                        break;
-                                }
-                                break;
-                            case SDL2.SDL.SDL_EventType.SDL_KEYUP:
-                                {
-                                    switch (e.key.keysym.sym)
-                                    {
-                                        case SDL2.SDL.SDL_Keycode.SDLK_SPACE: keyboardAccess.KeyUp(' ', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_BACKSPACE:keyboardAccess.KeyUp(' ', 2);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_ENTER:
-                                        case SDL2.SDL.SDL_Keycode.SDLK_RETURN2:
-                                        case SDL2.SDL.SDL_Keycode.SDLK_RETURN:keyboardAccess.KeyUp(' ', 6);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_UP:keyboardAccess.KeyUp(' ', 24);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_DOWN:keyboardAccess.KeyUp(' ', 26);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_LEFT:keyboardAccess.KeyUp(' ', 23);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_RIGHT:keyboardAccess.KeyUp(' ', 25);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F1:keyboardAccess.KeyUp(' ', 90);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F2:keyboardAccess.KeyUp(' ', 91);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F3:keyboardAccess.KeyUp(' ', 92);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F4:keyboardAccess.KeyUp(' ', 93);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F5:keyboardAccess.KeyUp(' ', 94);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F6:keyboardAccess.KeyUp(' ', 95);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F7:keyboardAccess.KeyUp(' ', 96);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F8:keyboardAccess.KeyUp(' ', 97);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F9:keyboardAccess.KeyUp(' ', 98);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F10:keyboardAccess.KeyUp(' ', 99);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F11:keyboardAccess.KeyUp(' ', 100);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_F12:keyboardAccess.KeyUp(' ', 101);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_LCTRL:keyboardAccess.KeyUp(' ', 119);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_RSHIFT:keyboardAccess.KeyUp(' ', 117);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_LSHIFT:keyboardAccess.KeyUp(' ', 116);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_RALT:keyboardAccess.KeyUp(' ', 121);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_LALT:keyboardAccess.KeyUp(' ', 156);break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_MINUS:
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_MINUS: keyboardAccess.KeyUp('-', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_PLUS:
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_PLUS: keyboardAccess.KeyUp('+', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_MULTIPLY: keyboardAccess.KeyUp('*', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_DIVIDE: keyboardAccess.KeyUp('/', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_COMMA:
-                                        case SDL2.SDL.SDL_Keycode.SDLK_COMMA: keyboardAccess.KeyUp(',', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_SEMICOLON: keyboardAccess.KeyUp(';', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_COLON: keyboardAccess.KeyUp(':', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_KP_EQUALS:
-                                        case SDL2.SDL.SDL_Keycode.SDLK_EQUALS: keyboardAccess.KeyUp('=', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_DOLLAR: keyboardAccess.KeyUp('$', 0); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_CARET: keyboardAccess.KeyUp((char)32, 151); break;
-                                        case SDL2.SDL.SDL_Keycode.SDLK_BACKSLASH: keyboardAccess.KeyUp('µ', 0); break;
-                                        default:
-                                            if ((int)e.key.keysym.sym == 249)
-                                            {
-                                                keyboardAccess.KeyUp('ù', 0);
-                                                break;
-                                            }
-                                            var charr = e.key.keysym.sym.ToString().Replace("SDLK_", "");
-                                            if (charr.IndexOf("KP_") > -1)
-                                            {
-                                                charr = charr.Replace("KP_", "");
-                                                if (charr.Length == 1)
-                                                {
-                                                    keyboardAccess.KeyUp(charr[0], int.Parse(charr) + 74);
-                                                    continue;
-                                                }
-                                            }
-                                            else if (charr.Length == 1)
-                                                keyboardAccess.KeyUp(charr[0], 0);
-                                            break;
-                                    }
-                                    break;
-                                }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ConsoleHelper.WriteError<SDLWindow>(ex);
-                }
-               
-            }
-        }
-        public void Stop()
-        {
-
-            foreach (var spr in sprites) { try { Marshal.FreeHGlobal(spr); } catch { } }
-
-            foreach (var spr2 in drawPtrs) { try { Marshal.FreeHGlobal(spr2); } catch { } }
-
-            SDL2.SDL.SDL_DestroyWindow(window);
-#if WINDOWS
-#if DEBUG
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                SDL2.SDL_ttf.TTF_Quit();
-#endif
-#endif
-            SDL2.SDL.SDL_Quit();
-        }
-
-        public void Paint(IntPtr framebuffer)
-        {
-            
-            if (isDisposed) return;
-            _framePaintCounter++;
-            _framePaintFpsCounter++; ;
-            if (_framePaintFpsCounter == 100)
-            {
-                _framePaintFpsCounter = 0;
-                _stopwatchFramePaint.Restart();
-            }
-            IntPtr rect1 = new IntPtr(0);
-            IntPtr rect2 = new IntPtr(0);
-            IntPtr rect3 = new IntPtr(0);
-            IntPtr rect4 = new IntPtr(0);
-
-            SDL2.SDL.SDL_UpdateTexture(sdlTexture, IntPtr.Zero, framebuffer, 640 * 4);
-            
-            SDL2.SDL.SDL_RenderClear(renderer);
-            
-            SDL2.SDL.SDL_RenderCopy(renderer, sdlTexture, rect1, rect2);
-            StepSprite();
-            CalculateFps();
-            SDL2.SDL.SDL_RenderPresent(renderer);
-        }
-        public void ClockTick(ushort programCounter, double mhzRunning)
-        {
-            if (isDisposed) return;
-            this.mhzRunning = mhzRunning;
-            this.programCounter = programCounter;
-            _frameCounterGameEngine++;
         }
 
         private void CalculateFps()
@@ -355,10 +229,10 @@ namespace AsmFun.Startup
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Determine frame rate in fps (frames per second).
-                long frameRateWpf = (long)(_frameCounterWpf / _stopwatchWPF.Elapsed.TotalSeconds);
+                long frameRateSDL = (long)(_frameCounterSDL / _stopwatchSDL.Elapsed.TotalSeconds);
                 long framePaint = (long)(_framePaintFpsCounter / _stopwatchFramePaint.Elapsed.TotalSeconds);
                 // Update elapsed time, number of frames, and frame rate.
-                var txt = "fps " + (Math.Floor(mhzRunning / 1000) / 100).ToString() + " / " + frameRateWpf;
+                var txt = "fps " + (Math.Floor(mhzRunning / 1000) / 100).ToString() + " / " + frameRateSDL;
                 surfaceMessage = SDL2.SDL_ttf.TTF_RenderText_Solid(font, txt, textColor);
                 messageSurf = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
                 var emptyRect = new SDL2.SDL.SDL_Rect() { x = 0, y = 00, w = 100, h = 100 };
@@ -369,24 +243,55 @@ namespace AsmFun.Startup
                 //myFrameRateWpfLabel.Text = frameRateWpf.ToString();
                 //MymhzRunning.Text = (Math.Floor(mhzRunning / 1000) / 100).ToString();
                 //myprogramCounterLabel.Text = programCounter.ToString("X4");
-                _frameCounterWpf++;
+                _frameCounterSDL++;
+            }
+#endif
+#endif
+        } 
+        private void DisposeFpsCounter()
+        {
+#if WINDOWS
+#if DEBUG
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    SDL2.SDL_ttf.TTF_Quit();
+            }
+            catch (Exception)
+            {
             }
 #endif
 #endif
         }
+        #endregion
 
 
-
-        public void CloseDisplay()
+        #region Palette
+        public void RequireRefreshPalette()
         {
-            Dispose();
+            requireRefreshPalette = true;
         }
-        public void Dispose()
+        public void InitPalette(IVideoPaletteAccess paletteAccess)
         {
-            if (isDisposed) return;
-            isDisposed = true;
-            Stop();
+            this.paletteAccess = paletteAccess;
+            requireRefreshPalette = true;
         }
+        private bool reloadPalette()
+        {
+            if (paletteAccess == null) return false;
+            var colorss = paletteAccess.GetAllColors();
+            if (colorss == null) return false;
+            // Add alpha channel
+            colorss = colorss.Select(x => new byte[] { 0xff, x[0], x[1], x[2] }).ToArray();
+            colorss[0] = new byte[] { 0, 0, 0, 0 };
+            palette = colorss;
+            requireRefreshPalette = false;
+            //var flatten = colorss.SelectMany(x => x).ToArray();
+            //AsmFun.Common.AsmTools.DumpMemory(flatten);
+            return true;
+        } 
+        #endregion
+
 
         #region Sprites 
         private ISpriteAccess spriteAccess;
@@ -403,31 +308,12 @@ namespace AsmFun.Startup
             drawPtrs = new IntPtr[spriteAccess.NumberOfTotalSprites].ToList();
             requireRefreshPalette = true;
         }
-        public void RequireRefreshPalette()
-        {
-            requireRefreshPalette = true;
-        }
-        public void InitPalette(IVideoPaletteAccess paletteAccess)
-        {
-            this.paletteAccess = paletteAccess;
-            requireRefreshPalette = true;
-        }
-        private bool reloadPalette()
-        {
-            if (paletteAccess == null) return false;
-            var colorss = paletteAccess.GetAllColors();
-            if (colorss == null) return false;
-            var colors = paletteAccess.GetAllColors();
-            palette = colorss;
-            requireRefreshPalette = false;
-            return true;
-        }
+       
+ 
         private void StepSprite()
         {
             if (isDisposed) return;
-            if (requireRefreshPalette)
-                if (!reloadPalette()) return;
-            var transparent = new byte[] { 0, 0, 0, 0 };
+            
             for (int sprIndex = 0; sprIndex < sprites.Count; sprIndex++)
             {
                 if (isDisposed) return;
@@ -435,46 +321,99 @@ namespace AsmFun.Startup
                 if (sprInfo == null || sprInfo.ZDepth == 0) return;
                 var w = (int)(sprInfo.Width * displayComposer.HScale);
                 var h = (int)(sprInfo.Height * displayComposer.VScale);
-                var x = (int)(sprInfo.X * displayComposer.HScale);
-                var y = (int)(sprInfo.Y * displayComposer.VScale);
+                var x = (int)(sprInfo.X * displayComposer.HScale) + displayComposer.HStart;
+                var y = (int)(sprInfo.Y * displayComposer.VScale) + displayComposer.VStart;
                 // Check if it's in range
-                if (x > displayComposer.HStop || y > displayComposer.VStop)
+                if (x > displayComposer.HStop || y > displayComposer.VStop || x < displayComposer.HStart-w || y < displayComposer.VStart-h)
                     continue;
 
                 if (sprites[sprIndex] == IntPtr.Zero)
                 {
-                    //var spr = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
-
-                    var spr = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_RGBA8888, 1, w, h);
+                    var spr = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_BGRA8888, 1, w, h);
                     SDL2.SDL.SDL_SetTextureBlendMode(spr, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
                     sprites[sprIndex] = spr;
                     drawPtrs[sprIndex] = Marshal.AllocHGlobal(w*h * 4);
                 }
                 var drawPtr = drawPtrs[sprIndex];
                 var sprite = sprites[sprIndex];
-                SDL2.SDL.SDL_SetTextureBlendMode(sprite, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
                 var data = spriteAccess.ReadSpriteColIndexData(sprIndex);
                
                 for (int i = 0; i < data.Length; i++)
                 {
-                    if (data[i] == 0)
-                        Marshal.Copy(transparent,0, drawPtr + (i * 4), 4);
-                    else
-                    {
-                        var col = palette[data[i]];
-                        Marshal.Copy(col, 0, drawPtr + (i * 4)+1, 3);
-                        Marshal.WriteByte(drawPtr + (i * 4) , 0xFF);
-                    }
+                    var col = palette[data[i]];
+                    Marshal.Copy(col, 0, drawPtr + (i * 4), 4);
                 }
-                SDL2.SDL.SDL_UpdateTexture(sprite, IntPtr.Zero, drawPtr, w * 4);
-                var srcRect = new SDL2.SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                SDL2.SDL.SDL_UpdateTexture(sprite, IntPtr.Zero, drawPtr, sprInfo.Width * 4);
+                var srcRect = new SDL2.SDL.SDL_Rect { x = 0, y = 0, w = sprInfo.Width, h = sprInfo.Height };
                 var destRect = new SDL2.SDL.SDL_Rect { x = x, y = y, w = w, h = h };
                 SDL2.SDL.SDL_RenderCopy(renderer, sprite, ref srcRect, ref destRect);
 
             }
         }
 
+        private void DisposeSprites()
+        {
+            foreach (var spr in sprites) { try { Marshal.FreeHGlobal(spr); } catch { } }
+            foreach (var spr2 in drawPtrs) { try { Marshal.FreeHGlobal(spr2); } catch { } }
+        }
 
         #endregion
+
+
+        #region Layers
+        private bool requireDrawLayers = false;
+        private IntPtr[] newLyerData;
+        VideoLayerData[] videoLayerDatas;
+
+        private void InitLayers()
+        {
+            layer0 = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_BGRA8888, 1, ComputerWidth, ComputerHeight);
+            layer1 = SDL2.SDL.SDL_CreateTexture(renderer, SDL2.SDL.SDL_PIXELFORMAT_BGRA8888, 1, ComputerWidth, ComputerHeight);
+            SDL2.SDL.SDL_SetTextureBlendMode(layer0, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+            SDL2.SDL.SDL_SetTextureBlendMode(layer1, SDL2.SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+        }
+
+        public void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
+        {
+            this.videoLayerDatas = videoLayerDatas;
+            newLyerData = layer_lineV;
+            requireDrawLayers = true;
+        }
+        private void StepLayers()
+        {
+            requireDrawLayers = false;
+            
+            var newData = newLyerData;
+            RenderLayer(newData[0], layerData0, layer0, videoLayerDatas[0]);
+            RenderLayer(newData[1], layerData0, layer1, videoLayerDatas[1]);
+        }
+        public void RenderLayer(IntPtr layerColIndexes, IntPtr layerData, IntPtr layerTexture, VideoLayerData videoLayerData)
+        {
+            if (!videoLayerData.IsEnabled) return;
+            
+            var w = displayComposer.HStop - displayComposer.HStart;
+            var h = displayComposer.VStop - displayComposer.VStart;
+            for (int i = 0; i < ComputerWidth*ComputerHeight; i++)
+            {
+                var vall = Marshal.ReadByte(layerColIndexes + i);
+                var col = palette[vall];
+                Marshal.Copy(col, 0, layerData + (i * 4) , 4);
+            }
+
+            SDL2.SDL.SDL_UpdateTexture(layerTexture, IntPtr.Zero, layerData, StrideSize);
+            var srcRect = new SDL2.SDL.SDL_Rect { x = 0, y = 0, w = (int)(w / displayComposer.HScale), h = (int)(h / displayComposer.VScale) };
+            var destRect = new SDL2.SDL.SDL_Rect { x = displayComposer.HStart, y = displayComposer.VStart, w = w, h = h };
+            SDL2.SDL.SDL_RenderCopy(renderer, layerTexture, ref srcRect, ref destRect);
+        }
+
+        private void DisposeLayers()
+        {
+            //try{ Marshal.FreeHGlobal(layer0); } catch (Exception) {  throw; }
+            //try{ Marshal.FreeHGlobal(layer1); } catch (Exception) {  throw; }
+            try{ Marshal.FreeHGlobal(layerData0); } catch (Exception) {  throw; }
+            try{ Marshal.FreeHGlobal(layerData1); } catch (Exception) {  throw; }
+        }
+        #endregion
+
     }
 }

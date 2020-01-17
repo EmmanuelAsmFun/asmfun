@@ -30,6 +30,9 @@ namespace AsmFun.WPF
     /// </summary>
     public partial class MainWindow : Window, IComputerDisplay
     {
+        private bool newFrame = false;
+        private bool bgHasChanged = false;
+        private IntPtr framebuffer;
         private bool isClosed;
         private int ComputerWidth;
         private int ComputerHeight;
@@ -112,24 +115,11 @@ namespace AsmFun.WPF
             isInitialized = true;
         }
 
-        public void Paint(IntPtr framebuffer)
+        public void Paint(IntPtr framebuffer, bool bgHasChanged)
         {
-            Dispatcher.BeginInvoke((Action)(() =>
-            {
-                _framePaintCounter++; ;
-                _framePaintFpsCounter++; ;
-                if (_framePaintFpsCounter == 100)
-                {
-
-                    _framePaintFpsCounter = 0;
-                    _stopwatchFramePaint.Restart();
-                }
-                var wbitmap = new WriteableBitmap(ComputerWidth, ComputerHeight, 96, 96, PixelFormats.Bgr32, null);
-                wbitmap.WritePixels(theRect, framebuffer, StrideSize, ComputerWidth * 4);
-                img.Source = wbitmap;
-
-                StepSprite();
-            }));
+            newFrame = true;
+            this.bgHasChanged = bgHasChanged;
+            this.framebuffer = framebuffer;
         }
 
 
@@ -153,6 +143,23 @@ namespace AsmFun.WPF
             MymhzRunning.Text = (Math.Floor(mhzRunning / 1000) / 100).ToString();
             myprogramCounterLabel.Text = programCounter.ToString("X4");
             _frameCounterWpf++;
+            if (newFrame)
+            {
+                _framePaintCounter++; ;
+                _framePaintFpsCounter++; ;
+                if (_framePaintFpsCounter == 100)
+                {
+
+                    _framePaintFpsCounter = 0;
+                    _stopwatchFramePaint.Restart();
+                }
+                if (bgHasChanged)
+                    StepBackground();
+                if (requireDrawLayers)
+                    StepLayers();
+                StepSprite();
+                newFrame = false;
+            }
         }
 
         #region Keyboard
@@ -219,6 +226,14 @@ namespace AsmFun.WPF
             else
                 DebugInfo.Visibility = Visibility.Visible;
         }
+        private void StepBackground()
+        {
+            var wbitmap = new WriteableBitmap(ComputerWidth, ComputerHeight, 96, 96, PixelFormats.Bgr32, null);
+            wbitmap.WritePixels(theRect, framebuffer, StrideSize, ComputerWidth * 4);
+            img.Source = wbitmap;
+            bgHasChanged = false;
+        }
+
 
         #region Sprites 
         private ISpriteAccess spriteAccess;
@@ -241,7 +256,7 @@ namespace AsmFun.WPF
             this.paletteAccess = paletteAccess;
             requireRefreshPalette = true;
         }
-        private bool reloadPalette()
+        private bool ReloadPalette()
         {
             if (paletteAccess == null) return false;
             var colorss = paletteAccess.GetAllColors();
@@ -250,12 +265,14 @@ namespace AsmFun.WPF
             colors[0] = Color.FromArgb(0, 0, 0, 0);
             palette = new BitmapPalette(colors);
             requireRefreshPalette = false;
+            //var flatten = colorss.SelectMany(x => x).ToArray();
+            //AsmFun.Common.AsmTools.DumpMemory(flatten);
             return true;
         }
         private void StepSprite()
         {
             if (requireRefreshPalette)
-                if (!reloadPalette()) return;
+                if (!ReloadPalette()) return;
             for (int sprIndex = 0; sprIndex < sprites.Count; sprIndex++)
             {
                 var sprInfo = spriteAccess.GetSpriteInfo(sprIndex);
@@ -266,15 +283,17 @@ namespace AsmFun.WPF
                 var h = (int)(sprInfo.Height * displayComposer.VScale);
                 var wbitmap = new WriteableBitmap(sprInfo.Width, sprInfo.Height, 96, 96, PixelFormats.Indexed8, palette);
                 wbitmap.WritePixels(sRect, data, sprInfo.Width, 0);
+                var sprite = sprites[sprIndex];
                 if (sprites[sprIndex] == null)
                 {
-                    sprites[sprIndex] = new Image();
-                    sprites[sprIndex].HorizontalAlignment = HorizontalAlignment.Left;
-                    sprites[sprIndex].VerticalAlignment = VerticalAlignment.Top;
-                    myCont.Children.Add(sprites[sprIndex]);
+                    sprite = new Image();
+                    sprite.HorizontalAlignment = HorizontalAlignment.Left;
+                    sprite.VerticalAlignment = VerticalAlignment.Top;
+                    sprite.Stretch = Stretch.Fill;
+                    sprites[sprIndex] = sprite;
+                    myCont.Children.Add(sprite);
                 }
-                var sprite = sprites[sprIndex];
-                sprite.Stretch = Stretch.Fill;
+                Canvas.SetZIndex(sprite, sprInfo.ZDepth * 500);
                 sprite.Source = wbitmap;
                 sprite.Width = w;
                 sprite.Height = h;
@@ -288,6 +307,45 @@ namespace AsmFun.WPF
         }
 
 
+
+
+        #endregion
+
+
+        #region Layers
+        private bool requireDrawLayers = false;
+        private IntPtr[] newLyerData;
+        VideoLayerData[] videoLayerDatas;
+        public void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
+        {
+            this.videoLayerDatas = videoLayerDatas;
+            newLyerData = layer_lineV;
+            requireDrawLayers = true;
+        }
+        private void StepLayers()
+        {
+
+            requireDrawLayers = false;
+            ReloadPalette();
+            var newData = newLyerData;
+            RenderLayer(newData[0], layer0, videoLayerDatas[0]);
+            RenderLayer(newData[1], layer1, videoLayerDatas[1]);
+        }
+        public void RenderLayer(IntPtr layerData, Image layerImg, VideoLayerData videoLayerData)
+        {
+            if (!videoLayerData.IsEnabled) return;
+            //AsmFun.Common.AsmTools.DumpMemory(layerData, 640 * 480);
+            var w = displayComposer.HStop - displayComposer.HStart;
+            var h = displayComposer.VStop - displayComposer.VStart;
+            var sRect = new Int32Rect(0, 0, (int)(w / displayComposer.HScale), (int)(h / displayComposer.VScale));
+            var wbitmap = new WriteableBitmap(ComputerWidth, ComputerHeight, 96, 96, PixelFormats.Indexed8, palette);
+            wbitmap.WritePixels(sRect, layerData, StrideSize, ComputerWidth);
+            var cropped = new CroppedBitmap(wbitmap,
+                new Int32Rect(displayComposer.HStart, 0, w, h));
+            layerImg.Source = cropped;
+            layerImg.Width = w * displayComposer.HScale;
+            layerImg.Height = h * displayComposer.VScale;
+        }
         #endregion
     }
 

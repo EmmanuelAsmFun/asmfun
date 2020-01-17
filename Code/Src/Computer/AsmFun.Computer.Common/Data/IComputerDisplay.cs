@@ -14,7 +14,7 @@ namespace AsmFun.Computer.Common.Data
     {
         void Init(int width, int height);
 
-        void Paint(IntPtr framebuffer);
+        void Paint(IntPtr framebuffer, bool bgHasChanged);
 
         void CloseDisplay();
 
@@ -22,5 +22,6 @@ namespace AsmFun.Computer.Common.Data
         void InitSprites(ISpriteAccess spriteAccess);
         void InitPalette(IVideoPaletteAccess palette);
         void RequireRefreshPalette();
+        void RequestRedrawLayer(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas);
     }
 }
