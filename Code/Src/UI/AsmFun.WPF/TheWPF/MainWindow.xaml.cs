@@ -268,9 +268,9 @@ namespace AsmFun.WPF
             var colorss = paletteAccess.GetAllColors();
             if (colorss == null) return false;
             var colors = colorss.Select(x => Color.FromRgb(x[0], x[1], x[2])).ToList();
-            colors[0] = Color.FromArgb(0, 0, 0, 0);
-            palette0 = new BitmapPalette(colors);
             colors[0] = Color.FromArgb(0xff, 0, 0, 0);
+            palette0 = new BitmapPalette(colors);
+            colors[0] = Color.FromArgb(0, 0, 0, 0);
             palette1 = new BitmapPalette(colors);
             requireRefreshPalette = false;
             return true;

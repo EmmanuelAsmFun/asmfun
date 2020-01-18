@@ -776,9 +776,12 @@ programItem.address  | toHex2
                                 <div class="Canvas-cont">
                                     <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
                                 </div>
-                                <div class="LayerTiles-cont">
-                                    <canvas v-bind:id="layerInfo.name +'Tiles'" class="LayerTiles" width="208" height="200"></canvas>
+                                
+                                <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode">
+                                    <div>Tile: {{layerInfo.selectedTileIndex}}</div>
+                                    <canvas v-bind:id="layerInfo.name +'Tiles'" class="LayerTiles" width="208" height="160" @mousemove="layerInfo.SelectTileByImage(event)"></canvas>
                                 </div>
+
                             </div>
                         </div>
 

@@ -36,15 +36,16 @@ export class VideoLayerManager {
 
     public Parse(layerIndex:number, memDump: IMemoryDump, data: Uint8Array) {
         if (this.videoManagerData == null) return;
+        var thiss = this;
         if (this.firstLoad) {
             this.StoreLoad();
             this.firstLoad = false;
         }
         // store previous layerInfo
         this.StorePreviousLayerInfo();
-
         const vidLayer = this.Reload(layerIndex,data);
         this.layers[vidLayer.LayerIndex] = vidLayer;
+       
         vidLayer.name = memDump.name;
         vidLayer.startAddress = AsmTools.numToHex5(memDump.startAddress);
         vidLayer.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
@@ -60,6 +61,8 @@ export class VideoLayerManager {
         vidLayer.CopyToClipBoard = () => AsmTools.CopyToClipBoard(vidLayer.RawDataString);
         this.videoManagerData.layers.push(vidLayer);
         vidLayer.Modes = AsmTools.EnumToArray(LayerModes).map(x => x.replace(/_/g, " ") + " bpp");
+
+       
 
         this.StoreNewLayerInfo(vidLayer);
         return vidLayer;
@@ -233,6 +236,7 @@ export class VideoLayerManager {
    
 
     public RenderLayer(ram: Uint8Array, layer: IVideoLayerData, palette: VideoPaletteManager) {
+        var thiss = this;
         // we need to set a timeout to be able to retrieve the canvas
         setTimeout(() => {
             if (this.videoSettings == null) return;
@@ -259,17 +263,26 @@ export class VideoLayerManager {
             // AsmTools.SaveDataToFile(colIndexs, "layer" + layer.name+".bin");
             context.putImageData(imagedata, 0,0);
             contextFS.putImageData(imagedata, 0, 0);
-            this.RenderTiles(ram, layer,palette);
+            var maxHTiles = this.RenderTiles(ram, layer, palette);
+            if (maxHTiles > 0) {
+                layer.SelectTileByImage = evt => {
+                    var index = Math.floor(evt.offsetX / layer.TileWidth) + Math.floor(evt.offsetY / layer.TileHeight) * maxHTiles;
+                    // console.log(evt.offsetX, evt.offsetY, index);
+                    if (index < 0) return
+                    if (index >= 512) return;
+                    layer.selectedTileIndex = index;
+                };
+            }
         }, 50);
     }
 
-    private RenderTiles(ram: Uint8Array, layer: IVideoLayerData, palette: VideoPaletteManager) {
-        if (layer.BitmapMode || !layer.IsEnabled) return;
+    private RenderTiles(ram: Uint8Array, layer: IVideoLayerData, palette: VideoPaletteManager):number {
+        if (layer.BitmapMode || !layer.IsEnabled) return 0;
        
 
         var canvas = <HTMLCanvasElement>document.getElementById(layer.name + "Tiles");
         var context = canvas.getContext("2d");
-        if (context == null) return;
+        if (context == null) return 0;
         var w = layer.TileWidth;
         var h = layer.TileHeight;
         var numTiles = 1024 * 32 / (w * h);
@@ -295,7 +308,7 @@ export class VideoLayerManager {
                     //    color = ram[layer.TileBase + indexOff];
                     //}
                     color = ram[layer.TileBase + indexOff];
-                    var colorIndex = this.BitsPerPxlCalculation(layer.BitsPerPixel, 0, 2, color, x);
+                    var colorIndex = this.BitsPerPxlCalculation(layer.BitsPerPixel, 1, 0, color, x);
                     colorIndexes[index] = colorIndex;
                     //console.log(index,colorIndex);
                     var colorp = palette.GetColor(colorIndex);
@@ -319,7 +332,7 @@ export class VideoLayerManager {
         }
         context.putImageData(imagedata, 0, 0);
        //  ASMStorage.SaveDataToFile(colorIndexes,"Tile.bin");
-       
+        return maxHTiles;
     }
 
     private RenderLayerLine(context: IVideoRenderLineContext, imagedata: any, palette: VideoPaletteManager, composer: IVideoDisplayComposer, colIndexes: Int8Array) {
@@ -370,6 +383,8 @@ export class VideoLayerManager {
             var colorIndex = 0;
             if (tile != null)
                 colorIndex = this.BitsPerPxlCalculation(context.layer.BitsPerPixel, tile.ForegroundColor, tile.BackgroundColor, color, newX);
+            else
+                colorIndex = this.BitsPerPxlCalculation(context.layer.BitsPerPixel, 0, 0, color, newX);
 
             // Apply Palette Offset
             if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)

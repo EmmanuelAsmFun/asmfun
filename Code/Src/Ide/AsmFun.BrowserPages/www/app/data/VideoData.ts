@@ -67,10 +67,12 @@ export interface IVideoLayerData {
 
     valueChanged: (v) => void;
     CopyToClipBoard: () => void;
-    Modes: string[],
-    Show: boolean,
-    ShowPreview: boolean,
-    ShowFull: boolean,
+    SelectTileByImage: (e) => void;
+    selectedTileIndex: number;
+    Modes: string[];
+    Show: boolean;
+    ShowPreview: boolean;
+    ShowFull: boolean;
 }
 export function NewVideoLayer(layerIndex:number): IVideoLayerData {
     return {
@@ -110,6 +112,8 @@ export function NewVideoLayer(layerIndex:number): IVideoLayerData {
         RawDataString: "",
         valueChanged: () => { },
         CopyToClipBoard: () => { },
+        SelectTileByImage: (e) => { },
+        selectedTileIndex: 0,
         Modes: [],
         Show: true,
         ShowFull: true,
