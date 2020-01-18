@@ -1,7 +1,9 @@
 ﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoPalette, IVideoColor } from "../../data/VideoData.js";
 import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
-import { AsmTools } from "../../Tools.js";
+import { AsmTools, ASMStorage } from "../../Tools.js";
+import { IMainData } from "../../data/MainData.js";
+import { VideoPaletteDumpCommand } from "../../data/commands/VideoCommands.js";
 
 // #region license
 // ASM Fun
@@ -11,18 +13,20 @@ import { AsmTools } from "../../Tools.js";
 
 export class VideoPaletteManager {
     
-
+    private rawData?: Uint8Array;
 
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
 
-    public Init(videoManagerData: IVideoManagerData) {
+    public Init(mainData: IMainData, videoManagerData: IVideoManagerData) {
         this.videoSettings = videoManagerData.settings;
         this.videoManagerData = videoManagerData;
+        mainData.commandManager.Subscribe2(new VideoPaletteDumpCommand(), this, x => this.MemoryDump());
     }
 
 
     public Parse(memDump: IMemoryDump, data: Uint8Array) {
+        this.rawData = data;
         var paletteData = this.RefreshPalette(data);
         if (this.videoManagerData == null) return;
         var palette = this.videoManagerData.palette;
@@ -62,6 +66,10 @@ export class VideoPaletteManager {
         return this.videoManagerData.palette.colors[colorIndex];
     }
 
+    public MemoryDump() {
+        if (this.rawData == null) return;
+        ASMStorage.SaveDataToFile(this.rawData, "Palette_" + ASMStorage.GetNowForFile())
+    }
 
 
     public static NewData(): IVideoPalette {

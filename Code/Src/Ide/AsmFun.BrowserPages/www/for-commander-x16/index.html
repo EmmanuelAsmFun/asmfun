@@ -86,9 +86,7 @@
                 &nbsp;
                 <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
                 <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
-                <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
-
-
+               
                 <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Computer Control"><span class="fa fa-desktop"></span></a>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
 
@@ -106,9 +104,12 @@
                 <a href="javascript:" v-on:click="ComputerStart()" title="Start computer"><span class="fa fa-play"></span></a>
                 <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer"><span class="fa fa-stop"></span></a>
                 <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer"><span class="fa fa-refresh"></span></a>
+                &nbsp;
                 <a href="javascript:" v-on:click="ComputerLoadProgram" title="Load Program in computer"><span class="fa fa-microchip"></span></a>
                 <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in computer"><span style="font-size:13px;vertical-align:text-top;">RUN</span></a>
+                &nbsp;
                 <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video and sprite"><span class="fa fa-image"></span></a>
+                <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
             </div>
            
         </div>
@@ -578,6 +579,7 @@ programItem.address  | toHex2
                         <div class="vAddress">
                             0x{{videoManager.ram.startAddress}} - 0x{{videoManager.ram.endAddress}}
                             &nbsp;
+                            
                             <a v-on:click="VideoMemoryDump" title="Video Memory Dump"><span class="fa fa-save"></span> </a>
                             &nbsp;
                             <a v-show="!videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory"><span class="fa fa-eye"></span> </a>
@@ -662,7 +664,11 @@ programItem.address  | toHex2
 
                     <div class="palette">
                         <h3>Palette</h3>
-                        <div class="vAddress">0x{{videoManager.palette.startAddress}} - 0x{{videoManager.palette.endAddress}}</div>
+                        <div class="vAddress">
+                            0x{{videoManager.palette.startAddress}} - 0x{{videoManager.palette.endAddress}}
+                            &nbsp;
+                            <a v-on:click="VideoPaletteDump" title="Palette Memory Dump"><span class="fa fa-save"></span> </a>
+                        </div>
                         <div class="rawBinaryData">&nbsp;</div>
                         <div class="table-cont">
                             <div class="pallete-adr-list">

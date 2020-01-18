@@ -56,3 +56,10 @@ export class VideoMemoryDumpCommand extends BaseCommand {
         this.nameSpace = "Video";
     }
 }
+export class VideoPaletteDumpCommand extends BaseCommand {
+    public constructor() {
+        super();
+        this.commandName = "PaletteDump";
+        this.nameSpace = "Video";
+    }
+}

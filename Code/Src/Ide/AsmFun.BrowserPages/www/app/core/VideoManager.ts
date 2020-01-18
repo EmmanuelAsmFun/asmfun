@@ -57,7 +57,7 @@ export class VideoManager {
         var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
         this.videoLayerManager.Init(this.data, debugSvc,this.projectManager);
         this.videoRamManager.Init(mainData, this.data, debugSvc,this.projectManager);
-        this.videoPaletteManager.Init(this.data);
+        this.videoPaletteManager.Init(mainData,this.data);
         this.videoSpriteManager.Init(this.data, debugSvc, () => this.ReloadData(), this.projectManager);
         this.videoComposerManager.Init(this.data, debugSvc);
     }
@@ -152,6 +152,10 @@ export class VideoManager {
         var newState = state != null ? state : !this.keyboardManager.isEnabled;
         this.keyboardManager.isEnabled = newState;
         this.data.isKeyboardForwarded = newState;
+        if (newState)
+            this.SwapEnableAutoReload(true);
+        else if (this.data.isEnableAutoReload)
+            this.SwapEnableAutoReload(false);
     }
 
     public KeyUp(keyy: IKeyboardKey): any {

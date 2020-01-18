@@ -43,8 +43,10 @@ export class ComputerManager {
         if (state === this.data.isVisible) return;
         if (!state)
             this.Close();
-        else
+        else {
             this.Open();
+            this.StartComputer();
+        }
     }
    
 

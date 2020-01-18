@@ -26,7 +26,7 @@ import {
     ComputerRunProgramCommand, ComputerOpenDetailCommand
 } from "../data/commands/ComputerCommands.js";
 import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
-import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand, VideoMemoryDumpCommand, VideoShowMemoryHexCommand, VideoEnableKeyForwardingCommand } from "../data/commands/VideoCommands.js";
+import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand, VideoMemoryDumpCommand, VideoShowMemoryHexCommand, VideoEnableKeyForwardingCommand, VideoPaletteDumpCommand } from "../data/commands/VideoCommands.js";
 
 
 export class MainScreenMethods {
@@ -149,6 +149,7 @@ export class MainScreenMethods {
     public VideoEnableAutoReload(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoEnableAutoReloadCommand(state)); }
     public VideoShowMemoryHex(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoShowMemoryHexCommand(state)); }
     public VideoEnableKeyForwarding(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoEnableKeyForwardingCommand(state)); }
+    public VideoPaletteDump() { MainScreenMethods.ExecuteCommand(new VideoPaletteDumpCommand()); }
 
     // Project manager
     public ProjectOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ProjectOpenManagerCommand(state)); }
