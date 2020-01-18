@@ -1,9 +1,10 @@
-﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoRenderLineContext, IVideoMapTile, IVideoDisplayComposer, LayerModes } from "../../data/VideoData.js";
+﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoRenderLineContext, IVideoMapTile, IVideoDisplayComposer, LayerModes, NewTile, NewContext, NewVideoLayer, IVideoLayerManagerData, NewVideoLayerManagerData } from "../../data/VideoData.js";
 import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
-import { AsmTools } from "../../Tools.js";
+import { AsmTools, ASMStorage } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
 import { DebuggerService } from "../../services/DebuggerService.js";
+import { ProjectManager } from "../ProjectManager.js";
 
 // #region license
 // ASM Fun
@@ -12,26 +13,38 @@ import { DebuggerService } from "../../services/DebuggerService.js";
 // #endregion
 
 export class VideoLayerManager {
-
-
+    private static StorageLayerData = "StorageLayerData";
+    private firstLoad:boolean = true;
     private videoHeight: number = 0;
     private videoWidth: number = 0 ;
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
+    private layerDatas: IVideoLayerManagerData = NewVideoLayerManagerData();
+    private projectManager?: ProjectManager;
+    private layers: IVideoLayerData[] = [NewVideoLayer(0), NewVideoLayer(1)];
 
-    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, projectManager: ProjectManager) {
         this.videoSettings = videoManagerData.settings;
         this.videoHeight = videoManagerData.settings.Height;
         this.videoWidth = videoManagerData.settings.Width;
         this.videoManagerData = videoManagerData;
         this.debuggerService = debuggerService;
+        this.projectManager = projectManager;
     }
 
 
-    public Parse(memDump: IMemoryDump, data: Uint8Array) {
+    public Parse(layerIndex:number, memDump: IMemoryDump, data: Uint8Array) {
         if (this.videoManagerData == null) return;
-        const vidLayer = this.Reload(data);
+        if (this.firstLoad) {
+            this.StoreLoad();
+            this.firstLoad = false;
+        }
+        // store previous layerInfo
+        this.StorePreviousLayerInfo();
+
+        const vidLayer = this.Reload(layerIndex,data);
+        this.layers[vidLayer.LayerIndex] = vidLayer;
         vidLayer.name = memDump.name;
         vidLayer.startAddress = AsmTools.numToHex5(memDump.startAddress);
         vidLayer.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
@@ -46,9 +59,13 @@ export class VideoLayerManager {
         };
         vidLayer.CopyToClipBoard = () => AsmTools.CopyToClipBoard(vidLayer.RawDataString);
         this.videoManagerData.layers.push(vidLayer);
-        vidLayer.Modes = AsmTools.EnumToArray(LayerModes).map(x => x.replace(/_/g, " ")+" bpp");
+        vidLayer.Modes = AsmTools.EnumToArray(LayerModes).map(x => x.replace(/_/g, " ") + " bpp");
+
+        this.StoreNewLayerInfo(vidLayer);
         return vidLayer;
     }
+
+ 
 
     private RecalculateArray(vidLayer: IVideoLayerData) {
         // Set enum strings back to numeric
@@ -81,9 +98,9 @@ export class VideoLayerManager {
         return data;
     }
 
-    public Reload(layerData: Uint8Array): IVideoLayerData {
+    public Reload(layerIndex: number,layerData: Uint8Array): IVideoLayerData {
 
-        var props: IVideoLayerData = VideoLayerManager.NewVideoLayer();
+        var props: IVideoLayerData = NewVideoLayer(layerIndex);
         
         return this.ParseData(props, layerData);
     }
@@ -223,27 +240,89 @@ export class VideoLayerManager {
             if (!layer.IsEnabled) return;
             var w = this.videoSettings.Width;
             var h = this.videoSettings.Height;
-            var canvas = <any>document.getElementById(layer.name + "Canvas");
-            var canvasFS = <any>document.getElementById(layer.name + "CanvasFS");
+            var canvas = <HTMLCanvasElement>document.getElementById(layer.name + "Canvas");
+            var canvasFS = <HTMLCanvasElement>document.getElementById(layer.name + "CanvasFS");
             
-            if (canvas == null) return;
+            if (canvas == null || canvasFS == null) return;
             var context = canvas.getContext("2d");
             var contextFS = canvasFS.getContext("2d");
+            if (context == null || contextFS == null) return;
             context.fillStyle = "#333";
             context.fillRect(0, 0, canvas.width, canvas.height);
             var colIndexs = new Int8Array(w*h);
             var imagedata = context.createImageData(w, h);
-            var renderContext: IVideoRenderLineContext = VideoLayerManager.NewContext(ram, layer, w);
+            var renderContext: IVideoRenderLineContext = NewContext(ram, layer, w);
             for (var y = 0; y < h; y++) {
                 renderContext.y = y;
                 this.RenderLayerLine(renderContext, imagedata, palette, this.videoManagerData.composer, colIndexs);
             }
             // AsmTools.SaveDataToFile(colIndexs, "layer" + layer.name+".bin");
             context.putImageData(imagedata, 0,0);
-            contextFS.putImageData(imagedata, 0,0);
+            contextFS.putImageData(imagedata, 0, 0);
+            this.RenderTiles(ram, layer,palette);
         }, 50);
     }
-    public RenderLayerLine(context: IVideoRenderLineContext, imagedata: any, palette: VideoPaletteManager, composer: IVideoDisplayComposer, colIndexes: Int8Array) {
+
+    private RenderTiles(ram: Uint8Array, layer: IVideoLayerData, palette: VideoPaletteManager) {
+        if (layer.BitmapMode || !layer.IsEnabled) return;
+       
+
+        var canvas = <HTMLCanvasElement>document.getElementById(layer.name + "Tiles");
+        var context = canvas.getContext("2d");
+        if (context == null) return;
+        var w = layer.TileWidth;
+        var h = layer.TileHeight;
+        var numTiles = 1024 * 32 / (w * h);
+        var maxHTiles = Math.floor(canvas.width / w);
+        console.log("NumTiles:" + numTiles, layer.name);
+        var strideX = maxHTiles * w;
+        var tileXIndex = 0;
+        var tileYIndex = 0;
+        var colorIndexes = new Uint8Array(w * h * numTiles);
+        var imagedata = context.createImageData(w * maxHTiles, h * 5);
+        var index = 0;
+        for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+            var tileSize = tileIndex * h * w;
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    var color = 0;
+                    var indexOff = Math.floor(index / (8 / layer.BitsPerPixel));
+                    //if (layer.TextMode) {
+                    //    var indexOff = Math.floor(index / (8 / layer.BitsPerPixel));
+                    //    color = ram[layer.TileBase + indexOff]
+                    //}
+                    //else if (layer.TileMode) {
+                    //    color = ram[layer.TileBase + indexOff];
+                    //}
+                    color = ram[layer.TileBase + indexOff];
+                    var colorIndex = this.BitsPerPxlCalculation(layer.BitsPerPixel, 0, 2, color, x);
+                    colorIndexes[index] = colorIndex;
+                    //console.log(index,colorIndex);
+                    var colorp = palette.GetColor(colorIndex);
+                    if (colorp == null)
+                        colorp = palette.GetColor(0);
+                    
+                    var pixelindex = (x + y * strideX + tileXIndex*w+ (tileYIndex * h * strideX)) * 4;
+                    imagedata.data[pixelindex + 0] = colorp.r;     // Red
+                    imagedata.data[pixelindex + 1] = colorp.g; // Green
+                    imagedata.data[pixelindex + 2] = colorp.b;  // Blue
+                    imagedata.data[pixelindex + 3] = 0xff;   // Alpha
+                    index++;
+                }
+            }
+            
+            tileXIndex++;
+            if (tileXIndex == maxHTiles) {
+                tileXIndex = 0;
+                tileYIndex ++;
+            }
+        }
+        context.putImageData(imagedata, 0, 0);
+       //  ASMStorage.SaveDataToFile(colorIndexes,"Tile.bin");
+       
+    }
+
+    private RenderLayerLine(context: IVideoRenderLineContext, imagedata: any, palette: VideoPaletteManager, composer: IVideoDisplayComposer, colIndexes: Int8Array) {
         var layer = context.layer;
         // todo : add composer data
         //var y = (composer.b_VScale *Math.floor( (context.y - composer.VStart) / 128));
@@ -266,8 +345,8 @@ export class VideoLayerManager {
                 newX = realX & layer.TileWidthMax;
                 newY = realY & layer.TileHeightMax;
                 context.mapAddress = this.CalcLayerMapAddress(layer, realX, realY) - context.map_addr_begin;
-                // Todo: to enhance performance, do not always do a reload, only when data has changed
-                tile = this.GetTile(context.mapAddress, context);
+
+                tile = this.GetTile(context.mapAddress, context.layer, context.tile_bytes);
 
                 // offset within tilemap of the current tile
                 tileStart = tile.TileIndex * layer.TileSize;
@@ -290,7 +369,7 @@ export class VideoLayerManager {
             // Convert tile byte to indexed color
             var colorIndex = 0;
             if (tile != null)
-                colorIndex = this.BitsPerPxlCalculation(context, color, newX, tile);
+                colorIndex = this.BitsPerPxlCalculation(context.layer.BitsPerPixel, tile.ForegroundColor, tile.BackgroundColor, color, newX);
 
             // Apply Palette Offset
             if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
@@ -325,12 +404,13 @@ export class VideoLayerManager {
         context.map_addr_end = this.CalcLayerMapAddress(context.layer, context.layer.max_eff_x, eff_y);
         context.size = ((context.map_addr_end - context.map_addr_begin) + 2);
         context.tile_bytes = context.ram.subarray(context.map_addr_begin, context.map_addr_begin + context.size);
+         //console.log(context.map_addr_begin, context.map_addr_end, context.size);
     }
-    private BitsPerPxlCalculation(context: IVideoRenderLineContext, color: number, newX: number, tile: IVideoMapTile):number {
-        switch (context.layer.BitsPerPixel) {
+    private BitsPerPxlCalculation(bitsPerPixel:number, foregroundColor: number, backgroundColor:number, color: number, newX: number):number {
+        switch (bitsPerPixel) {
             case 1:
                     var bit = (color >> 7 - newX & 1) != 0;
-                    var colorIndex = bit ? tile.ForegroundColor : tile.BackgroundColor;
+                    var colorIndex = bit ? foregroundColor : backgroundColor;
                     return colorIndex;
             case 2:
                 return (color >> 6 - ((newX & 3) << 1) & 3);
@@ -342,17 +422,16 @@ export class VideoLayerManager {
         return 0;
     }
 
-    public GetTile(mapAddress:number, context: IVideoRenderLineContext): IVideoMapTile {
-        var layer = context.layer;
-        var tile: IVideoMapTile = VideoLayerManager.NewTile();
+    public GetTile(mapAddress: number, layer: IVideoLayerData, tile_bytes: Uint8Array): IVideoMapTile {
+        var tile: IVideoMapTile = NewTile();
         // Get Map info.
         if (layer.BitmapMode) {
             tile.TileIndex = 0;
             tile.PaletteOffset = layer.PaletteOffset;
         }
         else {
-            var byte0 = context.tile_bytes[mapAddress];
-            var byte1 = context.tile_bytes[mapAddress + 1];
+            var byte0 = tile_bytes[mapAddress];
+            var byte1 = tile_bytes[mapAddress + 1];
             if (layer.TextMode) {
                 tile.TileIndex = byte0;
 
@@ -381,69 +460,36 @@ export class VideoLayerManager {
     }
 
 
-    public static NewContext(ram: Uint8Array, layer: IVideoLayerData, w:number): IVideoRenderLineContext {
-        return {
-            ram: ram,
-            layer: layer,
-            map_addr_begin: 0,
-            map_addr_end: 0,
-            size: 0,
-            tile_bytes: new Uint8Array(0),
-            width: w,
-            y: 0,
-            mapAddress:0,
-        }
-    };
-    public static NewTile(): IVideoMapTile {
-        return {
-            BackgroundColor: 0,
-            ForegroundColor: 0,
-            HorizontalFlip: false,
-            VerticalFlip: false,
-            PaletteOffset: 0,
-            TileIndex:0,
-        }
+    private StoreLoad() {
+        if (this.projectManager == null) return;
+        var dataa = this.projectManager.ProjectGetProp<IVideoLayerManagerData>(VideoLayerManager.StorageLayerData);
+        if (dataa == null) return;
+        this.layerDatas = dataa;
+        this.StoreNewLayerInfo(this.layers[0]);
+        this.StoreNewLayerInfo(this.layers[1]);
     }
-    public static NewVideoLayer(): IVideoLayerData {
-        return {
-            BitmapMode: false,
-            BitsPerPixel: 0,
-            HorizontalScroll: 0,
-            IsEnabled: false,
-            LayerHeight: 0,
-            LayerWidth: 0,
-            LayerHeightMax: 0,
-            LayerIndex: 0,
-            LayerWidthMax: 0,
-            MapBase: 0,
-            MapBaseHex: "",
-            MapHeight: 0,
-            MapHeightMax: 0,
-            MapWidth: 0,
-            MapWidthMax: 0,
-            max_eff_x: 0,
-            min_eff_x: 0,
-            Mode: 0,
-            ModeString:"",
-            PaletteOffset: 0,
-            TextMode: false,
-            TileBase: 0,
-            TileBaseHex:"",
-            TileHeight: 0,
-            TileHeightMax: 0,
-            TileMode: false,
-            TileSize: 0,
-            TileWidth: 0,
-            TileWidthMax: 0,
-            VerticalScroll: 0,
-            name: "",
-            startAddress: "",
-            endAddress: "",
-            RawDataString: "",
-            valueChanged: () => { },
-            CopyToClipBoard: () => { },
-            Modes: [],
-        };
+    public StorePreviousLayerInfo() {
+        if (this.projectManager == null) return;
+        var changed = false;
+        for (var i = 0; i < 2; i++) {
+            if (this.layers[i] != null) {
+                var vidLayer = this.layers[i];
+                if (vidLayer == null) continue;
+                var lay = this.layerDatas.Layers[i];
+                if (lay.Show !== vidLayer.Show) { lay.Show = vidLayer.Show; changed = true; }
+                if (lay.ShowFull !== vidLayer.ShowFull) { lay.ShowFull = vidLayer.ShowFull; changed = true; }
+                if (lay.ShowPreview !== vidLayer.ShowPreview) { lay.ShowPreview = vidLayer.ShowPreview; changed = true; }
+            }
+        }
+        if (changed)
+            this.projectManager.ProjectSetProp(VideoLayerManager.StorageLayerData, this.layerDatas);
     }
+    private StoreNewLayerInfo(vidLayer: IVideoLayerData) {
+        var lay = this.layerDatas.Layers[vidLayer.LayerIndex];
+        vidLayer.Show = lay.Show;
+        vidLayer.ShowFull = lay.ShowFull;
+        vidLayer.ShowPreview = lay.ShowPreview;
+    }
+  
     public static ServiceName: ServiceName = { Name: "VideoLayerManager" };
 }

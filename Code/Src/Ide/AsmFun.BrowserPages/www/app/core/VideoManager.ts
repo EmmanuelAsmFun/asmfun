@@ -9,13 +9,15 @@ import { IMainData } from "../data/MainData.js";
 import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand } from "../data/commands/VideoCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ComputerService } from "../services/ComputerService.js";
-import { IVideoManagerData } from "../data/VideoData.js";
+import { IVideoManagerData, NewRamManagerData } from "../data/VideoData.js";
 import { VideoLayerManager } from "./Video/VideoLayerManager.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { VideoPaletteManager } from "./Video/VideoPaletteManager.js";
 import { VideoSpriteManager } from "./Video/VideoSpriteManager.js";
 import { VideoComposerManager } from "./Video/VideoComposerManager.js";
 import { DebuggerService } from "../services/DebuggerService.js";
+import { ProjectManager } from "./ProjectManager.js";
+import { VideoRamManager } from "./Video/VideoRamManager.js";
 
 
 export class VideoManager {
@@ -29,6 +31,8 @@ export class VideoManager {
     public videoPaletteManager: VideoPaletteManager;
     public videoSpriteManager: VideoSpriteManager;
     public videoComposerManager: VideoComposerManager;
+    public videoRamManager: VideoRamManager;
+    private projectManager: ProjectManager;
 
     constructor(mainData: IMainData) {
         var thiss = this;
@@ -40,13 +44,16 @@ export class VideoManager {
         this.videoPaletteManager = mainData.container.Resolve<VideoPaletteManager>(VideoPaletteManager.ServiceName) ?? new VideoPaletteManager();
         this.videoSpriteManager = mainData.container.Resolve<VideoSpriteManager>(VideoSpriteManager.ServiceName) ?? new VideoSpriteManager();
         this.videoComposerManager = mainData.container.Resolve<VideoComposerManager>(VideoComposerManager.ServiceName) ?? new VideoComposerManager();
+        this.videoRamManager = mainData.container.Resolve<VideoRamManager>(VideoRamManager.ServiceName) ?? new VideoRamManager();
+        this.projectManager = mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName) ?? new ProjectManager(this.mainData);
         this.mainData.commandManager.Subscribe2(new VideoOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new VideoReloadAllCommand(), this, () => this.ReloadData());
         this.mainData.commandManager.Subscribe2(new VideoEnableAutoReloadCommand(null), this, (s) => this.SwapEnableAutoReload(s.state));
         var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
-        this.videoLayerManager.Init(this.data, debugSvc);
+        this.videoLayerManager.Init(this.data, debugSvc,this.projectManager);
+        this.videoRamManager.Init(mainData, this.data, debugSvc,this.projectManager);
         this.videoPaletteManager.Init(this.data);
-        this.videoSpriteManager.Init(this.data, debugSvc, () => this.ReloadData());
+        this.videoSpriteManager.Init(this.data, debugSvc, () => this.ReloadData(), this.projectManager);
         this.videoComposerManager.Init(this.data, debugSvc);
     }
 
@@ -63,9 +70,11 @@ export class VideoManager {
                     case "Composer": thiss.videoComposerManager.Parse(memDump, numBytes, this.videoPaletteManager); break;
                     case "Palette": thiss.videoPaletteManager.Parse(memDump, numBytes); break;
                     case "SpriteAttributes": this.videoSpriteManager.Parse(memDump, numBytes); break;
-                    case "Layer1": 
-                    case "Layer2": thiss.videoLayerManager.Parse(memDump, numBytes); break;
-                    case "VideoRAM": ram = numBytes; break;
+                    case "Layer1": thiss.videoLayerManager.Parse(0, memDump, numBytes); break;
+                    case "Layer2": thiss.videoLayerManager.Parse(1, memDump, numBytes); break;
+                    case "VideoRAM":
+                        thiss.videoRamManager.Parse(memDump,numBytes);
+                        ram = numBytes; break;
                 }
             }
             // fill composer border color
@@ -112,6 +121,7 @@ export class VideoManager {
     }
     private Hide() {
         var thiss = this;
+        if (this.videoLayerManager != null) this.videoLayerManager.StorePreviousLayerInfo();
         setTimeout(() => { thiss.data.isVisible = false; }, 200)
         this.data.isVisiblePopup = false;
     }
@@ -146,6 +156,7 @@ export class VideoManager {
             palette: VideoPaletteManager.NewData(),
             spriteDatas: VideoSpriteManager.NewData(),
             composer: VideoComposerManager.NewData(),
+            ram: NewRamManagerData(),
         };
     }
 

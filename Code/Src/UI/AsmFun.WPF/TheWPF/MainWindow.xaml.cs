@@ -112,6 +112,7 @@ namespace AsmFun.WPF
             computerManager.SetDisplay(this);
             keyboardAccess = computer.GetKeyboard();
             _stopwatchWPF.Start();
+            //ResizeInterBG();
             isInitialized = true;
         }
 
@@ -268,7 +269,9 @@ namespace AsmFun.WPF
             if (colorss == null) return false;
             var colors = colorss.Select(x => Color.FromRgb(x[0], x[1], x[2])).ToList();
             colors[0] = Color.FromArgb(0, 0, 0, 0);
-            palette = new BitmapPalette(colors);
+            palette0 = new BitmapPalette(colors);
+            colors[0] = Color.FromArgb(0xff, 0, 0, 0);
+            palette1 = new BitmapPalette(colors);
             requireRefreshPalette = false;
             return true;
         }
@@ -278,7 +281,8 @@ namespace AsmFun.WPF
         #region Sprites 
         private ISpriteAccess spriteAccess;
         private IDisplayComposer displayComposer;
-        private BitmapPalette palette;
+        private BitmapPalette palette0;
+        private BitmapPalette palette1;
         private IVideoPaletteAccess paletteAccess;
         private bool requireRefreshPalette;
         public void InitSprites(ISpriteAccess spriteAccess)
@@ -298,7 +302,7 @@ namespace AsmFun.WPF
                 var data = spriteAccess.ReadSpriteColIndexData(sprIndex);
                 var w = (int)(sprInfo.Width * displayComposer.HScale);
                 var h = (int)(sprInfo.Height * displayComposer.VScale);
-                var wbitmap = new WriteableBitmap(sprInfo.Width, sprInfo.Height, 96, 96, PixelFormats.Indexed8, palette);
+                var wbitmap = new WriteableBitmap(sprInfo.Width, sprInfo.Height, 96, 96, PixelFormats.Indexed8, palette1);
                 wbitmap.WritePixels(sRect, data, sprInfo.Width, 0);
                 var sprite = sprites[sprIndex];
                 if (sprites[sprIndex] == null)
@@ -359,14 +363,14 @@ namespace AsmFun.WPF
         private void StepLayers()
         {
             if (requireDrawLayer0)
-                RenderLayer(newLyerData0, layer0, videoLayerDatas[0]);
+                RenderLayer(newLyerData0, layer0, videoLayerDatas[0], palette0);
             if (requireDrawLayer1)
-                RenderLayer(newLyerData1, layer1, videoLayerDatas[1]);
+                RenderLayer(newLyerData1, layer1, videoLayerDatas[1], palette1);
             requireDrawLayer0 = false;
             requireDrawLayer1 = false;
-
         }
-        private void RenderLayer(IntPtr layerData, Image layerImg, VideoLayerData videoLayerData)
+
+        private void RenderLayer(IntPtr layerData, Image layerImg, VideoLayerData videoLayerData, BitmapPalette palette)
         {
             if (!videoLayerData.IsEnabled) return;
 

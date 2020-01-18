@@ -6,12 +6,13 @@
 
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { IProjectManagerData, ProjectCompilerTypes, ProjectComputerTypes, IUserSettings, InternetSourceType, IProjectDetail, IProjectSettings, IBuildConfiguration, CompilerNames, RomVersionNames } from "../data/ProjectData.js";
+import { IProjectManagerData, ProjectCompilerTypes, ProjectComputerTypes, IUserSettings, InternetSourceType, IProjectDetail, IProjectSettings, IBuildConfiguration, CompilerNames, RomVersionNames, NewProjectManagerData, NewBuildConfiguration } from "../data/ProjectData.js";
 import { ProjectService } from "../services/projectService.js";
 import { NotifyIcon, ConfirmIcon } from "../common/Enums.js";
 import { ProjectLoadCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectSaveFolderCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand } from "../data/commands/ProjectsCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
+import { ASMStorage } from "../Tools.js";
 
 
 export class ProjectManager  {
@@ -40,7 +41,8 @@ export class ProjectManager  {
 
     public LoadOne() {
         var thiss = this;
-        this.service.GetProjectSettings(() => {
+        this.service.GetProjectSettings((s) => {
+            this.data.settings = s;
             thiss.Load();
         }, error => {
             // project doesn't exist
@@ -101,7 +103,7 @@ export class ProjectManager  {
         if (this.data.projectIsDownloading) return;
         if (this.data.newProjectFileName == null || this.data.newProjectFileName.length < 2) return;
         this.data.isNewProject = true;
-        this.data.newBuildConfiguration = ProjectManager.NewBuildConfiguration();
+        this.data.newBuildConfiguration = NewBuildConfiguration();
     }
 
     public CreateNewProject() {
@@ -167,37 +169,18 @@ export class ProjectManager  {
         this.Close();
     }
 
-    public static NewData(): IProjectManagerData {
-        return {
-            isNewProject: false,
-            isVisible: false,
-            isVisiblePopup: false,
-            projectsFolder: "",
-            localProjects: [],
-            webProjects: [],
-            newProjectFileName: "",
-            newBuildConfiguration: ProjectManager.NewBuildConfiguration(),
-            openFileFolder: "",
-            showOpenFileFolder: true,
-            folderChar: "\\",
-            projectIsDownloading: false,
-            compilerNames: CompilerNames,
-            newProjectCompiler: 1,
-            newProjectRomVersion: "R36",
-            romVersionNames: RomVersionNames,
-            newProjectDeveloperName:""
-        }
+    public ProjectGetProp<T>(name: string): T | null {
+        if (this.data.settings == null || this.data.settings.detail == null) return null;
+        return ASMStorage.StoreGetProp<T>(this.data.settings.detail.name+"."+name);
     }
-    public static NewBuildConfiguration(): IBuildConfiguration {
-        return {
-            addonCommandLine: "",
-            compilerType: ProjectCompilerTypes.ACME,
-            compilerVariables: "",
-            computerType: ProjectComputerTypes.CommanderX16,
-            outputFolderName: "output",
-            programFileName: "",
-            romVersion: "R36"
-        };
+    public ProjectSetProp<T>(name: string, obj: T) {
+        if (this.data.settings == null || this.data.settings.detail == null) return;
+        ASMStorage.StoreSetProp<T>(this.data.settings.detail.name + "." + name,obj);
+    }
+
+
+    public static NewData(): IProjectManagerData {
+        return NewProjectManagerData();
     }
 
     public static ServiceName: ServiceName = { Name: "ProjectManager" };

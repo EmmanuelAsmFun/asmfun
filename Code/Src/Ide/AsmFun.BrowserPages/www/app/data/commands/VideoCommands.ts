@@ -31,3 +31,19 @@ export class VideoEnableAutoReloadCommand extends BaseCommand {
         this.nameSpace = "Video";
     }
 }
+export class VideoShowMemoryHexCommand extends BaseCommand {
+    public state: boolean | null;
+    public constructor(state: boolean | null) {
+        super();
+        this.state = state;
+        this.commandName = "ShowMemoryHex";
+        this.nameSpace = "Video";
+    }
+}
+export class VideoMemoryDumpCommand extends BaseCommand {
+    public constructor() {
+        super();
+        this.commandName = "MemoryDump";
+        this.nameSpace = "Video";
+    }
+}

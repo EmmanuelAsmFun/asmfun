@@ -152,8 +152,7 @@ namespace AsmFun.Startup
                     reloadPalette();
                 if (requireRedrawBg)
                     StepBGLayer(framebuffer);
-                if (requireDrawLayers)
-                    StepLayers();
+                StepLayers();
                 StepSprite();
             }
             CalculateFps();
@@ -383,9 +382,12 @@ namespace AsmFun.Startup
 
 
         #region Layers
-        private bool requireDrawLayers = false;
-        private IntPtr[] newLyerData;
-        VideoLayerData[] videoLayerDatas;
+        private bool requireDrawLayer0 = false;
+        private bool requireDrawLayer1 = false;
+        private IntPtr newLyerData0;
+        private IntPtr newLyerData1;
+        VideoLayerData videoLayerDatas0;
+        VideoLayerData videoLayerDatas1;
 
         private void InitLayers()
         {
@@ -397,17 +399,32 @@ namespace AsmFun.Startup
 
         public void RequestRedrawLayers(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)
         {
-            this.videoLayerDatas = videoLayerDatas;
-            newLyerData = layer_lineV;
-            requireDrawLayers = true;
+            this.videoLayerDatas0 = videoLayerDatas[0];
+            this.videoLayerDatas1 = videoLayerDatas[1];
+            newLyerData0 = layer_lineV[0];
+            newLyerData1 = layer_lineV[1];
+            requireDrawLayer0 = true;
+            requireDrawLayer1 = true;
+        }
+        public void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerDatas)
+        {
+            if (layerIndex == 0)
+                requireDrawLayer0 = true;
+            else
+                requireDrawLayer1 = true;
         }
         private void StepLayers()
         {
-            requireDrawLayers = false;
-            
-            var newData = newLyerData;
-            RenderLayer(newData[0], layerData0, layer0, videoLayerDatas[0]);
-            RenderLayer(newData[1], layerData0, layer1, videoLayerDatas[1]);
+            if (requireDrawLayer0)
+            {
+                RenderLayer(newLyerData0, layerData0, layer0, videoLayerDatas0);
+                requireDrawLayer0 = false;
+            }
+            if (requireDrawLayer1)
+            {
+                RenderLayer(newLyerData1, layerData0, layer1, videoLayerDatas1);
+                requireDrawLayer1 = false;
+            }
         }
         public void RenderLayer(IntPtr layerColIndexes, IntPtr layerData, IntPtr layerTexture, VideoLayerData videoLayerData)
         {
@@ -435,6 +452,8 @@ namespace AsmFun.Startup
             try{ Marshal.FreeHGlobal(layerData0); } catch (Exception) {  throw; }
             try{ Marshal.FreeHGlobal(layerData1); } catch (Exception) {  throw; }
         }
+
+       
         #endregion
 
     }

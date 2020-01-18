@@ -25,6 +25,7 @@ import { VideoLayerManager } from "./core/Video/VideoLayerManager.js";
 import { VideoPaletteManager } from "./core/Video/VideoPaletteManager.js";
 import { VideoSpriteManager } from "./core/Video/VideoSpriteManager.js";
 import { VideoComposerManager } from "./core/Video/VideoComposerManager.js";
+import { VideoRamManager } from "./core/Video/VideoRamManager.js";
 import { ServiceResolverFactory } from "./serviceLoc/ServiceManager.js";
 import { ServiceLifestyle } from "./serviceLoc/ServiceName.js";
 import { ProcessorManager } from "./core/ProcessorManager.js";
@@ -117,6 +118,7 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<VideoPaletteManager>(VideoPaletteManager.ServiceName, () => new VideoPaletteManager()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoSpriteManager>(VideoSpriteManager.ServiceName, () => new VideoSpriteManager()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoComposerManager>(VideoComposerManager.ServiceName, () => new VideoComposerManager()).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<VideoRamManager>(VideoRamManager.ServiceName, () => new VideoRamManager()).WithLifestyle(ServiceLifestyle.Singleton);
         // Interpreters
         this.container.AddWithConstructor<CommonInterpreter>(CommonInterpreter.ServiceName, () => new CommonInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Transient);
         this.container.AddWithConstructor<AcmeInterpreter>(AcmeInterpreter.ServiceName, () => new AcmeInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);

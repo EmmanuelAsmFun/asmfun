@@ -51,13 +51,13 @@ export class AsmTools {
     }
     public static numToHex5(val): string {
         var address = val.toString(16);
-        if (address.length < 4)
+        if (address.length < 5)
             address = "0" + address;
-        if (address.length < 4)
+        if (address.length < 5)
             address = "0" + address;
-        if (address.length < 4)
+        if (address.length < 5)
             address = "0" + address;
-        if (address.length < 4)
+        if (address.length < 5)
             address = "0" + address;
         return address.toUpperCase();;
     }
@@ -127,11 +127,39 @@ export class AsmTools {
             console.error('Failed to copy: ', err);
         }
     }
-    public static SaveDataToFile(content, fileName: string, contentType: string = "application/octet-stream") {
+   
+}
+
+export class ASMStorage {
+    public static StoreGetProp<T>(name: string): T | null {
+        var name = name.replace(/[^a-zA-Z ]/g, "");
+        var data = localStorage.getItem(name);
+        if (data == null) return null;
+        return JSON.parse(data);
+    }
+
+    public static StoreSetProp<T>(name: string, obj: T) {
+        var name = name.replace(/[^a-zA-Z ]/g, "");
+        var data = JSON.stringify(obj)
+        localStorage.setItem(name, data);
+    }
+
+    public static SaveDataToFile(content, fileName: string = "MemoryDump.bin", contentType: string = "application/octet-stream") {
         var a = document.createElement("a");
         var file = new Blob([content], { type: contentType });
         a.href = URL.createObjectURL(file);
         a.download = fileName;
         a.click();
+    }
+
+    public static GetNowForFile() {
+        var today = new Date();
+        var y = today.getFullYear().toString();
+        var m = (today.getMonth() + 1).toString();
+        var d = today.getDate().toString();
+        var h = today.getHours().toString();
+        var mi = today.getMinutes().toString();
+        var s = today.getSeconds().toString();
+        return y + m + d + "-" + h  + mi + s;
     }
 }

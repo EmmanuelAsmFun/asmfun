@@ -1506,6 +1506,9 @@ body {
 .videoManager .vAddress {
   color: #a9a98b;
 }
+.videoManager .vAddress a {
+  font-size: 10px;
+}
 .videoManager .rawBinaryData {
   margin-top: 8px;
   margin-bottom: 20px;
@@ -1631,6 +1634,9 @@ body {
   width: 100%;
   object-fit: contain;
 }
+.videoManager .layers .LayerTiles-cont {
+  margin-top: 5px;
+}
 .videoManager .Sprites {
   float: left;
   margin-right: 10px;
@@ -1648,9 +1654,15 @@ body {
   margin-right: 10px;
   font-size: 10px;
 }
-.videoManager .fullVideo {
+.videoManager .VideoViewer {
   float: left;
-  margin-right: 10px;
+  margin-right: 20px;
+  font-size: 10px;
+}
+.videoManager .VideoViewer .vAddress {
+  margin-bottom: 10px;
+}
+.videoManager .fullVideo {
   position: relative;
   width: 640px;
   height: 480px;
@@ -1667,6 +1679,9 @@ body {
 .videoManager .fullVideo .spriteHolder canvas {
   position: absolute;
   cursor: pointer;
+}
+.videoManager .RamViewer .addr {
+  color: #a9a98b;
 }
 .videoManager .documentation {
   clear: both;

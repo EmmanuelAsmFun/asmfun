@@ -4,6 +4,7 @@ import { IMemoryDump } from "../../data/ComputerData.js";
 import { AsmTools } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
 import { DebuggerService } from "../../services/DebuggerService.js";
+import { ProjectManager } from "../ProjectManager.js";
 
 // #region license
 // ASM Fun
@@ -12,7 +13,6 @@ import { DebuggerService } from "../../services/DebuggerService.js";
 // #endregion
 
 export class VideoSpriteManager {
-
     private numberOfHorizontalSprites = 16;
     private usedSprites = 0;
     private videoSettings?: IVideoSettings;
@@ -20,12 +20,15 @@ export class VideoSpriteManager {
     private debuggerService?: DebuggerService;
     private requestReloadMemory?: () => void;
     private htmlDragables: DragableSprite[] = new Array(512);
+    private projectManager?: ProjectManager;
 
-    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, requestReloadMemory: () => void) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, requestReloadMemory: () => void, projectManager: ProjectManager) {
         this.videoSettings = videoManagerData.settings;
         this.videoManagerData = videoManagerData;
         this.debuggerService = debuggerService;
         this.requestReloadMemory = requestReloadMemory;
+        this.projectManager = projectManager;
+       
     }
 
     public Reset() {
@@ -39,6 +42,7 @@ export class VideoSpriteManager {
         if (this.videoManagerData == null) return;
         var thiss = this;
         var spData = this.videoManagerData.spriteDatas;
+
         spData.startAddress = AsmTools.numToHex5(memDump.startAddress);
         spData.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
        

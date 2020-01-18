@@ -17,6 +17,7 @@ export interface IVideoManagerData {
     layers: IVideoLayerData[]
     spriteDatas: ISpritesData;
     composer: IVideoDisplayComposer;
+    ram: IRamManagerData;
 }
 
 export interface IVideoLayerData {
@@ -67,6 +68,53 @@ export interface IVideoLayerData {
     valueChanged: (v) => void;
     CopyToClipBoard: () => void;
     Modes: string[],
+    Show: boolean,
+    ShowPreview: boolean,
+    ShowFull: boolean,
+}
+export function NewVideoLayer(layerIndex:number): IVideoLayerData {
+    return {
+        BitmapMode: false,
+        BitsPerPixel: 0,
+        HorizontalScroll: 0,
+        IsEnabled: false,
+        LayerHeight: 0,
+        LayerWidth: 0,
+        LayerHeightMax: 0,
+        LayerIndex: layerIndex,
+        LayerWidthMax: 0,
+        MapBase: 0,
+        MapBaseHex: "",
+        MapHeight: 0,
+        MapHeightMax: 0,
+        MapWidth: 0,
+        MapWidthMax: 0,
+        max_eff_x: 0,
+        min_eff_x: 0,
+        Mode: 0,
+        ModeString: "",
+        PaletteOffset: 0,
+        TextMode: false,
+        TileBase: 0,
+        TileBaseHex: "",
+        TileHeight: 0,
+        TileHeightMax: 0,
+        TileMode: false,
+        TileSize: 0,
+        TileWidth: 0,
+        TileWidthMax: 0,
+        VerticalScroll: 0,
+        name: "",
+        startAddress: "",
+        endAddress: "",
+        RawDataString: "",
+        valueChanged: () => { },
+        CopyToClipBoard: () => { },
+        Modes: [],
+        Show: true,
+        ShowFull: true,
+        ShowPreview: true,
+    };
 }
 export enum LayerModes {
     Text_16_color_1 = 0 ,
@@ -217,6 +265,19 @@ export interface IVideoRenderLineContext {
     tile_bytes: Uint8Array;
     ram: Uint8Array;
 }
+export function NewContext(ram: Uint8Array, layer: IVideoLayerData, w: number): IVideoRenderLineContext {
+    return {
+        ram: ram,
+        layer: layer,
+        map_addr_begin: 0,
+        map_addr_end: 0,
+        size: 0,
+        tile_bytes: new Uint8Array(0),
+        width: w,
+        y: 0,
+        mapAddress: 0,
+    }
+};
 export interface IVideoMapTile {
     ForegroundColor: number;
     BackgroundColor: number;
@@ -225,3 +286,54 @@ export interface IVideoMapTile {
     PaletteOffset: number;
     TileIndex: number;
 }
+export function NewTile(): IVideoMapTile {
+    return {
+        BackgroundColor: 0,
+        ForegroundColor: 0,
+        HorizontalFlip: false,
+        VerticalFlip: false,
+        PaletteOffset: 0,
+        TileIndex: 0,
+    }
+}
+
+export interface IVideoLayerManagerData {
+    Layers: IVideoLayerStore[];
+}
+export interface IVideoLayerStore {
+    Show: boolean,
+    ShowFull: boolean,
+    ShowPreview: boolean,
+}
+export function NewVideoLayerManagerData(): IVideoLayerManagerData {
+    return {
+        Layers:[ {
+            Show: true,
+            ShowFull: true,
+            ShowPreview: true,
+        }, {
+                Show: true,
+                ShowFull: true,
+                ShowPreview: true,
+            }
+            ]
+    };
+}
+
+
+export interface IRamManagerData {
+    startAddress: string;
+    endAddress: string;
+    hexData: string;
+    showHex: boolean;
+}
+export function NewRamManagerData(): IRamManagerData{
+    return {
+        startAddress: "",
+        endAddress:"",
+        hexData: "",
+        showHex:false,
+    }
+}
+
+

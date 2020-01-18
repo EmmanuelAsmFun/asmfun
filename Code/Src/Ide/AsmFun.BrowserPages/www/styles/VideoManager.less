@@ -20,6 +20,10 @@
 
     .vAddress {
         color: #a9a98b;
+
+        a {
+            font-size: 10px;
+        }
     }
 
     .rawBinaryData {
@@ -89,8 +93,10 @@
         position: absolute;
         top: 10px;
         right: 100px;
-        font-size:10px;
+        font-size: 10px;
     }
+
+
 
     .palette {
         float: left;
@@ -162,6 +168,10 @@
             width: 100%;
             object-fit: contain;
         }
+
+        .LayerTiles-cont{
+            margin-top:5px;
+        }
     }
 
     .Sprites {
@@ -186,9 +196,17 @@
         font-size: 10px;
     }
 
-    .fullVideo {
+    .VideoViewer {
         float: left;
-        margin-right: 10px;
+        margin-right: 20px;
+        font-size: 10px;
+
+        .vAddress {
+            margin-bottom: 10px;
+        }
+    }
+
+    .fullVideo {
         position: relative;
         width: 640px;
         height: 480px;
@@ -206,6 +224,12 @@
                 position: absolute;
                 cursor: pointer;
             }
+        }
+    }
+
+    .RamViewer {
+        .addr {
+            color: #a9a98b;
         }
     }
 

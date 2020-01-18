@@ -152,6 +152,28 @@ export interface IProjectManagerData {
     compilerNames: { name: string, value: number, webAddress:string}[];
     romVersionNames: { name: string, value: string }[];
 }
+ export function NewProjectManagerData(): IProjectManagerData {
+    return {
+        isNewProject: false,
+        isVisible: false,
+        isVisiblePopup: false,
+        projectsFolder: "",
+        localProjects: [],
+        webProjects: [],
+        newProjectFileName: "",
+        newBuildConfiguration: NewBuildConfiguration(),
+        openFileFolder: "",
+        showOpenFileFolder: true,
+        folderChar: "\\",
+        projectIsDownloading: false,
+        compilerNames: CompilerNames,
+        newProjectCompiler: 1,
+        newProjectRomVersion: "R36",
+        romVersionNames: RomVersionNames,
+        newProjectDeveloperName: ""
+    }
+}
+
 export interface IBuildConfiguration {
     addonCommandLine: string;
     programFileName: string;
@@ -160,6 +182,17 @@ export interface IBuildConfiguration {
     computerType: ProjectComputerTypes;
     outputFolderName: string;
     romVersion: string;
+}
+export function NewBuildConfiguration(): IBuildConfiguration {
+    return {
+        addonCommandLine: "",
+        compilerType: ProjectCompilerTypes.ACME,
+        compilerVariables: "",
+        computerType: ProjectComputerTypes.CommanderX16,
+        outputFolderName: "output",
+        programFileName: "",
+        romVersion: "R36"
+    };
 }
 export enum InternetSourceType {
     Unknown = 0,

@@ -313,7 +313,9 @@ namespace AsmFun.CommanderX16.Video.Painter
                 // Apply Palette Offset
                 if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
                     colorIndex += (byte)(tile.PaletteOffset << 4);
-                Marshal.WriteByte(layerBuffer+ x + y * width, colorIndex);
+                var place = x + y * width;
+                if (place < 41861120)
+                    Marshal.WriteByte(layerBuffer+ place, colorIndex);
             }
             return layer;
         }

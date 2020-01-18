@@ -565,7 +565,7 @@ programItem.address  | toHex2
                 <div class="content">
                     <h2><span class="fa fa-image"></span> Video</h2>
                     <div class="top-btnbar">
-                       
+
                         <span v-if="!videoManager.isEnableAutoReload">
                             <a class="btn-reload" v-on:click="VideoReloadAll" title="Manual reload"><span class="fa fa-refresh"></span> Reload</a>
                             |
@@ -579,10 +579,24 @@ programItem.address  | toHex2
                         </span>
                     </div>
 
-                    <div class="fullVideo">
-                        <canvas class="Layer1CanvasFS" id="Layer2CanvasFS" width="640" height="480"></canvas>
-                        <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480"></canvas>
-                        <div class="spriteHolder" id="spriteHolder"></div>
+                    <div class="VideoViewer">
+                        <h3>Video Ram</h3>
+                        <div class="vAddress">
+                            0x{{videoManager.ram.startAddress}} - 0x{{videoManager.ram.endAddress}}
+                            &nbsp;
+                            <a v-on:click="VideoMemoryDump" title="Video Memory Dump"><span class="fa fa-save"></span> </a>
+                            &nbsp;
+                            <a v-show="!videoManager.ram.showHex"  v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory"><span class="fa fa-eye"></span> View Hex</a>
+                            <a v-show="videoManager.ram.showHex"  v-on:click="VideoShowMemoryHex(false)" title="Hide Hex Video Memory"><span class="fa fa-eye"></span> Hide Hex</a>
+                        </div> 
+                        <div class="RamViewer" v-if="videoManager.ram.showHex">
+                            <div v-html="videoManager.ram.hexData"></div>
+                        </div>
+                        <div class="fullVideo" v-show="!videoManager.ram.showHex" v-if="videoManager.layers.length > 1" v-bind:style="{ backgroundColor: videoManager.composer.BorderColorData.colorHex}">
+                            <canvas class="Layer1CanvasFS" id="Layer1CanvasFS" width="640" height="480" v-show="videoManager.layers[0].ShowFull" ></canvas>
+                            <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480" v-show="videoManager.layers[1].ShowFull" ></canvas>
+                            <div class="spriteHolder" id="spriteHolder"></div>
+                        </div>
                     </div>
 
                     <div class="Composer">
@@ -752,8 +766,19 @@ programItem.address  | toHex2
                                     </tr>
                                 </table>
                             </div>
-                            <div class="Canvas-cont">
-                                <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
+                            <div>
+
+                                <label>Show: <input type="checkbox" v-model="layerInfo.ShowFull" /></label>
+                                <label>Preview: <input type="checkbox" v-model="layerInfo.ShowPreview" /></label>
+
+                            </div>
+                            <div v-show="layerInfo.ShowPreview">
+                                <div class="Canvas-cont">
+                                    <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
+                                </div>
+                                <div class="LayerTiles-cont">
+                                    <canvas v-bind:id="layerInfo.name +'Tiles'" class="LayerTiles" width="208" height="200"></canvas>
+                                </div>
                             </div>
                         </div>
 
@@ -817,16 +842,7 @@ programItem.address  | toHex2
                         </div>
                     </div>
 
-
-
                     <div class="documentation">
-
-                        <h4>Dusan Strakl explains:</h4>
-                        <div style="float:left;margin-right:20px;"><img src="/images/avatar/Dusan-Strakl/Dusan-Strakl.gif" width="40" /></div>
-                        <a href="https://www.8bitcoding.com/p/tiles.html" target="_blank">Tiles Mode 0 and 1</a><br />
-                        <a href="https://www.8bitcoding.com/p/tile-modes-2-4let-us-continue-with.html" target="_blank">Tiles Mode 2 - 4 </a><br />
-                        <a href="https://www.8bitcoding.com/p/sprites-in-basic.html" target="_blank">Sprites</a><br />
-                        <br /><br />
                         <a href="https://docs.google.com/document/d/1pFlevjsf_PRcOb0QLJp9IGihgYsVtUIxEW5ZZqtu0z0" target="_blank">VERA Documentation (Unofficial)</a>
                     </div>
                 </div>
