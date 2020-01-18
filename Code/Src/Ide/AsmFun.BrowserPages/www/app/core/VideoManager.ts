@@ -6,7 +6,7 @@
 
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand } from "../data/commands/VideoCommands.js";
+import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand, VideoEnableKeyForwardingCommand } from "../data/commands/VideoCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ComputerService } from "../services/ComputerService.js";
 import { IVideoManagerData, NewRamManagerData } from "../data/VideoData.js";
@@ -18,6 +18,8 @@ import { VideoComposerManager } from "./Video/VideoComposerManager.js";
 import { DebuggerService } from "../services/DebuggerService.js";
 import { ProjectManager } from "./ProjectManager.js";
 import { VideoRamManager } from "./Video/VideoRamManager.js";
+import { KeyboardManager } from "./KeyboardManager.js";
+import { IKeyboardKey } from "../data/ComputerData.js";
 
 
 export class VideoManager {
@@ -33,12 +35,14 @@ export class VideoManager {
     public videoComposerManager: VideoComposerManager;
     public videoRamManager: VideoRamManager;
     private projectManager: ProjectManager;
+    private keyboardManager: KeyboardManager | null = null;
 
     constructor(mainData: IMainData) {
         var thiss = this;
         this.mainData = mainData;
         this.data = this.mainData.appData.videoManager;
         this.myAppData = mainData.appData;
+        
         this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService();
         this.videoLayerManager = mainData.container.Resolve<VideoLayerManager>(VideoLayerManager.ServiceName) ?? new VideoLayerManager();
         this.videoPaletteManager = mainData.container.Resolve<VideoPaletteManager>(VideoPaletteManager.ServiceName) ?? new VideoPaletteManager();
@@ -49,6 +53,7 @@ export class VideoManager {
         this.mainData.commandManager.Subscribe2(new VideoOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new VideoReloadAllCommand(), this, () => this.ReloadData());
         this.mainData.commandManager.Subscribe2(new VideoEnableAutoReloadCommand(null), this, (s) => this.SwapEnableAutoReload(s.state));
+        this.mainData.commandManager.Subscribe2(new VideoEnableKeyForwardingCommand(null), this, (s) => this.EnableKeyForwarding(s.state));
         var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
         this.videoLayerManager.Init(this.data, debugSvc,this.projectManager);
         this.videoRamManager.Init(mainData, this.data, debugSvc,this.projectManager);
@@ -109,6 +114,7 @@ export class VideoManager {
         thiss.Show();
         this.ReloadData();
         this.videoSpriteManager.Reset();
+        this.keyboardManager = this.mainData.container.Resolve<KeyboardManager>(KeyboardManager.ServiceName);
     }
     private Close() {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
@@ -124,7 +130,10 @@ export class VideoManager {
         if (this.videoLayerManager != null) this.videoLayerManager.StorePreviousLayerInfo();
         setTimeout(() => { thiss.data.isVisible = false; }, 200)
         this.data.isVisiblePopup = false;
+        this.EnableKeyForwarding(false);
     }
+
+    
 
     public SwapEnableAutoReload(state: boolean | null) {
         var newState = state != null ? state : !this.data.isEnableAutoReload;
@@ -138,11 +147,30 @@ export class VideoManager {
         this.data.isEnableAutoReload = newState;
     }
 
+    public EnableKeyForwarding(state: boolean | null) {
+        if (this.keyboardManager == null) return;
+        var newState = state != null ? state : !this.keyboardManager.isEnabled;
+        this.keyboardManager.isEnabled = newState;
+        this.data.isKeyboardForwarded = newState;
+    }
+
+    public KeyUp(keyy: IKeyboardKey): any {
+        if (!this.data.isKeyboardForwarded) return true;
+        //this.computerService.KeyUp(keyy, () => { });
+        return this.keyboardManager?.KeyUp(keyy);
+    }
+    public KeyDown(keyy: IKeyboardKey): any {
+        if (!this.data.isKeyboardForwarded) return true;
+        //this.computerService.KeyDown(keyy, () => { });
+        return this.keyboardManager?.KeyDown(keyy);
+    }
+
     public static NewData(): IVideoManagerData {
         return {
             isVisible: false,
             isVisiblePopup: false,
             isEnableAutoReload: false,
+            isKeyboardForwarded: false,
             intervalTime: 500,
             settings: {
                 Height: 480,

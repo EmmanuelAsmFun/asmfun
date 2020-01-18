@@ -11,6 +11,7 @@ export interface IVideoManagerData {
     isVisible: boolean;
     isVisiblePopup: boolean;
     isEnableAutoReload: boolean;
+    isKeyboardForwarded: boolean;
     intervalTime: number;
     settings: IVideoSettings;
     palette: IVideoPalette;

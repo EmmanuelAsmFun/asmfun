@@ -62,7 +62,7 @@ export class KeyboardManager {
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     private computerService: ComputerService;
-    public isVisible: boolean = false;
+    public isEnabled: boolean = false;
     private lastClipBoardText: string | null = null;
 
 
@@ -108,7 +108,7 @@ export class KeyboardManager {
 
 
     public KeyDown(keyy: IKeyboardKey) {
-        if (this.isRunningPasteMethod) return;
+        if (this.isRunningPasteMethod || !this.isEnabled) return;
         this.ctrlIsDown = keyy.ctrlKey;
         this.shiftIsDown = keyy.shiftKey;
         this.altGrIsDown = keyy.altKey;
@@ -117,7 +117,7 @@ export class KeyboardManager {
     }
 
     public KeyUp(keyy: IKeyboardKey) {
-        if (this.isRunningPasteMethod) return;
+        if (this.isRunningPasteMethod || !this.isEnabled) return;
         this.ctrlIsDown = keyy.ctrlKey;
         this.shiftIsDown = keyy.shiftKey;
         this.altGrIsDown = keyy.altKey;
@@ -126,7 +126,7 @@ export class KeyboardManager {
     }
 
     public PressText(data: string) {
-        if (data == null || data === "") return;
+    if (data == null || data === "" || !this.isEnabled) return;
         for (var i = 0; i < data.length; i++) {
             this.ExecuteMapping(data[i]);
         }
@@ -326,6 +326,7 @@ export class KeyboardManager {
     }
 
     private RunPasteMethod() {
+
         this.isRunningPasteMethod = true;
         //Task.Run(() => {
         //    Task.Delay(10).Wait();

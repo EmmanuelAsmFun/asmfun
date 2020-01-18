@@ -31,6 +31,15 @@ export class VideoEnableAutoReloadCommand extends BaseCommand {
         this.nameSpace = "Video";
     }
 }
+export class VideoEnableKeyForwardingCommand extends BaseCommand {
+    public state: boolean | null;
+    public constructor(state: boolean | null) {
+        super();
+        this.state = state;
+        this.commandName = "EnableKeyForwarding";
+        this.nameSpace = "Video";
+    }
+}
 export class VideoShowMemoryHexCommand extends BaseCommand {
     public state: boolean | null;
     public constructor(state: boolean | null) {

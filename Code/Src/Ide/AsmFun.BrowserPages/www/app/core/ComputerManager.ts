@@ -20,14 +20,13 @@ export class ComputerManager {
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     private data: IComputerData;
-    private keyboardManager: KeyboardManager | null = null;
+    
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.computer;
         this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService();
-        this.keyboardManager = this.mainData.container.Resolve<KeyboardManager>(KeyboardManager.ServiceName);
         this.mainData.commandManager.Subscribe2(new ComputerOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ComputerStartCommand(), this, x => this.StartComputer());
         this.mainData.commandManager.Subscribe2(new ComputerStopCommand(), this, x => this.StopComputer());
@@ -51,9 +50,7 @@ export class ComputerManager {
 
     private Open() {
         var thiss = this;
-        this.keyboardManager = this.mainData.container.Resolve<KeyboardManager>(KeyboardManager.ServiceName)
         thiss.data.isVisible = true;
-
     }
 
     private Close() {
@@ -105,14 +102,7 @@ export class ComputerManager {
     }
     
 
-    public KeyUp(keyy: IKeyboardKey): any {
-        //this.computerService.KeyUp(keyy, () => { });
-        return this.keyboardManager?.KeyUp(keyy);
-    }
-    public KeyDown(keyy: IKeyboardKey): any {
-        //this.computerService.KeyDown(keyy, () => { });
-        return this.keyboardManager?.KeyDown(keyy);
-    }
+
 
 
     public static NewData(): IComputerData {

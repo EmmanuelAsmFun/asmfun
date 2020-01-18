@@ -108,15 +108,9 @@
                 <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer"><span class="fa fa-refresh"></span></a>
                 <a href="javascript:" v-on:click="ComputerLoadProgram" title="Load Program in computer"><span class="fa fa-microchip"></span></a>
                 <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in computer"><span style="font-size:13px;vertical-align:text-top;">RUN</span></a>
-                <a href="javascript:" v-on:click="ComputerOpenDetail(null)" title="Forward keyboard"><span class="fa fa-keyboard-o"></span></a>
                 <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video and sprite"><span class="fa fa-image"></span></a>
             </div>
-            <div v-if="computer.isDetailVisible" class="computerDetail">
-                <h2>Your keyboard is forwarded to the Computer</h2>
-                <p>
-                    Experimental feature :-)
-                </p>
-            </div>
+           
         </div>
 
         <div class="files" v-if="scfiles">
@@ -586,8 +580,14 @@ programItem.address  | toHex2
                             &nbsp;
                             <a v-on:click="VideoMemoryDump" title="Video Memory Dump"><span class="fa fa-save"></span> </a>
                             &nbsp;
-                            <a v-show="!videoManager.ram.showHex"  v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory"><span class="fa fa-eye"></span> View Hex</a>
-                            <a v-show="videoManager.ram.showHex"  v-on:click="VideoShowMemoryHex(false)" title="Hide Hex Video Memory"><span class="fa fa-eye"></span> Hide Hex</a>
+                            <a v-show="!videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory"><span class="fa fa-eye"></span> </a>
+                            <a v-show="videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(false)" title="Hide Hex Video Memory"><span class="fa fa-eye"></span> Hide Hex</a>
+                            &nbsp;
+                            <a v-on:click="VideoEnableKeyForwarding(null)" title="Forward keyboard to emulator">
+                                <span class="fa fa-keyboard-o"></span>
+                                <span v-show="videoManager.isKeyboardForwarded">Your keyboard is forwarded to the Computer</span>
+                            </a>
+                           
                         </div> 
                         <div class="RamViewer" v-if="videoManager.ram.showHex">
                             <div v-html="videoManager.ram.hexData"></div>
@@ -777,7 +777,7 @@ programItem.address  | toHex2
                                     <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
                                 </div>
                                 
-                                <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode">
+                                <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode && layerInfo.IsEnabled">
                                     <div>Tile: {{layerInfo.selectedTileIndex}}</div>
                                     <canvas v-bind:id="layerInfo.name +'Tiles'" class="LayerTiles" width="208" height="160" @mousemove="layerInfo.SelectTileByImage(event)"></canvas>
                                 </div>

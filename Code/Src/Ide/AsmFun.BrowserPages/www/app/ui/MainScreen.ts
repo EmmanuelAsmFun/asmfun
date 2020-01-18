@@ -16,6 +16,7 @@ import { ASMFunPlayerManager } from "../Core/AsmFunPlayerManager.js";
 import { ComputerManager } from "../core/ComputerManager.js";
 import { ProjectManager } from "../core/ProjectManager.js";
 import { EditorManager } from "../core/EditorManager.js";
+import { VideoManager } from "../core/VideoManager.js";
 
 // Initialize base objects
 var reg = new ServiceRegisterer();
@@ -136,8 +137,8 @@ var scStartPosY = 0;
 
 document.onkeyup = function (e) {
     myMainData.ctrlKeyIsDown = e.ctrlKey;
-    if (myMainData.appData.computer.isDetailVisible) {
-        var svc = reg.myMainData.container.Resolve<ComputerManager>(ComputerManager.ServiceName);
+    if (myMainData.appData.videoManager.isVisible) {
+        var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
         if (svc == null) return;
         var keyy: IKeyboardKey = {
             key: e.key, which: e.which, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey
@@ -149,8 +150,8 @@ document.onkeydown = function (e) {
     // z = 90       e = 69      r = 82      t = 84      d = 68  b = 66
     // e.altKey e.ctrlKey
     // console.log(e.which);
-    if (myMainData.appData.computer.isDetailVisible) {
-        var svc = reg.myMainData.container.Resolve<ComputerManager>(ComputerManager.ServiceName);
+    if (myMainData.appData.videoManager.isVisible) {
+        var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
         if (svc == null) return;
         var keyy: IKeyboardKey = {
             key: e.key, which: e.which, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey
