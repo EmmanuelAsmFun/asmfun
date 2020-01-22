@@ -26,6 +26,10 @@ export class ProjectService extends ApiService {
         this.callApi("LoadByMainFilename?mainFileNameWithFolder=" + encodeURI(mainFileNameWithFolder), doneMethod, error);
     }
 
+    public LoadProgram(programFileName, doneMethod: (IProjectSettings) => void, error: (e) => void) {
+        this.callApi("LoadProgram?programFileName=" + encodeURI(programFileName), doneMethod, error);
+    }
+
     public GetSourceCode(doneMethod) {
         this.callApi("GetSourceCode", doneMethod);
     }

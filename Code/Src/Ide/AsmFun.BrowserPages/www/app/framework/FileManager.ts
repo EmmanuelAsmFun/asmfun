@@ -75,6 +75,7 @@ export class FileManager implements IFileManager {
             f.folders = [{ isParentFolder: true, files: [], folders: [], folder: "..", name: ".." }, ...f.folders];
             if (f.files != null) {
                 var filterOnAsm = this.filter == "*.asm|*.a|AsmFunSettings.json";
+                var filterOnPrg = this.filter == "*.prg";
                 for (var i = 0; i < f.files.length; i++) {
                     var file = f.files[i];
                     if (file.fileSize != null)
@@ -86,7 +87,10 @@ export class FileManager implements IFileManager {
                         else
                             file.notSelectable = true;
                     }
-
+                    if (filterOnPrg) {
+                        if (file.extension.toLowerCase() !== ".prg") 
+                            file.notSelectable = true;
+                    }
                 }
             }
             this.data.currentFolder = f;

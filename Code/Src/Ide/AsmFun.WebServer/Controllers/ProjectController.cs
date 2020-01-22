@@ -88,6 +88,12 @@ namespace AsmFun.WebServer.Controllers
         {
             var projectSettings = projectManager.LoadByMainFilename(mainFileNameWithFolder);
             return projectSettings;
+        } 
+        [HttpGet]
+        public ProjectSettings LoadProgram(string programFileName)
+        {
+            var projectSettings = projectManager.LoadProgram(programFileName);
+            return projectSettings;
         }
        
         [HttpGet]

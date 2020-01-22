@@ -138,14 +138,21 @@ namespace AsmFun.Ide.Core.Managers
                 changed = true;
             }
             if (changed)
-                userSettingsDA.Save(userSettings);
+                if (!settings.IsProgramOnly)
+                {
+                    userSettingsDA.Save(userSettings);
+                }
         }
 
         public void SaveProjectSettings(ProjectSettings projectSettings)
         {
             // parse the data, not override
             currentSettings = projectSettings;
-            projectSettingsDA.Save(currentSettings);
+            // If it's a program only, we don't want to save.
+            if (!projectSettings.IsProgramOnly)
+                projectSettingsDA.Save(currentSettings);
+            else
+                projectSettingsDA.UpdateWithoutSave(currentSettings);
             UpdateChangedUserSettings(projectSettings);
         }
 
@@ -187,6 +194,13 @@ namespace AsmFun.Ide.Core.Managers
             if (index < 0) return;
             currentSettings.SelectedConfiguration = index;
             currentBuildConfiguration = currentSettings.Configurations[currentSettings.SelectedConfiguration];
+        }
+
+        public ProjectSettings LoadProgram(string programFileName)
+        {
+            var settings = projectSettingsDA.CreateNewForProgram(programFileName);
+            SelectProject(settings);
+            return settings;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace AsmFun.Ide.Core.Managers
 
         public CompilaterResult Compile()
         {
+            if (projectManager.GetCurrentProjectSettings().IsProgramOnly) return new CompilaterResult { };
             var buildConfiguration = projectManager.GetBuildConfiguration();
             return GetCompiler(buildConfiguration).Compile(buildConfiguration);
         }

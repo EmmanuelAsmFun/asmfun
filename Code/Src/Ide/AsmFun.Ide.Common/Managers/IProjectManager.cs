@@ -25,5 +25,6 @@ namespace AsmFun.Ide
         BuildConfiguration GetBuildConfiguration(ProjectSettings projectSettings = null);
         List<ProjectDetail> GetWebProjects();
         void SelectBuildConfigurationByIndex(int index);
+        ProjectSettings LoadProgram(string programFileName);
     }
 }

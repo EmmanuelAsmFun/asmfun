@@ -10,7 +10,7 @@ import { AsmTools } from "../Tools.js"
 import { ProcessorManager } from "../core/ProcessorManager.js"
 import { IMainData } from "../data/MainData.js";
 import { IEditorFile, IEditorLine, IEditorLabel } from "../data/EditorData.js";
-import { ProjectSaveCommand, ProjectSaveFolderCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand } from "../data/commands/ProjectsCommands.js";
+import { ProjectSaveCommand, ProjectSaveFolderCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand } from "../data/commands/ProjectsCommands.js";
 import { IBaseCommand } from "../data/commands/CommandsCommon.js";
 import { IProjectDetail } from "../data/ProjectData.js";
 import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
@@ -157,6 +157,7 @@ export class MainScreenMethods {
     public ProjectOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ProjectOpenManagerCommand(state)); }
     public ProjectSaveFolder() { MainScreenMethods.ExecuteCommand(new ProjectSaveFolderCommand()); }
     public ProjectCreateNew() { MainScreenMethods.ExecuteCommand(new ProjectCreateNewCommand()); }
+    public ProjectRequestLoadProgram() { MainScreenMethods.ExecuteCommand(new ProjectRequestLoadProgramCommand()); }
     public ProjectRequestCreateNew() { MainScreenMethods.ExecuteCommand(new ProjectRequestCreateNewCommand()); }
     public ProjectLoadWeb(detail: IProjectDetail | null) { MainScreenMethods.ExecuteCommand(new ProjectLoadWebCommand(detail)); }
     public ProjectLoadLocal(detail: IProjectDetail | null) { MainScreenMethods.ExecuteCommand(new ProjectLoadLocalCommand(detail)); }

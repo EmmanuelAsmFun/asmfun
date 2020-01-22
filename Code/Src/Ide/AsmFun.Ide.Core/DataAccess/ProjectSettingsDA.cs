@@ -143,6 +143,10 @@ namespace AsmFun.Core.DataAccess
             // We need to replace the existing settings
             container.Update(settings);
         }
+        public void UpdateWithoutSave(ProjectSettings currentSettings)
+        {
+           container.Update(currentSettings);
+        }
 
 
         public ProjectSettings CreateNewByFilename(string projectFolderFileName,string projectFolder)
@@ -206,6 +210,7 @@ namespace AsmFun.Core.DataAccess
             return settings;
         }
 
+
         public BuildConfiguration CreateDefaultConfiguration()
         {
             return new BuildConfiguration
@@ -232,6 +237,36 @@ namespace AsmFun.Core.DataAccess
         {
             StorageFileName = FileHelper.FixFolderForOS(Path.Combine(StorageFolder, FILENAME));
         }
-        
+
+        public ProjectSettings CreateNewForProgram(string programFileName)
+        {
+            projectCompleteFolder = Directory.GetParent(programFileName).FullName;
+            var fileName = Path.GetFileName(programFileName);
+            var settings = new ProjectSettings
+            {
+                Folder = projectCompleteFolder,
+                IsProgramOnly = true,
+                StartupFile = null,
+                SourceCodeFolder = fileName,
+                ReportFileName = "report.rep",
+                LabelsFileName = "labels.sym",
+                Configurations = new List<BuildConfiguration> { CreateDefaultConfiguration() },
+                Detail = new ProjectDetail
+                {
+                    Id = Guid.NewGuid(),
+                    Description = "",
+                    Name = fileName,
+                    ImageUrl = "",
+                    InternetSource = "",
+                    InternetSourceType = InternetSourceType.Unknown,
+                    FullFolderName = projectCompleteFolder
+                },
+                SelectedConfiguration = 0
+            };
+            settings.Configurations[0].ProgramFileName = programFileName;
+            return settings;
+        }
+
+     
     }
 }

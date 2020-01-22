@@ -73,6 +73,14 @@ export class ProjectCreateNewCommand extends BaseCommand{
         this.nameSpace = "Project";
     }
 }
+export class ProjectRequestLoadProgramCommand extends BaseCommand{
+
+    public constructor() {
+        super();
+        this.commandName = "RequestLoadProgram";
+        this.nameSpace = "Project";
+    }
+}
 export class ProjectSaveFolderCommand extends BaseCommand{
 
     public constructor() {

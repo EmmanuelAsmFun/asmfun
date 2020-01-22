@@ -9,12 +9,13 @@ import { IMainData } from "../data/MainData.js";
 import { IProjectManagerData, ProjectCompilerTypes, ProjectComputerTypes, IUserSettings, InternetSourceType, IProjectDetail, IProjectSettings, IBuildConfiguration, CompilerNames, RomVersionNames, NewProjectManagerData, NewBuildConfiguration } from "../data/ProjectData.js";
 import { ProjectService } from "../services/projectService.js";
 import { NotifyIcon, ConfirmIcon } from "../common/Enums.js";
-import { ProjectLoadCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectSaveFolderCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand } from "../data/commands/ProjectsCommands.js";
+import { ProjectLoadCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectSaveFolderCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand } from "../data/commands/ProjectsCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { ASMStorage } from "../Tools.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { IFileDialogData } from "../data/FileManagerData.js";
+import { ComputerStartCommand, ComputerLoadProgramCommand } from "../data/commands/ComputerCommands.js";
 
 
 export class ProjectManager  {
@@ -39,6 +40,7 @@ export class ProjectManager  {
         this.mainData.commandManager.Subscribe2(new ProjectLoadWebCommand(), this, x => this.LoadWebExisting(x.detail));
         this.mainData.commandManager.Subscribe2(new ProjectLoadLocalCommand(), this, x => this.LoadLocalExisting(x.detail));
         this.mainData.commandManager.Subscribe2(new ProjectOpenProjectWebsiteCommand(), this, x => this.ProjectOpenProjectWebsite(x.detail));
+        this.mainData.commandManager.Subscribe2(new ProjectRequestLoadProgramCommand(), this, x => this.RequestLoadProgram());
     }
 
     public LoadOne() {
@@ -121,6 +123,8 @@ export class ProjectManager  {
         open(detail.projectUrl, "_blank");
     }
 
+    
+
     public LoadLocalExisting(detail?: IProjectDetail | null) {
         var thiss = this;
         if (this.data.projectIsDownloading) return;
@@ -165,6 +169,33 @@ export class ProjectManager  {
             thiss.Load();
             thiss.data.projectIsDownloading = false;
         }, e => { thiss.data.projectIsDownloading = false; });
+    }
+
+    public RequestLoadProgram() {
+        var thiss = this;
+        if (this.data.projectIsDownloading) return;
+        var fileDialogSettings: IFileDialogData = {
+            filter: "*.prg",
+            initialFolder: null,
+            onSelected: () => { },
+            selectAFile: true,
+            title: "Select a PRG file",
+            subTitle: "*.prg",
+        };
+        fileDialogSettings.onSelected = file => {
+            if (file != null && file.length > 1) {
+                this.data.projectIsDownloading = true;
+                this.service.LoadProgram(file, () => {
+                    thiss.Load();
+                    thiss.data.projectIsDownloading = false;
+                    thiss.mainData.commandManager.InvokeCommand(new ComputerStartCommand());
+                    setTimeout(() => {
+                        thiss.mainData.commandManager.InvokeCommand(new ComputerLoadProgramCommand());
+                    }, 3000);
+                }, e => { thiss.data.projectIsDownloading = false; });
+            }
+        };
+        this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
     }
 
     public LoadWebExisting(detail: IProjectDetail | null) {

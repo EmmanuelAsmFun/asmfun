@@ -66,6 +66,7 @@ namespace AsmFun.Ide.Core.Managers
 
         public void Save(SourceCodeBundle bundle)
         {
+            if (projectManager.GetCurrentProjectSettings().IsProgramOnly) return;
             compilerManager.GetSourceCodeDA().Save(bundle);
         }
     }

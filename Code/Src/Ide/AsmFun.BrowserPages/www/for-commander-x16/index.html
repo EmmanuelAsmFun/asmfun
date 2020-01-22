@@ -974,14 +974,18 @@ programItem.address  | toHex2
                             <br />
                             <div>
                                 <div class="form-item">
-                                    <div class="form-lbl">Load Local Project:</div>
-                                    <span v-if="projectManager.showOpenFileFolder">
-                                        <input type="text" v-model="projectManager.openFileFolder" style="width:400px" title="Set full folder with filename"
-                                                placeholder="/home/myproject/myproject.asm" />
-                                    </span>
-                                    <button v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load</button>
+                                    <div class="form-lbl">Load Project: </div>
+                                    <button style="width:150px;" v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load project</button> 
+                                    <small>(.asm | .a)</small>
+                                </div> 
+                                <br />
+                                <div class="form-item">
+                                    <div class="form-lbl">Load Program: </div>
+                                    <button style="width:150px;" v-on:click="ProjectRequestLoadProgram()"><span class="fa fa-folder-open"></span> Load program</button>
+                                    <small> (.prg)</small>
                                 </div>
                             </div>
+                            <br />
                             <br />
                             <h2>New Project</h2>
                             <div>

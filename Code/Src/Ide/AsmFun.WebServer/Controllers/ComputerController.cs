@@ -55,7 +55,12 @@ namespace AsmFun.WebServer.Controllers
             var buildConfiguration = projectManager.GetBuildConfiguration();
             var programFileName = Path.GetFileNameWithoutExtension(buildConfiguration.ProgramFileName.Trim(Path.DirectorySeparatorChar));
             var settings = projectManager.GetCurrentProjectSettings();
-            programFileName = Path.Combine(settings.Folder, buildConfiguration.OutputFolderName, programFileName + ".prg");
+            if (settings.IsProgramOnly)
+            {
+                programFileName = buildConfiguration.ProgramFileName;
+            }
+            else
+                programFileName = Path.Combine(settings.Folder, buildConfiguration.OutputFolderName, programFileName + ".prg");
             computerManager.LoadProgramInPc(programFileName);
             return new { ok = true};
         }

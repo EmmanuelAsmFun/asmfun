@@ -39,6 +39,10 @@ namespace AsmFun.Ide.Common.Data
         public string ReportFileName { get; set; }
         public string LabelsFileName { get; set; }
         public string StartupFile { get; set; }
+        /// <summary>
+        /// Its a program only without source code
+        /// </summary>
+        public bool IsProgramOnly { get; set; }
 
         public ProjectSettings()
         {

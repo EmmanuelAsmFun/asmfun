@@ -18,8 +18,10 @@ namespace AsmFun.Ide.Common.DataAccess
         ProjectSettings LoadByMainFilename(string projectMainFileNameAndFolder);
         ProjectSettings LoadByFolder(string projectFolder);
         ProjectSettings CreateNewByFilename(string projectFolderFileName, string projectFolder);
+        ProjectSettings CreateNewForProgram(string programFileName);
         void Save(ProjectSettings settings);
         BuildConfiguration CreateDefaultConfiguration();
         ProjectSettings LoadBySettings(string settingsFileName);
+        void UpdateWithoutSave(ProjectSettings currentSettings);
     }
 }

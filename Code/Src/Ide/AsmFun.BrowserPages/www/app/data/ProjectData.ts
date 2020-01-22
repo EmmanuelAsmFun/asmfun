@@ -123,6 +123,7 @@ export interface ISettings {
 }
 
 export interface IProjectSettings {
+    isProgramOnly: boolean;
     folder: string;
     sourceCodeFolder: string;
     configurations: IBuildConfiguration[];

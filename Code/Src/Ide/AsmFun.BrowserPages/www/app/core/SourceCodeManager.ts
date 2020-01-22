@@ -103,8 +103,27 @@ export class SourceCodeManager {
     private LoadProject(doneMethod: () => void) {
         this.projectService.GetProjectSettings(s => {
             this.lastProjectSettings = s;
+            if (s.isProgramOnly) {
+                this.RemoveAllSourceCode();
+                if (doneMethod)
+                    doneMethod();
+                return;
+            }
             this.LoadSourceCode(doneMethod);
         }, e => { });
+    }
+    private RemoveAllSourceCode() {
+        this.mainData.sourceCode = CreateNewBundle({
+            name: "prg",
+            sourceFileName: "prg",
+            files: [],
+            labels: [],
+        });
+        this.mainData.appData.labelsWithoutZones = [];
+        this.mainData.appData.scfiles = [];
+        this.mainData.appData.selectedFile = undefined;
+        this.mainData.appData.currentOpcode = null;
+        this.mainData.appData.breakPoints = [];
     }
 
     private LoadSourceCode(doneMethod: () => void) {
