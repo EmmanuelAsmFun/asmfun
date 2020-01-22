@@ -16,6 +16,7 @@ import { ASMStorage } from "../Tools.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { IFileDialogData } from "../data/FileManagerData.js";
 import { ComputerStartCommand, ComputerLoadProgramCommand } from "../data/commands/ComputerCommands.js";
+import { EditorManager } from "./EditorManager.js";
 
 
 export class ProjectManager  {
@@ -128,91 +129,115 @@ export class ProjectManager  {
     public LoadLocalExisting(detail?: IProjectDetail | null) {
         var thiss = this;
         if (this.data.projectIsDownloading) return;
-        if (detail == null) {
-            var fileDialogSettings: IFileDialogData = {
-                filter: "*.asm|*.a|AsmFunSettings.json",
-                initialFolder : null,
-                onSelected : () => { },
-                selectAFile : true,
-                title : "Select the start ASM file",
-                subTitle: "*.asm | *.a | AsmFunSettings.json",
-            };
-            fileDialogSettings.onSelected = file => {
-                if (file != null && file.length > 1) {
-                    this.data.projectIsDownloading = true;
-                    this.service.LoadByMainFilename(file, () => {
-                        thiss.Load();
-                        thiss.data.projectIsDownloading = false;
-                    }, e => { thiss.data.projectIsDownloading = false; });
-                }
-            };
-             //if (!this.data.showOpenFileFolder) {
+        this.CheckRequireSave(() => {
+            if (detail == null) {
+                var fileDialogSettings: IFileDialogData = {
+                    filter: "*.asm|*.a|AsmFunSettings.json",
+                    initialFolder: null,
+                    onSelected: () => { },
+                    selectAFile: true,
+                    title: "Select the start ASM file",
+                    subTitle: "*.asm | *.a | AsmFunSettings.json",
+                };
+                fileDialogSettings.onSelected = file => {
+                    if (file != null && file.length > 1) {
+                        this.data.projectIsDownloading = true;
+                        this.service.LoadByMainFilename(file, () => {
+                            thiss.Load();
+                            thiss.data.projectIsDownloading = false;
+                        }, e => { thiss.data.projectIsDownloading = false; });
+                    }
+                };
+                //if (!this.data.showOpenFileFolder) {
                 //this.data.projectIsDownloading = true;
                 //this.service.LoadByFileSelectorPopup(() => {
                 //    thiss.Load();
                 //    thiss.data.projectIsDownloading = false;
                 //}, e => { thiss.data.projectIsDownloading = false; });
                 //return;
-            //}
-            //if (this.data.openFileFolder != null && this.data.openFileFolder.length > 1) {
-            //    this.data.projectIsDownloading = true;
-            //    this.service.LoadByMainFilename(this.data.openFileFolder, () => {
-            //        thiss.Load();
-            //        thiss.data.projectIsDownloading = false;
-            //    }, e => { thiss.data.projectIsDownloading = false; });
-            //}
-            this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
-            return;
+                //}
+                //if (this.data.openFileFolder != null && this.data.openFileFolder.length > 1) {
+                //    this.data.projectIsDownloading = true;
+                //    this.service.LoadByMainFilename(this.data.openFileFolder, () => {
+                //        thiss.Load();
+                //        thiss.data.projectIsDownloading = false;
+                //    }, e => { thiss.data.projectIsDownloading = false; });
+                //}
+                this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
+                return;
+           
         }
         this.data.projectIsDownloading = true;
         this.service.LoadLocalExisting(detail, () => {
             thiss.Load();
             thiss.data.projectIsDownloading = false;
         }, e => { thiss.data.projectIsDownloading = false; });
+        });
     }
 
     public RequestLoadProgram() {
         var thiss = this;
         if (this.data.projectIsDownloading) return;
-        var fileDialogSettings: IFileDialogData = {
-            filter: "*.prg",
-            initialFolder: null,
-            onSelected: () => { },
-            selectAFile: true,
-            title: "Select a PRG file",
-            subTitle: "*.prg",
-        };
-        fileDialogSettings.onSelected = file => {
-            if (file != null && file.length > 1) {
-                this.data.projectIsDownloading = true;
-                this.service.LoadProgram(file, () => {
-                    thiss.Load();
-                    thiss.data.projectIsDownloading = false;
-                    thiss.mainData.commandManager.InvokeCommand(new ComputerStartCommand());
-                    setTimeout(() => {
-                        thiss.mainData.commandManager.InvokeCommand(new ComputerLoadProgramCommand());
-                    }, 3000);
-                }, e => { thiss.data.projectIsDownloading = false; });
+        this.CheckRequireSave(() => {
+            var fileDialogSettings: IFileDialogData = {
+                filter: "*.prg",
+                initialFolder: null,
+                onSelected: () => { },
+                selectAFile: true,
+                title: "Select a PRG file",
+                subTitle: "*.prg",
+            };
+            fileDialogSettings.onSelected = file => {
+                if (file != null && file.length > 1) {
+                    this.data.projectIsDownloading = true;
+                    this.service.LoadProgram(file, () => {
+                        thiss.Load();
+                        thiss.data.projectIsDownloading = false;
+                        thiss.mainData.commandManager.InvokeCommand(new ComputerStartCommand());
+                        setTimeout(() => {
+                            thiss.mainData.commandManager.InvokeCommand(new ComputerLoadProgramCommand());
+                        }, 3000);
+                    }, e => { thiss.data.projectIsDownloading = false; });
+                }
+            };
+            this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
+        });
+    }
+
+    private CheckRequireSave(checkdone: () => void) {
+        var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
+        if (svc == null || !svc.requireSave) {
+            checkdone();
+            return;
+        }
+        this.mainData.appData.alertMessages.Confirm("Are you sure?", "There are unsaved changes. Are you sure you want to continue without save?", ConfirmIcon.Exclamation,
+            ok => {
+                if (ok) {
+                    checkdone();
+                    return;
+                }
+                return;
             }
-        };
-        this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
+        )
     }
 
     public LoadWebExisting(detail: IProjectDetail | null) {
         if (this.data.projectIsDownloading) return;
-        var thiss = this;
-        if (detail == null) return;
-        this.mainData.appData.alertMessages.Confirm("Download " + detail.developerName + "'s " + detail.name,
-            "Are you sure you want to download this external project from <a href=\"" + detail.internetSource + "\">"
-            + detail.internetSource + "</a>", ConfirmIcon.Question, (r) => {
-                if (r) {
-                    thiss.data.projectIsDownloading = true;
-                    thiss.service.LoadWebExisting(detail, () => {
-                        thiss.Load();
-                        thiss.data.projectIsDownloading = false;
-                    }, e => { thiss.data.projectIsDownloading = false; });
-                }
-            },"Yes","No");
+        this.CheckRequireSave(() => {
+            var thiss = this;
+            if (detail == null) return;
+            this.mainData.appData.alertMessages.Confirm("Download " + detail.developerName + "'s " + detail.name,
+                "Are you sure you want to download this external project from <a href=\"" + detail.internetSource + "\">"
+                + detail.internetSource + "</a>", ConfirmIcon.Question, (r) => {
+                    if (r) {
+                        thiss.data.projectIsDownloading = true;
+                        thiss.service.LoadWebExisting(detail, () => {
+                            thiss.Load();
+                            thiss.data.projectIsDownloading = false;
+                        }, e => { thiss.data.projectIsDownloading = false; });
+                    }
+                }, "Yes", "No");
+        });
     }
 
     private Load() {
