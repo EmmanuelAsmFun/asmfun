@@ -26,6 +26,7 @@ namespace AsmFun.WebServer.Startup
             services.AddSingleton(container.Resolve<IComputerManager>());
             services.AddSingleton(container.Resolve<IUserSettingsDA>());
             services.AddSingleton(container.Resolve<ICompilerManager>());
+            services.AddSingleton(container.Resolve<IFileManager>());
         }
     }
 }

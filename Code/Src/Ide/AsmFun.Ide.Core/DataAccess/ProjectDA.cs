@@ -262,6 +262,11 @@ namespace AsmFun.Core.DataAccess
             return settings;
         }
 
+        public ProjectSettings LoadBySettings(string settingsFileName)
+        {
+            var settings = projectSettingsDA.LoadBySettings(settingsFileName);
+            return settings;
+        }
         public ProjectSettings LoadLocalExisting(string projectFolder)
         {
             return projectSettingsDA.LoadByFolder(projectFolder);

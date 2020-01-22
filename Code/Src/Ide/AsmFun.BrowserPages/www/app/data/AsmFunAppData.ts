@@ -17,6 +17,7 @@ import { IComputerData } from './ComputerData.js'
 import { ISpritesData } from './SpritesData.js'
 import { ICompilationData } from './CompilationDatas.js'
 import { IVideoManagerData } from './VideoData.js'
+import { IFileManagerData } from './FileManagerData.js'
 
 
 export interface IAsmFunAppData {
@@ -46,6 +47,7 @@ export interface IAsmFunAppData {
     ide: IAsmFunIdeData;
     spritesManager: ISpritesData;
     compilation: ICompilationData;
+    fileManager: IFileManagerData;
 }
 
 export interface IAsmFunIdeData {

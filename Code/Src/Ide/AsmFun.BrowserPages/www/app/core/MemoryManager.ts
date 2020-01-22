@@ -29,14 +29,15 @@ export class MemoryManager {
     private addressStart: number = 0;
     private addressStartEdit: number = 0;
     public currentPage: number = 2048 / (this.pageSize / 2); // = 0x0800 = is start address program
-    public totalPages: number = 16 * 16 -2;
+    public totalPages: number = 16 * 16 -2 +500;
     private previousHiliteLabel?:IMemoryBlockItem = undefined;
     private previousCodeGroup?: IMemoryBlockItem[] = undefined;
-    private memoryAddressNamesA: number[] = [0x0000, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x9F00, 0x9F20, 0x9F40, 0x9F60, 0x9F70, 0x9F80, 0x9FA0]
-    private memoryAddressNamesB: number[] = [0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x9EFF, 0x9F1F, 0x9F3F, 0x9F5F, 0x9F6F, 0x9F7F, 0x9F9F, 0x9FFF]
+    private memoryAddressNamesA: number[] = [0x0000, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x9F00, 0x9F20, 0x9F40, 0x9F60, 0x9F70, 0x9F80, 0x9FA0, 0xA000, 0xC000]
+    private memoryAddressNamesB: number[] = [0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x9EFF, 0x9F1F, 0x9F3F, 0x9F5F, 0x9F6F, 0x9F7F, 0x9F9F, 0x9FFF, 0xBFFF, 0xFFFF]
     private memoryAddressNames: string[] = ["User zero page", "KERNAL and BASIC zero page variables", "CPU stack", "KERNAL and BASIC variables, vectors",
         "Available for code programs or storage", "BASIC program/variables available to the user",
-        "Reserved for audio controller", "VERA video controller", "Reserved", "VIA I/O controller #1", "VIA I/O controller #2", "Real time clock","Future Expansion"
+        "Reserved for audio controller", "VERA video controller", "Reserved", "VIA I/O controller #1", "VIA I/O controller #2", "Real time clock", "Future Expansion",
+        "RAM Banks", "ROM Banks"
 
     ]
 

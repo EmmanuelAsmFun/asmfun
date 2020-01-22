@@ -1,0 +1,118 @@
+﻿.fileManager-o {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    z-index:290;
+    background: rgba(0,0,0,0.8);
+}
+.fileManager {
+    position: fixed;
+    top: 80px;
+    left: 180px;
+    min-width: 450px;
+    z-index: 300;
+    background: black;
+    border: 1px solid #bebe95;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,1);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,1);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,1);
+    font-size: 11px;
+
+    .f-top {
+        padding: 10px;
+    }
+
+    input[type=text] {
+        border: none;
+        border-bottom: 1px solid #888888;
+        background-color: transparent;
+        color: #999999;
+        margin-top: 5px;
+        text-align: right;
+        width: 100%;
+        overflow-x: hidden;
+        direction: ltr;
+        font-size: 10px;
+    }
+
+    input[type=text]:not(:focus) {
+        direction: rtl;
+        text-align: left;
+        unicode-bidi: plaintext;
+        text-overflow: ellipsis;
+    }
+
+    a {
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    tr, td {
+        font-size: 11px;
+    }
+
+    .notSelectable {
+        opacity: 0.5;
+    }
+
+
+
+    h2 {
+        font-weight: 100;
+        font-size: 22px;
+        margin-right: 60px;
+        margin-bottom: 5px;
+    }
+
+    .f-subTitle {
+        font-size: 11px;
+        margin-bottom: 10px;
+    }
+
+    .fullFolder {
+        margin-bottom: 10px;
+    }
+
+    .fileList {
+        height: 300px;
+        padding: 0 10px 0 10px;
+        overflow-y: scroll;
+        border-top: 1px solid #52523f;
+    }
+
+    tr:hover .fileItem.notSelectable {
+        background: transparent;
+    }
+
+    tr:hover .fileItem, tr:hover .folderItem {
+        background: #272722;
+    }
+
+    td {
+        padding-right: 10px;
+    }
+
+    .fileItem, .folderItem {
+        min-width: 200px;
+        display: inline-block;
+    }
+
+
+    .nav-btns {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+        font-size: 18px;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        cursor: pointer;
+        font-size: 22px;
+        z-index: 10;
+    }
+}

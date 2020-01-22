@@ -41,6 +41,7 @@ namespace AsmFun.Ide.Startup
             container.Add<ILifeMemoryAccess, LifeMemoryAccess>().WithLifestyle(EmServiceLifestyle.Singleton);
             container.Add<IDisassembler, Disassembler>().WithLifestyle(EmServiceLifestyle.Singleton);
             container.Add<ICompilerManager, CompilerManager>().WithLifestyle(EmServiceLifestyle.Singleton);
+            container.Add<IFileManager, FileManager>().WithLifestyle(EmServiceLifestyle.Singleton);
             // Transient
             // ACME
             container.Add<IACMECompiler, ACMECompiler>().WithLifestyle(EmServiceLifestyle.Transient);

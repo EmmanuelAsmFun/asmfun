@@ -75,6 +75,9 @@ namespace AsmFun.Ide.Core.Managers
         {
             if (string.IsNullOrWhiteSpace(mainFileNameWithFolder)) return null;
             mainFileNameWithFolder = mainFileNameWithFolder.Trim();
+            var fileNameOnly = System.IO.Path.GetFileName(mainFileNameWithFolder);
+            if (fileNameOnly == "AsmFunSettings.json")
+                return LoadBySettings(mainFileNameWithFolder);
             var projectSettings = projectSettingsDA.LoadByMainFilename(mainFileNameWithFolder);
             SelectProject(projectSettings);
             return projectSettings;
@@ -85,6 +88,12 @@ namespace AsmFun.Ide.Core.Managers
             return SelectProject(settings);
         }
 
+        public ProjectSettings LoadBySettings(string settingsFileName)
+        {
+            var projectSettings = projectDA.LoadBySettings(settingsFileName);
+            SelectProject(projectSettings);
+            return projectSettings;
+        }
         public ProjectSettings LoadLocalExisting(string projectFolder)
         {
             if (string.IsNullOrWhiteSpace(projectFolder)) return null;

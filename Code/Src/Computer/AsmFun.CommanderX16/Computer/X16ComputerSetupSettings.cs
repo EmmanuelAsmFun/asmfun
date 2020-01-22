@@ -15,8 +15,8 @@ namespace AsmFun.CommanderX16
             MaxRamBanks = 256;
             NmbrRomBanks = 8;
             NmbrRamBanks = 64; // 512 KB default
-            RamSize = 0xa000 + NmbrRamBanks * 8192; /* $0000-$9FFF + banks at $A000-$BFFF */
-            RomSize = NmbrRomBanks * 16384;   /* banks at $C000-$FFFF */
+            RamSize = 0xa000 + NmbrRamBanks * 8192; // $0000-$9FFF + banks at $A000-$BFFF 
+            RomSize = NmbrRomBanks * 16384;         // banks at $C000-$FFFF  =  0x20000 
             RamBankSize = 8192;
             RomBankSize = 16384;
             ComputerType = "CommanderX16";

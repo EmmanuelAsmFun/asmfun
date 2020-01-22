@@ -76,6 +76,61 @@
                 </div>
             </div>
         </div>
+        <div v-if="fileManager.isVisible">
+            <div v-show="fileManager.isVisiblePopup" class="fileManager-o full-overlay"></div>
+            <div v-show="fileManager.isVisiblePopup" class="fileManager v-scaler">
+                <div class="nav-btns">
+                    <a class="close-btn" v-on:click="FileOpenManager(false)">X</a>
+                </div>
+                <div class="content">
+                    <div class="f-top">
+                        <h2 class="f-title">{{fileManager.title}}</h2>
+                        <div class="f-subTitle">{{fileManager.subTitle}}</div>
+                        <div v-if="fileManager.currentFolder != null">
+                            <div class="fullFolder">
+                                <input type="text" v-model="fileManager.currentFolder.folder" v-on:keyup.enter="fileManager.openFolder(fileManager.currentFolder.folder)" placeholder="Folder" />
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="fileManager.currentFolder != null">
+                        <div class="fileList">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>File size</th>
+                                        <th>Date modified</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="folder in fileManager.currentFolder.folders">
+                                        <td>
+                                            <a class="folderItem" v-on:click="fileManager.goParentFolder(folder)" v-if="folder.isParentFolder"><span class="fa fa-folder"></span> {{folder.name}}</a>
+                                            <a class="folderItem" v-on:click="fileManager.openFolder(folder.folder)" v-if="folder.isParentFolder == null"><span class="fa fa-folder"></span> {{folder.name}}</a>
+                                        </td>
+                                    </tr>
+                                    <tr v-for="file in fileManager.currentFolder.files">
+                                        <td>
+                                            <span class="fa fa-file"></span>
+                                            <span v-if="file.notSelectable" class="fileItem notSelectable"> {{file.fileName}}</span>
+                                            <a class="fileItem" v-on:click="fileManager.selectFile(file)" v-if="!file.notSelectable">
+                                                {{file.fileName}}
+                                            </a>
+                                        </td>
+                                        <td>{{file.fileSizeString}}</td>
+                                        <td>{{file.modifiedString}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div v-if="!fileManager.isSelectFileDialog">
+                        <a v-on:click="fileManager.selectFolder()">Select</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 
         <div class="top-bar">
@@ -86,7 +141,7 @@
                 &nbsp;
                 <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
                 <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
-               
+
                 <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Computer Control"><span class="fa fa-desktop"></span></a>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
 
@@ -111,7 +166,7 @@
                 <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video and sprite"><span class="fa fa-image"></span></a>
                 <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
             </div>
-           
+
         </div>
 
         <div class="files" v-if="scfiles">
@@ -214,7 +269,7 @@ programItem.address  | toHex2
                 <div v-show="codeAssistPopupData.isVisible" class="codeAssistPopup" v-bind:style="{ left: codeAssistPopupData.posX, top: codeAssistPopupData.posY }">
                     <div v-for="item in codeAssistPopupData.items">
                         <div v-bind:id="'codeAs'+item.index" v-on:click="item.select(item)"
-                             v-bind:class="{  'isSelected' : item.isSelected }">
+                                v-bind:class="{  'isSelected' : item.isSelected }">
                             <span class="ca-name">{{item.name}}</span>
                             <span class="ca-hint" v-html="item.hint"></span>
                         </div>
@@ -225,34 +280,34 @@ programItem.address  | toHex2
                 <div v-if="selectedFile != null">
                     <div class="PreScLines">
                         <div class="ln" v-for="sourceCodeLine in selectedFile.lines"
-                             v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
+                                v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                             <span class="debugInfo">
                                 <span class="l-address" v-if="isShowDebugger">{{sourceCodeLine.data.resultMemoryAddress}}</span>
                                 <span class="breakPoint" v-if="isShowDebugger">
                                     <a v-on:click="DbgSetBreakpointCurrentLine(selectedFile,sourceCodeLine)"
-                                       v-bind:class="{ 'debugable' :sourceCodeLine.resultMemoryAddress !=='', 'isBpSelected' : sourceCodeLine.hasBreakPoint }">
+                                        v-bind:class="{ 'debugable' :sourceCodeLine.resultMemoryAddress !=='', 'isBpSelected' : sourceCodeLine.hasBreakPoint }">
                                         <span class="fa fa-circle"></span>
                                     </a>
                                 </span>
                             </span>
                             <span v-bind:id="'line'+sourceCodeLine.data.lineNumber" class="lnn"
-                                  v-on:click="EditorReloadLine(sourceCodeLine)"
-                                  v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
+                                    v-on:click="EditorReloadLine(sourceCodeLine)"
+                                    v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
                                 {{sourceCodeLine.data.lineNumber}}
 
                             </span>
                             <span v-html="sourceCodeLine.asmFunCode" v-if="showASMFunCode"></span>
                             <span class="sc-value" v-if="isShowDebugger && sourceCodeLine.label != null && sourceCodeLine.label.showValueInCode">
                                 <input v-bind:id="'labelEdit'+sourceCodeLine.data.lineNumber" v-if="sourceCodeLine.label != null && sourceCodeLine.label.isInEditMode"
-                                       type="text" v-model="sourceCodeLine.label.newValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.label)" />
+                                        type="text" v-model="sourceCodeLine.label.newValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.label)" />
                                 <span v-if="sourceCodeLine.label != null && !sourceCodeLine.label.isInEditMode === true"
-                                      v-on:click="SwapChangeLabelValue(sourceCodeLine)"> = {{ sourceCodeLine.label.labelhexValue}}</span>
+                                        v-on:click="SwapChangeLabelValue(sourceCodeLine)"> = {{ sourceCodeLine.label.labelhexValue}}</span>
                             </span>
                         </div>
                     </div>
                     <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)">
                         <span class="ln" v-for="sourceCodeLine in selectedFile.lines"
-                              v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
+                                v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                             <span class="scline" v-html="sourceCodeLine.sourceCodeHtml"> </span>
                             <br />
                             <span class="errorDetail" v-if="sourceCodeLine.hasError && sourceCodeLine.error != null">{{sourceCodeLine.error.compilerName}}: {{sourceCodeLine.error.message}}</span>
@@ -287,23 +342,24 @@ programItem.address  | toHex2
                     &nbsp;
                     <a v-on:click="NextMemoryPage(1)" title="Next 256 b"> &gt;</a>
                     <a v-on:click="NextMemoryPage(16)" title="Next 4 kb"> &gt;&gt;</a>
-                    <a v-on:click="NextMemoryPage(64)"  title="Next 16 kb"> &gt;&gt;&gt;</a>
+                    <a v-on:click="NextMemoryPage(64)" title="Next 16 kb"> &gt;&gt;&gt;</a>
                 </span>
 
             </div>
-            
+
             <a class="memoryTableOfContentHeader" v-on:click="memoryViewer.swapShowTOC()">Memory - table of content</a>
             <div class="memoryTableOfContent" v-if="memoryViewer.showTOC">
                 <div v-for="add in memoryViewer.addressNames">
-                <a v-on:click="SelectMemoryPage(add.startAddress)">{{add.startAddressHex}} - {{add.endAddressHex}} : {{add.name}}</a></div>
+                    <a v-on:click="SelectMemoryPage(add.startAddress)">{{add.startAddressHex}} - {{add.endAddressHex}} : {{add.name}}</a>
+                </div>
             </div>
             <div class="memoryEdit" v-if="!memoryViewer.showTOC && memoryViewer.isMemoryEditing" v-bind:style="{top: (memoryViewer.memoryEditYOffset - 2)}">
                 <input type="text" v-model="memoryViewer.memoryEditText" v-on:input="$emit('input',$event.target.value)"
-                       v-on:keyup="memoryViewer.memoryEditKeyUp(event)" autofocus />
+                        v-on:keyup="memoryViewer.memoryEditKeyUp(event)" autofocus />
             </div>
             <div class="memoryblock" v-if="memoryViewer.memoryBlock != null && !memoryViewer.showTOC">
                 <span v-for="data in memoryViewer.memoryBlock.datas" v-html="data.code"
-                      v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
+                        v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
             </div>
         </div>
         <div class="memoryViewerSel" v-if="memoryViewer.isVisible">
@@ -511,22 +567,22 @@ programItem.address  | toHex2
                         <div>
                             <div v-if="settings.userSettings != null">
                                 <!--<div class="form-item">
-                                    <div class="form-lbl">StartupProject:</div>
-                                    <input type="text" v-model="settings.userSettings.lastOpenedProjectFileName" style="width:400px" />
-                                </div>-->
+                                <div class="form-lbl">StartupProject:</div>
+                                <input type="text" v-model="settings.userSettings.lastOpenedProjectFileName" style="width:400px" />
+                            </div>-->
                                 <div v-if="settings.userSettings.ideSettings != null">
                                     <div class="form-item">
                                         <div class="form-lbl">ACME compiler folder and filename:</div>
                                         <input type="text" v-model="settings.userSettings.ideSettings.acme.acmeFileName" style="width:400px" />
                                     </div>
                                     <!--<div class="form-item">
-                                        <div class="form-lbl">DASM compiler folder :</div>
-                                        <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFolder" style="width:400px" />
-                                    </div>
-                                    <div class="form-item">
-                                        <div class="form-lbl">VASM compiler folder :</div>
-                                        <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFolder" style="width:400px" />
-                                    </div>-->
+                                    <div class="form-lbl">DASM compiler folder :</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFolder" style="width:400px" />
+                                </div>
+                                <div class="form-item">
+                                    <div class="form-lbl">VASM compiler folder :</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFolder" style="width:400px" />
+                                </div>-->
                                     <div class="form-item">
                                         <div class="form-lbl">Cc65 compiler folder :</div>
                                         <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65Folder" style="width:400px" />
@@ -579,7 +635,7 @@ programItem.address  | toHex2
                         <div class="vAddress">
                             0x{{videoManager.ram.startAddress}} - 0x{{videoManager.ram.endAddress}}
                             &nbsp;
-                            
+
                             <a v-on:click="VideoMemoryDump" title="Video Memory Dump"><span class="fa fa-save"></span> </a>
                             &nbsp;
                             <a v-show="!videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory"><span class="fa fa-eye"></span> </a>
@@ -589,14 +645,14 @@ programItem.address  | toHex2
                                 <span class="fa fa-keyboard-o"></span>
                                 <span v-show="videoManager.isKeyboardForwarded">Your keyboard is forwarded to the Computer</span>
                             </a>
-                           
-                        </div> 
+
+                        </div>
                         <div class="RamViewer" v-if="videoManager.ram.showHex">
                             <div v-html="videoManager.ram.hexData"></div>
                         </div>
                         <div class="fullVideo" v-show="!videoManager.ram.showHex" v-if="videoManager.layers.length > 1" v-bind:style="{ backgroundColor: videoManager.composer.BorderColorData.colorHex}">
-                            <canvas class="Layer1CanvasFS" id="Layer1CanvasFS" width="640" height="480" v-show="videoManager.layers[0].ShowFull" ></canvas>
-                            <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480" v-show="videoManager.layers[1].ShowFull" ></canvas>
+                            <canvas class="Layer1CanvasFS" id="Layer1CanvasFS" width="640" height="480" v-show="videoManager.layers[0].ShowFull"></canvas>
+                            <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480" v-show="videoManager.layers[1].ShowFull"></canvas>
                             <div class="spriteHolder" id="spriteHolder"></div>
                         </div>
                     </div>
@@ -610,24 +666,24 @@ programItem.address  | toHex2
                                 <td>OutMode</td>
                                 <td>
                                     <editable-select v-model="videoManager.composer.OutModeString" :options="videoManager.composer.OutModes"
-                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
                                 </td>
                             </tr>
                             <tr>
                                 <td>ChromaDisable</td>
                                 <td>
                                     <editable-checkbox v-model="videoManager.composer.ChromaDisable"
-                                                       v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox>
+                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Scale</td>
                                 <td>
                                     <editable-select v-model="videoManager.composer.HScaleString" :options="videoManager.composer.HScales"
-                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
                                     x
                                     <editable-select v-model="videoManager.composer.VScaleString" :options="videoManager.composer.VScales"
-                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
                                 </td>
                             </tr>
                             <tr>
@@ -679,9 +735,9 @@ programItem.address  | toHex2
                         </div>
                         <div class="paletteColors">
                             <span v-for="color in videoManager.palette.colors" class="paletteColor"
-                                  v-on:click="videoManager.palette.changeColor(color)"
-                                  v-bind:title=" color.colorRGB+' | '+color.colorHex"
-                                  v-bind:style="{ backgroundColor: color.colorHex}">
+                                    v-on:click="videoManager.palette.changeColor(color)"
+                                    v-bind:title=" color.colorRGB+' | '+color.colorHex"
+                                    v-bind:style="{ backgroundColor: color.colorHex}">
                                 &nbsp;
                             </span>
                         </div>
@@ -719,7 +775,7 @@ programItem.address  | toHex2
                                         <td>Mode</td>
                                         <td>
                                             <editable-select v-model="layerInfo.ModeString" :options="layerInfo.Modes"
-                                                             v-on:valuechanged="layerInfo.valueChanged"></editable-select>
+                                                                v-on:valuechanged="layerInfo.valueChanged"></editable-select>
                                         </td>
                                     </tr>
                                     <tr title="Specifies the base address where tile map data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
@@ -782,7 +838,7 @@ programItem.address  | toHex2
                                 <div class="Canvas-cont">
                                     <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
                                 </div>
-                                
+
                                 <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode && layerInfo.IsEnabled">
                                     <div>Tile: {{layerInfo.selectedTileIndex}}</div>
                                     <canvas v-bind:id="layerInfo.name +'Tiles'" class="LayerTiles" width="208" height="160" @mousemove="layerInfo.SelectTileByImage(event)"></canvas>
@@ -811,7 +867,7 @@ programItem.address  | toHex2
                                         <td>Mode</td>
                                         <td>
                                             <editable-select v-model="videoManager.spriteDatas.selectedSprite.ModeString" :options="videoManager.spriteDatas.selectedSprite.Modes"
-                                                             v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
+                                                                v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
                                         </td>
                                     </tr>
                                     <tr>
@@ -921,7 +977,7 @@ programItem.address  | toHex2
                                     <div class="form-lbl">Load Local Project:</div>
                                     <span v-if="projectManager.showOpenFileFolder">
                                         <input type="text" v-model="projectManager.openFileFolder" style="width:400px" title="Set full folder with filename"
-                                               placeholder="/home/myproject/myproject.asm" />
+                                                placeholder="/home/myproject/myproject.asm" />
                                     </span>
                                     <button v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load</button>
                                 </div>

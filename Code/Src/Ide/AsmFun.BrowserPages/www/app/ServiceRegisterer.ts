@@ -4,7 +4,12 @@
 //
 // #endregion
 
+
+// Framework
 import { CommandManager } from "./framework/CommandManager.js";
+import { FileManager } from "./framework/FileManager.js";
+
+// Core
 import { EditorManager } from "./core/EditorManager.js";
 import { SettingsManager } from "./core/SettingsManager.js";
 import { IMainData } from "./data/MainData.js";
@@ -29,11 +34,16 @@ import { VideoRamManager } from "./core/Video/VideoRamManager.js";
 import { ServiceResolverFactory } from "./serviceLoc/ServiceManager.js";
 import { ServiceLifestyle } from "./serviceLoc/ServiceName.js";
 import { ProcessorManager } from "./core/ProcessorManager.js";
+import { OpcodeManager } from "./core/OpcodeManager.js";
+import { HtmlSourceCode } from "./core/HtmlSourceCode.js";
+
+// Services
 import { ProjectService } from "./services/projectService.js";
 import { DebuggerService } from "./services/DebuggerService.js";
 import { ComputerService } from "./services/ComputerService.js";
-import { OpcodeManager } from "./core/OpcodeManager.js";
-import { HtmlSourceCode } from "./core/HtmlSourceCode.js";
+import { FileService } from "./services/FileService.js";
+
+// Interpreters
 import { AcmeInterpreter } from "./interpreters/AcmeInterpreter.js";
 import { Cc65Interpreter } from "./interpreters/Cc65Interpreter.js";
 import { CommonInterpreter } from "./interpreters/CommonInterpreter.js";
@@ -59,6 +69,7 @@ var NewAsmFunAppData: IAsmFunAppData = {
     scfiles: [],
     ide: ASMFunPlayerManager.NewData(),
     videoManager: VideoManager.NewData(),
+    fileManager: FileManager.NewData(),
     compilation: {
         compilationIsValid: true,
         isVisible: false,
@@ -103,6 +114,8 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<EditorManager>(EditorManager.ServiceName, () => new EditorManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<MemoryManager>(MemoryManager.ServiceName, () => new MemoryManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<AvatarManager>(AvatarManager.ServiceName, () => new AvatarManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<FileManager>(FileManager.ServiceName, () => new FileManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+
         // standalone
         this.container.AddWithConstructor<HtmlSourceCode>(HtmlSourceCode.ServiceName, () => new HtmlSourceCode(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<KeyboardManager>(KeyboardManager.ServiceName, () => new KeyboardManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
@@ -112,6 +125,8 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<ProjectService>(ProjectService.ServiceName, () => new ProjectService()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<DebuggerService>(DebuggerService.ServiceName, () => new DebuggerService()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<ComputerService>(ComputerService.ServiceName, () => new ComputerService()).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<FileService>(FileService.ServiceName, () => new FileService()).WithLifestyle(ServiceLifestyle.Singleton);
+
         // Video
         this.container.AddWithConstructor<VideoManager>(VideoManager.ServiceName, () => new VideoManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoLayerManager>(VideoLayerManager.ServiceName, () => new VideoLayerManager()).WithLifestyle(ServiceLifestyle.Singleton);
@@ -119,6 +134,7 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<VideoSpriteManager>(VideoSpriteManager.ServiceName, () => new VideoSpriteManager()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoComposerManager>(VideoComposerManager.ServiceName, () => new VideoComposerManager()).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<VideoRamManager>(VideoRamManager.ServiceName, () => new VideoRamManager()).WithLifestyle(ServiceLifestyle.Singleton);
+
         // Interpreters
         this.container.AddWithConstructor<CommonInterpreter>(CommonInterpreter.ServiceName, () => new CommonInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Transient);
         this.container.AddWithConstructor<AcmeInterpreter>(AcmeInterpreter.ServiceName, () => new AcmeInterpreter(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
@@ -138,6 +154,7 @@ export class ServiceRegisterer {
         this.container.Resolve<EditorManager>(EditorManager.ServiceName)
         this.container.Resolve<AvatarManager>(AvatarManager.ServiceName)
         this.container.Resolve<VideoManager>(VideoManager.ServiceName)
+        this.container.Resolve<FileManager>(FileManager.ServiceName)
         this.myAppData.settings = this.container.Resolve<SettingsManager>(SettingsManager.ServiceName)?.settings ?? SettingsManager.NewData();
     }
 }

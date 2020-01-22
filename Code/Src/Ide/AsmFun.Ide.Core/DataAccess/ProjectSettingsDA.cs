@@ -64,6 +64,14 @@ namespace AsmFun.Core.DataAccess
             return cloudSettings;
         }
 
+        public ProjectSettings LoadBySettings(string settingsFileName)
+        {
+            projectCompleteFolder = Directory.GetParent(Directory.GetParent(settingsFileName).FullName).FullName;
+            StorageFolder = projectCompleteFolder;
+            StorageFileName = settingsFileName;
+            var settings = Load();
+            return settings;
+        }
         public ProjectSettings LoadByMainFilename(string projectMainFileNameAndFolder)
         {
             projectMainFileNameWithFolder = projectMainFileNameAndFolder;

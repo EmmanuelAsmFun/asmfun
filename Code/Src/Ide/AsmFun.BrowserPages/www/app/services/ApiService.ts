@@ -33,7 +33,7 @@ export class ApiService {
     }
 
     
-    public callApi(action, doneMethod, error?: (e) => void) {
+    public callApi(action, doneMethod, error?: ((e) => void) | null) {
         var uri = "/api/" + this.controllerName + "/" + action;
         if (uri.indexOf('?') > -1)
             uri += "&t=" + Math.random().toPrecision(10);

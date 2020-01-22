@@ -13,6 +13,8 @@ import { ProjectLoadCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, Pro
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { ASMStorage } from "../Tools.js";
+import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
+import { IFileDialogData } from "../data/FileManagerData.js";
 
 
 export class ProjectManager  {
@@ -123,21 +125,39 @@ export class ProjectManager  {
         var thiss = this;
         if (this.data.projectIsDownloading) return;
         if (detail == null) {
-            if (!this.data.showOpenFileFolder) {
-                this.data.projectIsDownloading = true;
-                this.service.LoadByFileSelectorPopup(() => {
-                    thiss.Load();
-                    thiss.data.projectIsDownloading = false;
-                }, e => { thiss.data.projectIsDownloading = false; });
-                return;
-            }
-            if (this.data.openFileFolder != null && this.data.openFileFolder.length > 1) {
-                this.data.projectIsDownloading = true;
-                this.service.LoadByMainFilename(this.data.openFileFolder, () => {
-                    thiss.Load();
-                    thiss.data.projectIsDownloading = false;
-                }, e => { thiss.data.projectIsDownloading = false; });
-            }
+            var fileDialogSettings: IFileDialogData = {
+                filter: "*.asm|*.a|AsmFunSettings.json",
+                initialFolder : null,
+                onSelected : () => { },
+                selectAFile : true,
+                title : "Select the start ASM file",
+                subTitle: "*.asm | *.a | AsmFunSettings.json",
+            };
+            fileDialogSettings.onSelected = file => {
+                if (file != null && file.length > 1) {
+                    this.data.projectIsDownloading = true;
+                    this.service.LoadByMainFilename(file, () => {
+                        thiss.Load();
+                        thiss.data.projectIsDownloading = false;
+                    }, e => { thiss.data.projectIsDownloading = false; });
+                }
+            };
+             //if (!this.data.showOpenFileFolder) {
+                //this.data.projectIsDownloading = true;
+                //this.service.LoadByFileSelectorPopup(() => {
+                //    thiss.Load();
+                //    thiss.data.projectIsDownloading = false;
+                //}, e => { thiss.data.projectIsDownloading = false; });
+                //return;
+            //}
+            //if (this.data.openFileFolder != null && this.data.openFileFolder.length > 1) {
+            //    this.data.projectIsDownloading = true;
+            //    this.service.LoadByMainFilename(this.data.openFileFolder, () => {
+            //        thiss.Load();
+            //        thiss.data.projectIsDownloading = false;
+            //    }, e => { thiss.data.projectIsDownloading = false; });
+            //}
+            this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
             return;
         }
         this.data.projectIsDownloading = true;

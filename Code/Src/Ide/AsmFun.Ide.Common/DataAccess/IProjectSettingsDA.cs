@@ -20,5 +20,6 @@ namespace AsmFun.Ide.Common.DataAccess
         ProjectSettings CreateNewByFilename(string projectFolderFileName, string projectFolder);
         void Save(ProjectSettings settings);
         BuildConfiguration CreateDefaultConfiguration();
+        ProjectSettings LoadBySettings(string settingsFileName);
     }
 }

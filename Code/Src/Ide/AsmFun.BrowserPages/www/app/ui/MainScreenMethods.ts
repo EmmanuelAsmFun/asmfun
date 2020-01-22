@@ -15,6 +15,7 @@ import { IBaseCommand } from "../data/commands/CommandsCommon.js";
 import { IProjectDetail } from "../data/ProjectData.js";
 import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
 import { SettingsOpenManagerCommand } from "../data/commands/SettingsCommands.js";
+import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "../data/commands/ASMFunPlayerManagerCommands.js";
 import {
     ProcessorOpenDebuggerCommand, ProcessorNextStepCommand, ProcessorStepOverCommand, ProcessorDebuggerRunCommand, ProcessorReloadValuesCommand,
@@ -27,6 +28,7 @@ import {
 } from "../data/commands/ComputerCommands.js";
 import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
 import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand, VideoMemoryDumpCommand, VideoShowMemoryHexCommand, VideoEnableKeyForwardingCommand, VideoPaletteDumpCommand } from "../data/commands/VideoCommands.js";
+import { IAsmFile, IFileDialogData } from "../data/FileManagerData.js";
 
 
 export class MainScreenMethods {
@@ -159,7 +161,11 @@ export class MainScreenMethods {
     public ProjectLoadWeb(detail: IProjectDetail | null) { MainScreenMethods.ExecuteCommand(new ProjectLoadWebCommand(detail)); }
     public ProjectLoadLocal(detail: IProjectDetail | null) { MainScreenMethods.ExecuteCommand(new ProjectLoadLocalCommand(detail)); }
     public ProjectOpenProjectWebsite(detail: IProjectDetail | null) { MainScreenMethods.ExecuteCommand(new ProjectOpenProjectWebsiteCommand(detail)); }
-   
+
+    // File manager
+    public FileOpenManager(state: boolean | null, fileDialogData: IFileDialogData | null)
+    { MainScreenMethods.ExecuteCommand(new FileOpenManagerCommand(state, fileDialogData)); }
+
     public SaveProject() {
         var mainData = MainScreenMethods.S.mainData;
         if (mainData.sourceCode == null || mainData.sourceCode.files == null || mainData.sourceCode.files.length === 0)

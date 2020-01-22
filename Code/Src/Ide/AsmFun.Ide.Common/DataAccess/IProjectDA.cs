@@ -13,6 +13,7 @@ namespace AsmFun.Ide.Common.DataAccess
     {
         ProjectSettings CreateNew(string nameForFileSystem, string developerName, BuildConfiguration buildConfiguration);
         ProjectSettings LoadWebExisting(ProjectDetail projectDetail);
+        ProjectSettings LoadBySettings(string settingsFileName);
         ProjectSettings LoadLocalExisting(string settingsFolder);
         List<ProjectDetail> GetWebProjects();
     }

@@ -42,9 +42,9 @@ namespace AsmFun.CommanderX16.IO
             new KeyMap('$', 0x5B), new KeyMap('&', 0x16), new KeyMap('!', 0x36),new KeyMap('*', 0x59, 0x5B),
             new KeyMap('=', 0x4A), new KeyMap('?', 0x59, 0x3A),
             new KeyMap('<', 0x61),new KeyMap('>', 0x59, 0x61),
-            new KeyMap('(', 0x2E), new KeyMap(')', 0x4E),new KeyMap('/', 0x59, 0x49),
+            new KeyMap('(', 0x2E), new KeyMap(')', 0x4E),new KeyMap('/', 0x3B, 0x8C), // must be 59 140 on querty
             // Quotes
-            new KeyMap('\"',0x59, 0x4C), new KeyMap('\'',0x25),
+            new KeyMap('"',0x33, 0x24), new KeyMap('\'',0x25),
             // Alt Gr
             new KeyMap('[', 0x111, 0x14,0x54),new KeyMap(']', 0x111, 0x14,0x5B),
             new KeyMap('@', 0X111, 0x14,0x1E),new KeyMap('#', 0X111, 0x14,0x26),
@@ -61,6 +61,7 @@ namespace AsmFun.CommanderX16.IO
 
         public override void KeyDown(char kk3, int theKey)
         {
+            Console.Write(kk3 + " " + (int)kk3+" ");
             if (isRunningPasteMethod) return;
             HandlePressedKey(new KeyQueueItem(kk3, theKey, true));
         }
@@ -74,7 +75,16 @@ namespace AsmFun.CommanderX16.IO
         {
             if (string.IsNullOrWhiteSpace(data)) return;
             foreach (var item in data)
-                ExecuteMapping(item);
+            {
+                var code = -1;
+                var num = 0;
+                if (int.TryParse(item.ToString(), out num))
+                    code = num + 74;
+                HandlePressedKey(new KeyQueueItem(item, code, true));
+                Task.Delay(30).Wait();
+                HandlePressedKey(new KeyQueueItem(item, code, false));
+                Task.Delay(30).Wait();
+            }
         }
         
         private void ExecuteMapping(char item)
@@ -196,7 +206,7 @@ namespace AsmFun.CommanderX16.IO
 
         private int InterpretSpecialKey(Char kk3, int theKey, bool isDown)
         {
-            if (isRunningPasteMethod) return -2;
+            //if (isRunningPasteMethod) return -2;
             if (ctrlIsDown)
             {
                 //Console.Write("C " + theKey.ToString("X2")+",");
