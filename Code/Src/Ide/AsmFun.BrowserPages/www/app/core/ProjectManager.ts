@@ -24,7 +24,7 @@ export class ProjectManager  {
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     private data: IProjectManagerData;
-    private service: ProjectService = new ProjectService();
+    private service: ProjectService;
     private userSettings?: IUserSettings;
     public isVisible: boolean = false;
 
@@ -34,6 +34,8 @@ export class ProjectManager  {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.projectManager;
+        this.service = this.mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
+
         this.mainData.commandManager.Subscribe2(new ProjectOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ProjectSaveFolderCommand(), this, x => this.SaveProjectsFolder());
         this.mainData.commandManager.Subscribe2(new ProjectCreateNewCommand(), this, () => this.CreateNewProject());

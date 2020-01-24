@@ -156,8 +156,8 @@
 
         <div id="computer" class="computer v-scaler-l" v-show="computer.isVisible">
             <div class="top-buttons">
-                <a href="javascript:" v-on:click="ComputerStart()" title="Start computer"><span class="fa fa-play"></span></a>
-                <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer"><span class="fa fa-stop"></span></a>
+                <a href="javascript:" v-on:click="ComputerStart()" title="Start computer" v-if="!computer.isComputerRunning" @mouseover="ComputerUpdateState"><span class="fa fa-play"></span></a>
+                <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer"  v-if="computer.isComputerRunning" @mouseover="ComputerUpdateState"><span class="fa fa-stop"></span></a>
                 <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer"><span class="fa fa-refresh"></span></a>
                 &nbsp;
                 <a href="javascript:" v-on:click="ComputerLoadProgram" title="Load Program in computer"><span class="fa fa-microchip"></span></a>
@@ -165,6 +165,7 @@
                 &nbsp;
                 <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video and sprite"><span class="fa fa-image"></span></a>
                 <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
+
             </div>
 
         </div>

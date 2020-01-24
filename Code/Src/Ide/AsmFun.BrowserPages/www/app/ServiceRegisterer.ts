@@ -7,6 +7,7 @@
 
 // Framework
 import { CommandManager } from "./framework/CommandManager.js";
+import { AsmFunEventManager } from "./framework/AsmFunEventManager.js";
 import { FileManager } from "./framework/FileManager.js";
 
 // Core
@@ -92,6 +93,7 @@ export class ServiceRegisterer {
             appData: this.myAppData,
             ctrlKeyIsDown: false,
             commandManager: new CommandManager(),
+            eventManager: new AsmFunEventManager(),
             sourceCode: SourceCodeManager.NewBundle(),
             container: this.container,
         };
@@ -101,7 +103,9 @@ export class ServiceRegisterer {
     }
 
     public Register() {
-
+        // framework
+        this.container.AddInstance(CommandManager.ServiceName, this.myMainData.commandManager).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddInstance(AsmFunEventManager.ServiceName, this.myMainData.eventManager).WithLifestyle(ServiceLifestyle.Singleton);
         // services linked to commands
         this.container.AddWithConstructor<SpritesManager>(SpritesManager.ServiceName,() => new SpritesManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<ComputerManager>(ComputerManager.ServiceName, () => new ComputerManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
@@ -122,10 +126,10 @@ export class ServiceRegisterer {
         this.container.AddWithConstructor<OpcodeManager>(OpcodeManager.ServiceName, () => new OpcodeManager()).WithLifestyle(ServiceLifestyle.Singleton);
         
         // Services
-        this.container.AddWithConstructor<ProjectService>(ProjectService.ServiceName, () => new ProjectService()).WithLifestyle(ServiceLifestyle.Singleton);
-        this.container.AddWithConstructor<DebuggerService>(DebuggerService.ServiceName, () => new DebuggerService()).WithLifestyle(ServiceLifestyle.Singleton);
-        this.container.AddWithConstructor<ComputerService>(ComputerService.ServiceName, () => new ComputerService()).WithLifestyle(ServiceLifestyle.Singleton);
-        this.container.AddWithConstructor<FileService>(FileService.ServiceName, () => new FileService()).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<ProjectService>(ProjectService.ServiceName, () => new ProjectService(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<DebuggerService>(DebuggerService.ServiceName, () => new DebuggerService(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<ComputerService>(ComputerService.ServiceName, () => new ComputerService(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<FileService>(FileService.ServiceName, () => new FileService(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);
 
         // Video
         this.container.AddWithConstructor<VideoManager>(VideoManager.ServiceName, () => new VideoManager(this.myMainData)).WithLifestyle(ServiceLifestyle.Singleton);

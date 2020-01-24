@@ -7,13 +7,18 @@
 import { ApiService } from "./ApiService.js";
 import { IAsmFile,IAsmFolder } from "../data/FileManagerData.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
+import { IEventManager } from "../framework/IAsmFunEventManager.js";
+import { IMainData } from "../data/MainData.js";
 
 
 
 export class FileService extends ApiService {
 
-    constructor() {
+    eventManager: IEventManager;
+
+    constructor(mainData: IMainData) {
         super();
+        this.eventManager = mainData.eventManager;
         this.controllerName = "file";
          
     }

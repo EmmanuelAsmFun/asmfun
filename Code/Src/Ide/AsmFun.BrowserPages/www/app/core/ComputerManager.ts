@@ -7,11 +7,12 @@
 import { ComputerService } from "../services/ComputerService.js";
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { IComputerData, IKeyboardKey } from "../data/ComputerData.js";
+import { IComputerManagerData, IKeyboardKey } from "../data/ComputerData.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
-import { ComputerOpenManagerCommand, ComputerStopCommand, ComputerStartCommand, ComputerResetCommand, ComputerLoadProgramCommand, ComputerRunProgramCommand, ComputerOpenDetailCommand } from "../data/commands/ComputerCommands.js";
+import { ComputerOpenManagerCommand, ComputerStopCommand, ComputerStartCommand, ComputerResetCommand, ComputerLoadProgramCommand, ComputerRunProgramCommand, ComputerOpenDetailCommand, ComputerProcessorDataChanged, ComputerUpdateStateCommand } from "../data/commands/ComputerCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { KeyboardManager } from "./KeyboardManager.js";
+import { IProcessorData } from "../data/ProcessorData.js";
 
 
 export class ComputerManager {
@@ -19,14 +20,14 @@ export class ComputerManager {
     private computerService: ComputerService;
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
-    private data: IComputerData;
+    private data: IComputerManagerData;
     
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.computer;
-        this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService();
+        this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService(mainData);
         this.mainData.commandManager.Subscribe2(new ComputerOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ComputerStartCommand(), this, x => this.StartComputer());
         this.mainData.commandManager.Subscribe2(new ComputerStopCommand(), this, x => this.StopComputer());
@@ -34,8 +35,61 @@ export class ComputerManager {
         this.mainData.commandManager.Subscribe2(new ComputerLoadProgramCommand(), this, x => this.LoadProgram());
         this.mainData.commandManager.Subscribe2(new ComputerRunProgramCommand(), this, x => this.RunProgram());
         this.mainData.commandManager.Subscribe2(new ComputerOpenDetailCommand(null), this, x => this.OpenDetailState(x.state));
+        this.mainData.commandManager.Subscribe2(new ComputerUpdateStateCommand(), this, x => this.UpdateComputerState(false));
+        this.mainData.eventManager.Subscribe2(new ComputerProcessorDataChanged(null), this, x => this.ParseProcessorData(x.processorData));
+        setInterval(() => { this.UpdateComputerState(false); }, 5000);
     }
 
+    private StartComputer() {
+        var thiss = this;
+        this.computerService.StartComputer(() => {
+            thiss.LoadProgram();
+            this.UpdateComputerState(true);
+        });
+    }
+   
+    private StopComputer() {
+        this.computerService.StopComputer(() => {
+            this.UpdateComputerState(true);
+        });
+    }
+
+    public ResetComputer() {
+        var thiss = this;
+        this.computerService.ResetComputer(() => {
+            this.UpdateComputerState(true);
+        });
+    }
+
+    private LoadProgram() {
+        this.computerService.LoadProgram(() => {
+            this.UpdateComputerState(true);
+        });
+       
+    }
+
+    private RunProgram() {
+        this.computerService.RunProgram(() => {
+            this.UpdateComputerState(true);
+        });
+    }
+
+    private UpdateComputerState(withDelay: boolean) {
+        if (withDelay) 
+            setTimeout(() => this.computerService.GetProcessorData(), 500);
+        else
+            this.computerService.GetProcessorData();
+    }
+
+    private ParseProcessorData(processorData: IProcessorData | null) {
+        if (processorData == null) {
+            this.data.isComputerRunning = false;
+            return;
+        }
+        this.data.isComputerRunning = processorData.isComputerRunning;
+        if (processorData.isComputerRunning)
+            this.data.processorData = processorData;
+    }
 
     private OpenManager(state: boolean | null) {
         if (state == null)
@@ -48,7 +102,7 @@ export class ComputerManager {
             this.StartComputer();
         }
     }
-   
+
 
     private Open() {
         var thiss = this;
@@ -79,38 +133,13 @@ export class ComputerManager {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
         this.data.isDetailVisible = false;
     }
-   
-    private StartComputer() {
-        var thiss = this;
-        this.computerService.StartComputer(() => {
-            thiss.LoadProgram();
-        });
-    }
-   
-    private StopComputer() {
-        this.computerService.StopComputer(() => {});
-    }
 
-    public ResetComputer() {
-        var thiss = this;
-        this.computerService.ResetComputer(() => { });
-    }
-
-    private LoadProgram() {
-        this.computerService.LoadProgram(() => { });
-    }
-    private RunProgram() {
-        this.computerService.RunProgram(() => { });
-    }
-    
-
-
-
-
-    public static NewData(): IComputerData {
+    public static NewData(): IComputerManagerData {
         return {
             isVisible: false,
-            isDetailVisible:false
+            isDetailVisible: false,
+            isComputerRunning: false,
+            processorData: null,
         };
     }
     public static ServiceName: ServiceName = { Name: "ComputerManager" };

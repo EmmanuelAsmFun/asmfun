@@ -11,7 +11,7 @@ import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
 import { IDebuggerBreakpoint } from "../data/IDebuggerBreakpoint.js";
 import { IEditorLabel, IEditorFile, IEditorLine, IPropertyData } from "../data/EditorData.js";
-import { ComputerResetCommand } from "../data/commands/ComputerCommands.js";
+import { ComputerResetCommand, ComputerProcessorDataChanged } from "../data/commands/ComputerCommands.js";
 import { ISourceCodeLabel } from "../data/ProjectData.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { EditorManager } from "./EditorManager.js";
@@ -32,8 +32,9 @@ export class ProcessorManager {
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
-        this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName)?? new ComputerService();
-        this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName)??new DebuggerService();
+        this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName)?? new ComputerService(mainData);
+        this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
+        // Subscribe to commands
         this.mainData.commandManager.Subscribe2(new ComputerResetCommand(), this, () => this.ResetEmulator());
         this.mainData.commandManager.Subscribe2(new ProcessorOpenDebuggerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ProcessorNextStepCommand(), this, () => this.NextStep());
@@ -41,6 +42,8 @@ export class ProcessorManager {
         this.mainData.commandManager.Subscribe2(new ProcessorDebuggerRunCommand(), this, () => this.Run());
         this.mainData.commandManager.Subscribe2(new ProcessorReloadValuesCommand(), this, () => this.LoadLabelValues());
         this.mainData.commandManager.Subscribe2(new ProcessorDebuggerSetBreakpointCommand(null, null), this, (c) => this.setBreakpointCurrentLine(c.file, c.line));
+        // Subscribe to events
+        this.mainData.eventManager.Subscribe2(new ComputerProcessorDataChanged(null), this, x => this.parseData6502(x.processorData));
     }
 
     private OpenManager(state: boolean | null) {
@@ -69,9 +72,7 @@ export class ProcessorManager {
     }
 
     public updateProcessorData() {
-        var thiss = this;
-        this.computerService.getProcessorState(r0 => { thiss.parseData6502(r0); });
-        // setTimeout(() => { updateProcessorData(app); }, 500);
+        this.computerService.GetProcessorData();
     }
 
     public updateAll() {
@@ -241,11 +242,8 @@ export class ProcessorManager {
             startt = thiss.myAppData.data6502.programCounter;
         this.debuggerService.getDisassembly(startt, 10, r => {
             thiss.myAppData.dissasembly = r;
-            thiss.computerService.getData(r0 => {
-                thiss.parseData6502(r0);
-            });
+            thiss.computerService.GetProcessorData();
         });
-
     }
 
     private pingTimerRef: number = -1;

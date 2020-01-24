@@ -54,6 +54,7 @@ namespace AsmFun.Ide.Core.Managers
             var comp = computerManager.GetComputer();
             if (comp == null) return new ProcessorDataModel();
             var model = comp.GetProcessorData();
+            model.IsComputerRunning = true;
             return model;
         }
 

@@ -9,12 +9,14 @@ import { ICommandManager } from "../framework/ICommandManager.js";
 import { IInstructionItemData } from "./ProcessorData.js";
 import { IEditorLine, IEditorBundle } from "./EditorData.js";
 import { IServiceResolverFactory } from "../serviceLoc/IServiceResolver.js";
+import { IEventManager } from "../framework/IAsmFunEventManager.js";
 
 
 export interface IMainData {
     appData: IAsmFunAppData;
     ctrlKeyIsDown: boolean;
     commandManager: ICommandManager;
+    eventManager: IEventManager;
     previousSelectedPC?: IInstructionItemData;
     previousSelectedLine?: IEditorLine;
     sourceCode?: IEditorBundle;

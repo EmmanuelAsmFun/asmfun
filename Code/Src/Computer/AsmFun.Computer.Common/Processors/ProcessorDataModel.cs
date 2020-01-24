@@ -23,5 +23,6 @@ namespace AsmFun.Computer.Common.Processors
         public bool IsDecimal { get; set; }
         public bool IsConstant { get; set; }
         public bool IsOverflow { get; set; }
+        public bool IsComputerRunning { get; set; }
     }
 }

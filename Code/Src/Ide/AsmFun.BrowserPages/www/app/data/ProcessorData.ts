@@ -40,7 +40,7 @@ export interface IProcessorData {
     /// </summary>
     statusRegister: number;
 
-
+    isComputerRunning: boolean;
 }
 
 

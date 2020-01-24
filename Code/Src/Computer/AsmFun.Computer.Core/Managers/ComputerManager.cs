@@ -34,6 +34,8 @@ namespace AsmFun.Computer.Core.Managers
         public event EventHandler<ComputerEventArgs> OnComputerReady;
         public IComputer Computer { get; private set; }
 
+        public bool IsComputerRunning => Computer != null && Computer.IsRunning;
+
         public ComputerManager(IEmServiceResolverFactory containerFactory)
         {
             this.containerFactory = containerFactory;

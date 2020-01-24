@@ -8,27 +8,37 @@ import { ApiService } from "./ApiService.js";
 import { IPropertyData } from "../data/EditorData.js";
 import { IKeyboardKey, IMemoryDump } from "../data/ComputerData.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
+import { IProcessorData } from "../data/ProcessorData.js";
+import { IEventManager } from "../framework/IAsmFunEventManager.js";
+import { ComputerProcessorDataChanged } from "../data/commands/ComputerCommands.js";
+import { IMainData } from "../data/MainData.js";
 
 
 
 export class ComputerService extends ApiService {
-  
 
-    constructor() {
+    private eventManager: IEventManager;
+
+    constructor(mainData: IMainData) {
         super();
+        this.eventManager = mainData.eventManager;
         this.controllerName = "computer";
     }
 
-    public getData(doneMethod) {
-        this.callApi("getData", doneMethod);
+    public GetProcessorData() {
+        this.callApi("GetProcessorData", (r) => {
+            this.eventManager.InvokeEvent(new ComputerProcessorDataChanged(r));
+        });
     }
 
     public StartComputer(doneMethod) {
         this.callApi("StartComputer", doneMethod);
     }
+
     public StopComputer(doneMethod) {
         this.callApi("StopComputer", doneMethod);
     }
+
     public ResetComputer(doneMethod) {
         this.callApi("ResetComputer", doneMethod);
     }
@@ -36,6 +46,7 @@ export class ComputerService extends ApiService {
     public LoadProgram(doneMethod) {
          this.callApi("LoadProgram", doneMethod);
     }
+
     public RunProgram(doneMethod) {
         this.callApi("RunProgram", doneMethod);
     }
@@ -52,10 +63,7 @@ export class ComputerService extends ApiService {
         this.post("getLabelValues", properties, doneMethod);
     }
 
-    public getProcessorState(doneMethod) {
-        this.callApi("getProcessorState", doneMethod);
-    }
-
+   
     public KeyUp(keyboardKey: IKeyboardKey, doneMethod) {
         this.post("KeyUp", keyboardKey, doneMethod);
     }

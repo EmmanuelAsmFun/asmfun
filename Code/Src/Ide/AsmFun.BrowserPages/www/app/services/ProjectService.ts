@@ -7,14 +7,17 @@
 import { ApiService } from "./ApiService.js";
 import { ISourceCodeBundle, IUserSettings, IProjectSettings, IProjectDetail, IBuildConfiguration } from "../data/ProjectData.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
+import { IEventManager } from "../framework/IAsmFunEventManager.js";
+import { IMainData } from "../data/MainData.js";
 
 
 export class ProjectService extends ApiService {
    
-  
+    private eventManager: IEventManager
 
-    constructor() {
+    constructor(mainData: IMainData) {
         super();
+        this.eventManager = mainData.eventManager;
         this.controllerName = "project";
     }
 

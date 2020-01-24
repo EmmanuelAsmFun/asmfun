@@ -7,6 +7,7 @@
 import { Action2, Dictionary } from '../common/System.js'
 import { ICommandEvent, ICommandSubscription, ICommandManager } from './ICommandManager.js'
 import { IBaseCommand, BaseCommand, ICommandType } from '../data/commands/CommandsCommon.js';
+import { ServiceName } from '../serviceLoc/ServiceName.js';
 
 /** Meditor item used internaly only. */
 class CommandItem {
@@ -108,6 +109,8 @@ export class CommandManager implements ICommandManager {
             });
         });
     }
+
+    public static ServiceName: ServiceName = new ServiceName("CommandManager");
 }
 
 

@@ -1,12 +1,16 @@
-﻿// #region license
+﻿import { IProcessorData } from "./ProcessorData";
+
+// #region license
 // ASM Fun
 // Copyright (c) 2019-2030 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
 
-export interface IComputerData {
+export interface IComputerManagerData {
     isVisible: boolean;
     isDetailVisible: boolean;
+    processorData: IProcessorData | null;
+    isComputerRunning: boolean;
 }
 export interface IKeyboardKey {
     key: string;

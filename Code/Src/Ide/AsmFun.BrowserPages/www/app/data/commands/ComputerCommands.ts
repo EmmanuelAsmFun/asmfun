@@ -5,6 +5,8 @@
 // #endregion
 
 import { BaseCommand } from './CommandsCommon.js'
+import { BaseEvent } from '../EventsCommon.js';
+import { IProcessorData } from '../ProcessorData.js';
 
 export class ComputerOpenManagerCommand extends BaseCommand {
     public state: boolean | null;
@@ -21,6 +23,13 @@ export class ComputerOpenDetailCommand extends BaseCommand {
         super();
         this.state = state;
         this.commandName = "OpenDetail";
+        this.nameSpace = "Computer";
+    }
+}
+export class ComputerUpdateStateCommand extends BaseCommand {
+    constructor() {
+        super();
+        this.commandName = "UpdateState";
         this.nameSpace = "Computer";
     }
 }
@@ -56,6 +65,15 @@ export class ComputerRunProgramCommand extends BaseCommand {
     constructor() {
         super();
         this.commandName = "RunProgram";
+        this.nameSpace = "Computer";
+    }
+}
+export class ComputerProcessorDataChanged extends BaseEvent {
+    public processorData: IProcessorData | null;
+    constructor(processorData: IProcessorData | null) {
+        super();
+        this.processorData = processorData;
+        this.eventName = "ProcessorDataChanged";
         this.nameSpace = "Computer";
     }
 }

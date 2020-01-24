@@ -70,7 +70,7 @@ export class KeyboardManager {
         var thiss = this;
         this.mainData = mainData;
         this.myAppData = mainData.appData;
-        this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService();
+        this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService(mainData);
     }
 
   

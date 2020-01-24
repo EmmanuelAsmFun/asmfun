@@ -43,7 +43,7 @@ export class VideoManager {
         this.data = this.mainData.appData.videoManager;
         this.myAppData = mainData.appData;
         
-        this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService();
+        this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService(mainData);
         this.videoLayerManager = mainData.container.Resolve<VideoLayerManager>(VideoLayerManager.ServiceName) ?? new VideoLayerManager();
         this.videoPaletteManager = mainData.container.Resolve<VideoPaletteManager>(VideoPaletteManager.ServiceName) ?? new VideoPaletteManager();
         this.videoSpriteManager = mainData.container.Resolve<VideoSpriteManager>(VideoSpriteManager.ServiceName) ?? new VideoSpriteManager();
@@ -54,7 +54,7 @@ export class VideoManager {
         this.mainData.commandManager.Subscribe2(new VideoReloadAllCommand(), this, () => this.ReloadData());
         this.mainData.commandManager.Subscribe2(new VideoEnableAutoReloadCommand(null), this, (s) => this.SwapEnableAutoReload(s.state));
         this.mainData.commandManager.Subscribe2(new VideoEnableKeyForwardingCommand(null), this, (s) => this.EnableKeyForwarding(s.state));
-        var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
+        var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
         this.videoLayerManager.Init(this.data, debugSvc,this.projectManager);
         this.videoRamManager.Init(mainData, this.data, debugSvc,this.projectManager);
         this.videoPaletteManager.Init(mainData,this.data);

@@ -13,7 +13,7 @@ import { IOpcodeData } from './IOpcodeData.js'
 import { IEntertainer } from './EntertainerData.js'
 import { ICodeAssistPopupData } from './ICodeAssistPopupData.js'
 import { IAvatarData } from './AvatarData.js'
-import { IComputerData } from './ComputerData.js'
+import { IComputerManagerData } from './ComputerData.js'
 import { ISpritesData } from './SpritesData.js'
 import { ICompilationData } from './CompilationDatas.js'
 import { IVideoManagerData } from './VideoData.js'
@@ -43,7 +43,7 @@ export interface IAsmFunAppData {
     avatar: IAvatarData; 
     projectManager: IProjectManagerData; 
     memoryViewer: IMemoryViewerData; 
-    computer: IComputerData; 
+    computer: IComputerManagerData; 
     ide: IAsmFunIdeData;
     spritesManager: ISpritesData;
     compilation: ICompilationData;

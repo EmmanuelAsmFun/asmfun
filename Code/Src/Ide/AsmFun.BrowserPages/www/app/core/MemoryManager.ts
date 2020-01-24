@@ -46,7 +46,7 @@ export class MemoryManager {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.memoryViewer;
-        this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService();
+        this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
         this.editorManager = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData);
         this.mainData.commandManager.Subscribe2(new MemoryOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new MemoryScrollCommand(0), this, x => this.Scroll(x.deltaY));

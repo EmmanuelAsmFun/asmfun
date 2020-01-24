@@ -26,7 +26,7 @@ export class SettingsManager {
         var thiss = this;
         this.mainData = mainData;
         this.myAppData = mainData.appData;
-        this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService();
+        this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
         this.settings = SettingsManager.NewData();
         this.settings.saveUserSettings = () => thiss.SaveUserSettings();
         this.settings.saveProjectSettings = () => thiss.SaveProjectSettings();

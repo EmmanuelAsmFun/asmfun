@@ -26,7 +26,7 @@ export class ASMFunPlayerManager {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.ide;
-        this.projectService = new ProjectService();
+        this.projectService = new ProjectService(mainData);
         var address = localStorage.getItem('serverAddressWithPort');
         if (address != null && address.startsWith("http"))
             ApiService.ServerAddress = address;

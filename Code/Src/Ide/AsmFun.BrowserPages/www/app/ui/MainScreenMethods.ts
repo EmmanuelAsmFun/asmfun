@@ -24,7 +24,7 @@ import {
 import { MemoryOpenManagerCommand, MemoryItemHoverCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryScrollCommand, MemorySelectPageCommand, MemoryEditCommand } from "../data/commands/MemoryCommands.js";
 import {
     ComputerStopCommand, ComputerStartCommand, ComputerOpenManagerCommand, ComputerResetCommand, ComputerLoadProgramCommand,
-    ComputerRunProgramCommand, ComputerOpenDetailCommand
+    ComputerRunProgramCommand, ComputerOpenDetailCommand, ComputerUpdateStateCommand
 } from "../data/commands/ComputerCommands.js";
 import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
 import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand, VideoMemoryDumpCommand, VideoShowMemoryHexCommand, VideoEnableKeyForwardingCommand, VideoPaletteDumpCommand } from "../data/commands/VideoCommands.js";
@@ -121,6 +121,7 @@ export class MainScreenMethods {
     public ComputerLoadProgram() { MainScreenMethods.ExecuteCommand(new ComputerLoadProgramCommand()); }
     public ComputerRunProgram() { MainScreenMethods.ExecuteCommand(new ComputerRunProgramCommand()); }
     public ComputerOpenDetail(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ComputerOpenDetailCommand(state)); }
+    public ComputerUpdateState(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ComputerUpdateStateCommand()); }
 
     // Memory
     public MemoryOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new MemoryOpenManagerCommand(state)); }

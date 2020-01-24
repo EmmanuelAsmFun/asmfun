@@ -37,7 +37,7 @@ export class SourceCodeManager {
         var thiss = this;
         this.opcodeManager = mainData.container.Resolve<OpcodeManager>(OpcodeManager.ServiceName) ?? new OpcodeManager();
         this.htmlSourceCode = mainData.container.Resolve<HtmlSourceCode>(HtmlSourceCode.ServiceName) ?? new HtmlSourceCode(mainData);
-        this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService();
+        this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
         this.mainData = mainData;
         
         this.mainData.commandManager.Subscribe(new ProjectSaveCommand().GetType(), this, x => thiss.SaveSourceCode((<ProjectSaveCommand>x).bundle));

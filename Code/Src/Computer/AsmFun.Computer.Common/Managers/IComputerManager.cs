@@ -14,6 +14,8 @@ namespace AsmFun.Computer.Common.Managers
 {
     public interface IComputerManager
     {
+        bool IsComputerRunning { get; }
+
         event EventHandler<ComputerEventArgs> OnInitDisplay;
         event EventHandler<ComputerEventArgs> OnComputerBuilded;
         event EventHandler<ComputerEventArgs> OnComputerLoaded;

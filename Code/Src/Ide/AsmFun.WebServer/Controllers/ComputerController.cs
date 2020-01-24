@@ -95,11 +95,12 @@ namespace AsmFun.WebServer.Controllers
             return new { ok = true};
         }
         [HttpGet]
-        public ProcessorDataModel GetData()
+        public ProcessorDataModel GetProcessorData()
         {
             var data = processorManager.GetData();
             return data;
-        } 
+        }
+ 
         [HttpGet]
         public MemoryDumpData[] VideoMemoryDump()
         {
@@ -123,11 +124,6 @@ namespace AsmFun.WebServer.Controllers
             // Return the ordered list by name.
             return processorManager.GetLabelValues(properties);
         }
-        [HttpGet]
-        public ProcessorDataModel GetProcessorState()
-        {
-            var data = processorManager.GetData();
-            return data;
-        }
+        
     }
 }
