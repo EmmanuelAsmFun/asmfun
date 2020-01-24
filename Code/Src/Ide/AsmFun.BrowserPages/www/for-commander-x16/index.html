@@ -508,29 +508,22 @@ programItem.address  | toHex2
                                     <div class="form-lbl">Name:</div>
                                     <input type="text" v-model="settings.projectSettings.detail.name" style="width:200px" />
                                 </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Developer:</div>
-                                    <input type="text" v-model="settings.projectSettings.detail.developerName" style="width:200px" placeholder="Dave Lopper" />
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Developer pic url:</div>
-                                    <input type="text" v-model="settings.projectSettings.detail.devPicUrl" style="width:400px" />
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Screenshot url:</div>
-                                    <input type="text" v-model="settings.projectSettings.detail.imageUrl" style="width:400px" />
+                                <div v-if="!settings.projectSettings.isProgramOnly">
+                                    <div class="form-item">
+                                        <div class="form-lbl">Developer:</div>
+                                        <input type="text" v-model="settings.projectSettings.detail.developerName" style="width:200px" placeholder="Dave Lopper" />
+                                    </div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Developer pic url:</div>
+                                        <input type="text" v-model="settings.projectSettings.detail.devPicUrl" style="width:400px" />
+                                    </div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Screenshot url:</div>
+                                        <input type="text" v-model="settings.projectSettings.detail.imageUrl" style="width:400px" />
+                                    </div>
                                 </div>
                             </div>
                             <div v-if="settings.configuration != null">
-
-                                <div class="form-item">
-                                    <span class="form-lbl">Compiler:</span>
-                                    <select v-model="settings.configuration.compilerType" style="width:200px">
-                                        <option disabled value="0">Select the compiler</option>
-                                        <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
-                                    </select>
-                                    <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
-                                </div>
                                 <div class="form-item">
                                     <span class="form-lbl">ROM version:</span>
                                     <select v-model="settings.configuration.romVersion" style="width:90px">
@@ -539,23 +532,37 @@ programItem.address  | toHex2
                                     </select>
                                     <a href="https://github.com/commanderx16/x16-rom" target="_blank"><img src="/images/avatar/michael-steil/michael-steil.gif" height="25" /> from Michael Steil, Visit his website</a>
                                 </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Compiler variables:</div>
-                                    <input type="text" v-model="settings.configuration.compilerVariables" style="width:400px" />
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Compiler addon commmandLine:</div>
-                                    <input type="text" v-model="settings.configuration.addonCommandLine" style="width:400px" />
+                                <div v-if="!settings.projectSettings.isProgramOnly">
+                                    <div class="form-item">
+                                        <span class="form-lbl">Compiler:</span>
+                                        <select v-model="settings.configuration.compilerType" style="width:200px">
+                                            <option disabled value="0">Select the compiler</option>
+                                            <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-item">
+                                        <div class="form-lbl">Compiler variables:</div>
+                                        <input type="text" v-model="settings.configuration.compilerVariables" style="width:400px" />
+                                    </div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Compiler addon commmandLine:</div>
+                                        <input type="text" v-model="settings.configuration.addonCommandLine" style="width:400px" />
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-item">
+                            <div class="form-item" v-if="!settings.projectSettings.isProgramOnly">
                                 <div class="form-lbl">Start Filename:</div>
                                 <input type="text" v-model="settings.projectSettings.startupFile" style="width:200px" />
                             </div>
-                            <div class="form-item">
+                            <div class="form-item" v-if="!settings.projectSettings.isProgramOnly">
                                 <div class="form-lbl"></div>
                                 <button v-on:click="settings.saveProjectSettings()"><span class="fa fa-save"></span> Save</button>
-                                <small style="font-size:9px;">Stored in [PROJECT]/AsmFun/AsmFunSettings.json</small>
+                                <small style="font-size:9px;" >Stored in [PROJECT]/AsmFun/AsmFunSettings.json</small>
+                            </div>
+                            <div class="form-item" v-if="settings.projectSettings.isProgramOnly">
+                                <div class="form-lbl"></div>
+                                <button v-on:click="settings.saveProjectSettings()"><span class="fa fa-level-down fa-rotate-180"></span> Update</button>
                             </div>
                         </div>
                     </div>
@@ -921,8 +928,91 @@ programItem.address  | toHex2
                 </div>
                 <div class="content">
                     <h3 v-if="projectManager.projectIsDownloading" style="float:right;">Downloading...</h3>
-                    <p class="footernote">These are projects I found on GitHub. Hope you like it! If you have a nice project too, tell me, I'll will add it to the list.</p>
-                    <div class="webProjects">
+                    <p v-if="!projectManager.isNewProject" class="footernote">These are projects I found on GitHub. Hope you like it! If you have a nice project too, tell me, I'll will add it to the list.</p>
+                    <div class="project-form">
+                        <div v-if="!projectManager.isNewProject" class="start-form">
+                            <h2>Load or create</h2>
+
+                            <div>
+                                <div class="form-item">
+                                    <div class="form-lbl">Projects folder:</div>
+                                    <input type="text" v-model="projectManager.projectsFolder" style="width:400px" />
+                                    <button v-on:click="ProjectSaveFolder()"><span class="fa fa-level-down fa-rotate-180"></span> Update</button>
+                                </div>
+                            </div>
+                            <br />
+                            <br />
+                            <br />
+                            <div>
+                                <div class="form-item">
+                                    <div class="form-lbl">Load Project: </div>
+                                    <button style="width:150px;" v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load project</button>
+                                    <small>(.asm | .a)</small>
+                                </div>
+                                <br />
+                                <div class="form-item">
+                                    <div class="form-lbl">Load Program: </div>
+                                    <button style="width:150px;" v-on:click="ProjectRequestLoadProgram()"><span class="fa fa-folder-open"></span> Load program</button>
+                                    <small> (.prg)</small>
+                                </div>
+                                <br />
+                                <div class="form-item">
+                                    <div class="form-lbl">New Project: </div>
+                                    <button style="width:150px;" v-on:click="ProjectRequestCreateNew()"><span class="fa fa-plus-circle"></span> Create project</button>
+
+                                </div>
+                            </div>
+                            <br />
+                            <br />
+                        </div>
+
+
+                        <div v-if="projectManager.isNewProject">
+
+                            <h2>New Project</h2>
+                            <div>
+                                <div class="form-item">
+                                    <div class="form-lbl">Project folder:</div>
+                                    <span>
+                                        <small>{{projectManager.projectsFolder}}{{projectManager.folderChar}}</small><input type="text" v-model="projectManager.newProjectFileName" style="width:140px"
+                                                                                                                            title="Set clean filename" placeholder="NewProjectName" />{{
+    projectManager.folderChar
+                                        }}
+                                    </span>
+
+                                </div>
+                                <div class="form-item">
+                                    <div class="form-lbl">Developer:</div>
+                                    <input type="text" v-model="projectManager.newProjectDeveloperName" style="width:200px" placeholder="Dave Lopper" />
+                                </div>
+                                <div class="form-item">
+                                    <span class="form-lbl">Compiler:</span>
+                                    <select v-model="projectManager.newProjectCompiler" style="width:200px">
+                                        <option disabled value="0">Select the compiler</option>
+                                        <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
+                                    </select>
+                                    <a v-if="projectManager.newProjectCompiler == 1" href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
+                                    <a v-if="projectManager.newProjectCompiler == 4" href="https://cc65.github.io/getting-started.html" target="_blank">Download and install</a>
+                                </div>
+                                <div class="form-item">
+                                    <span class="form-lbl">ROM version:</span>
+                                    <select v-model="projectManager.newProjectRomVersion" style="width:90px">
+                                        <option disabled value="">Select the ROM</option>
+                                        <option v-for="option in projectManager.romVersionNames" v-bind:value="option.value">{{ option.name }}</option>
+                                    </select>
+                                    <a href="https://github.com/commanderx16/x16-rom" target="_blank"><img src="/images/avatar/michael-steil/michael-steil.gif" height="25" /> from Michael Steil, Visit his website</a>
+                                </div>
+                                <div class="form-item">
+                                    <div class="form-lbl"> </div>
+                                    <button v-on:click="ProjectCreateNew();"><span class="fa fa-plus-circle"></span>Create</button>
+
+                                </div>
+                                <a v-on:click="ProjectRequestCreateNew()"><span class="fa fa-chevron-left"></span> Back</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="webProjects" v-if="!projectManager.isNewProject">
 
 
                         <h3>The best way to learn, is to look at existing projects from other devs and noobs.</h3>
@@ -945,7 +1035,7 @@ programItem.address  | toHex2
                             </div>
                         </div>
                     </div>
-                    <div class="localProjects">
+                    <div class="localProjects" v-if="!projectManager.isNewProject">
                         <div v-for="project in projectManager.localProjects">
                             <div class="project" v-on:click="ProjectLoadLocal(project)">
                                 <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
@@ -956,74 +1046,6 @@ programItem.address  | toHex2
                                 <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a>
                                 <div class="pr-description">{{project.description}}</div>
 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="project-form">
-                        <div>
-                            <h2>Project</h2>
-                            <div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Projects folder:</div>
-                                    <input type="text" v-model="projectManager.projectsFolder" style="width:400px" />
-                                    <button v-on:click="ProjectSaveFolder()"><span class="fa fa-save"></span> Save</button>
-                                </div>
-                            </div>
-
-
-                            <br />
-                            <div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Load Project: </div>
-                                    <button style="width:150px;" v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load project</button> 
-                                    <small>(.asm | .a)</small>
-                                </div> 
-                                <br />
-                                <div class="form-item">
-                                    <div class="form-lbl">Load Program: </div>
-                                    <button style="width:150px;" v-on:click="ProjectRequestLoadProgram()"><span class="fa fa-folder-open"></span> Load program</button>
-                                    <small> (.prg)</small>
-                                </div>
-                            </div>
-                            <br />
-                            <br />
-                            <h2>New Project</h2>
-                            <div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Project folder:</div>
-                                    <span>
-                                        <small>{{projectManager.projectsFolder}}{{projectManager.folderChar}}</small><input type="text" v-model="projectManager.newProjectFileName" style="width:140px"
-                                                                                                                            title="Set clean filename" placeholder="NewProjectName" />{{
-projectManager.folderChar
-                                        }}
-                                    </span>
-
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Developer:</div>
-                                    <input type="text" v-model="projectManager.newProjectDeveloperName" style="width:200px" placeholder="Dave Lopper" />
-                                </div>
-                                <div class="form-item">
-                                    <span class="form-lbl">Compiler:</span>
-                                    <select v-model="projectManager.newProjectCompiler" style="width:200px">
-                                        <option disabled value="0">Select the compiler</option>
-                                        <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
-                                    </select>
-                                    <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
-                                </div>
-                                <div class="form-item">
-                                    <span class="form-lbl">ROM version:</span>
-                                    <select v-model="projectManager.newProjectRomVersion" style="width:90px">
-                                        <option disabled value="">Select the ROM</option>
-                                        <option v-for="option in projectManager.romVersionNames" v-bind:value="option.value">{{ option.name }}</option>
-                                    </select>
-                                    <a href="https://github.com/commanderx16/x16-rom" target="_blank"><img src="/images/avatar/michael-steil/michael-steil.gif" height="25" /> from Michael Steil, Visit his website</a>
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl"> </div>
-                                    <button v-on:click="ProjectRequestCreateNew();ProjectCreateNew();"><span class="fa fa-plus-circle"></span>Create</button>
-
-                                </div>
                             </div>
                         </div>
                     </div>

@@ -282,7 +282,11 @@ export class CodeBlockContext implements ICodeBlockContext {
         line.context = this;
     }
 
-    public RemoveLine(line : IEditorLine){
+    public RemoveLine(line: IEditorLine) {
+        if (line == null) {
+            // Todo: check how this is possible
+            return;
+        }
         var lineIndex = this.lines.indexOf(line);
         if (lineIndex > -1) this.lines.splice(lineIndex, 1);
         lineIndex = this.potentialRefLines.indexOf(line);
@@ -293,6 +297,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         // remove from variables
         lineIndex = this.variables.indexOf(line);
         if (lineIndex > -1) this.variables.splice(lineIndex, 1);
+        
         // remove in label
         if (line.label != null) {
             lineIndex = line.label.lines.indexOf(line);

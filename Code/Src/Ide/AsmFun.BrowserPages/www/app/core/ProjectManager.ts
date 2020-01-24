@@ -8,14 +8,14 @@ import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
 import { IProjectManagerData, ProjectCompilerTypes, ProjectComputerTypes, IUserSettings, InternetSourceType, IProjectDetail, IProjectSettings, IBuildConfiguration, CompilerNames, RomVersionNames, NewProjectManagerData, NewBuildConfiguration } from "../data/ProjectData.js";
 import { ProjectService } from "../services/projectService.js";
-import { NotifyIcon, ConfirmIcon } from "../common/Enums.js";
+import { NotifyIcon, ConfirmIcon, ErrorIconName, ErrorIcon } from "../common/Enums.js";
 import { ProjectLoadCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectSaveFolderCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand } from "../data/commands/ProjectsCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { ASMStorage } from "../Tools.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { IFileDialogData } from "../data/FileManagerData.js";
-import { ComputerStartCommand, ComputerLoadProgramCommand } from "../data/commands/ComputerCommands.js";
+import { ComputerStartCommand, ComputerLoadProgramCommand, ComputerOpenManagerCommand } from "../data/commands/ComputerCommands.js";
 import { EditorManager } from "./EditorManager.js";
 
 
@@ -71,6 +71,7 @@ export class ProjectManager  {
             thiss.userSettings = r;
             thiss.data.projectsFolder = r.projectsFolder;
             thiss.data.localProjects = r.localProjects;
+            thiss.data.isNewProject = false;
             thiss.data.showOpenFileFolder = r.platform !== "Windows";
             if (thiss.data.showOpenFileFolder)
                 thiss.data.folderChar = "/";
@@ -100,23 +101,27 @@ export class ProjectManager  {
         if (this.userSettings == null) return;
         this.userSettings.projectsFolder = this.data.projectsFolder;
         this.service.SaveUserSettings(this.userSettings, (r) => {
-            thiss.myAppData.alertMessages.Notify("Projects Folder Saved.", NotifyIcon.OK);
+            thiss.myAppData.alertMessages.Notify("Projects folder updated.", NotifyIcon.OK);
         });
     }
 
     public NewProjectRequest() {
         if (this.data.projectIsDownloading) return;
-        if (this.data.newProjectFileName == null || this.data.newProjectFileName.length < 2) return;
-        this.data.isNewProject = true;
+        this.data.isNewProject = !this.data.isNewProject;
         this.data.newBuildConfiguration = NewBuildConfiguration();
     }
 
     public CreateNewProject() {
         var thiss = this;
-        if (this.data.newProjectFileName == null || this.data.newProjectFileName.length < 2) return;
+        if (this.data.newProjectFileName == null || this.data.newProjectFileName.length < 2) {
+            this.myAppData.alertMessages.ShowError("Project name is empty", "The project name in the project folder is empty.", ErrorIcon.Exclamation);
+            return;
+        };
         this.data.newBuildConfiguration.compilerType = this.data.newProjectCompiler;
         this.data.newBuildConfiguration.romVersion = this.data.newProjectRomVersion;
         this.service.CreateNew(this.data.newProjectFileName, this.data.newProjectDeveloperName, this.data.newBuildConfiguration, () => { thiss.Load(); });
+        this.data.isNewProject = false;
+        this.data.newProjectFileName = "";
     }
 
     public ProjectOpenProjectWebsite(detail?: IProjectDetail | null) {
@@ -194,6 +199,7 @@ export class ProjectManager  {
                         thiss.Load();
                         thiss.data.projectIsDownloading = false;
                         thiss.mainData.commandManager.InvokeCommand(new ComputerStartCommand());
+                        thiss.mainData.commandManager.InvokeCommand(new ComputerOpenManagerCommand(true));
                         setTimeout(() => {
                             thiss.mainData.commandManager.InvokeCommand(new ComputerLoadProgramCommand());
                         }, 3000);

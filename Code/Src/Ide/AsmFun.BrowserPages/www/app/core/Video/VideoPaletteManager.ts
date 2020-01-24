@@ -68,7 +68,7 @@ export class VideoPaletteManager {
 
     public MemoryDump() {
         if (this.rawData == null) return;
-        ASMStorage.SaveDataToFile(this.rawData, "Palette_" + ASMStorage.GetNowForFile())
+        ASMStorage.SaveDataToFile(this.rawData, "Palette_" + ASMStorage.GetNowForFile() + ".bin");
     }
 
 

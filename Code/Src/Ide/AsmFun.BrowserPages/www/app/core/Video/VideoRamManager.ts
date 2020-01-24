@@ -98,7 +98,7 @@ export class VideoRamManager {
 
 
     public VideoMemoryDump() {
-        ASMStorage.SaveDataToFile(this.ram, "VideoRam_" + ASMStorage.GetNowForFile())
+        ASMStorage.SaveDataToFile(this.ram, "VideoRam_" + ASMStorage.GetNowForFile() + ".bin");
     }
     
 

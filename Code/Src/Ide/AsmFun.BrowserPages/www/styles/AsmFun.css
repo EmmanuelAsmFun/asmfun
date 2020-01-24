@@ -51,6 +51,28 @@ input {
   min-width: 25px;
   cursor: pointer;
 }
+input[type=button],
+button {
+  background: #c7c76b;
+  border: none;
+  cursor: pointer;
+  min-width: 100px;
+  padding: 3px;
+}
+input[type=button] .fa,
+button .fa {
+  padding-right: 5px;
+}
+input[type=button]:hover,
+button:hover {
+  background: #a3a375;
+}
+select {
+  background: #222222;
+  border: 1px solid #666666;
+  color: #999999;
+  font-size: 11px;
+}
 /*----------------------*/
 /*#region common */
 .alertWithCorrectSpacings {
@@ -345,19 +367,6 @@ input.has-error {
 }
 .settingsViewer input[disabled=disabled] {
   opacity: 0.5;
-}
-.settingsViewer button {
-  background: #bebe95;
-  border: none;
-  cursor: pointer;
-  min-width: 100px;
-  padding: 3px;
-}
-.settingsViewer button .fa {
-  padding-right: 5px;
-}
-.settingsViewer button:hover {
-  background: #a3a375;
 }
 .settingsViewer .form-item {
   margin-bottom: 10px;
@@ -1240,6 +1249,9 @@ body {
   overflow-y: auto;
 }
 .projectManager .project-form {
+  float: left;
+}
+.projectManager .project-form .start-form {
   max-width: 550px;
 }
 .projectManager h2 {
@@ -1247,6 +1259,7 @@ body {
 }
 .projectManager a {
   font-size: 11px;
+  cursor: pointer;
 }
 .projectManager.pojectIsDownloading .webProjects {
   opacity: 0.3;
@@ -1263,19 +1276,6 @@ body {
 }
 .projectManager input[disabled=disabled] {
   opacity: 0.5;
-}
-.projectManager button {
-  background: #bebe95;
-  border: none;
-  cursor: pointer;
-  min-width: 100px;
-  padding: 3px;
-}
-.projectManager button .fa {
-  padding-right: 5px;
-}
-.projectManager button:hover {
-  background: #a3a375;
 }
 .projectManager .form-item {
   margin-bottom: 10px;
@@ -1537,12 +1537,6 @@ body {
 .videoManager h2 {
   font-weight: 100;
   font-size: 22px;
-}
-.videoManager select {
-  background: #222222;
-  border: 1px solid #666666;
-  color: #999999;
-  font-size: 11px;
 }
 .videoManager .content {
   position: absolute;

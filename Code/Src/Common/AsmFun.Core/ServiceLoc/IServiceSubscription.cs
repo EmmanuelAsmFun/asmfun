@@ -11,6 +11,7 @@ using System.Text;
 
 namespace AsmFun.Core.ServiceLoc
 {
+    
     internal interface IServiceSubscription
     {
         string Name { get; set; }

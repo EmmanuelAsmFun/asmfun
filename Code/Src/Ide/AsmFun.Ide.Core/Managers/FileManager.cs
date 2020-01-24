@@ -19,10 +19,10 @@ namespace AsmFun.Ide.Core.Managers
 
         public AsmFolder GetFiles(string folderName, string filter)
         {
-            if (string.IsNullOrWhiteSpace(folderName))
+            if (string.IsNullOrWhiteSpace(folderName) || !Directory.Exists(folderName))
             {
                 var currentProject = projectManager.GetCurrentProjectSettings();
-                if (currentProject != null)
+                if (currentProject != null && Directory.Exists(currentProject.Folder))
                 {
                     folderName = currentProject.Folder;
                 }
@@ -39,6 +39,7 @@ namespace AsmFun.Ide.Core.Managers
                 Folder = folderName.Replace("\\", "/"),
                 Name = Path.GetFileName(Path.GetDirectoryName(folderName))
             };
+            
             var dirFiles = Directory.GetFiles(folderName);
             foreach (var dirFile in dirFiles)
             {

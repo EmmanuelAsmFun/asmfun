@@ -6,9 +6,11 @@
 
 using AsmFun.Common.ServiceLoc;
 using System;
+using System.Diagnostics;
 
 namespace AsmFun.Core.ServiceLoc
 {
+    [DebuggerDisplay("Subscription:{Name}:{Type.Name}:Instanciated={Instance != null}")]
     internal class ServiceSubscription<TService> : IServiceSubscription, IEmServiceSubscription<TService>
     {
         public string Name { get; set; }
