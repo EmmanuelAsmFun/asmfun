@@ -21,6 +21,7 @@ namespace AsmFun.Ide.Common.Data.Programm
         public bool Exists { get; set; }
         public bool HasBeenRead { get; set; }
         public bool IsIncludeFile { get; set; }
+        public bool RequireSave { get; set; }
 
         public SourceCodeFile()
         {

@@ -137,7 +137,7 @@ namespace AsmFun.Ide.DataAccess
             {
                 foreach (var file in bundle.Files)
                 {
-                    if (file.IsBinary) continue;
+                    if (file.IsBinary || !file.RequireSave) continue;
                     if (File.Exists(file.FileNameFull))
                     {
                         // Make a backup

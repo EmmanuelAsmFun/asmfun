@@ -111,6 +111,7 @@ export interface IEditorFile {
     isSelected: boolean;
     lastCursorY: number;
     lastCursorX: number;
+    
 }
 export interface IEditorLine {
     isVariable: boolean;

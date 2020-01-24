@@ -46,7 +46,7 @@ export class EditorWriter  {
             else 
                 this.InterpretKey(context, text[i]);
         }
-        context.requireSave = true;
+        this.RequireSave(context);
     }
 
     public InterpretKey(context:IEditorContext, theKey: string) {
@@ -62,12 +62,17 @@ export class EditorWriter  {
             context.currentLine.data.sourceCode = line.substring(0, context.editorData.cursorX) + theKey + line.substring(context.editorData.cursorX);
             context.RedrawLine();
             context.cursorLogic.MoveRight(context,false,false);
-            context.requireSave = true;
+            this.RequireSave(context);
             return false;
         }
         return true;
     }
-    
+
+    private RequireSave(context: IEditorContext) {
+        context.requireSave = true;
+        if (context.currentFile != null)
+            context.currentFile.data.requireSave = true;
+    }
     
 
 
@@ -110,7 +115,7 @@ export class EditorWriter  {
             context.cursorLogic.UpdateCursor(context);
         }
         this.AddUndoEnter(previousLine, context.editorData.cursorX, context.editorData.cursorY);
-        context.requireSave = true;
+        this.RequireSave(context);
         return false;
     }
 
@@ -144,7 +149,7 @@ export class EditorWriter  {
             context.cursorLogic.MoveLeft(context,false,false);
             context.editorData.maxX--;
         }
-        context.requireSave = true;
+        this.RequireSave(context);
         return false;
     }
 
@@ -173,7 +178,7 @@ export class EditorWriter  {
         }
 
         context.RedrawLine();
-        context.requireSave = true;
+        this.RequireSave(context);
         return false;
     }
 
@@ -200,7 +205,7 @@ export class EditorWriter  {
         context.cursorLogic.Deselect();
         context.cursorLogic.MoveLeft(context,false,false);
         context.cursorLogic.MoveCursor(context, selection.startOffset, selection.startLine - 1);
-        context.requireSave = true;
+        this.RequireSave(context);
         return true;
     }
 
@@ -231,7 +236,7 @@ export class EditorWriter  {
         context.RedrawLine2(firstLine);
         context.cursorLogic.Deselect();
         context.cursorLogic.MoveCursor(context, selection.startOffset, selection.startLine - 1);
-        context.requireSave = true;
+        this.RequireSave(context);
         return true;
     }
 
@@ -250,7 +255,7 @@ export class EditorWriter  {
         context.currentLine.data.sourceCode = sc;
         context.RedrawLine();
         context.editorData.cursorX = context.currentLine.data.sourceCode.length;
-        context.requireSave = true;
+        this.RequireSave(context);
     }
 
 
@@ -258,7 +263,7 @@ export class EditorWriter  {
 
     private runningUndo = false;
     public Undo(context: IEditorContext): boolean {
-        context.requireSave = true;
+        this.RequireSave(context);
         try {
             this.runningUndo = true;
             if (this.undos.length === 0) return false;

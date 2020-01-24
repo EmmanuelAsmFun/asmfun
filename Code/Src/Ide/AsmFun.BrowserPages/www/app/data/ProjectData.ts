@@ -31,7 +31,7 @@ export interface ISourceCodeBundle {
 
 
 export interface ISourceCodeFile {
-   
+    requireSave: boolean | null;
     folder: string;
     fileNameFull: string;
     fileName: string;

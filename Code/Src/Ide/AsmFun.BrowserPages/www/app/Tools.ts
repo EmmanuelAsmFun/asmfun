@@ -137,14 +137,14 @@ export class AsmTools {
 
 export class ASMStorage {
     public static StoreGetProp<T>(name: string): T | null {
-        var name = name.replace(/[^a-zA-Z ]/g, "");
+        var name = name.replace(/[^a-zA-Z .]/g, "");
         var data = localStorage.getItem(name);
         if (data == null) return null;
         return JSON.parse(data);
     }
 
     public static StoreSetProp<T>(name: string, obj: T) {
-        var name = name.replace(/[^a-zA-Z ]/g, "");
+        var name = name.replace(/[^a-zA-Z .]/g, "");
         var data = JSON.stringify(obj)
         localStorage.setItem(name, data);
     }

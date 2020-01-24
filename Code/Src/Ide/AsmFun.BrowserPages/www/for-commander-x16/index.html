@@ -142,7 +142,7 @@
                 <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
                 <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
-                <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Computer Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
+                <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
             </div>
             <div class="newVersionText" v-if="ide.newVersionAvailable">
                 <a href="javascript:" v-on:click="ASMFunPlayerOpenManager(true)">
@@ -155,18 +155,18 @@
         <div id="computer" class="computer v-scaler-l" v-show="computer.isVisible || computer.isComputerRunning">
             <div class="top-buttons">
                 <span v-show="computer.isComputerRunning" class="top-btns-block top-comp-btns">
-                    <a href="javascript:" v-on:click="ComputerLoadProgram" title="Write Program in computer"><span class="fa fa-microchip fa-fw"></span></a>
-                    <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in computer"><span style="font-size:13px;vertical-align:text-top; fa-fw">RUN</span></a>
+                    <a href="javascript:" v-on:click="ComputerLoadProgram" title="Write Program in Player"><span class="fa fa-microchip fa-fw"></span></a>
+                    <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in Player"><span style="font-size:13px;vertical-align:text-top; fa-fw">RUN</span></a>
                 </span>
                 <span v-if="!computer.isComputerRunning" class="top-btns-block top-comp-btns">&nbsp;</span>
                 <span class="top-btns-block top-comp-btns-ctrl">
-                    <a href="javascript:" v-on:click="ComputerStart()" title="Start computer" v-if="!computer.isComputerRunning" @mouseover="ComputerUpdateState">
+                    <a href="javascript:" v-on:click="ComputerStart()" title="Start Player" v-if="!computer.isComputerRunning" @mouseover="ComputerUpdateState">
                         <span class="fa fa-play fa-fw"></span>
                     </a>
-                    <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer" v-if="computer.isComputerRunning" @mouseover="ComputerUpdateState">
+                    <a href="javascript:" v-on:click="ComputerStop()" title="Stop Player" v-if="computer.isComputerRunning" @mouseover="ComputerUpdateState">
                         <span class="fa fa-stop fa-fw"></span>
                     </a>
-                    <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer">
+                    <a href="javascript:" v-on:click="ComputerReset" title="Reset Player">
                         <span class="fa-stack fa-lg fa-fw">
                             <i class="fa fa-desktop fa-stack-2x"></i>
                             <i class="fa fa-refresh fa-stack-1x fa-flip-horizontal"></i>
@@ -182,16 +182,18 @@
         </div>
 
         <div class="files" v-if="scfiles">
-            <div v-for="sourceCodeFile in scfiles">
-                <div class="fileName" v-bind:class="{'isSelected': sourceCodeFile.isSelected }">
-                    <span class="selectableFile" v-if="sourceCodeFile.data.isCodeFile" v-on:click="SelectFile(sourceCodeFile)">
-                        <span class="fa fa-cube"></span> {{sourceCodeFile.data.fileName}}
+            <div v-for="file in scfiles">
+                <div class="fileName" v-bind:class="{'isSelected': file.isSelected }">
+                    <span class="file" v-if="file.data.isCodeFile" v-on:click="SelectFile(file)">
+                        <span class="fa fa-cube"></span> {{file.data.fileName}}
+                        <span v-if="file.data.requireSave" title="File changed. Require save">*</span>
                     </span>
-                    <span class="selectableFile" v-if="sourceCodeFile.data.isIncludeFile" v-on:click="SelectFile(sourceCodeFile)">
-                        <span class="fa fa-cubes"></span> {{sourceCodeFile.data.fileName}}
+                    <span class="selectableFile" v-if="file.data.isIncludeFile" v-on:click="SelectFile(file)">
+                        <span class="fa fa-cubes"></span> {{file.data.fileName}}
+                        <span v-if="file.data.requireSave" title="File changed. Require save">*</span>
                     </span>
-                    <span v-if="sourceCodeFile.data.isBinary">
-                        <span class="fa fa-file-image-o"></span>    {{sourceCodeFile.data.fileName}}
+                    <span v-if="file.data.isBinary">
+                        <span class="fa fa-file-image-o"></span>    {{file.data.fileName}}
                     </span>
                 </div>
             </div>
@@ -662,7 +664,7 @@ programItem.address  | toHex2
                             &nbsp;
                             <a v-on:click="VideoEnableKeyForwarding(null)" title="Forward keyboard to emulator">
                                 <span class="fa fa-keyboard-o"></span>
-                                <span v-show="videoManager.isKeyboardForwarded">Your keyboard is forwarded to the Computer</span>
+                                <span v-show="videoManager.isKeyboardForwarded">Your keyboard is forwarded to the Player</span>
                             </a>
 
                         </div>

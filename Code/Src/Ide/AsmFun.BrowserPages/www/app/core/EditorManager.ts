@@ -15,6 +15,7 @@ import { EditorWriter } from "./EditorWriter.js";
 import { ProjectSaveCommand } from "../data/commands/ProjectsCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { CodeAssistPopupManager } from "./CodeAssistPopupManager.js";
+import { ProjectManager } from "./ProjectManager.js";
 
 export interface IEditorContext {
     editorData: EditorData;
@@ -31,7 +32,8 @@ export interface IEditorContext {
 
 
 export class EditorManager implements IEditorContext {
-   
+
+    private LocalStorageName: string = ".EditorData";
    
     public cursorLogic: CursorLogic = new CursorLogic();
     public editorData: EditorData = new EditorData();
@@ -43,6 +45,7 @@ export class EditorManager implements IEditorContext {
     private myAppData: IAsmFunAppData;
     private mainData: IMainData;
     private sourceCodeManager: SourceCodeManager;
+    private projectManager: ProjectManager;
     
     private isEnabled = true;
     private codeAssistIsOpen = false;
@@ -54,6 +57,7 @@ export class EditorManager implements IEditorContext {
         this.myAppData = mainData.appData;
         
         this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(this.mainData);
+        this.projectManager = mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName) ?? new ProjectManager(this.mainData);
         mainData.commandManager.Subscribe2(new KeyboardKeyCommand(), this, this.KeyPressed);
         mainData.commandManager.Subscribe2(new EditorCodeAssistCommand(), this, () => thiss.OpenCodeAssistent());
         mainData.commandManager.Subscribe2(new CloseEditorCodeAssistCommand(), this, () => thiss.CloseCodeAssistent());
@@ -71,8 +75,10 @@ export class EditorManager implements IEditorContext {
         if (file == null) return;
         if (this.currentFile === file) return;
         this.sourceCode = this.mainData.sourceCode;
+
         // Store last cursor coordinates
         if (this.currentFile != null) {
+            this.projectManager.ProjectSetProp(this.currentFile.data.fileName + this.LocalStorageName, { x: this.editorData.cursorX, y: this.editorData.cursorY });
             this.currentFile.lastCursorX = this.editorData.cursorX;
             this.currentFile.lastCursorY = this.editorData.cursorY;
             this.currentFile.isSelected = false;
@@ -87,10 +93,17 @@ export class EditorManager implements IEditorContext {
         if (this.currentFile.lines != null)
             this.editorData.maxY = this.currentFile.lines.length;
         this.myAppData.selectedFile = file;
+        
         if (this.currentFile.lastCursorX == 0 || this.currentFile.lastCursorX == null) this.currentFile.lastCursorX = 0;
         if (this.currentFile.lastCursorY == 0 || this.currentFile.lastCursorY == null) this.currentFile.lastCursorY = 0;
-        this.editorData.cursorX = this.currentFile.lastCursorX;
-        this.editorData.cursorY = this.currentFile.lastCursorY;
+        var fileEditorData: { x: number, y: number } | null = this.projectManager.ProjectGetProp(this.currentFile.data.fileName + this.LocalStorageName);
+        if (fileEditorData != null) {
+            this.editorData.cursorX = fileEditorData.x;
+            this.editorData.cursorY = fileEditorData.y;
+        } else {
+            this.editorData.cursorX = this.currentFile.lastCursorX;
+            this.editorData.cursorY = this.currentFile.lastCursorY;
+        }
         this.currentFile.isSelected = true;
         this.cursorLogic.UpdateCursor(this, false);
     }
@@ -299,7 +312,7 @@ export class EditorManager implements IEditorContext {
         this.mainData.appData.compilation.isVisible = false;
     }
 
-
+    
 
     public static NewEmptyFile(): IEditorFile {
         return {
@@ -314,7 +327,8 @@ export class EditorManager implements IEditorContext {
                 fileName: "",
                 fileNameFull: "",
                 exists: false,
-                lines: []
+                lines: [],
+                requireSave: false,
             },
             fileHtml:null
         }
