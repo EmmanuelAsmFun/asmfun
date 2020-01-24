@@ -20,18 +20,19 @@ export class EditorWriter  {
 
     public KeyPessed(context: IEditorContext, allowContinueEmit: boolean, keyCommand: KeyboardKeyCommand): boolean {
         var theKey = keyCommand.key;
-
+        var isTab = false;
         switch (keyCommand.which) {
             // Text edit
             case 8: allowContinueEmit = this.Backspace(context); break;    // Backspace
             case 46: allowContinueEmit = this.DeleteKey(context); break;   // DeleteKey
-            case 9: theKey = "\t"; break;                                  // Tab
+            case 9: theKey = "\t"; isTab = true; break;                                  // Tab
         }
 
         // Check if we are typing
         if (!keyCommand.ctrlKey && !keyCommand.altKey && allowContinueEmit) 
             allowContinueEmit = this.InterpretKey(context, theKey);
-        
+        // When it's tab, we need to move right one more time.
+        if (isTab) context.cursorLogic.MoveRight(context,false,false);
         return allowContinueEmit;
     }
 
@@ -41,9 +42,9 @@ export class EditorWriter  {
         for (var i = 0; i < text.length; i++) {
             var key = text[i];
             if (key == "\n")
-                this.EnterKey(context,true);
-            else
-                this.InterpretKey(context,text[i]);
+                this.EnterKey(context, true);
+            else 
+                this.InterpretKey(context, text[i]);
         }
         context.requireSave = true;
     }

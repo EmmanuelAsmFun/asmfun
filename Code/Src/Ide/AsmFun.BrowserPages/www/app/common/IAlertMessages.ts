@@ -12,6 +12,7 @@ import { Action } from "./System.js";
 
 export interface IAlertMessages {
     Notify(message: string, icon: NotifyIconName);
+    NotifyWithDuration(message: string, icon: NotifyIconName, duration: number);
     ShowError(title: string, message: string, icon: ErrorIconName, confirmAction?: Action<boolean>, errorCode?: ErrorCode);
     Confirm(title: string, message: string, icon: ConfirmIconName, confirmAction?: Action<boolean>, yesText?: string, noText?: string);
 

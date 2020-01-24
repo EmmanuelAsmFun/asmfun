@@ -10,7 +10,7 @@ import { CodeBlockContext } from './CodeBlockContext.js';
 import { HtmlSourceCode } from './HtmlSourceCode.js';
 import { AsmTools } from "../Tools.js"
 import { IMainData } from "../data/MainData.js";
-import { ProjectSaveCommand, ProjectLoadCommand } from "../data/commands/ProjectsCommands.js";
+import { ProjectSaveCommand, ProjectLoadCommand, ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 import { IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorLine, IEditorLabel, CreateNewFile, CreateNewBundle, CreateNewEditorLabel, ICodeBlockContext } 
         from '../data/EditorData.js';
 import { ProjectService } from '../services/projectService.js';
@@ -40,8 +40,8 @@ export class SourceCodeManager {
         this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
         this.mainData = mainData;
         
-        this.mainData.commandManager.Subscribe(new ProjectSaveCommand().GetType(), this, x => thiss.SaveSourceCode((<ProjectSaveCommand>x).bundle));
-        this.mainData.commandManager.Subscribe(new ProjectLoadCommand().GetType(), this, x => thiss.LoadProject(() => { }));
+        this.mainData.commandManager.Subscribe2(new ProjectSaveCommand(), this, x => thiss.SaveSourceCode(x.bundle));
+        this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => thiss.ParseProjectSettings(x.projectSettings));
     }
 
     public SelectFile(file?: IEditorFile) {
@@ -92,7 +92,7 @@ export class SourceCodeManager {
         this.projectService.Save(scBundle, (r) => {
             thiss.mainData.appData.alertMessages.Notify("Backup, Saved and Compiled", NotifyIcon.OK);
             //  reload sourcecode to reinterpret all labels
-            thiss.LoadSourceCode(() => {});
+            thiss.LoadSourceCode();
         }, e => {
             thiss.mainData.appData.alertMessages.ShowError("Error on save", e, ErrorIcon.Exclamation);
         });
@@ -100,17 +100,14 @@ export class SourceCodeManager {
         return true;
     }
 
-    private LoadProject(doneMethod: () => void) {
-        this.projectService.GetProjectSettings(s => {
-            this.lastProjectSettings = s;
-            if (s.isProgramOnly) {
-                this.RemoveAllSourceCode();
-                if (doneMethod)
-                    doneMethod();
-                return;
-            }
-            this.LoadSourceCode(doneMethod);
-        }, e => { });
+    private ParseProjectSettings(projectSettings: IProjectSettings | null) {
+        if (projectSettings == null) return;
+        this.lastProjectSettings = projectSettings;
+        if (projectSettings.isProgramOnly) {
+            this.RemoveAllSourceCode();
+            return;
+        }
+        this.LoadSourceCode();
     }
     private RemoveAllSourceCode() {
         this.mainData.sourceCode = CreateNewBundle({
@@ -126,20 +123,16 @@ export class SourceCodeManager {
         this.mainData.appData.breakPoints = [];
     }
 
-    private LoadSourceCode(doneMethod: () => void) {
+    private LoadSourceCode() {
         var thiss = this;
         this.projectService.GetSourceCode(s => {
             thiss.PrepareInterpreter();
-            thiss.projectService.GetProjectSettings(r => { thiss.lastProjectSettings = r; }, e => { });
             thiss.InterpretSourceCode(s);
             var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName)
             if (svc != null)
                 svc.LoadFirstFile(true);
             thiss.RedrawErrorsBar(thiss.mainData.appData.selectedFile);
             thiss.LoadCompiled(() => { });
-            
-            if (doneMethod != null)
-                doneMethod();
         });
     }
 

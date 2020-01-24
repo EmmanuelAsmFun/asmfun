@@ -94,6 +94,7 @@ export class AsmFunEventManager implements IEventManager {
         if (item == null) throw "event not found";
         var EventEvent = new MEventEvent();
         EventEvent.ContinuePropagation = true;
+        console.info("Invoke Event: " + fullName);
         for (var i = 0; i < item.Subscriptions.length; i++) {
             var subscription = item.Subscriptions[i];
             subscription.Invoke(event, EventEvent);

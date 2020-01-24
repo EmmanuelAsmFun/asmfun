@@ -94,6 +94,7 @@ export class CommandManager implements ICommandManager {
         if (item == null) throw "command not found";
         var CommandEvent = new MCommandEvent();
         CommandEvent.ContinuePropagation = true;
+        console.info("Invoke Command: " + fullName);
         for (var i = 0; i < item.Subscriptions.length; i++) {
             var subscription = item.Subscriptions[i];
             subscription.Invoke(command, CommandEvent);

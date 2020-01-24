@@ -445,10 +445,23 @@ body {
   color: #bdbd92;
   text-decoration: none;
 }
+.top-buttons .fa-stack {
+  font-size: 50%;
+}
+.top-buttons .top-btns-block {
+  display: inline-block;
+  border-right: 1px solid #39392b;
+  margin-right: 10px;
+  padding-right: 10px;
+  float: left;
+}
+.top-buttons .top-comp-btns {
+  width: 60px;
+}
 .newVersionText {
   display: inline-block;
   font-size: 11px;
-  padding-left: 20px;
+  padding-left: 15px;
   vertical-align: text-top;
 }
 .logo {

@@ -9,6 +9,7 @@ import { ISourceCodeBundle, IUserSettings, IProjectSettings, IProjectDetail, IBu
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { IEventManager } from "../framework/IAsmFunEventManager.js";
 import { IMainData } from "../data/MainData.js";
+import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 
 
 export class ProjectService extends ApiService {
@@ -21,16 +22,16 @@ export class ProjectService extends ApiService {
         this.controllerName = "project";
     }
 
-    public LoadByFileSelectorPopup(doneMethod: (IProjectSettings) => void, error: (e) => void) {
-        this.callApi("LoadByFileSelectorPopup", doneMethod, error);
+    public LoadByFileSelectorPopup(doneMethod: (s:IProjectSettings) => void, error: (e) => void) {
+        this.callApi("LoadByFileSelectorPopup", (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s); }, error);
     }
 
-    public LoadByMainFilename(mainFileNameWithFolder, doneMethod: (IProjectSettings) => void, error: (e) => void) {
-        this.callApi("LoadByMainFilename?mainFileNameWithFolder=" + encodeURI(mainFileNameWithFolder), doneMethod, error);
+    public LoadByMainFilename(mainFileNameWithFolder, doneMethod: (s:IProjectSettings) => void, error: (e) => void) {
+        this.callApi("LoadByMainFilename?mainFileNameWithFolder=" + encodeURI(mainFileNameWithFolder), (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s);}, error);
     }
 
-    public LoadProgram(programFileName, doneMethod: (IProjectSettings) => void, error: (e) => void) {
-        this.callApi("LoadProgram?programFileName=" + encodeURI(programFileName), doneMethod, error);
+    public LoadProgram(programFileName, doneMethod: (s:IProjectSettings) => void, error: (e) => void) {
+        this.callApi("LoadProgram?programFileName=" + encodeURI(programFileName), (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s); }, error);
     }
 
     public GetSourceCode(doneMethod) {
@@ -50,7 +51,7 @@ export class ProjectService extends ApiService {
     }
 
     public SaveProjectSettings(data: IProjectSettings, doneMethod) {
-        this.post("SaveProjectSettings", data, doneMethod);
+        this.post("SaveProjectSettings", data, (s) => { doneMethod(s); });
     }
 
     public GetUserSettings(doneMethod: (r: IUserSettings) => void, error: (e) => void) {
@@ -58,19 +59,19 @@ export class ProjectService extends ApiService {
     }
 
     public GetProjectSettings(doneMethod: (r: IProjectSettings) => void, error:(e)=> void) {
-        this.callApi("GetProjectSettings", doneMethod,error);
+        this.callApi("GetProjectSettings", (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s); },error);
     }
 
     public CreateNew(nameForFileSystem: string,developerName:string, buildConfiguration: IBuildConfiguration, doneMethod: (IProjectSettings) => void) {
         this.post("CreateNew?nameForFileSystem=" + encodeURI(nameForFileSystem) + "&developerName=" + encodeURI(developerName), buildConfiguration, doneMethod);
     }
 
-    public LoadWebExisting(detail: IProjectDetail, doneMethod: (IProjectSettings) => void, error: (e) => void) {
-        this.post("LoadWebExisting", detail, doneMethod, error);
+    public LoadWebExisting(detail: IProjectDetail, doneMethod: (s:IProjectSettings) => void, error: (e) => void) {
+        this.post("LoadWebExisting", detail, (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s); }, error);
     }
 
-    public LoadLocalExisting(detail: IProjectDetail, doneMethod: (IProjectSettings) => void, error: (e) => void) {
-        this.post("LoadLocalExisting", detail, doneMethod, error);
+    public LoadLocalExisting(detail: IProjectDetail, doneMethod: (s:IProjectSettings) => void, error: (e) => void) {
+        this.post("LoadLocalExisting", detail, (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s); }, error);
     }
 
     public GetWebProjects(doneMethod: (w: IProjectDetail[]) => void) {

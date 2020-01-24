@@ -43,6 +43,10 @@ export class AlertMessages implements IAlertMessages{
     }
 
     public Notify(message: string, icon: NotifyIconName) {
+        this.NotifyWithDuration(message,icon,3000);
+    }
+
+    public NotifyWithDuration(message: string, icon: NotifyIconName, duration:number) {
         var thiss = this;
 
         if (icon === NotifyIcon.None)
@@ -60,7 +64,7 @@ export class AlertMessages implements IAlertMessages{
         this._notificationTimeout = setTimeout(() => {
             thiss.ShowNotification = false;
             thiss._notificationTimeout = 0;
-        }, 3000);
+        }, duration);
     }
 
     public ShowError(title: string, message: string, icon: ErrorIconName, confirmAction?: Action<boolean>, errorCode?: ErrorCode) {

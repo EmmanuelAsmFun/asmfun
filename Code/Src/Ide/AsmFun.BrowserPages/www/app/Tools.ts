@@ -100,8 +100,13 @@ export class AsmTools {
             if (ell == null) return;
             if (directScroll)
                 ell.scrollIntoView({ behavior: "auto", block: "nearest", });
-            else
+            else {
                 ell.scrollIntoView({ behavior: "smooth", block: "start", });
+                setTimeout(() => {
+                    if (ell == null) return;
+                    ell.scrollIntoView({ behavior: "auto", block: "nearest", })
+                }, 300);
+            }
         } ,10);
     //var element = $(el);
     //var topp = $(window).scrollTop();

@@ -6,7 +6,8 @@
 
 import { BaseCommand } from './CommandsCommon.js'
 import { IEditorBundle } from '../EditorData.js';
-import { IProjectDetail } from '../ProjectData.js';
+import { IProjectDetail, IProjectSettings } from '../ProjectData.js';
+import { BaseEvent } from '../EventsCommon.js';
 
 
 export class ProjectSaveCommand extends BaseCommand{
@@ -57,6 +58,17 @@ export class ProjectLoadWebCommand extends BaseCommand{
         this.nameSpace = "Project";
     }
 }
+export class ProjectSettingsLoaded extends BaseEvent {
+    public projectSettings: IProjectSettings | null;
+
+    public constructor(projectSettings: IProjectSettings | null = null) {
+        super();
+        this.projectSettings = projectSettings;
+        this.eventName = "Loaded";
+        this.nameSpace = "Project";
+    }
+}
+
 export class ProjectRequestCreateNewCommand extends BaseCommand{
 
     public constructor() {

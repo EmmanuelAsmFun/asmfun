@@ -3,6 +3,7 @@ using AsmFun.Ide.Common.DataAccess;
 using AsmFun.Ide.Common.Managers;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace AsmFun.Ide.Core.Managers
 {
@@ -52,6 +53,8 @@ namespace AsmFun.Ide.Core.Managers
                 var folder = GetFolderInfo(dirFolder);
                 returnData.Folders.Add(folder);
             }
+            returnData.Files = returnData.Files.OrderBy(x => x.FileName).ToList();
+            returnData.Folders = returnData.Folders.OrderBy(x => x.Name).ToList();
             return returnData;
         }
 

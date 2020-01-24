@@ -95,13 +95,13 @@
                     <div v-if="fileManager.currentFolder != null">
                         <div class="fileList">
                             <table>
-                                <thead>
+                                <!--<thead>
                                     <tr>
                                         <th>Name</th>
                                         <th>File size</th>
                                         <th>Date modified</th>
                                     </tr>
-                                </thead>
+                                </thead>-->
                                 <tbody>
                                     <tr v-for="folder in fileManager.currentFolder.folders">
                                         <td>
@@ -141,10 +141,8 @@
                 &nbsp;
                 <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
                 <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
-
-                <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Computer Control"><span class="fa fa-desktop"></span></a>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
-
+                <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Computer Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
             </div>
             <div class="newVersionText" v-if="ide.newVersionAvailable">
                 <a href="javascript:" v-on:click="ASMFunPlayerOpenManager(true)">
@@ -154,18 +152,31 @@
             </div>
         </div>
 
-        <div id="computer" class="computer v-scaler-l" v-show="computer.isVisible">
+        <div id="computer" class="computer v-scaler-l" v-show="computer.isVisible || computer.isComputerRunning">
             <div class="top-buttons">
-                <a href="javascript:" v-on:click="ComputerStart()" title="Start computer" v-if="!computer.isComputerRunning" @mouseover="ComputerUpdateState"><span class="fa fa-play"></span></a>
-                <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer"  v-if="computer.isComputerRunning" @mouseover="ComputerUpdateState"><span class="fa fa-stop"></span></a>
-                <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer"><span class="fa fa-refresh"></span></a>
-                &nbsp;
-                <a href="javascript:" v-on:click="ComputerLoadProgram" title="Load Program in computer"><span class="fa fa-microchip"></span></a>
-                <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in computer"><span style="font-size:13px;vertical-align:text-top;">RUN</span></a>
-                &nbsp;
-                <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video and sprite"><span class="fa fa-image"></span></a>
-                <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
-
+                <span v-show="computer.isComputerRunning" class="top-btns-block top-comp-btns">
+                    <a href="javascript:" v-on:click="ComputerLoadProgram" title="Write Program in computer"><span class="fa fa-microchip fa-fw"></span></a>
+                    <a href="javascript:" v-on:click="ComputerRunProgram" title="RUN Program in computer"><span style="font-size:13px;vertical-align:text-top; fa-fw">RUN</span></a>
+                </span>
+                <span v-if="!computer.isComputerRunning" class="top-btns-block top-comp-btns">&nbsp;</span>
+                <span class="top-btns-block top-comp-btns-ctrl">
+                    <a href="javascript:" v-on:click="ComputerStart()" title="Start computer" v-if="!computer.isComputerRunning" @mouseover="ComputerUpdateState">
+                        <span class="fa fa-play fa-fw"></span>
+                    </a>
+                    <a href="javascript:" v-on:click="ComputerStop()" title="Stop computer" v-if="computer.isComputerRunning" @mouseover="ComputerUpdateState">
+                        <span class="fa fa-stop fa-fw"></span>
+                    </a>
+                    <a href="javascript:" v-on:click="ComputerReset" title="Reset Computer">
+                        <span class="fa-stack fa-lg fa-fw">
+                            <i class="fa fa-desktop fa-stack-2x"></i>
+                            <i class="fa fa-refresh fa-stack-1x fa-flip-horizontal"></i>
+                        </span>
+                    </a>
+                </span>
+                <span class="top-btns-block">
+                    <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video data"><span class="fa fa-image fa-fw"></span></a>
+                    <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug fa-fw" v-bind:class="{  'isSelected' : isShowDebugger}"></span></a>
+                </span>
             </div>
 
         </div>

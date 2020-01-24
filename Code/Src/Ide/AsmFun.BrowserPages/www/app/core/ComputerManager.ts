@@ -7,16 +7,17 @@
 import { ComputerService } from "../services/ComputerService.js";
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { IComputerManagerData, IKeyboardKey } from "../data/ComputerData.js";
+import { IComputerManagerData } from "../data/ComputerData.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ComputerOpenManagerCommand, ComputerStopCommand, ComputerStartCommand, ComputerResetCommand, ComputerLoadProgramCommand, ComputerRunProgramCommand, ComputerOpenDetailCommand, ComputerProcessorDataChanged, ComputerUpdateStateCommand } from "../data/commands/ComputerCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
-import { KeyboardManager } from "./KeyboardManager.js";
 import { IProcessorData } from "../data/ProcessorData.js";
+import { NotifyIcon } from "../common/Enums.js";
+import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 
 
 export class ComputerManager {
-    
+   
     private computerService: ComputerService;
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
@@ -37,6 +38,10 @@ export class ComputerManager {
         this.mainData.commandManager.Subscribe2(new ComputerOpenDetailCommand(null), this, x => this.OpenDetailState(x.state));
         this.mainData.commandManager.Subscribe2(new ComputerUpdateStateCommand(), this, x => this.UpdateComputerState(false));
         this.mainData.eventManager.Subscribe2(new ComputerProcessorDataChanged(null), this, x => this.ParseProcessorData(x.processorData));
+        this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => this.ProjectSettingsLoaded(x.projectSettings));
+        // Load first state
+        setTimeout(() => { this.UpdateComputerState(false); }, 100);
+        // Load every 5 seconds the state
         setInterval(() => { this.UpdateComputerState(false); }, 5000);
     }
 
@@ -64,6 +69,7 @@ export class ComputerManager {
     private LoadProgram() {
         this.computerService.LoadProgram(() => {
             this.UpdateComputerState(true);
+            this.myAppData.alertMessages.NotifyWithDuration("Program written", NotifyIcon.OK, 700);
         });
        
     }
@@ -90,6 +96,12 @@ export class ComputerManager {
         if (processorData.isComputerRunning)
             this.data.processorData = processorData;
     }
+
+    private ProjectSettingsLoaded(projectSettings: import("../data/ProjectData.js").IProjectSettings | null): void {
+        // When new settings are loaded, we need to stop the computer so the correct ROM can be loaded with the correct settings.
+        this.StopComputer();
+    }
+
 
     private OpenManager(state: boolean | null) {
         if (state == null)

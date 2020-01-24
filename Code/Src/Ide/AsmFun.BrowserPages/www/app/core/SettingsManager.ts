@@ -13,6 +13,7 @@ import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { SettingsOpenManagerCommand } from "../data/commands/SettingsCommands.js";
 import { ApiService } from "../services/ApiService.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
+import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 
 
 export class SettingsManager {
@@ -38,6 +39,34 @@ export class SettingsManager {
         this.myAppData.showASMFunCode = showAsmFunCode == "true" || showAsmFunCode == null || showAsmFunCode == undefined;
         this.UpdateServerAddress();
         this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
+        this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => this.ParseProjectSettings(x.projectSettings));
+    }
+
+    private ParseProjectSettings(projectSettings: IProjectSettings | null) {
+        if (projectSettings == null) return;
+        this.settings.projectSettings = projectSettings;
+        if (projectSettings != null && projectSettings.configurations != null && projectSettings.configurations.length > 0) {
+            this.settings.configuration = projectSettings.configurations[0];
+        }
+    }
+
+    public SaveUserSettings() {
+        localStorage.setItem('serverAddressWithPort', this.settings.serverAddressWithPort);
+        localStorage.setItem('showASMFunCode', this.myAppData.showASMFunCode.toString());
+        this.UpdateServerAddress();
+        if (this.settings.userSettings == null) return;
+        this.projectService.SaveUserSettings(this.settings.userSettings, () => {
+            this.mainData.appData.alertMessages.Notify("User settings saved.", NotifyIcon.OK);
+        });
+    }
+    public SaveProjectSettings() {
+        if (this.settings.projectSettings == null) return;
+        this.projectService.SaveProjectSettings(this.settings.projectSettings, () => {
+            this.mainData.appData.alertMessages.Notify("Project settings saved.", NotifyIcon.OK);
+        });
+    }
+    private UpdateServerAddress() {
+        ApiService.ServerAddress = this.settings.serverAddressWithPort;
     }
 
     private OpenManager(state: boolean | null) {
@@ -58,11 +87,7 @@ export class SettingsManager {
             thiss.settings.userSettings = r;
             this.myAppData.ide.serverNotConnected = false;
             thiss.projectService.GetProjectSettings((r) => {
-                thiss.settings.projectSettings = r;
                 thiss.Show();
-                if (r != null && r.configurations != null && r.configurations.length > 0) {
-                    thiss.settings.configuration = r.configurations[0];
-                }
             }, e => {
                 thiss.Show();
             });
@@ -88,24 +113,7 @@ export class SettingsManager {
         this.Hide();
     }
 
-    public SaveUserSettings() {
-        localStorage.setItem('serverAddressWithPort', this.settings.serverAddressWithPort);
-        localStorage.setItem('showASMFunCode', this.myAppData.showASMFunCode.toString());
-        this.UpdateServerAddress();
-        if (this.settings.userSettings == null) return;
-        this.projectService.SaveUserSettings(this.settings.userSettings, () => {
-            this.mainData.appData.alertMessages.Notify("User settings saved.", NotifyIcon.OK);
-        });
-    }
-    public SaveProjectSettings() {
-        if (this.settings.projectSettings == null) return;
-        this.projectService.SaveProjectSettings(this.settings.projectSettings, () => {
-            this.mainData.appData.alertMessages.Notify("Project settings saved.", NotifyIcon.OK);
-        });
-    }
-    private UpdateServerAddress() {
-        ApiService.ServerAddress = this.settings.serverAddressWithPort;
-    }
+   
 
     public static NewData(): ISettings {
         return {
