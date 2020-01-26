@@ -6,6 +6,7 @@
 
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Computer.Common.DataAccess;
 using AsmFun.Computer.Core.DataAccess.Computer;
 using System.IO;
 
@@ -13,11 +14,14 @@ namespace AsmFun.CommanderX16.Computer
 {
     public class X16ComputerAccess : ComputerAccess
     {
-        
+        internal ushort VARTAB = 0x0003E3;
 
-        public X16ComputerAccess(ComputerSetupSettings computerSetupSettings)
+        public X16ComputerAccess(ComputerSetupSettings computerSetupSettings, ISymbolsDA symbolsDA)
             : base(computerSetupSettings)
         {
+            var vartab = symbolsDA.GetAsShort(nameof(VARTAB));
+            if (vartab != 0)
+                VARTAB = vartab;
         }
 
         public void Init(IComputer computer, IComputerMemoryAccess computerMemory, MemoryViaData via)
@@ -29,7 +33,11 @@ namespace AsmFun.CommanderX16.Computer
 
         public override void LoadROM()
         {
-            var bytes = File.ReadAllBytes(Path.Combine(ComputerSettings.ComputerTypeShort, ComputerSettings.Version, "rom.bin"));
+            var startFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var fullFileName = Path.Combine(startFolder, ComputerSettings.ComputerTypeShort, ComputerSettings.Version, "rom.bin");
+            if (!File.Exists(fullFileName))
+                throw new FileNotFoundException("The ROM file was not found", fullFileName);
+            var bytes = File.ReadAllBytes(fullFileName);
             Memory.WriteROM(bytes);
         }
 
@@ -122,7 +130,12 @@ namespace AsmFun.CommanderX16.Computer
             var start_hi = data[1];
             var start = start_hi << 8 | start_lo;
             var end = start + data.Length;
-
+            if (start == 0x0801)
+            {
+                // set start of variables
+                Memory.WriteByte(VARTAB,(byte)(end & 0xff));
+                Memory.WriteByte((ushort)(VARTAB +1), (byte)(end >> 8));
+            }
             // Skip two first bytes of the length;
             var bufferOffset = 2;
             Memory.WriteRAM(data, bufferOffset, start, data.Length - bufferOffset);

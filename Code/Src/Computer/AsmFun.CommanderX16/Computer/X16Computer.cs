@@ -63,13 +63,14 @@ namespace AsmFun.CommanderX16.Computer
         private IDebuggerInternal debugger;
         private IComputerDisplay display;
         private VideoProcessor videoProcessor;
+        private IProgramAccess programAccess;
         private IUart uart;
 
 
         public X16Computer(X16JoystickData joystickData, IVideoAccess videoAccess, IComputerAccess computerAccess,
             IX16PS2Access ps2Data, X16VeraSpi veraSpi, IEmServiceResolverFactory container, IDebugger debugger,
             ComputerSetupSettings computerSettings, IProcessor processor, ProcessorData processorData, IComputerDiagnose diagnose, 
-            IKeyboardAccess keyboardAccess, IUart uart
+            IKeyboardAccess keyboardAccess, IUart uart, IProgramAccess programAccess
             )
         {
             IsStarting = true;
@@ -80,6 +81,7 @@ namespace AsmFun.CommanderX16.Computer
             this.videoAccess = videoAccess;
             this.computerAccess = computerAccess;
             this.container = container;
+            this.programAccess = programAccess;
             this.debugger = (IDebuggerInternal)debugger;
             this.processorData = processorData;
             joystick = joystickData;
@@ -117,8 +119,9 @@ namespace AsmFun.CommanderX16.Computer
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteError<X16Computer>(e);
-                Console.ReadLine();
+                Console.WriteLine();
+                ConsoleHelper.WriteError<X16Computer>(e, "StartComputer");
+                Console.WriteLine();
             }
         }
 
@@ -130,42 +133,55 @@ namespace AsmFun.CommanderX16.Computer
             videoProcessor.Start();
             while (!isDisposed)
             {
-                diagnose?.Step(processorData);
-                if (debugger.DoBreak(processorData.ProgramCounter))
+                try
                 {
-                    Thread.Sleep(5);
-                    continue;
+                    while (!isDisposed)
+                    {
+                        diagnose?.Step(processorData);
+                        if (debugger.DoBreak(processorData.ProgramCounter))
+                        {
+                            Thread.Sleep(5);
+                            continue;
+                        }
+
+                        uint old_clockticks6502 = processorData.ClockTicks;
+                        programAccess.Step();
+                        processor.Step();
+                        byte clocks = (byte)(processorData.ClockTicks - old_clockticks6502);
+
+                        //Console.Write(stepCounter+":pc=" + this.fake6502.pc.ToString("X4") + ":" + clocks+"|");
+                        for (byte i = 0; i < clocks; i++)
+                        {
+
+                            ps2.Step();
+                            joystick.Step();
+                            veraSpi.Step();
+                            uart.Step();
+                            videoAccess.ProcessorStep();
+                            display.ClockTick(processorData.ProgramCounter, mhzRunning);
+                            CheckFps();
+                        }
+
+                        stepCounter++;
+
+                        StepAddonAction();
+
+                        if (videoAccess.GetIrqOut())
+                        {
+                            if ((processorData.Status & 4) == 0)
+                                processor.TriggerVideoIrq();
+                        }
+                    }
                 }
-
-                uint old_clockticks6502 = processorData.ClockTicks;
-
-                processor.Step();
-                byte clocks = (byte)(processorData.ClockTicks - old_clockticks6502);
-
-                //Console.Write(stepCounter+":pc=" + this.fake6502.pc.ToString("X4") + ":" + clocks+"|");
-                for (byte i = 0; i < clocks; i++)
+                catch (Exception e)
                 {
-                    ps2.Step();
-                    joystick.Step();
-                    veraSpi.Step();
-                    uart.Step();
-                    videoAccess.ProcessorStep();
-                    display.ClockTick(processorData.ProgramCounter, mhzRunning);
-                    CheckFps();
-                }
-
-                stepCounter++;
-
-                StepAddonAction();
-
-
-                if (videoAccess.GetIrqOut())
-                {
-                    if ((processorData.Status & 4) == 0)
-                        processor.TriggerVideoIrq();
+                    Console.WriteLine();
+                    ConsoleHelper.WriteError<X16Computer>(e, "MainLoop");
+                    Console.WriteLine();
                 }
             }
         }
+
 
         private void CheckFps()
         {
@@ -292,6 +308,10 @@ namespace AsmFun.CommanderX16.Computer
         public void LoadProgram(byte[] data)
         {
             computerAccess.LoadProgramInPc(data);
+        }
+        public void SetStartFolder(string folderName)
+        {
+            programAccess.SetStartFolder(folderName);
         }
         public MemoryBlock GetMemoryBlock(int startAddress, int count)
         {

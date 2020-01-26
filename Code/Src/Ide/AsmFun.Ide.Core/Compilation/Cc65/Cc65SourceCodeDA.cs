@@ -5,6 +5,7 @@
 #endregion
 
 using AsmFun.Common.Ide.Data.Programm;
+using AsmFun.Core.Tools;
 using AsmFun.Ide.Common.Compilation.Cc65;
 using AsmFun.Ide.Common.Data;
 using AsmFun.Ide.Common.Data.Programm;
@@ -191,7 +192,7 @@ namespace AsmFun.Ide.Core.Compilation.Cc65
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Could not parse symbol :" + labelRaw + " : " + ex.Message);
+                    ConsoleHelper.WriteError<Cc65SourceCodeDA>(ex,"Could not parse symbol :" + labelRaw + " : " + ex.Message);
                 }
             }
             bundle.Labels = bundle.Labels.OrderBy(x => x.Name).ToList();

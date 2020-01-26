@@ -351,7 +351,7 @@ export class VideoLayerManager {
             var newY = 0;
             var tileStart = 0;
             var tile: IVideoMapTile | null= null;
-
+            var paletteOffset = 0;
             if (!layer.BitmapMode) {
                 realX = this.CalcLayerEffX(layer, x);
                 realY = this.CalcLayerEffY(layer, y);
@@ -360,7 +360,7 @@ export class VideoLayerManager {
                 context.mapAddress = this.CalcLayerMapAddress(layer, realX, realY) - context.map_addr_begin;
 
                 tile = this.GetTile(context.mapAddress, context.layer, context.tile_bytes);
-
+                paletteOffset = tile.PaletteOffset << 4;
                 // offset within tilemap of the current tile
                 tileStart = tile.TileIndex * layer.TileSize;
                 if (tile.VerticalFlip)
@@ -371,6 +371,7 @@ export class VideoLayerManager {
             else {
                 newX = realX % layer.TileWidth;
                 newY = realY % layer.TileHeight;
+                paletteOffset = layer.PaletteOffset << 4;
             }
             // Additional bytes to reach the correct line of the tile
             var y_add = (newY * layer.TileWidth * layer.BitsPerPixel >> 3);
@@ -387,8 +388,8 @@ export class VideoLayerManager {
                 colorIndex = this.BitsPerPxlCalculation(context.layer.BitsPerPixel, 0, 0, color, newX);
 
             // Apply Palette Offset
-            if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
-                colorIndex += (tile.PaletteOffset << 4);
+            if (paletteOffset>0)
+                colorIndex += paletteOffset;
             colIndexes[x + y * context.width] = colorIndex;
             var colorp = palette.GetColor(colorIndex);
             if (colorp == null)

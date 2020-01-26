@@ -124,6 +124,7 @@ namespace AsmFun.Computer.Core.Managers
             var data = File.ReadAllBytes(programFileName);
             Console.WriteLine("Load:" + programFileName);
             if (Computer == null) return;
+            Computer.SetStartFolder(Path.GetDirectoryName(programFileName));
             Computer.LoadProgram(data);
             containerFactory.Resolve<ISourceCodeManager>().ParseCodeToDebugger(Computer);
         }

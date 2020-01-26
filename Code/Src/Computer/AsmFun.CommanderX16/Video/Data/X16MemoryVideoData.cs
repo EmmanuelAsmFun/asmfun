@@ -32,7 +32,6 @@ namespace AsmFun.CommanderX16.Video.Data
 
         private void Write(int register, int bank, byte data)
         {
-
             ioAccess.VeraWriteIO((byte)register, data);
         }
     }

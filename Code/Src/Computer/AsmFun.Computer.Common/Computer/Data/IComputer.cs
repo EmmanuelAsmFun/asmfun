@@ -33,6 +33,7 @@ namespace AsmFun.Computer.Common.Computer.Data
         IDebugger GetDebugger();
         void Reset();
         void LoadProgram(byte[] data);
+        void SetStartFolder(string folder);
         MemoryBlock GetMemoryBlock(int startAddress, int count);
         void SetDisplay(IComputerDisplay display);
         IKeyboardAccess GetKeyboard();

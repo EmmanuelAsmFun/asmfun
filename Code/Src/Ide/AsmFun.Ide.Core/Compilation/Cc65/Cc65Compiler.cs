@@ -23,7 +23,7 @@ namespace AsmFun.Ide.Core.Compilation.Cc65
         public override CompilaterResult Compile(BuildConfiguration configuration)
         {
             if (projectSettings == null || string.IsNullOrWhiteSpace(compilerSettings.Cc65Folder)) return new CompilaterResult();
-            var compilerFileName = Path.Combine(compilerSettings.Cc65Folder, "cl65");
+            var compilerFileName = Path.Combine(compilerSettings.Cc65Folder, "cl65.exe");
             var fileNameClean = projectSettings.StartupFile.Trim('\\').Trim('/');
             var folderClean = projectSettings.Detail.FullFolderName.Trim('\\').TrimEnd('/');
             var startFileName = projectSettings.Detail != null ? Path.Combine(folderClean, fileNameClean) : "";
@@ -37,6 +37,11 @@ namespace AsmFun.Ide.Core.Compilation.Cc65
             {
                 RawText = "No start file found",
                 ErrorText = "No start file found",
+            };
+            if (!File.Exists(compilerFileName)) return new CompilaterResult
+            {
+                RawText = "Compiler Cc65 found",
+                ErrorText = "Compiler Cc65 found:" + compilerFileName,
             };
             var subFolder = fileNameClean.Replace(Path.GetFileName(fileNameClean), "").Trim('\\').TrimEnd('/');
 

@@ -17,8 +17,11 @@ namespace AsmFun.Computer.Common.Computer
 
         void Reset();
         int GetRealMemoryAddress(MemoryAddressType type);
+        int GetStartAddress(MemoryAddressType type);
+        int GetEndAddress(MemoryAddressType type);
         byte[] ReadBlock(int address, int length);
         byte[] ReadBlock(MemoryAddressType type,int address, int length);
+        byte ReadByte(MemoryAddressType type, ushort address, int bank = 0);
         byte ReadByte(ushort address, int bank = 0);
         ushort ReadUShort(int address);
         void TraceData(MemoryAddressType type, int offset, int length);
@@ -29,6 +32,7 @@ namespace AsmFun.Computer.Common.Computer
         void WriteROM(byte[] bytes, int startIndex = 0);
         void WriteUShort(int address, ushort value);
         void WriteBlock(int startAddress, byte[] data, int count);
+        void WriteBlock(MemoryAddressType type, byte[] data, int startOffset, int startTargetAddress,  int count);
 
         ProcessorStackModel ReadStack(int bytesCount);
         

@@ -36,6 +36,11 @@ namespace AsmFun.Ide.Compilation
                 RawText = "No start file found",
                 ErrorText = "No start file found",
             };
+            if (!File.Exists(compilerSettings.ACMEFileName)) return new CompilaterResult
+            {
+                RawText = "Compiler ACME found",
+                ErrorText = "Compiler ACME found:" + compilerSettings.ACMEFileName,
+            };
             var subFolder = fileNameClean.Replace(Path.GetFileName(fileNameClean),"").Trim('\\').TrimEnd('/');
 
             var tempFn = "tempppppppp.asm";

@@ -273,7 +273,7 @@ namespace AsmFun.CommanderX16.Video.Painter
                 int newY;
                 uint tileStart = 0;
                 VideoMapTile tile = null;
-
+                var paletteOffset = 0;
                 if (!layer.BitmapMode)
                 {
                     realX = LayerAccess.CalcLayerEffX(layer, x);
@@ -283,7 +283,8 @@ namespace AsmFun.CommanderX16.Video.Painter
                     uint mapAddress = LayerAccess.CalcLayerMapAddress(layer, realX, realY) - map_addr_begin;
                     // Todo: to enhance performance, do not always do a reload, only when data has changed
                     tile = mapTileAccess.GetTile(mapAddress, layer,true, tile_bytes);
-                      
+
+                    paletteOffset = (byte)(tile.PaletteOffset << 4);
                     // offset within tilemap of the current tile
                     tileStart = tile.TileIndex * layer.TileSize;
                     if (tile.VerticalFlip)
@@ -295,6 +296,7 @@ namespace AsmFun.CommanderX16.Video.Painter
                 {
                     newX = realX % layer.TileWidth;
                     newY = realY % layer.TileHeight;
+                    paletteOffset = (byte)(layer.PaletteOffset << 4);
                 }
                 // Additional bytes to reach the correct line of the tile
                 uint y_add = (uint)(newY * layer.TileWidth * layer.BitsPerPixel >> 3);
@@ -311,8 +313,8 @@ namespace AsmFun.CommanderX16.Video.Painter
                 colorIndex = layy(color, newX, tile);
 
                 // Apply Palette Offset
-                if (layer.BitmapMode && colorIndex > 0 && colorIndex < 16 && tile != null)
-                    colorIndex += (byte)(tile.PaletteOffset << 4);
+                if (paletteOffset >0)
+                    colorIndex += (byte)paletteOffset;
                 var place = x + y * width;
                 if (place < 41861120)
                     Marshal.WriteByte(layerBuffer+ place, colorIndex);

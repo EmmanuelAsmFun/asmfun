@@ -61,6 +61,11 @@ namespace AsmFun.CommanderX16.IO
 
         public override void KeyDown(char kk3, int theKey)
         {
+            if (kk3 == '"' && theKey == 37)
+            {
+                kk3 = '3';
+                theKey = 51;
+            }
             Console.Write(kk3 + " " + (int)kk3+" ");
             if (isRunningPasteMethod) return;
             HandlePressedKey(new KeyQueueItem(kk3, theKey, true));
@@ -68,6 +73,11 @@ namespace AsmFun.CommanderX16.IO
         public override void KeyUp(char kk3, int theKey)
         {
             if (isRunningPasteMethod) return;
+            if (kk3 == '"' && theKey == 37)
+            {
+                kk3 = '3';
+                theKey = 51;
+            }
             HandlePressedKey(new KeyQueueItem(kk3, theKey, false));
         }
 

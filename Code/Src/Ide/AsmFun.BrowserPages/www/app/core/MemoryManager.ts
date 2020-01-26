@@ -38,8 +38,10 @@ export class MemoryManager {
         "Available for code programs or storage", "BASIC program/variables available to the user",
         "Reserved for audio controller", "VERA video controller", "Reserved", "VIA I/O controller #1", "VIA I/O controller #2", "Real time clock", "Future Expansion",
         "RAM Banks", "ROM Banks"
-
     ]
+    private addressParts = [
+        { address: 0x3E3, length: 2, name: "Start program address + file length" }
+    ];
 
 
     constructor(mainData: IMainData) {
@@ -302,6 +304,14 @@ export class MemoryManager {
                 this.previousHiliteLabel.label.hilite = false;
         }
     }
+    private ScollToElement(el: HTMLElement | null) {
+        if (el == null) return;
+        el.scrollIntoView({ behavior: "smooth", block: "nearest", });
+        setTimeout(() => {
+            if (el != null)
+                el.scrollIntoView({ behavior: "auto", block: "nearest", });
+        }, 300);
+    }
 
     private MemoryItemHover(index: number, address: number, value:number)
     {
@@ -319,12 +329,13 @@ export class MemoryManager {
             item.label.hilite = true;
             this.previousHiliteLabel = item;
             var el = document.getElementById('lblview'+item.label.data.name);
-            if (el != null) 
-                el.scrollIntoView({ behavior: "smooth", block: "nearest", });
+            this.ScollToElement(el);
             
             return;
         }
-        
+
+       
+
         if (this.mainData.sourceCode != null) {
            
             if (item.group.length > 0){
@@ -344,9 +355,7 @@ export class MemoryManager {
                 //    this.editorManager.SelectFile(item.sourceCodeLine.file);
                 //}
                 var el = document.getElementById('line'+(item.sourceCodeLine.data.lineNumber-3));
-                if (el != null) {
-                    el.scrollIntoView({ behavior: "smooth", block: "start", });
-                }
+                this.ScollToElement(el);
             }
             return;
         }

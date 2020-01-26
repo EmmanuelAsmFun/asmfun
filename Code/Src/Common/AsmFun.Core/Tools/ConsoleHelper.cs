@@ -10,19 +10,24 @@ namespace AsmFun.Core.Tools
 {
     public class ConsoleHelper
     {
-        public static void WriteError(Type type, Exception e)
+        public static void WriteError(Type type, Exception e, string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(type.Name + "." + e.Message + "\r\n" + e.StackTrace);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(type.Name + "." + e.Message + "\r\n"+ message+ "\r\n" + e.StackTrace);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
         public static void WriteError(object t,Exception e)
         {
-            WriteError(t.GetType(), e);
+            WriteError(t.GetType(), e,"");
         }
         public static void WriteError<T>(Exception e)
         {
-            WriteError(typeof(T), e);
+            WriteError(typeof(T), e,"");
+        }  
+        public static void WriteError<T>(Exception e,string message)
+        {
+            WriteError(typeof(T), e, message);
         }
     }
 }

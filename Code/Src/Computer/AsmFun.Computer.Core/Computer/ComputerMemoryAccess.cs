@@ -42,6 +42,10 @@ namespace AsmFun.Computer.Common.Data.Computer
                 Memories.Add(data);
             }
         }
+        public virtual byte ReadByte(MemoryAddressType type, ushort address, int bank = 0)
+        {
+            return ByType[type].ReadByte(address, bank);
+        }
         public virtual byte ReadByte(ushort address, int bank = 0)
         {
             var type = computerAccess.GetAddressType(address, bank);
@@ -82,6 +86,7 @@ namespace AsmFun.Computer.Common.Data.Computer
             var rom = ByType[MemoryAddressType.ROM];
             rom.WriteBlock(bytes, startIndex);
         }
+
         public virtual void WriteRAM(byte[] bytes, int startIndex = 0)
         {
             var ram = ByType[MemoryAddressType.RAM];
@@ -98,6 +103,16 @@ namespace AsmFun.Computer.Common.Data.Computer
         {
             var memm = ByType[type];
             return memm.GetRealMemoryAddress();
+        } 
+        public virtual int GetStartAddress(MemoryAddressType type)
+        {
+            var memm = ByType[type];
+            return memm.Start;
+        } 
+        public virtual int GetEndAddress(MemoryAddressType type)
+        {
+            var memm = ByType[type];
+            return memm.End;
         }
         public virtual void TraceData(MemoryAddressType type, int offset, int length)
         {
@@ -134,6 +149,10 @@ namespace AsmFun.Computer.Common.Data.Computer
             var type = computerAccess.GetAddressType(startAddress, 0);
             //lock (ByType)
             ByType[type].WriteBlock(data, 0, startAddress, count);
+        }
+         public void WriteBlock(MemoryAddressType type, byte[] data, int startOffset, int startTargetAddress, int count)
+        {
+            ByType[type].WriteBlock(data, startOffset, startTargetAddress, count);
         }
 
 

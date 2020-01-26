@@ -15,12 +15,14 @@ using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
 using AsmFun.Computer.Common.Data.Computer;
+using AsmFun.Computer.Common.DataAccess;
 using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Computer.Core.Computer;
+using AsmFun.Computer.Core.DataAccess;
 using AsmFun.Computer.Core.DataAccess.Computer;
 using AsmFun.Computer.Core.Processors;
 using AsmFun.Computer.Core.Processors.P6502;
@@ -42,12 +44,15 @@ namespace AsmFun.CommanderX16.Computer.Factories
         public override IComputer Create()
         {
             ConfigureIOC();
+            // Get computer setup
             Resolve<ComputerSetupSettings>().Version = base.ComputerVersion;
             ((X16VideoAccess)Resolve<IVideoAccess>()).Init(
                 Resolve<X16IOAccess>(),
                 Resolve<IVideoPainter>(),
                 Resolve<IX16VideoMapTileAccess>()
                 );
+            
+
             ((X16DisplayComposer)Resolve<IDisplayComposer>()).Init(Resolve<IVideoPainter>());
             ((X16VideoRamAccess)Resolve<IVideoRamAccess>()).Init(Resolve<IX16VideoMapTileAccess>());
             ((X16ComputerAccess)Resolve<IComputerAccess>()).Init(
@@ -71,6 +76,7 @@ namespace AsmFun.CommanderX16.Computer.Factories
         private void ConfigureIOC()
         {
             // Data 
+            Add<ISymbolsDA, X16SymbolsDA>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<VideoSettings, X16VideoSettings>().WithLifestyle(EmServiceLifestyle.Singleton);
             AddPS2();
             Add<X16JoystickData>().WithLifestyle(EmServiceLifestyle.Singleton);
@@ -84,6 +90,7 @@ namespace AsmFun.CommanderX16.Computer.Factories
             Add<P65c02OpcodeModes>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<P65c02Instructions>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<P6502InstructionsDB>().WithLifestyle(EmServiceLifestyle.Singleton);
+            Add<IProgramAccess,X16ProgramAccess>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<IInstructionDB>(() => Resolve<P6502InstructionsDB>()).WithLifestyle(EmServiceLifestyle.Singleton);
             //
             Add<IComputer, X16Computer>().WithLifestyle(EmServiceLifestyle.Singleton);

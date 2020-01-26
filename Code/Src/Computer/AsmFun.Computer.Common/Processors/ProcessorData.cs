@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace AsmFun.Computer.Common.Processors
 {
-    [DebuggerDisplay("PC={pc}:sp={sp}:a={a}:x={x}:x={y}:status={status}")]
+    [DebuggerDisplay("PC={ProgramCounter}:sp={StackPointer}:a={A}:x={X}:x={Y}:status={Status}")]
     public class ProcessorData
     {
         public bool IsCarry;
