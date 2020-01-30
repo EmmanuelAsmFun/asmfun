@@ -53,12 +53,14 @@ namespace AsmFun.Startup
         private IntPtr messageSurf;
         
         private EventManagerSDL eventManagerSDL;
+        private SDLSound sound;
 
 
         public SDLWindow()
         {
             layerData0 = Marshal.AllocHGlobal(640 * 480*4);
             layerData1 = Marshal.AllocHGlobal(640 * 480*4);
+            sound = new SDLSound();
         }
 
        
@@ -71,6 +73,7 @@ namespace AsmFun.Startup
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
+            computer.SetWriteAudioMethod(sound.WriteAudio);
             eventManagerSDL = new EventManagerSDL(Container, computer.GetKeyboard());
             _stopwatchFramePaint.Start();
             _stopwatchSDL.Start();
@@ -92,6 +95,7 @@ namespace AsmFun.Startup
             InitBGLayer();
             InitLayers();
             InitFpsCounter();
+            sound.Init();
             eventManagerSDL.RunPollEvent();
         }
 
@@ -100,7 +104,7 @@ namespace AsmFun.Startup
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
-            if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_VIDEO) < 0)
+            if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_VIDEO | SDL2.SDL.SDL_INIT_EVENTS | SDL2.SDL.SDL_INIT_GAMECONTROLLER | SDL2.SDL.SDL_INIT_AUDIO) < 0)
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
             SDL2.SDL.SDL_CreateWindowAndRenderer(640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
                 | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL, out window, out renderer);
@@ -123,11 +127,13 @@ namespace AsmFun.Startup
         {
             // first stop the events
             eventManagerSDL?.Dispose();
+            sound.CloseAudio();
             SDL2.SDL.SDL_DestroyWindow(window);
             DisposeFpsCounter();
             DisposeLayers();
             DisposeBgLayer();
             SDL2.SDL.SDL_Quit();
+            sound.Dispose();
             DisposeSprites();
            
         }

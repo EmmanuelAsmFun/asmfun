@@ -10,10 +10,12 @@ import { ProjectService } from "../services/projectService.js";
 import { IUserSettings, IProjectSettings, ISettings } from "../data/ProjectData.js";
 import { NotifyIcon } from "../common/Enums.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
-import { SettingsOpenManagerCommand } from "../data/commands/SettingsCommands.js";
+import { SettingsOpenManagerCommand, SettingsSelectCompilerFileCommand } from "../data/commands/SettingsCommands.js";
 import { ApiService } from "../services/ApiService.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
-import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
+import { ProjectSettingsLoaded, UserSettingsLoaded, UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.js";
+import { IFileDialogData } from "../data/FileManagerData.js";
+import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 
 
 export class SettingsManager {
@@ -39,15 +41,23 @@ export class SettingsManager {
         this.myAppData.showASMFunCode = showAsmFunCode == "true" || showAsmFunCode == null || showAsmFunCode == undefined;
         this.UpdateServerAddress();
         this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
+        this.mainData.commandManager.Subscribe2(new SettingsSelectCompilerFileCommand(null), this, x => this.SettingsSelectCompilerFile(x.type));
+        this.mainData.commandManager.Subscribe2(new UserSaveUserSettingsCommand(), this, x => this.SaveUserSettings());
         this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => this.ParseProjectSettings(x.projectSettings));
+        this.mainData.eventManager.Subscribe2(new UserSettingsLoaded(), this, x => this.ParseUserSettings(x.userSettings));
     }
 
+   
     private ParseProjectSettings(projectSettings: IProjectSettings | null) {
         if (projectSettings == null) return;
         this.settings.projectSettings = projectSettings;
         if (projectSettings != null && projectSettings.configurations != null && projectSettings.configurations.length > 0) {
             this.settings.configuration = projectSettings.configurations[0];
         }
+    }
+    private ParseUserSettings(userSettings: IUserSettings | null) {
+        if (userSettings == null) return;
+        this.settings.userSettings = userSettings;
     }
 
     public SaveUserSettings() {
@@ -63,11 +73,50 @@ export class SettingsManager {
         if (this.settings.projectSettings == null) return;
         this.projectService.SaveProjectSettings(this.settings.projectSettings, () => {
             this.mainData.appData.alertMessages.Notify("Project settings saved.", NotifyIcon.OK);
-        });
+        }, e => { });
     }
     private UpdateServerAddress() {
         ApiService.ServerAddress = this.settings.serverAddressWithPort;
     }
+
+
+    private SettingsSelectCompilerFile(type: string | null) {
+        var thiss = this;
+        if (type == null || this.settings.userSettings == null) return;
+        var ide = this.settings.userSettings.ideSettings;
+        var fileDialogSettings: IFileDialogData = {
+            filter: "*.exe",
+            initialFolder: null,
+            onSelected: () => { },
+            selectAFile: true,
+            title: "Select the " + type + " filename",
+            subTitle: "*.exe",
+            onClose: () => {},
+        };
+        var fn = "acme.exe";
+        var inf: string | null = null;
+        switch (type) {
+            case "ACME": fn = "acme.exe"; inf = ide.acme.acmeFileName; break;
+            case "Cc65": fn = "cl65.exe"; inf = ide.cc65.cc65FileName; break;
+            case "VASM": fn = "vasm.exe"; inf = ide.vasm.vasmFileName; break;
+            case "DASM": fn = "dasm.exe"; inf = ide.dasm.dasmFileName; break;
+        }
+        fileDialogSettings.initialFolder = inf;
+        fileDialogSettings.subTitle = fn;
+        fileDialogSettings.filter = fn;
+        fileDialogSettings.onSelected = file => {
+            if (file != null && file.length > 1) {
+                switch (type) {
+                    case "ACME": ide.acme.acmeFileName = file; break;
+                    case "Cc65": ide.cc65.cc65FileName = file; break;
+                    case "VASM": ide.vasm.vasmFileName = file; break;
+                    case "DASM": ide.dasm.dasmFileName = file; break;
+                }
+            }
+        };
+        this.mainData.commandManager.InvokeCommand(new FileOpenManagerCommand(true, fileDialogSettings));
+    }
+
 
     private OpenManager(state: boolean | null) {
         if (state == null)

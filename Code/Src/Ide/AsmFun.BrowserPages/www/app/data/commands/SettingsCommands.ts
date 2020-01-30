@@ -15,3 +15,13 @@ export class SettingsOpenManagerCommand extends BaseCommand {
         this.nameSpace = "Settings";
     }
 }
+
+export class SettingsSelectCompilerFileCommand extends BaseCommand {
+    public type: string | null;
+    public constructor(type: string | null) {
+        super();
+        this.type = type;
+        this.commandName = "SelectCompiler";
+        this.nameSpace = "Settings";
+    }
+}

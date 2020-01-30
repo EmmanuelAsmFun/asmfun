@@ -8,7 +8,7 @@ namespace AsmFun.Ide.Common.Compilation.DASM
 {
     public class DASMCompilerSettings : CompilerSettings
     {
-        public string DASMFolder { get; set; }
+        public string DASMFileName { get; set; }
 
         public DASMCompilerSettings()
         {
@@ -18,7 +18,7 @@ namespace AsmFun.Ide.Common.Compilation.DASM
         internal override void Parse(CompilerSettings newSettings)
         {
             base.Parse(newSettings);
-            DASMFolder = ((DASMCompilerSettings)newSettings).DASMFolder;
+            DASMFileName = ((DASMCompilerSettings)newSettings).DASMFileName;
         }
     }
 }

@@ -104,6 +104,11 @@ namespace AsmFun.CommanderX16.Computer
                     // Computer state
                     return MemoryAddressType.Computer;
                 }
+                else if (address >= 0x9fe0 && address <= 0x9fe1)
+                {
+                    // Computer state
+                    return MemoryAddressType.YM2151;
+                }
                 else
                 {
                     return MemoryAddressType.Unknown;

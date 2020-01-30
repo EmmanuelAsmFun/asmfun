@@ -10,11 +10,11 @@ import { AsmTools } from "../Tools.js"
 import { ProcessorManager } from "../core/ProcessorManager.js"
 import { IMainData } from "../data/MainData.js";
 import { IEditorFile, IEditorLine, IEditorLabel } from "../data/EditorData.js";
-import { ProjectSaveCommand, ProjectSaveFolderCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand } from "../data/commands/ProjectsCommands.js";
+import { ProjectSaveCommand, ProjectSaveFolderCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand, UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.js";
 import { IBaseCommand } from "../data/commands/CommandsCommon.js";
 import { IProjectDetail } from "../data/ProjectData.js";
 import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
-import { SettingsOpenManagerCommand } from "../data/commands/SettingsCommands.js";
+import { SettingsOpenManagerCommand, SettingsSelectCompilerFileCommand } from "../data/commands/SettingsCommands.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "../data/commands/ASMFunPlayerManagerCommands.js";
 import {
@@ -52,7 +52,7 @@ export class MainScreenMethods {
     public CheckPlayerAvailable() {
         var svc = MainScreenMethods.S.mainData.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.ServiceName);
         if (svc == null) return;
-        svc.CheckPlayerAvailable(() => { }, () => { });
+        svc.CheckPlayerAvailable(() => { }, () => { },false);
     }
 
     // Todo : clean this up with commands
@@ -134,6 +134,8 @@ export class MainScreenMethods {
 
     // Settings
     public SettingsOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new SettingsOpenManagerCommand(state)); }
+    public SettingsSelectCompilerFile(type: string) { MainScreenMethods.ExecuteCommand(new SettingsSelectCompilerFileCommand(type)); }
+    public UserSaveUserSettings() { MainScreenMethods.ExecuteCommand(new UserSaveUserSettingsCommand()); }
 
     // ASMFun player manager
     public ASMFunPlayerOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ASMFunPlayerOpenManagerCommand(state)); }

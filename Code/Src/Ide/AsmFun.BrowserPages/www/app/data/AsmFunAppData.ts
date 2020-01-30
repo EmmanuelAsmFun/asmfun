@@ -53,6 +53,7 @@ export interface IAsmFunAppData {
 export interface IAsmFunIdeData {
     isVisiblePlayerManager: boolean;
     isVisiblePopup: boolean;
+    showDownloads: boolean;
     serverNotConnected: boolean;
     hasConfirmedLicense: boolean;
     isWindows: boolean;
@@ -61,6 +62,7 @@ export interface IAsmFunIdeData {
     newVersionAvailable: boolean;
     currentVersion: string;
     latestVersion: string;
+    onDone: () => void,
 }
 
 
@@ -70,7 +72,8 @@ export var NewProcessorData: IProcessorData = {
     registerX: 0,
     registerY: 0,
     stackPointer: 0,
-    statusRegister: 0
+    statusRegister: 0,
+    isComputerRunning: false,
 }
 export var NewStackData: IStackData = {
     datas: [],

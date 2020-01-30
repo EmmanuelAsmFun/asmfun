@@ -30,16 +30,19 @@ namespace AsmFun.Ide.Compilation
             {
                 RawText = "No start file",
                 ErrorText = "No start file",
-            };
+                    HasErrors = true,
+                };
             if (!File.Exists(startFileName)) return new CompilaterResult
             {
                 RawText = "No start file found",
                 ErrorText = "No start file found",
+                HasErrors = true,
             };
             if (!File.Exists(compilerSettings.ACMEFileName)) return new CompilaterResult
             {
                 RawText = "Compiler ACME found",
                 ErrorText = "Compiler ACME found:" + compilerSettings.ACMEFileName,
+                HasErrors = true,
             };
             var subFolder = fileNameClean.Replace(Path.GetFileName(fileNameClean),"").Trim('\\').TrimEnd('/');
 

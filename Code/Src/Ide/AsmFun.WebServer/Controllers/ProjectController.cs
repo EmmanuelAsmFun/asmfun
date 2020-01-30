@@ -23,7 +23,7 @@ namespace AsmFun.WebServer.Controllers
         private readonly IProjectManager projectManager;
         private readonly IUserSettingsDA userSettingsDA;
         private readonly IEmServiceResolver resolver;
-        private readonly ICompilerManager compiler;
+        private readonly ICompilerManager compilerManager;
         private readonly ISourceCodeManager sourceCodeManager;
 
         public ProjectController(IProjectManager projectManager,  IUserSettingsDA userSettingsDA, IEmServiceResolver resolver, ICompilerManager compiler,
@@ -33,7 +33,7 @@ namespace AsmFun.WebServer.Controllers
             this.projectManager = projectManager;
             this.userSettingsDA = userSettingsDA;
             this.resolver = resolver;
-            this.compiler = compiler;
+            this.compilerManager = compiler;
         }
 
         [HttpGet]
@@ -66,6 +66,9 @@ namespace AsmFun.WebServer.Controllers
             var settings = userSettingsDA.Get();
             settings.Parse(userSettings);
             userSettingsDA.Save(settings);
+            var fac = ((IEmServiceResolverFactory)resolver);
+            fac.Update(userSettings);
+            UserSettings.UpdateCompilers(fac, userSettings);
             return new { isValid = true };
         }
 
@@ -99,14 +102,14 @@ namespace AsmFun.WebServer.Controllers
         [HttpGet]
         public CompilaterResult Compile()
         {
-            var response = compiler.Compile();
+            var response = compilerManager.Compile();
             return response;
         }
 
         [HttpGet]
         public CompilaterResult LoadCompiled()
         {
-            CompilaterResult response = compiler.Compile();
+            CompilaterResult response = compilerManager.Compile();
             response.SourceCodeBundle = sourceCodeManager.GetSourceWithCompiledAddresses();
             projectManager.LoadProgramInPC();
             return response;

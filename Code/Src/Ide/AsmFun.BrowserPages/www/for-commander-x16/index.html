@@ -386,95 +386,145 @@ programItem.address  | toHex2
                 <div class="nav-btns" v-if="!ide.serverNotConnected">
                     <a class="close-btn" v-on:click="ASMFunPlayerOpenManager(false)">X</a>
                 </div>
-                <h2 v-if="ide.serverNotConnected">The ASMFun Player is not running</h2>
-                <h2 v-if="ide.newVersionAvailable">There is a new ASMFun Player available</h2>
-                <h2 v-if="!ide.newVersionAvailable && !ide.serverNotConnected">ASMFun Player downloads</h2>
-                <div>
-                    <p v-show="ide.serverNotConnected">
-                        To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
-                        You can download it here.<br /><br />
-                    </p>
-                    <div class="confirmLicense">
-                        <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions </a></label>
-                    </div>
-                    <div v-bind:class="{ 'linkdisabled' : !ide.hasConfirmedLicense }">
+                <div class="content">
+                    <h2 v-on:click="ide.showDownloads = !ide.showDownloads;"><span class="number">1</span>Step one: Download and run the ASMFun player</h2>
+                    <div v-if="ide.showDownloads">
+                        <h3 v-if="ide.serverNotConnected">The ASMFun Player is not running</h3>
+                        <h3 v-if="ide.newVersionAvailable">There is a new ASMFun Player available</h3>
+                        <h3 v-if="!ide.newVersionAvailable && !ide.serverNotConnected">ASMFun Player downloads</h3>
+                        <div>
+                            <p v-show="ide.serverNotConnected">
+                                To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
+                                You can download it here.<br /><br />
+                            </p>
+                            <div class="confirmLicense">
+                                <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions </a></label>
+                            </div>
+                            <div v-bind:class="{ 'linkdisabled' : !ide.hasConfirmedLicense }">
 
-                        <div class="downloadheader">
-                            <span v-bind:class="{ 'osSelected' : ide.isWindows }">
-                                <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Windows');"><img src="/images/Logos/Windows.png" /> Windows</a>
-                            </span>
-                            <span v-bind:class="{'osSelected' : ide.isMac}">
-                                <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Mac');"><img src="/images/Logos/Mac.png" />Mac</a>
-                            </span>
-                            <span v-bind:class="{'osSelected' : ide. isLinux}">
-                                <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Linux');"><img src="/images/Logos/Ubuntu.png" />Linux</a>
-                            </span>
-                        </div>
+                                <div class="downloadheader">
+                                    <span v-bind:class="{ 'osSelected' : ide.isWindows }">
+                                        <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Windows');"><img src="/images/Logos/Windows.png" /> Windows</a>
+                                    </span>
+                                    <span v-bind:class="{'osSelected' : ide.isMac}">
+                                        <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Mac');"><img src="/images/Logos/Mac.png" />Mac</a>
+                                    </span>
+                                    <span v-bind:class="{'osSelected' : ide. isLinux}">
+                                        <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Linux');"><img src="/images/Logos/Ubuntu.png" />Linux</a>
+                                    </span>
+                                </div>
 
-                        <div v-if="ide.serverNotConnected">
-                            <br /><br />
-                            <p>
-                                <a href="javascript:" v-on:click="CheckPlayerAvailable">Check again if the player is running...</a>
+
+                                <div v-show="ide.hasConfirmedLicense" class="v-fade">
+
+                                    <div class="downloadBlock">
+                                        <span class="downloadText">
+                                            <b>Light</b><br /><small> .Net core 3.0 is already installed</small>
+                                        </span>
+                                        <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> 340Kb (916kb)</span>
+                                        <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                        <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                    </div>
+                                    <div class="downloadBlock">
+                                        <span class="downloadText">
+                                            <b>Complete</b><br />
+                                            <small>
+                                                with .net core 3.0 framework<br />
+                                                Microsoft is hungry in Mb, fiuuw!
+                                            </small>
+                                        </span>
+                                        <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
+                                        <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                        <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                    </div>
+                                </div>
                                 <br /><br />
-                            </p>
-                        </div>
-                        <div v-show="ide.hasConfirmedLicense" class="v-fade">
-
-                            <div class="downloadBlock">
-                                <span class="downloadText">
-                                    <b>Light</b><br /><small> .Net core 3.0 is already installed</small>
-                                </span>
-                                <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> 340Kb (916kb)</span>
-                                <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
-                                <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                <div v-show="ide.isMac">
+                                    <h3>For Mac</h3>
+                                    <p>
+                                        <br />
+                                        Can somebody tell me if Mac works? I don't have a Mac available at the moment.<br /><br />
+                                        <br />
+                                        Open terminal and run:<br />
+                                        &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
+                                        &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
+                                        <br />
+                                    </p>
+                                </div>
+                                <div v-show="ide.isLinux">
+                                    <h3>For Linux</h3>
+                                    <p>
+                                        Open terminal and run:<br />
+                                        &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
+                                        &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
+                                        <br />
+                                        The default compiler is ACME, you need to download it and set the folder with filename in the settings.<br />
+                                        You can download the source at:<br />
+                                        &nbsp; &nbsp; <a href="https://github.com/meonwax/acme" target="_blank">https://github.com/meonwax/acme</a><br />
+                                        &nbsp; &nbsp; goto /src/ folder<br />
+                                        run the command:<br />
+                                        &nbsp; &nbsp; make all<br />
+                                        <br />
+                                        Open the ASMFun page and go to settings.<br />
+                                        set the ACME folder in the settings where you build the acme compiler.<br />
+                                        &nbsp; &nbsp; ....../acme-master/src/acme<br />
+                                        <br />
+                                    </p>
+                                </div>
                             </div>
-                            <div class="downloadBlock">
-                                <span class="downloadText">
-                                    <b>Complete</b><br />
-                                    <small>
-                                        with .net core 3.0 framework<br />
-                                        Microsoft is hungry in Mb, fiuuw!
-                                    </small>
-                                </span>
-                                <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
-                                <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
-                                <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
-                            </div>
-                        </div>
-                        <br /><br />
-                        <div v-show="ide.isMac">
-                            <h3>For Mac</h3>
-                            <p>
-                                <br />
-                                Can somebody tell me if Mac works? I don't have a Mac available at the moment.<br /><br />
-                                <br />
-                                Open terminal and run:<br />
-                                &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
-                                &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
-                                <br />
-                            </p>
-                        </div>
-                        <div v-show="ide.isLinux">
-                            <h3>For Linux</h3>
-                            <p>
-                                Open terminal and run:<br />
-                                &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
-                                &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
-                                <br />
-                                The default compiler is ACME, you need to download it and set the folder with filename in the settings.<br />
-                                You can download the source at:<br />
-                                &nbsp; &nbsp; <a href="https://github.com/meonwax/acme" target="_blank">https://github.com/meonwax/acme</a><br />
-                                &nbsp; &nbsp; goto /src/ folder<br />
-                                run the command:<br />
-                                &nbsp; &nbsp; make all<br />
-                                <br />
-                                Open the ASMFun page and go to settings.<br />
-                                set the ACME folder in the settings where you build the acme compiler.<br />
-                                &nbsp; &nbsp; ....../acme-master/src/acme<br />
-                                <br />
-                            </p>
                         </div>
                     </div>
+                    <div v-if="ide.serverNotConnected">
+                        <br /><br />
+                        <p>
+                            <a href="javascript:" v-on:click="CheckPlayerAvailable">Check again if the player is running...</a>
+                            <br /><br />
+                        </p>
+                    </div>
+                    <div v-if="!ide.newVersionAvailable">
+                        <div>
+                            <h2><span class="number">2</span>Step two: Download and install compilers.</h2>
+                            <div v-if="settings.userSettings != null && settings.userSettings.ideSettings != null">
+                                <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download ACME Compiler</a><br />
+                                <a href="https://cc65.github.io/getting-started.html" target="_blank">Download Cc65 Compiler</a>
+
+                                <br /><br />
+                            </div>
+                            <h2><span class="number">3</span>Step three: Setup compilers folders.</h2>
+                            <div v-if="settings.userSettings != null && settings.userSettings.ideSettings != null">
+                                <div class="form-item">
+                                    <div class="form-lbl">ACME compiler filename:</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.acme.acmeFileName" style="width:400px" />
+                                    <button v-on:click="SettingsSelectCompilerFile('ACME');"><span class="fa fa-search"></span> Browse</button>
+                                </div>
+                                <br /><br />
+                                <!--<div class="form-item">
+        <div class="form-lbl">DASM compiler filename :</div>
+        <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFileName" style="width:400px" />
+        <button v-on:click="SettingsSelectCompilerFile('DASM');"><span class="fa fa-search"></span> Browse</button>
+    </div> <br /><br />
+    <div class="form-item">
+        <div class="form-lbl">VASM compiler filename :</div>
+        <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFileName" style="width:400px" />
+        <button v-on:click="SettingsSelectCompilerFile('VASM');"><span class="fa fa-search"></span> Browse</button>
+    </div>-->
+                                <div class="form-item">
+                                    <div class="form-lbl">Cc65 compiler filename:</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65FileName" style="width:400px" />
+                                    <button v-on:click="SettingsSelectCompilerFile('Cc65');"><span class="fa fa-search"></span> Browse</button>
+                                </div>
+                                <br /> <br /> <br />
+                                <div style="margin-left:200px;">
+                                    <button v-on:click="ide.onDone()"><span class="fa fa-check"></span> Done</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div>
+                    
                 </div>
             </div>
         </div>
@@ -587,28 +637,35 @@ programItem.address  | toHex2
                         <h2>User settings</h2>
                         <div>
                             <div v-if="settings.userSettings != null">
-                                <!--<div class="form-item">
-                                <div class="form-lbl">StartupProject:</div>
-                                <input type="text" v-model="settings.userSettings.lastOpenedProjectFileName" style="width:400px" />
-                            </div>-->
+
                                 <div v-if="settings.userSettings.ideSettings != null">
                                     <div class="form-item">
-                                        <div class="form-lbl">ACME compiler folder and filename:</div>
+                                        <div class="form-lbl">ACME compiler filename:</div>
                                         <input type="text" v-model="settings.userSettings.ideSettings.acme.acmeFileName" style="width:400px" />
+                                        <button v-on:click="SettingsSelectCompilerFile('ACME');"><span class="fa fa-search"></span> Browse</button>
                                     </div>
                                     <!--<div class="form-item">
-                                    <div class="form-lbl">DASM compiler folder :</div>
-                                    <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFolder" style="width:400px" />
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">VASM compiler folder :</div>
-                                    <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFolder" style="width:400px" />
-                                </div>-->
+                                        <div class="form-lbl">DASM compiler filename :</div>
+                                        <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFileName" style="width:400px" />
+                                        <button v-on:click="SettingsSelectCompilerFile('DASM');"><span class="fa fa-search"></span> Browse</button>
+                                    </div>
                                     <div class="form-item">
-                                        <div class="form-lbl">Cc65 compiler folder :</div>
-                                        <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65Folder" style="width:400px" />
+                                        <div class="form-lbl">VASM compiler filename :</div>
+                                        <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFileName" style="width:400px" />
+                                        <button v-on:click="SettingsSelectCompilerFile('VASM');"><span class="fa fa-search"></span> Browse</button>
+                                    </div>-->
+                                    <div class="form-item">
+                                        <div class="form-lbl">Cc65 compiler filename:</div>
+                                        <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65FileName" style="width:400px" />
+                                        <button v-on:click="SettingsSelectCompilerFile('Cc65');"><span class="fa fa-search"></span> Browse</button>
                                     </div>
 
+                                </div>
+
+                                <div class="form-item" v-if="settings.userSettings.computerSettings != null">
+                                    <div class="form-lbl">Enable sound:</div>
+                                    <input type="checkbox" v-model="settings.userSettings.computerSettings.soundEnabled" />
+                                    <small style="font-size:10px;">Still a bug. Can you perhaps find it?</small>
                                 </div>
                             </div>
                             <div class="form-item">
@@ -1113,7 +1170,7 @@ programItem.address  | toHex2
 
 
         <div class="serverVersionFooter">
-            <a v-on:click="ASMFunPlayerOpenManager()"> V{{ide.currentVersion}}</a>
+            <a v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span> V{{ide.currentVersion}}</a>
         </div>
     </div>
 

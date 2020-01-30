@@ -104,6 +104,8 @@ export class ProjectManager  {
                     selectAFile: true,
                     title: "Select the start ASM file",
                     subTitle: "*.asm | *.a | AsmFunSettings.json",
+                    onClose: () => {
+                    }
                 };
                 fileDialogSettings.onSelected = file => {
                     if (file != null && file.length > 1) {

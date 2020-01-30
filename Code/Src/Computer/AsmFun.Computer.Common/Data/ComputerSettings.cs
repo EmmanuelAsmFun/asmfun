@@ -5,6 +5,8 @@
 #endregion
 
 
+using System;
+
 namespace AsmFun.Computer.Common.Data
 {
 
@@ -15,11 +17,17 @@ namespace AsmFun.Computer.Common.Data
         /// </summary>
         public string ComputerType{ get; set; }
         public string ComputerVersion { get; set; }
+        public bool SoundEnabled { get; set; }
 
         public ComputerSettings()
         {
             ComputerType = "CommanderX16";
             ComputerVersion = "R36";
+        }
+
+        public void Parse(ComputerSettings computerSettings)
+        {
+            SoundEnabled = computerSettings.SoundEnabled;
         }
     }
 }

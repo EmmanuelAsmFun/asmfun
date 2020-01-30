@@ -10,7 +10,6 @@ import { NewFileManagerData, IFileManagerData, IAsmFolder, IAsmFile, IFileDialog
 import { ProjectService } from "../services/projectService.js";
 import { FileService } from "../services/FileService.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
-import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { ASMStorage } from "../Tools.js";
 
 export interface IFileManager {
@@ -23,6 +22,7 @@ export class FileManager implements IFileManager {
     private filter: string | null = null;
     private initialFolder: string | null = null;
     private onSelected: ((f: string) => void) | null = null;
+    private onClose: (() => void) | null = null;
     private mainData: IMainData;
     private data: IFileManagerData;
     private projectService: ProjectService;
@@ -32,8 +32,8 @@ export class FileManager implements IFileManager {
         this.mainData = mainData;
         this.data = mainData.appData.fileManager;
         // Ressolve services
-        this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService();
-        this.fileService = mainData.container.Resolve<FileService>(FileService.ServiceName) ?? new FileService();
+        this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
+        this.fileService = mainData.container.Resolve<FileService>(FileService.ServiceName) ?? new FileService(mainData);
         // Subscribe to commands
         mainData.commandManager.Subscribe2(new FileOpenManagerCommand(null, null), this,
             x => this.OpenManager(x.state, x.fileDialogData));
@@ -76,6 +76,7 @@ export class FileManager implements IFileManager {
             if (f.files != null) {
                 var filterOnAsm = this.filter == "*.asm|*.a|AsmFunSettings.json";
                 var filterOnPrg = this.filter == "*.prg";
+                var filterIsCompiler = this.filter != null && this.filter.indexOf('.exe') > -1;
                 for (var i = 0; i < f.files.length; i++) {
                     var file = f.files[i];
                     if (file.fileSize != null)
@@ -89,6 +90,10 @@ export class FileManager implements IFileManager {
                     }
                     if (filterOnPrg) {
                         if (file.extension.toLowerCase() !== ".prg") 
+                            file.notSelectable = true;
+                    }
+                    if (filterIsCompiler) {
+                        if (file.fileName !== this.filter)
                             file.notSelectable = true;
                     }
                 }
@@ -109,6 +114,7 @@ export class FileManager implements IFileManager {
             this.data.isSelectFileDialog = fileDialogData.selectAFile;
             this.data.title = fileDialogData.title;
             this.data.subTitle = fileDialogData.subTitle;
+            this.onClose = fileDialogData.onClose;
         }
         
         if (state === this.data.isVisible) return;
@@ -122,7 +128,6 @@ export class FileManager implements IFileManager {
     private Open() {
         if (this.initialFolder == null) this.initialFolder = "";
         var thiss = this;
-        this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(false));
         this.OpenFolderByName(this.initialFolder, () => {
                 thiss.Show();
         }, er => {
@@ -142,7 +147,8 @@ export class FileManager implements IFileManager {
     }
 
     private Close() {
-        this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
+        if (this.onClose != null)
+            this.onClose();
         this.Hide();
     }
 

@@ -20,6 +20,7 @@ using AsmFun.UI.Consolee;
 using AsmFun.Ide.Common.DataAccess;
 using AsmFun.Computer.Common.Data;
 using AsmFun.CommanderX16.Computer.Factories;
+using AsmFun.Ide.Common.Data;
 
 namespace AsmFun.UI.Startup
 {
@@ -109,11 +110,7 @@ namespace AsmFun.UI.Startup
             var userSettings = userSettingsDA.Load();
             container.Add(userSettings.IdeSettings);
             container.Add(userSettings.ComputerSettings);
-            container.Update(userSettings.IdeSettings.ACME).WithLifestyle(EmServiceLifestyle.Transient);
-            container.Update(userSettings.IdeSettings.DASM).WithLifestyle(EmServiceLifestyle.Transient);
-            container.Update(userSettings.IdeSettings.VASM).WithLifestyle(EmServiceLifestyle.Transient);
-            container.Update(userSettings.IdeSettings.Cc65).WithLifestyle(EmServiceLifestyle.Transient);
-
+            UserSettings.UpdateCompilers(container, userSettings);
             var projectManager = container.Resolve<IProjectManager>();
             projectManager.LoadLastOpened();
         }

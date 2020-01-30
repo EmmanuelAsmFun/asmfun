@@ -238,6 +238,22 @@ namespace AsmFun.CommanderX16.Computer.Factories
             {
                 Type = MemoryAddressType.Unknown,
                 Start = 0x9fc0,
+                End = 0x9fe0,
+                ReturnOffset = (isRead, address, bank) => address,
+            });
+            // Audio
+            computerMemory.Add(new X16AudioMemory()
+            {
+                Type = MemoryAddressType.YM2151,
+                Start = 0x9fe0,
+                End = 0x9fe1,
+                ReturnOffset = (isRead, address, bank) => address,
+            });
+            // Dummy address
+            computerMemory.Add(new MemoryDataAccess(ram, computerSetup.RamSize)
+            {
+                Type = MemoryAddressType.Unknown2,
+                Start = 0x9fe1,
                 End = 0xffff,
                 ReturnOffset = (isRead, address, bank) => address,
             });

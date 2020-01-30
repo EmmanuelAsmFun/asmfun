@@ -22,6 +22,7 @@ export interface IFileDialogData {
     subTitle: string;
     selectAFile: boolean;
     onSelected: ((f: string) => void) | null;
+    onClose: (() => void) | null;
 }
 export interface IFileManagerData {
     isSelectFileDialog: boolean;

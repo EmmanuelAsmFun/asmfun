@@ -12,6 +12,7 @@ import { ConfirmIcon, NotifyIcon } from "../common/Enums.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { ProjectManager } from "./ProjectManager.js";
 import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "../data/commands/ASMFunPlayerManagerCommands.js";
+import { UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.js";
 
 
 export class ASMFunPlayerManager {
@@ -36,6 +37,8 @@ export class ASMFunPlayerManager {
         else if (os === BrowserTypes.Android || os === BrowserTypes.Linux) this.data.isLinux = true;
         this.mainData.commandManager.Subscribe2(new ASMFunPlayerOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ASMFunPlayerSelectOSCommand(""), this, x => this.SelectOS(x.osName));
+        thiss.data.serverNotConnected = true;
+        this.data.onDone = () => this.Done();
     }
 
     private OpenManager(state: boolean | null) {
@@ -71,38 +74,45 @@ export class ASMFunPlayerManager {
 
                 });
         }
-       this.CheckPlayerAvailable(() => { }, () => { });
+       this.CheckPlayerAvailable(() => { }, () => { },true);
     }
 
-    public CheckPlayerAvailable(ok: () => void, notOk: () => void) {
+    public CheckPlayerAvailable(ok: () => void, notOk: () => void,hasAutoChecked:boolean) {
         var thiss = this;
-        fetch("https://asmfun.com/api/ASMFunPlayerInfo.json")
+        //fetch("https://asmfun.com/api/ASMFunPlayerInfo.json")
+        fetch("/api/ASMFunPlayerInfo.json")
             .then(r => r.json())
             .then(r => {
             thiss.data.latestVersion = r.latestVersion;
             thiss.projectService.GetUserSettings((s) => {
                 thiss.data.serverNotConnected = false;
                 thiss.data.currentVersion = s.serverVersion;
+                thiss.data.showDownloads = false;
                 if (s.serverVersion != null && s.serverVersion !== thiss.data.latestVersion) {
                     // New version available
                     thiss.data.newVersionAvailable = true;
-                    thiss.data.isVisiblePlayerManager = true;
                 }
-                else {
-                    thiss.data.isVisiblePlayerManager = false;
-                }
-                var svc = thiss.mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName);
-                if (svc != null)
-                    svc.LoadOne();
+                if (hasAutoChecked)
+                    this.Done();
                 ok();
             }, () => {
-                thiss.data.serverNotConnected = true;
-                    thiss.data.isVisiblePlayerManager = true;
-                    thiss.Open();
+                    thiss.data.serverNotConnected = true;
+                    thiss.data.showDownloads = true;
+                thiss.data.isVisiblePlayerManager = true;
+                thiss.Open();
                 notOk();
                 this.mainData.appData.alertMessages.Notify("Nope, not running.", NotifyIcon.Alert);
             });
         });
+    }
+
+    private Done() {
+        var svc = this.mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName);
+        if (svc != null && this.myAppData.selectedFile?.lines.length === 0)
+            svc.LoadOne();
+        this.mainData.commandManager.InvokeCommand(new UserSaveUserSettingsCommand())
+        this.data.isVisiblePlayerManager = false;
+        this.data.isVisiblePopup = false;
     }
 
     private SelectOS(osName: string) {
@@ -147,6 +157,7 @@ export class ASMFunPlayerManager {
         return {
             serverNotConnected: false,
             hasConfirmedLicense: false,
+            showDownloads:true,
             isLinux: false,
             isMac: false,
             isWindows: false,
@@ -154,7 +165,8 @@ export class ASMFunPlayerManager {
             newVersionAvailable: false,
             latestVersion: "0.0.0.0",
             isVisiblePlayerManager:false,
-            isVisiblePopup:false,
+            isVisiblePopup: false,
+            onDone: () => { },
         };
     }
 

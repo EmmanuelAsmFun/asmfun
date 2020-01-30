@@ -35,6 +35,6 @@ namespace AsmFun.Computer.Common.Computer
         void WriteBlock(MemoryAddressType type, byte[] data, int startOffset, int startTargetAddress,  int count);
 
         ProcessorStackModel ReadStack(int bytesCount);
-        
+        void SetWriteAudioMethod(Action<int, int> writeAudio);
     }
 }

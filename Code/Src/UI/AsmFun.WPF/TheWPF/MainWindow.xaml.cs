@@ -10,12 +10,14 @@ using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
+using AsmFun.Startup;
 using AsmFun.WPF;
 using AsmFun.WPF.EnvTools;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -51,6 +53,7 @@ namespace AsmFun.WPF
 
         private bool isInitialized;
         private List<Image> sprites = new List<Image>();
+        private SDLSound sound;
 
         public MainWindow()
         {
@@ -59,6 +62,12 @@ namespace AsmFun.WPF
             Closing += MainWindow_Closing;
             KeyDown += MainWindow_KeyDown;
             KeyUp += MainWindow_KeyUp;
+            sound = new SDLSound();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
+            if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_AUDIO) < 0)
+                Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
+            sound.Init();
             Topmost = true;
         }
 
@@ -66,6 +75,7 @@ namespace AsmFun.WPF
         {
             try
             {
+                SDL2.SDL.SDL_Quit();
                 isClosed = true;
                 var computerManager = Container.Resolve<IComputerManager>();
                 computerManager.StopComputer();
@@ -110,6 +120,7 @@ namespace AsmFun.WPF
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
+            computer.SetWriteAudioMethod(sound.WriteAudio);
             keyboardAccess = computer.GetKeyboard();
             _stopwatchWPF.Start();
             //ResizeInterBG();

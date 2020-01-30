@@ -66,6 +66,7 @@ namespace AsmFun.CommanderX16.Computer
         private IProgramAccess programAccess;
         private IUart uart;
 
+        public bool SoundEnabled { get; set; }
 
         public X16Computer(X16JoystickData joystickData, IVideoAccess videoAccess, IComputerAccess computerAccess,
             IX16PS2Access ps2Data, X16VeraSpi veraSpi, IEmServiceResolverFactory container, IDebugger debugger,
@@ -344,6 +345,12 @@ namespace AsmFun.CommanderX16.Computer
         {
             computerAccess.Memory.WriteBlock(startAddress,data,count);
         }
+        public void SetWriteAudioMethod(Action<int, int> writeAudio)
+        {
+            if (!SoundEnabled) return;
+            computerAccess.Memory.SetWriteAudioMethod(writeAudio);
+        }
+
         public void Dispose()
         {
             if (isDisposed) return;

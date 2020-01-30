@@ -86,6 +86,7 @@ export interface IUserSettings {
 
 export interface IComputerSettings {
     x16ComputerFolder: string;
+    soundEnabled: boolean;
     runMode: ComputerRunMode;
     computerType: string;
 }
@@ -103,13 +104,13 @@ export interface IACMECompilerSettings {
     acmeFileName: string;
 }
 export interface IVASMCompilerSettings {
-    vasmFolder: string;
+    vasmFileName: string;
 }
 export interface IDASMCompilerSettings {
-    dasmFolder: string;
+    dasmFileName: string;
 }
 export interface ICc65CompilerSettings {
-    cc65Folder: string;
+    cc65FileName: string;
 }
 export interface ISettings {
     userSettings?: IUserSettings | null;

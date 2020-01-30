@@ -21,7 +21,14 @@ namespace AsmFun.WebServer.Startup
 
         public async Task Invoke(HttpContext context)
         {
+#if DEBUG
+            if (context.Request.Host.Host == "localhost")
+                context.Response.Headers.Add("Access-Control-Allow-Origin", "https://localhost:44343");
+            else
+                context.Response.Headers.Add("Access-Control-Allow-Origin", "https://asmfun.com,https://localhost:44343");
+#else
             context.Response.Headers.Add("Access-Control-Allow-Origin", "https://asmfun.com");
+#endif
             context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
             // Added "Accept-Encoding" to this list
             context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Accept-Encoding, Content-Length, Content-MD5, Date, X-Api-Version, X-File-Name");

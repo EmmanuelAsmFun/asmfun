@@ -8,7 +8,7 @@ namespace AsmFun.Ide.Common.Compilation.Cc65
 {
     public class Cc65CompilerSettings : CompilerSettings
     {
-        public string Cc65Folder { get; set; }
+        public string Cc65FileName { get; set; }
 
         public Cc65CompilerSettings()
         {
@@ -18,7 +18,7 @@ namespace AsmFun.Ide.Common.Compilation.Cc65
         internal override void Parse(CompilerSettings newSettings)
         {
             base.Parse(newSettings);
-            Cc65Folder = ((Cc65CompilerSettings)newSettings).Cc65Folder;
+            Cc65FileName = ((Cc65CompilerSettings)newSettings).Cc65FileName;
         }
     }
 }

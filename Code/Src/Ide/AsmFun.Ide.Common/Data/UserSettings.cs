@@ -4,6 +4,7 @@
 //
 #endregion
 
+using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common.Data;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,18 @@ namespace AsmFun.Ide.Common.Data
         {
             ProjectsFolder = userSettings.ProjectsFolder;
             IdeSettings.Parse(userSettings.IdeSettings);
+            ComputerSettings.Parse(userSettings.ComputerSettings);
+        }
+
+        public static void UpdateCompilers(IEmServiceResolverFactory fac, UserSettings userSettings)
+        {
+            if (userSettings.IdeSettings != null)
+            {
+                fac.Update(userSettings.IdeSettings.ACME).WithLifestyle(EmServiceLifestyle.Singleton);
+                fac.Update(userSettings.IdeSettings.Cc65).WithLifestyle(EmServiceLifestyle.Singleton);
+                fac.Update(userSettings.IdeSettings.VASM).WithLifestyle(EmServiceLifestyle.Singleton);
+                fac.Update(userSettings.IdeSettings.DASM).WithLifestyle(EmServiceLifestyle.Singleton);
+            }
         }
     }
 }

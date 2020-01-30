@@ -104,9 +104,9 @@ namespace AsmFun.Core.DataAccess
         private void FillCompilers(UserSettings settings)
         {
             if (settings.IdeSettings.ACME == null) settings.IdeSettings.ACME = new ACMECompilerSettings { ACMEFileName = @"C:\Program Files\ACME\acme.exe", };
-            if (settings.IdeSettings.VASM == null) settings.IdeSettings.VASM = new VASMCompilerSettings { VASMFolder = @"C:\Program Files\VASM\", };
-            if (settings.IdeSettings.DASM == null) settings.IdeSettings.DASM = new DASMCompilerSettings { DASMFolder = @"C:\Program Files\DASM\", };
-            if (settings.IdeSettings.Cc65 == null) settings.IdeSettings.Cc65 = new Cc65CompilerSettings { Cc65Folder = @"C:\Program Files\Cc65\", };
+            if (settings.IdeSettings.VASM == null) settings.IdeSettings.VASM = new VASMCompilerSettings { VASMFileName = @"C:\Program Files\VASM\vasm.exe", };
+            if (settings.IdeSettings.DASM == null) settings.IdeSettings.DASM = new DASMCompilerSettings { DASMFileName = @"C:\Program Files\DASM\dasm.exe", };
+            if (settings.IdeSettings.Cc65 == null) settings.IdeSettings.Cc65 = new Cc65CompilerSettings { Cc65FileName = @"C:\Program Files\Cc65\cc65.exe", };
         }
 
         public UserSettings Get()

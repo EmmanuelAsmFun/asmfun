@@ -9,7 +9,7 @@ import { ISourceCodeBundle, IUserSettings, IProjectSettings, IProjectDetail, IBu
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { IEventManager } from "../framework/IAsmFunEventManager.js";
 import { IMainData } from "../data/MainData.js";
-import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
+import { ProjectSettingsLoaded, UserSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 
 
 export class ProjectService extends ApiService {
@@ -50,12 +50,12 @@ export class ProjectService extends ApiService {
         this.post("SaveUserSettings", data, doneMethod);
     }
 
-    public SaveProjectSettings(data: IProjectSettings, doneMethod) {
-        this.post("SaveProjectSettings", data, (s) => { doneMethod(s); });
+    public SaveProjectSettings(data: IProjectSettings, doneMethod, error: (e) => void) {
+        this.post("SaveProjectSettings", data, (s) => { this.eventManager.InvokeEvent(new UserSettingsLoaded(s)); doneMethod(s); }, error);
     }
 
     public GetUserSettings(doneMethod: (r: IUserSettings) => void, error: (e) => void) {
-        this.callApi("GetUserSettings", doneMethod, error);
+        this.callApi("GetUserSettings", (s) => { this.eventManager.InvokeEvent(new UserSettingsLoaded(s)); doneMethod(s); }, error);
     }
 
     public GetProjectSettings(doneMethod: (r: IProjectSettings) => void, error:(e)=> void) {

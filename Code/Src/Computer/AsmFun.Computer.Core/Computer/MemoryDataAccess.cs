@@ -126,17 +126,17 @@ namespace AsmFun.Computer.Core.DataAccess.Computer
                 }
             }
         }
-    public virtual void WriteByte(ushort address, int bank, byte value)
+        public virtual void WriteByte(ushort address, int bank, byte value)
         {
             var newAddress = ReturnOffset(false, address, bank);
             Marshal.WriteByte(Data + newAddress, value);
         }
 
-        internal void WriteBlock(byte[] bytes, int startOffset)
+        public virtual void WriteBlock(byte[] bytes, int startOffset)
         {
             Marshal.Copy(bytes, startOffset, Data, bytes.Length);
         }
-        internal void WriteBlock(byte[] bytes, int sourceOffest, int targetOffset, int length)
+        public virtual void WriteBlock(byte[] bytes, int sourceOffest, int targetOffset, int length)
         {
             Marshal.Copy(bytes, sourceOffest, Data + targetOffset, length);
         }
@@ -147,18 +147,18 @@ namespace AsmFun.Computer.Core.DataAccess.Computer
             Marshal.FreeHGlobal(Data);
         }
 
-        internal int GetRealMemoryAddress()
+        public virtual int GetRealMemoryAddress()
         {
             //var ptr = Data.ToPointer();
             var ddd = Data;
             return 0;
         }
-        public void TraceData(int offset, int length)
+        public virtual void TraceData(int offset, int length)
         {
             ConsoleDataAnalyerHelper.Dump(Data, offset, length);
         }
 
-        public byte[] ReadBlock(int address, int length)
+        public virtual byte[] ReadBlock(int address, int length)
         {
             var newAddress = ReturnOffset(true, (ushort)address, 0);
             var buffer = new byte[length];
@@ -166,14 +166,14 @@ namespace AsmFun.Computer.Core.DataAccess.Computer
             return buffer;
         }
 
-        public ushort ReadUShort(int address)
+        public virtual ushort ReadUShort(int address)
         {
             var newAddress = ReturnOffset(true, (ushort)address, 0);
             var shortt = (ushort)Marshal.ReadInt16(Data + newAddress);
             return shortt;
         }
 
-        internal void WriteUShort(int address, ushort value)
+        public virtual void WriteUShort(int address, ushort value)
         {
             var newAddress = ReturnOffset(true, (ushort)address, 0);
             Marshal.WriteInt16(Data + newAddress,(short) value);

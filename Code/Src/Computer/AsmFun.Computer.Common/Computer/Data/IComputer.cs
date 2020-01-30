@@ -38,6 +38,9 @@ namespace AsmFun.Computer.Common.Computer.Data
         void SetDisplay(IComputerDisplay display);
         IKeyboardAccess GetKeyboard();
         void RunProgram();
+
+        bool SoundEnabled { get; set; }
+
         void KeyDown(KeyboardKey keyboardKey);
         void KeyUp(KeyboardKey keyboardKey);
         void KeyRawDown(int[] keyboardKey);
@@ -45,5 +48,6 @@ namespace AsmFun.Computer.Common.Computer.Data
         MemoryDumpData[] VideoMemoryDump();
         void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
         void WriteMemoryBlock(int startAddress, byte[] data, int count);
+        void SetWriteAudioMethod(Action<int, int> writeAudio);
     }
 }
