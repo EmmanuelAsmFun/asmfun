@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Common\AsmFun.Common\AsmFun.Common.csproj" />
     <ProjectReference Include="..\..\Common\AsmFun.Core\AsmFun.Core.csproj" />
     <ProjectReference Include="..\AsmFun.Ide.Common\AsmFun.Ide.Common.csproj" />

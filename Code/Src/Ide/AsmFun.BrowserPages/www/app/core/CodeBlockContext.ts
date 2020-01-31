@@ -40,7 +40,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         this.appData = appData;
         this.file = file != null? file:parent != null
             ? parent.file
-            : CreateNewFile({exists:false,fileName:"",fileNameFull:"",folder:"",isBinary:false,isCodeFile:false,lines:[]})
+            : CreateNewFile({exists:false,fileName:"",fileNameFull:"",folder:"",isBinary:false,isCodeFile:false,lines:[],requireSave:false})
         this.bundle = bundle;
         this.parent = parent;
         this.children = [];
@@ -284,11 +284,19 @@ export class CodeBlockContext implements ICodeBlockContext {
 
     public RemoveLine(line: IEditorLine) {
         if (line == null) {
-            // Todo: check how this is possible
-            return;
+            throw "Cannot delete a null line";
         }
         var lineIndex = this.lines.indexOf(line);
-        if (lineIndex > -1) this.lines.splice(lineIndex, 1);
+        if (lineIndex > -1) {
+            this.lines.splice(lineIndex, 1);
+        }
+        else {
+            // line not found, search in parent
+            if (this.parent != null) {
+                this.parent.RemoveLine(line);
+            }
+            return;
+        }
         lineIndex = this.potentialRefLines.indexOf(line);
         if (lineIndex > -1) this.potentialRefLines.splice(lineIndex, 1);
         // remove from setters

@@ -209,8 +209,9 @@ export class EditorWriter  {
         return true;
     }
 
-    private DeleteSelectionMultiLine(context: IEditorContext,selection: IEditorSelection): boolean {
-        if (context.currentFile == null || context.sourceCode == null || context.currentLine == null) return false;
+    private DeleteSelectionMultiLine(context: IEditorContext, selection: IEditorSelection): boolean {
+        
+        if (context.currentFile == null || context.sourceCode == null) return false;
         var firstLine = context.currentFile.lines[selection.startLine - 1];
         var lastLine = context.currentFile.lines[selection.endLine - 1];
         if (firstLine == null || lastLine == null) return false;
@@ -222,16 +223,25 @@ export class EditorWriter  {
             // Get lines for undo
             for (var i = selection.startLine; i < selection.startLine + toDelete; i++) 
                 undoLineTexts.push(context.currentFile.lines[i].data.sourceCode);
-            // delete the lines
-            (<any>context.currentFile).lines.splice(selection.startLine, toDelete);
-            for (var i = selection.startLine; i < selection.startLine + toDelete; i++) 
-                context.currentLine.context.RemoveLine(context.currentFile.lines[i - 1]);
-            
+
+            // Delete the lines from the context.
+            for (var i = selection.startLine + toDelete; i > selection.startLine; i--) {
+                var theLine = context.currentFile.lines[i - 1];
+                theLine.context.RemoveLine(theLine);
+            }
+
+            // Delete the lines from the source.
+            var dels = (<any>context.currentFile).lines.splice(selection.startLine, toDelete);
+            console.log("Deleted Lines", dels.map(x => x.data.sourceCode));
+
             // Renumber the next lines
-            for (var i = selection.startLine; i < context.currentFile.lines.length; i++)
+            for (var i = selection.startLine; i < context.currentFile.lines.length; i++) {
                 context.currentFile.lines[i].data.lineNumber = i + 1;
+                context.RedrawLine2(context.currentFile.lines[i]);
+            }
+
         }
-        this.AddUndoMultiLine(firstLine, undoLineTexts, x,y);
+        this.AddUndoMultiLine(firstLine, undoLineTexts, x,y - 1);
         firstLine.data.sourceCode = firstLine.data.sourceCode.substring(0, selection.startOffset) + lastLine.data.sourceCode.substring(selection.endOffset);
         context.RedrawLine2(firstLine);
         context.cursorLogic.Deselect();
@@ -283,9 +293,11 @@ export class EditorWriter  {
                     this.EnterKey(context);
                     context.cursorLogic.MoveCursor(context, undo.x, undo.y);
                 } if (undo.isMultiLine) {
+                    console.log("UndoFirstLine", undo.lineText);
                     context.currentFile.lines[undo.y].data.sourceCode = undo.lineText;
                     context.RedrawLine();
                     context.cursorLogic.MoveEnd(context, false);
+                    console.log("UndoOtherLines", undo.addonLines);
                     for (var i = 0; i < undo.addonLines.length; i++) {
                         this.EnterKey(context);
                         if (context.currentLine != null) {
@@ -293,6 +305,11 @@ export class EditorWriter  {
                             context.RedrawLine();
                             context.cursorLogic.MoveEnd(context, false);
                         }
+                    }
+                    // Renumber the next lines
+                    for (var i = undo.y; i < context.currentFile.lines.length; i++) {
+                        context.currentFile.lines[i].data.lineNumber = i + 1;
+                        context.RedrawLine2(context.currentFile.lines[i]);
                     }
                 }
             }

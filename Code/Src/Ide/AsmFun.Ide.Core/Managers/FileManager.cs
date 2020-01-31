@@ -20,10 +20,9 @@ namespace AsmFun.Ide.Core.Managers
 
         public AsmFolder GetFiles(string folderName, string filter)
         {
-            if (!string.IsNullOrWhiteSpace(folderName) && !Directory.Exists(folderName))
+            try
             {
-                folderName = Directory.GetParent(folderName).FullName;
-                if (!Directory.Exists(folderName))
+                if (!string.IsNullOrWhiteSpace(folderName) && !Directory.Exists(folderName))
                 {
                     folderName = Directory.GetParent(folderName).FullName;
                     if (!Directory.Exists(folderName))
@@ -31,11 +30,20 @@ namespace AsmFun.Ide.Core.Managers
                         folderName = Directory.GetParent(folderName).FullName;
                         if (!Directory.Exists(folderName))
                         {
-                            folderName = null;
+                            folderName = Directory.GetParent(folderName).FullName;
+                            if (!Directory.Exists(folderName))
+                            {
+                                folderName = null;
+                            }
                         }
                     }
                 }
             }
+            catch
+            {
+                folderName = null;
+            }
+         
             if (string.IsNullOrWhiteSpace(folderName) )
             {
                 var currentProject = projectManager.GetCurrentProjectSettings();

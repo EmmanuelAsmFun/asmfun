@@ -75,18 +75,30 @@ export class CursorUI implements ICursorUI{
     public GetSelection(): IEditorSelection | null {
         // todo: use this https://stackoverflow.com/questions/52240216/how-to-wrap-text-inside-multiple-nodes-with-a-html-tag
         var returnData: IEditorSelection = {
-            endLine: 0, endOffset: 0, startLine: 0, startOffset: 0, reversed:false
+            endLine: 0, endOffset: 0, startLine: 0, startOffset: 0, reversed: false, startText:"",endText:""
         }
         if (<any>window.getSelection) {
             var selection: Selection = (<any>window).getSelection();
             if (selection.type === "None" || selection.type === "Caret") return null;
             console.log(selection);
+            var startText: string = "";
+            var endText: string = "";
             var startLineNode: any = (<any>selection).anchorNode;
             var endLineNode: Node | null = (<any>selection).extentNode;
+            if (endLineNode == null)
+                endLineNode = (<any>selection).focusNode;
             var startLineNumber: string | null = "";
             var endLineNumber = "";
+            startText = startLineNode.nodeValue;
+            if (endLineNode != null && endLineNode.nodeValue != null)
+                endText = endLineNode.nodeValue;
             var startOffset = (<any>selection).baseOffset;
+            if (startOffset == null)
+                startOffset = (<any>selection).anchorOffset;
             var endOffset = (<any>selection).extentOffset;
+            if (endOffset == null)
+                endOffset = (<any>selection).focusOffset;
+            
             if (startLineNode != null) {
                 if (startLineNode.parentNode != undefined) {
                     var attr = startLineNode.parentNode.attributes["data-ln"];
@@ -154,11 +166,15 @@ export class CursorUI implements ICursorUI{
                 returnData.endLine = Number(startLineNumber);
                 returnData.endOffset = startOffset;
                 returnData.startOffset = endOffset;
+                returnData.startText = endText;
+                returnData.endText = startText;
                 returnData.reversed = true;
             } else {
                 returnData.startOffset = startOffset;
                 returnData.endOffset = endOffset;
                 returnData.reversed = false;
+                returnData.startText = startText;
+                returnData.endText = endText;
             }
             if (returnData.startLine == returnData.endLine) {
                 if (returnData.startOffset > returnData.endOffset) {

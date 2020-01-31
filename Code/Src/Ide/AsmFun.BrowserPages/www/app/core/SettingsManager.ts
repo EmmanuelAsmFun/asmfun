@@ -7,7 +7,7 @@
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
 import { ProjectService } from "../services/projectService.js";
-import { IUserSettings, IProjectSettings, ISettings } from "../data/ProjectData.js";
+import { IUserSettings, IProjectSettings, ISettings, ComputerRunMode } from "../data/ProjectData.js";
 import { NotifyIcon } from "../common/Enums.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";
 import { SettingsOpenManagerCommand, SettingsSelectCompilerFileCommand } from "../data/commands/SettingsCommands.js";
@@ -100,6 +100,9 @@ export class SettingsManager {
             case "Cc65": fn = "cl65.exe"; inf = ide.cc65.cc65FileName; break;
             case "VASM": fn = "vasm.exe"; inf = ide.vasm.vasmFileName; break;
             case "DASM": fn = "dasm.exe"; inf = ide.dasm.dasmFileName; break;
+        }
+        if (this.settings.userSettings.platform !== "Windows") {
+            fn = fn.replace('.exe', '');
         }
         fileDialogSettings.initialFolder = inf;
         fileDialogSettings.subTitle = fn;

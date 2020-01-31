@@ -320,6 +320,8 @@ export interface IEditorSelection {
     endLine: number;
     startOffset: number;
     endOffset: number;
+    startText: string;
+    endText: string;
 }
 export interface IUndoData {
     toInsertChars: string;
