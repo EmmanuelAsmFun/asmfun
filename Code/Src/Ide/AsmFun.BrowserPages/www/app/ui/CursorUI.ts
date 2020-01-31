@@ -4,7 +4,8 @@
 //
 // #endregion
 
-import { EditorData, IEditorSelection } from "../data/EditorData";
+import { EditorData, IEditorSelection } from "../data/EditorData.js";
+import { AsmTools } from "../Tools.js";
 
 export interface ICursorUI {
     Deselect();
@@ -33,10 +34,12 @@ export class CursorUI implements ICursorUI{
         var pxPosY = editorData.cursorY * editorData.charHeight + editorData.screenYOffset;
 
         this.UpdateElement();
+        if (this.cursorElement == null) return;
         this.cursorElement.style.left = pxPosX + "px";
         this.cursorElement.style.top = pxPosY + "px";
-        if (withSmoothScoll)
-            this.cursorElement.scrollIntoView({ behavior: "smooth", block: "nearest", });
+        if (withSmoothScoll) {
+            AsmTools.scrollIntoViewIfOutOfView(this.cursorElement.id, false);
+        }
         else
             this.cursorElement.scrollIntoView({ behavior: "auto", block: "nearest", });
         this.lastX = pxPosX;

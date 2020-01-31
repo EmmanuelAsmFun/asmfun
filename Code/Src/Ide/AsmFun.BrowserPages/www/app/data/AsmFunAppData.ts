@@ -7,7 +7,7 @@
 import { IProcessorData, IProcessorExtraData, IMemoryData, IProgramData, IStackData, IInstructionItemData } from 'ProcessorData.js'
 import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, ISettings, IProjectManagerData } from 'ProjectData.js'
 import { IAlertMessages } from '../common/IAlertMessages.js'
-import { IErrorForStatusBar, IEditorBundle, IEditorLine, IEditorFile, IEditorLabel } from './EditorData.js'
+import { IErrorForStatusBar, IEditorBundle, IEditorLine, IEditorFile, IEditorLabel, IEditorZone, ICodeBlockContext } from './EditorData.js'
 import { IMemoryBlock, IMemoryViewerData } from './MemoryData.js'
 import { IOpcodeData } from './IOpcodeData.js'
 import { IEntertainer } from './EntertainerData.js'
@@ -33,7 +33,10 @@ export interface IAsmFunAppData {
     breakPoints?: string[];
     isShowDebugger: boolean;
     showASMFunCode: boolean;
-    labelsWithoutZones?: IEditorLabel[];
+    variables: IEditorLabel[];
+    labels: IEditorLabel[];
+    zones: IEditorZone[];
+    macros: ICodeBlockContext[];
     alertMessages: IAlertMessages,
     errorsForStatusBar: IErrorForStatusBar[];
     currentOpcode: IOpcodeData | null;
@@ -63,6 +66,11 @@ export interface IAsmFunIdeData {
     currentVersion: string;
     latestVersion: string;
     onDone: () => void,
+
+    selectVarTab: (tab:string) => void,
+    showZones: boolean,
+    showMacros: boolean,
+    showVariables: boolean,
 }
 
 

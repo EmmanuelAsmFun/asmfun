@@ -99,3 +99,12 @@ export class EditorReloadLineCommand extends BaseCommand {
         this.nameSpace = "Editor";
     }
 }
+export class EditorScrollToLineCommand extends BaseCommand {
+    public line: IEditorLine | null;
+    public constructor(line: IEditorLine | null) {
+        super();
+        this.line = line;
+        this.commandName = "ScrollToLine";
+        this.nameSpace = "Editor";
+    }
+}

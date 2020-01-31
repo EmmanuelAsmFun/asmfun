@@ -14,6 +14,7 @@ import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { IProcessorData } from "../data/ProcessorData.js";
 import { NotifyIcon } from "../common/Enums.js";
 import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
+import { IProjectSettings } from "../data/ProjectData.js";
 
 
 export class ComputerManager {
@@ -22,12 +23,14 @@ export class ComputerManager {
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     private data: IComputerManagerData;
+    private lastProjectSettings: IProjectSettings | null;
     
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.data = mainData.appData.computer;
+        this.lastProjectSettings = null;
         this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService(mainData);
         this.mainData.commandManager.Subscribe2(new ComputerOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ComputerStartCommand(), this, x => this.StartComputer());
@@ -97,9 +100,13 @@ export class ComputerManager {
             this.data.processorData = processorData;
     }
 
-    private ProjectSettingsLoaded(projectSettings: import("../data/ProjectData.js").IProjectSettings | null): void {
-        // When new settings are loaded, we need to stop the computer so the correct ROM can be loaded with the correct settings.
-        this.StopComputer();
+    private ProjectSettingsLoaded(projectSettings: IProjectSettings | null): void {
+        if (projectSettings == null) return;
+        if (this.lastProjectSettings != null && this.lastProjectSettings.detail != null && this.lastProjectSettings.detail.name !== projectSettings.detail.name) {
+            // When new settings are loaded, we need to stop the computer so the correct ROM can be loaded with the correct settings.
+            this.StopComputer();
+        }
+        this.lastProjectSettings = projectSettings;
     }
 
 

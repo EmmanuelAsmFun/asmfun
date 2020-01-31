@@ -165,7 +165,7 @@ export class CommonInterpreter  {
             var isNextAn = cleanLineData === "+" || cleanLineData.indexOf("++") > -1;
             var isPrevAn = cleanLineData === "-" || cleanLineData.indexOf("--") > -1;
             if (isNextAn || isPrevAn) {
-                line.isAnonymousZone = true;
+                //line.isAnonymousZone = true;
                 return line.context;
             }
             //if (cleanLineData.indexOf("Sys_rand_mem") > -1) {

@@ -16,6 +16,7 @@ import { UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.j
 
 
 export class ASMFunPlayerManager {
+   
 
     private projectService: ProjectService;
     private mainData: IMainData;
@@ -39,6 +40,7 @@ export class ASMFunPlayerManager {
         this.mainData.commandManager.Subscribe2(new ASMFunPlayerSelectOSCommand(""), this, x => this.SelectOS(x.osName));
         thiss.data.serverNotConnected = true;
         this.data.onDone = () => this.Done();
+        this.data.selectVarTab = (tabName) => this.SelectVarTab(tabName);
     }
 
     private OpenManager(state: boolean | null) {
@@ -55,12 +57,12 @@ export class ASMFunPlayerManager {
     private Open() {
         var thiss = this;
         this.data.isVisiblePlayerManager = true;
-        setTimeout(() => { thiss.data.isVisiblePopup = true;},10)
+        setTimeout(() => { thiss.data.isVisiblePopup = true; }, 10)
     }
 
     private Close() {
         var thiss = this;
-        setTimeout(() => { thiss.data.isVisiblePlayerManager = false; },200)
+        setTimeout(() => { thiss.data.isVisiblePlayerManager = false; }, 200)
         this.data.isVisiblePopup = false;
     }
     public Launch() {
@@ -74,36 +76,36 @@ export class ASMFunPlayerManager {
 
                 });
         }
-       this.CheckPlayerAvailable(() => { }, () => { },true);
+        this.CheckPlayerAvailable(() => { }, () => { }, true);
     }
 
-    public CheckPlayerAvailable(ok: () => void, notOk: () => void,hasAutoChecked:boolean) {
+    public CheckPlayerAvailable(ok: () => void, notOk: () => void, hasAutoChecked: boolean) {
         var thiss = this;
         //fetch("https://asmfun.com/api/ASMFunPlayerInfo.json")
         fetch("/api/ASMFunPlayerInfo.json")
             .then(r => r.json())
             .then(r => {
-            thiss.data.latestVersion = r.latestVersion;
-            thiss.projectService.GetUserSettings((s) => {
-                thiss.data.serverNotConnected = false;
-                thiss.data.currentVersion = s.serverVersion;
-                thiss.data.showDownloads = false;
-                if (s.serverVersion != null && s.serverVersion !== thiss.data.latestVersion) {
-                    // New version available
-                    thiss.data.newVersionAvailable = true;
-                }
-                if (hasAutoChecked)
-                    this.Done();
-                ok();
-            }, () => {
+                thiss.data.latestVersion = r.latestVersion;
+                thiss.projectService.GetUserSettings((s) => {
+                    thiss.data.serverNotConnected = false;
+                    thiss.data.currentVersion = s.serverVersion;
+                    thiss.data.showDownloads = false;
+                    if (s.serverVersion != null && s.serverVersion !== thiss.data.latestVersion) {
+                        // New version available
+                        thiss.data.newVersionAvailable = true;
+                    }
+                    if (hasAutoChecked)
+                        this.Done();
+                    ok();
+                }, () => {
                     thiss.data.serverNotConnected = true;
                     thiss.data.showDownloads = true;
-                thiss.data.isVisiblePlayerManager = true;
-                thiss.Open();
-                notOk();
-                this.mainData.appData.alertMessages.Notify("Nope, not running.", NotifyIcon.Alert);
+                    thiss.data.isVisiblePlayerManager = true;
+                    thiss.Open();
+                    notOk();
+                    this.mainData.appData.alertMessages.Notify("Nope, not running.", NotifyIcon.Alert);
+                });
             });
-        });
     }
 
     private Done() {
@@ -139,37 +141,62 @@ export class ASMFunPlayerManager {
         var windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
         var iosPlatforms = ['iPhone', 'iPad', 'iPod'];
 
-        if (macosPlatforms.indexOf(platform) !== -1) 
-            return BrowserTypes.MacOS; 
-        else if (iosPlatforms.indexOf(platform) !== -1) 
+        if (macosPlatforms.indexOf(platform) !== -1)
+            return BrowserTypes.MacOS;
+        else if (iosPlatforms.indexOf(platform) !== -1)
             BrowserTypes.iOS;
-         else if (windowsPlatforms.indexOf(platform) !== -1) 
+        else if (windowsPlatforms.indexOf(platform) !== -1)
             return BrowserTypes.Windows;
-         else if (/Android/.test(userAgent)) 
+        else if (/Android/.test(userAgent))
             return BrowserTypes.Android;
-         else if ( /Linux/.test(platform)) 
+        else if (/Linux/.test(platform))
             return BrowserTypes.Linux;
 
         return BrowserTypes.Unknown;
+    }
+
+    private SelectVarTab(tabName: string): void {
+        switch (tabName) {
+            case "Variables":
+                this.data.showVariables = true;
+                this.data.showZones = false;
+                this.data.showMacros = false;
+                break;
+            case "Zones":
+                this.data.showVariables = false;
+                this.data.showZones = true;
+                this.data.showMacros = false;
+                break;
+            case "Macros":
+                this.data.showVariables = false;
+                this.data.showZones = false;
+                this.data.showMacros = true;
+                break;
+        }
     }
 
     public static NewData(): IAsmFunIdeData {
         return {
             serverNotConnected: false,
             hasConfirmedLicense: false,
-            showDownloads:true,
+            showDownloads: true,
             isLinux: false,
             isMac: false,
             isWindows: false,
             currentVersion: "0.0.0.0",
             newVersionAvailable: false,
             latestVersion: "0.0.0.0",
-            isVisiblePlayerManager:false,
+            isVisiblePlayerManager: false,
             isVisiblePopup: false,
             onDone: () => { },
+
+            showMacros: false,
+            showVariables: false,
+            showZones: true,
+            selectVarTab: n => { },
         };
     }
 
+
     public static ServiceName: ServiceName = { Name: "ASMFunPlayerManager" };
-    
 }

@@ -1909,18 +1909,44 @@ button.btn {
 .labels {
   position: fixed;
   right: 110px;
-  top: 144px;
+  top: 150px;
   bottom: 60px;
   min-width: 185px;
   min-height: 50px;
   bottom: 27px;
   z-index: 51;
 }
+.labels .labels-top {
+  font-size: 12px;
+}
+.labels .labels-top a,
+.labels .labels-top a:link,
+.labels .labels-top a:visited,
+.labels .labels-top a:hover {
+  display: inline-block;
+  background: #a1a17b;
+  color: black;
+  float: left;
+  padding: 1px 8px 1px 8px;
+  cursor: pointer;
+  border-radius: 5px 5px 0 0;
+  margin-right: 1px;
+}
+.labels .labels-top a.selected,
+.labels .labels-top a:link.selected,
+.labels .labels-top a:visited.selected,
+.labels .labels-top a:hover.selected {
+  background: #222222;
+  color: #a1a17b;
+}
 .labels .listing {
+  clear: both;
   height: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
   line-height: 12px;
+  width: 200px;
+  border: 1px solid #313126;
 }
 .labels .listing::-webkit-scrollbar {
   display: none;
@@ -1936,9 +1962,24 @@ button.btn {
 .labels tr,
 .labels td {
   font-size: 10px;
-  color: #11b011;
   margin: 0;
   padding: 0;
+}
+.labels td {
+  padding-right: 5px;
+}
+.labels .variables table,
+.labels .variables tr,
+.labels .variables td {
+  color: #11b011;
+}
+.labels .zones tr,
+.labels .macros tr {
+  cursor: pointer;
+}
+.labels .zones tr:hover,
+.labels .macros tr:hover {
+  background: #3d3d30;
 }
 .stack {
   position: fixed;

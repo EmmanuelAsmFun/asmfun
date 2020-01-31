@@ -80,7 +80,7 @@ var scStartPosY = 0;
     var xPos = Math.ceil(xOffset / editorManager.editorData.charWidth);
     var yPos = Math.ceil(yOffset / editorManager.editorData.charHeight) - 2;
     // console.log(xOffset + "x" + yOffset, xPos + "x" + yPos);
-    editorManager.MoveCursor(xPos, yPos);
+    editorManager.MoveCursor(xPos, yPos, false);
     var domObj = document.getElementById('MyCursor');
     if (domObj != null && domObj.style != null && domObj.style !== undefined) {
         // restart cursor animation

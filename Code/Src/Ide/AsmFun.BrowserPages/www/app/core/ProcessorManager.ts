@@ -135,10 +135,10 @@ export class ProcessorManager {
         //   this.processorService.getLabels((l) => {
         //    thiss.parseLabels(l);
         //});
-        if (this.myAppData.labelsWithoutZones == null) return;
+        if (this.myAppData.variables == null) return;
         var variables: IPropertyData[] = [];
-        for (var i = 0; i < this.myAppData.labelsWithoutZones.length; i++) {
-            var label = this.myAppData.labelsWithoutZones[i];
+        for (var i = 0; i < this.myAppData.variables.length; i++) {
+            var label = this.myAppData.variables[i];
             if (!label.isVariable || label.property == null) continue;
             variables.push(label.property)
         }
@@ -151,8 +151,8 @@ export class ProcessorManager {
         if (this.mainData.sourceCode == null) return;
         for (var i = 0; i < l.length; i++) {
             var label = l[i];
-            var editorLabel = (<any>this.mainData.sourceCode.labels).find(x => x.data.name === label.name);
-            if (editorLabel == null)
+            var editorLabel: IEditorLabel | null | undefined = this.mainData.appData.labels.find(x => x.data.name === label.name);
+            if (editorLabel == null || editorLabel == undefined)
                 continue;
             editorLabel.data.value = label.value;
             editorLabel.labelhexValue = AsmTools.numToHex2(label.value);

@@ -55,7 +55,7 @@ export class CursorLogic {
         return false;
     }
 
-    public MoveCursor(ctx: IEditorContext, x, y) {
+    public MoveCursor(ctx: IEditorContext, x, y, smoothScolling = false) {
         if (y > ctx.editorData.maxY) y = ctx.editorData.maxY;
         if (y < 0) y = 0;
         ctx.editorData.cursorY = y;
@@ -65,7 +65,7 @@ export class CursorLogic {
         ctx.editorData.cursorX = x;
         ctx.editorData.cursorY = y;
         ctx.editorData.cursorWishedX = x;
-        this.UpdateCursor(ctx);
+        this.UpdateCursor(ctx, smoothScolling);
        // ctx.RedrawLine();
     }
 
@@ -218,7 +218,7 @@ export class CursorLogic {
         return false;
     }
 
-    public UpdateCursor(ctx: IEditorContext, withSmoothScoll: boolean = true) {
+    public UpdateCursor(ctx: IEditorContext, withSmoothScoll: boolean = false) {
         //var lineText = "";
         //if (ctx.currentLine != null)
         //    lineText = ctx.currentLine.sourceCode.length + " \t" + ctx.currentLine.sourceCode;

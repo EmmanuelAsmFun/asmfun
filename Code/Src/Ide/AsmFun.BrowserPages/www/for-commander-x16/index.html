@@ -239,23 +239,57 @@
         </div>
 
 
-        <div class="labels" v-on:click="DbgLoadLabelValues()" v-if="isShowDebugger">
+        <div class="labels" v-on:click="DbgLoadLabelValues()">
+            <div class="labels-top">
+                <a class="label-tab" v-on:click="ide.selectVarTab('Zones');" v-bind:class="{ 'selected' : ide.showZones }">Zones</a>
+                <a class="label-tab" v-on:click="ide.selectVarTab('Macros');"  v-bind:class="{ 'selected' : ide.showMacros }">Macros</a>
+                <a class="label-tab" v-on:click="ide.selectVarTab('Variables');"  v-bind:class="{ 'selected' : ide.showVariables }">Variables</a>
+            </div>
             <div class="listing">
-                <table>
-                    <tr v-for="labelData in labelsWithoutZones" v-bind:class="{ 'hilite' : labelData.hilite }" v-bind:id="'lblview'+labelData.data.name">
-                        <td>
-                            <span class="ad" v-bind:class="{ 'hilite' : labelData.hilite }">{{ labelData.labelhexAddress }}</span>
-                        </td>
-                        <td width="70" v-bind:class="{ 'hilite' : labelData.hilite }">
-                            {{ labelData.data.name }}
-                        </td>
-                        <td v-bind:class="{ 'hilite' : labelData.hilite }">
-                            {{ labelData.labelhexValue }}
-                        </td>
-                    </tr>
-                </table>
+                <div class="zones" v-if="ide.showZones">
+                    <table>
+                        <tr v-for="labelData in zones" v-on:click="EditorScrollToLine(labelData.line)">
+                            <td>
+                                {{ (labelData.line != null && labelData.line.data != null? labelData.line.data.lineNumber: '&nbsp;')}}
+                            </td>
+                            <td>
+                                {{ labelData.name }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="macros" v-if="ide.showMacros">
+                    <table>
+                        <tr v-for="labelData in macros" v-on:click="EditorScrollToLine(labelData.lines[0])">
+                            <td>
+                                {{ (labelData.lines.length >0 && labelData.lines[0].data != null? labelData.lines[0].data.lineNumber: '&nbsp;')}}
+                            </td>
+                            <td>
+                                {{ labelData.name }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="variables" v-if="ide.showVariables">
+                    <table>
+                        <tr v-for="labelData in variables" v-bind:class="{ 'hilite' : labelData.hilite }" v-bind:id="'lblview'+labelData.data.name">
+                            <td>
+                                <span class="ad" v-bind:class="{ 'hilite' : labelData.hilite }">{{ labelData.labelhexAddress }}</span>
+                            </td>
+                            <td width="70" v-bind:class="{ 'hilite' : labelData.hilite }">
+                                {{ labelData.data.name }}
+                            </td>
+                            <td v-bind:class="{ 'hilite' : labelData.hilite }">
+                                {{ labelData.labelhexValue }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
+
+
+
 
 
         <div class="Dissasembly" v-if="isShowDebugger">

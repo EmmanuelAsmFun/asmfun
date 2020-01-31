@@ -90,10 +90,10 @@ export class CodeAssistPopupManager {
 
     private UpdateLabels(search: string) {
         var thiss = this;
-        if (this.mainData.sourceCode == null || this.mainData.sourceCode.labels == null) return;
+        if (this.mainData.sourceCode == null || this.mainData.appData.labels == null) return;
         var labels: ICodeAssistPopupDataItem[] = [];
-        for (var i = 0; i < this.mainData.sourceCode.labels.length; i++) {
-            var label = this.mainData.sourceCode.labels[i];
+        for (var i = 0; i < this.mainData.appData.labels.length; i++) {
+            var label = this.mainData.appData.labels[i];
             if (search != "" && label.data.name.search(new RegExp(search, "i")) === -1) continue;
             var el: ICodeAssistPopupDataItem = {
                 data: label,
@@ -130,10 +130,10 @@ export class CodeAssistPopupManager {
 
     private UpdateMacros(search: string) {
         var thiss = this;
-        if (this.mainData.sourceCode == null || this.mainData.sourceCode.macros == null) return;
+        if (this.mainData.sourceCode == null || this.mainData.appData.macros == null) return;
         var macros: ICodeAssistPopupDataItem[] = [];
-        for (var i = 0; i < this.mainData.sourceCode.macros.length; i++) {
-            var macro = this.mainData.sourceCode.macros[i];
+        for (var i = 0; i < this.mainData.appData.macros.length; i++) {
+            var macro = this.mainData.appData.macros[i];
             if (search != "" && macro.name.search(new RegExp(search, "i")) === -1) continue;
             var el: ICodeAssistPopupDataItem = {
                 data: macro,

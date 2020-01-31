@@ -42,6 +42,7 @@ export class SourceCodeManager {
         
         this.mainData.commandManager.Subscribe2(new ProjectSaveCommand(), this, x => thiss.SaveSourceCode(x.bundle));
         this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => thiss.ParseProjectSettings(x.projectSettings));
+
     }
 
     public SelectFile(file?: IEditorFile) {
@@ -116,7 +117,10 @@ export class SourceCodeManager {
             files: [],
             labels: [],
         });
-        this.mainData.appData.labelsWithoutZones = [];
+        this.mainData.appData.variables = [];
+        this.mainData.appData.labels = [];
+        this.mainData.appData.macros = [];
+        this.mainData.appData.zones = [];
         this.mainData.appData.scfiles = [];
         this.mainData.appData.selectedFile = undefined;
         this.mainData.appData.currentOpcode = null;
@@ -156,7 +160,9 @@ export class SourceCodeManager {
         this.mainData.appData.compilation.compilerResult = txt;
         this.mainData.appData.compilation.compilerErrors = c.errorText;
         this.mainData.appData.compilation.hasErrors = c.hasErrors;
+
         if (c.hasErrors) {
+
             this.mainData.appData.compilation.isVisible = true;
             var errors = this.interpreter.GetCompilerResultErrors(c);
             if (errors != null) {
@@ -215,10 +221,11 @@ export class SourceCodeManager {
             else 
                 bundle.files.push(CreateNewFile(fileCompiled));
         }
+        var labels = this.mainData.appData.labels;
         if (s.labels != null && bundle.labels != null) {
             for (var i = 0; i < s.labels.length; i++) {
                 var lblCompiled = s.labels[i];
-                var lbl = bundle.labels.find(x => x.data.name == lblCompiled.name);
+                var lbl = labels.find(x => x.data.name == lblCompiled.name);
                 if (lbl != null)
                     lbl.data.address = lblCompiled.address;
             }
@@ -230,8 +237,11 @@ export class SourceCodeManager {
     private InterpretSourceCode(s: ISourceCodeBundle): IEditorBundle
     {
         var editorBundle: IEditorBundle = CreateNewBundle(s);
-        var labelsWithoutZones: IEditorLabel[] = [];
-        this.mainData.appData.labelsWithoutZones = [];
+        var variables: IEditorLabel[] = [];
+        this.mainData.appData.variables = [];
+        this.mainData.appData.labels = [];
+        this.mainData.appData.macros = [];
+        this.mainData.appData.zones = [];
 
         // Create root context
         var rootContext: ICodeBlockContext = new CodeBlockContext(this.mainData.appData, editorBundle);
@@ -266,11 +276,12 @@ export class SourceCodeManager {
                 context.ParseLinksBetweenLines();
              }
 
-             // Parse all lalels that are not zones
-             for (var i = 0; i < editorBundle.labels.length; i++) {
-                 var lbl = editorBundle.labels[i];
+             // Parse all labels that are not zones
+             var labels = this.mainData.appData.labels;
+             for (var i = 0; i < labels.length; i++) {
+                 var lbl = labels[i];
                  if (!lbl.isZone)
-                     labelsWithoutZones.push(lbl);
+                     variables.push(lbl);
              }
 
              
@@ -281,7 +292,7 @@ export class SourceCodeManager {
                 //editorFile.fileHtml = rootHtml;
                 for (var j = 0; j < editorFile.lines.length; j++) {
                     var editorLine = editorFile.lines[j];
-                    this.UpdateLineHtml(editorLine, editorBundle.labels);
+                    this.UpdateLineHtml(editorLine, labels);
                     //if (editorLine.codeHtml != null && editorLine.codeHtml.root !== undefined)
                     //    rootHtml.appendChild(editorLine.codeHtml.root);
                 }
@@ -289,7 +300,7 @@ export class SourceCodeManager {
         }
 
         // Parse all to the UI
-       // this.mainData.appData.labelsWithoutZones = labelsWithoutZones;
+       // this.mainData.appData.variables = variables;
         this.mainData.sourceCode = editorBundle;
         this.mainData.appData.scfiles = this.mainData.sourceCode.files;
         return editorBundle;

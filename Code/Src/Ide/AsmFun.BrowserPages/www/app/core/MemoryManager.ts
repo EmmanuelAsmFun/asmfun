@@ -149,7 +149,7 @@ export class MemoryManager {
             if (memBlock == null || memBlock.data == null) return;
             if (this.mainData.sourceCode == null) return;
             this.addressStart = startAddress;
-            var labels = this.mainData.sourceCode.labels;
+            var labels = this.mainData.appData.labels;
             var startText = "<span class=\"addr\" onclick=\"MemoryEdit(" + (startAddress) +",this)\">"+AsmTools.numToHex4(startAddress)+"</span>&nbsp;";
             var lineString = "";
             memBlock.datas = [];
@@ -226,7 +226,7 @@ export class MemoryManager {
                 
                 memBlock.datas.push(item);
                 // Check if it's a label
-                if (this.myAppData.labelsWithoutZones != null) {
+                if (this.myAppData.variables != null) {
                     var found = labels.find(x => x.labelhexAddress === hexAddress);
                     if (found != null){
                         groupp = [];

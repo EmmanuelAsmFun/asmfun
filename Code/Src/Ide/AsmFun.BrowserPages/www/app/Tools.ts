@@ -94,7 +94,7 @@ export class AsmTools {
         return rawDataString;
     }
 
-    public static scrollIntoViewIfOutOfView(el, directScroll:boolean = false) {
+    public static scrollIntoViewIfOutOfView(elementId, directScroll:boolean = false) {
         setTimeout(() => {
             var ell = document.getElementById(el);
             if (ell == null) return;

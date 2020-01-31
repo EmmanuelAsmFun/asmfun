@@ -89,18 +89,41 @@ a:hover {
 .labels {
     position: fixed;
     right: 110px;
-    top: 144px;
+    top: 150px;
     bottom: 60px;
     min-width: 185px;
     min-height: 50px;
     bottom: @footerHeight+2;
     z-index: 51;
 
+    .labels-top {
+        font-size: 12px;
+
+        a, a:link, a:visited, a:hover {
+            display: inline-block;
+            background: #a1a17b;
+            color: black;
+            float: left;
+            padding: 1px 8px 1px 8px;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 1px;
+
+            &.selected {
+                background: #222222;
+                color: #a1a17b;
+            }
+        }
+    }
+
     .listing {
+        clear: both;
         height: 100%;
         overflow-y: scroll;
         overflow-x: hidden;
         line-height: 12px;
+        width: 200px;
+        border: 1px solid #313126;
     }
 
     .listing::-webkit-scrollbar {
@@ -118,9 +141,27 @@ a:hover {
 
     table, tr, td {
         font-size: 10px;
-        color: #11b011;
         margin: 0;
         padding: 0;
+    }
+    td {
+        padding-right:5px;
+    }
+
+    .variables {
+        table, tr, td {
+            color: #11b011;
+        }
+    }
+
+    .zones, .macros {
+        tr {
+            cursor: pointer;
+
+            &:hover {
+                background: #3d3d30;
+            }
+        }
     }
 }
 

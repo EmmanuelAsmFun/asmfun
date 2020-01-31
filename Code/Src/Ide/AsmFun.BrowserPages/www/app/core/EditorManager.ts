@@ -6,7 +6,7 @@
 
 import { IMainData } from "../data/MainData.js";
 import { EditorData, IEditorFile, IEditorLine, IEditorBundle, CreateNewEditorLine, IEditorLabel, ResetLineProperties } from "../data/EditorData.js";
-import { KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
+import { KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand } from "../data/commands/EditorCommands.js";
 import { ICommandEvent } from "../framework/ICommandManager.js";
 import { IAsmFunAppData } from "../data/AsmFunAppData.js";
 import { SourceCodeManager } from "./SourceCodeManager.js";
@@ -16,6 +16,7 @@ import { ProjectSaveCommand } from "../data/commands/ProjectsCommands.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { CodeAssistPopupManager } from "./CodeAssistPopupManager.js";
 import { ProjectManager } from "./ProjectManager.js";
+import { AsmTools } from "../Tools.js";
 
 export interface IEditorContext {
     editorData: EditorData;
@@ -68,6 +69,7 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorSelectFileCommand(null), this, (c) => thiss.SelectFile(c.file));
         mainData.commandManager.Subscribe2(new EditorSwapOutputCommand(null), this, (c) => thiss.SwapOutputWindow(c.state));
         mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLine2(c.line); } });
+        mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
     }
 
   
@@ -220,11 +222,12 @@ export class EditorManager implements IEditorContext {
         if (this.currentLine == null) return;
         this.RedrawLine2(this.currentLine);
     }
+    
     public RedrawLine2(line: IEditorLine) {
         if (this.sourceCode == null) return;
         ResetLineProperties(line);
         this.sourceCodeManager.ReInterpretLine(line.context, line);
-        this.sourceCodeManager.UpdateLineHtml(line, this.sourceCode.labels);
+        this.sourceCodeManager.UpdateLineHtml(line, this.mainData.appData.labels);
         this.sourceCodeManager.RedrawErrorBar(<any>this.currentFile, line);
         
         if (this.currentLine == line) {
@@ -240,11 +243,11 @@ export class EditorManager implements IEditorContext {
             this.currentLine.opcode : { asmFunCode: '', code: '' };
     }
 
-    public MoveCursor(x, y) {
+    public MoveCursor(x, y, smoothScolling:boolean) {
         if (this.PopupIsOpen()) return;
         if (this.currentFile == null)
             this.LoadFirstFile();
-        this.cursorLogic.MoveCursor(this, x, y);
+        this.cursorLogic.MoveCursor(this, x, y, smoothScolling);
     }
 
     public EscapeKey() {
@@ -276,19 +279,19 @@ export class EditorManager implements IEditorContext {
 
     public NavigateToMacro(name: string) {
         if (this.mainData.sourceCode == null) return;
-        var macro = this.mainData.sourceCode.macros.find(x => x.name === name);
+        var macro = this.mainData.appData.macros.find(x => x.name === name);
         if (macro == null) return;
         this.SelectFile(macro.file);
         var thiss = this;
         setTimeout(() => {
             if (macro == null) return;
-            this.MoveCursor(thiss.editorData.cursorX, macro.lines[0].data.lineNumber-1);
+            this.MoveCursor(thiss.editorData.cursorX, macro.lines[0].data.lineNumber-1,true);
         }, 10);
     }
 
     public NavigateToZone(name: string) {
         if (this.mainData.sourceCode == null) return;
-        var label = this.mainData.sourceCode.labels.find(x => x.data.name === name);
+        var label = this.mainData.appData.labels.find(x => x.data.name === name);
         if (label == null || label.file == null) return;
         this.SelectFile(label.file);
         // this.MoveCursor(this.editorData.cursorX, label..lines[0].data.lineNumber);
@@ -312,6 +315,12 @@ export class EditorManager implements IEditorContext {
         this.mainData.appData.compilation.isVisible = false;
     }
 
+
+    public EditorScrollToLine(line: IEditorLine | null) {
+        if (line == null || line.data == null) return;
+        this.SelectFile(line.file);
+        this.MoveCursor(0, line.data.lineNumber - 1,true);
+    }
     
 
     public static NewEmptyFile(): IEditorFile {

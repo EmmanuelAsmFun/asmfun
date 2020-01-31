@@ -30,13 +30,11 @@ export interface ILineHtml {
     breakpoint?: HTMLElement;
 }
 export interface ICodeBlockContext{
-    isLocalZone: boolean;
     isFor: boolean;
     parameters?: string[];
     isAddr: boolean;
     isIf: boolean;
     isElse: boolean;
-    isAnonymous: boolean;
     parent? :ICodeBlockContext;
     file: IEditorFile;
     children: ICodeBlockContext[];
@@ -44,7 +42,6 @@ export interface ICodeBlockContext{
     isMacro: boolean;
     name: string;
     nameDirty?: string;
-    isZone: boolean;
     isFile: boolean;
     isRoot: boolean;
     bundle: IEditorBundle;
@@ -66,6 +63,13 @@ export interface ICodeBlockContext{
     AddSetter(line: IEditorLine, property: IPropertyData);
     AddAddressSetter(line: IEditorLine, name:string, address:number);
 }
+export interface IEditorZone {
+    line: IEditorLine;
+    name: string;
+    nameDirty: string;
+    isAnonymousZone: boolean;
+    isLocalZone: boolean;
+}
 
 export interface ILineError {
     line: IEditorLine;
@@ -80,11 +84,9 @@ export interface IErrorForStatusBar {
 }
 
 export interface IEditorBundle {
-    files: IEditorFile[];
     labels: IEditorLabel[];
+    files: IEditorFile[];
     allContext: ICodeBlockContext[];
-    zones: ICodeBlockContext[];
-    macros: ICodeBlockContext[];
     data: ISourceCodeBundle;
 }
 
@@ -92,9 +94,9 @@ export interface IEditorLabel {
     property?: IPropertyData | null;
     line: IEditorLine;
     hilite: boolean;
+    isZone: boolean;
     isVariable: boolean;
     data: ISourceCodeLabel;
-    isZone: boolean;
     isInEditMode: boolean | null;
     newValue: string | null;
     showValueInCode: boolean;
@@ -114,6 +116,7 @@ export interface IEditorFile {
     
 }
 export interface IEditorLine {
+    zone: IEditorZone | null;
     isVariable: boolean;
     linkToLocalVariable?: string | null;
     macroSource?: ICodeBlockContext | null;
@@ -129,7 +132,7 @@ export interface IEditorLine {
     indent: string;
     indentAfterZone: string;
     selected: boolean;
-    isAnonymousZone: boolean;
+    
     sourceCodeHtml: string;
     //codeHtml: ILineHtml | null;
     
@@ -214,7 +217,6 @@ export function ResetLineProperties(line: IEditorLine) {
     line.linkToZone = false;
     line.linkToVar = false;
     line.potentialLabel = "";
-    line.isAnonymousZone = false;
     line.linkToLocalVariable = null;
 
     // macro
@@ -268,9 +270,9 @@ export function CreateNewEditorLine(context: ICodeBlockContext, line: ISourceCod
         potentialMacro: "",
         linkToMacro: false,
         linkToZone: false,
-        isAnonymousZone: false,
         hilite: false,
         file: editorFile,
+        zone:null,
         // codeHtml: null,
     };
 };
@@ -299,10 +301,10 @@ export function CreateNewBundle(bundle: ISourceCodeBundle): IEditorBundle {
 export function CreateNewEditorLabel(label: ISourceCodeLabel, file: IEditorFile, line: IEditorLine): IEditorLabel {
     return {
         data: label,
-        isZone: false,
         isInEditMode: false,
         newValue: "",
         showValueInCode: false,
+        isZone: false,
         addressHexValue: "",
         labelhexAddress: "",
         labelhexValue: "",

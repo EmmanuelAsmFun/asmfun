@@ -52,7 +52,6 @@ import { CommonInterpreter } from "./interpreters/CommonInterpreter.js";
 var NewAsmFunAppData: IAsmFunAppData = {
     data6502: NewProcessorData,
     stack: NewStackData,
-    labelsWithoutZones: [],
     dissasembly: NewProgramData,
     isShowDebugger: false,
     showASMFunCode: true,
@@ -67,7 +66,6 @@ var NewAsmFunAppData: IAsmFunAppData = {
     memoryViewer: MemoryManager.NewData(),
     computer: ComputerManager.NewData(),
     spritesManager: SpritesManager.NewData(),
-    scfiles: [],
     ide: ASMFunPlayerManager.NewData(),
     videoManager: VideoManager.NewData(),
     fileManager: FileManager.NewData(),
@@ -77,7 +75,13 @@ var NewAsmFunAppData: IAsmFunAppData = {
         compilerResult: "",
         compilerErrors: "",
         hasErrors: false,
-    }
+    },
+    scfiles: [],
+    labels: [],
+    variables: [],
+    macros: [],
+    zones: [],
+    breakPoints:[]
 }
 
 export class ServiceRegisterer {

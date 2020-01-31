@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { IEditorFile, IEditorLine, IEditorBundle, ICodeBlockContext, CreateNewFile, IEditorLabel, CreateNewEditorLabel, IPropertyData } from "../data/EditorData.js";
+import { IEditorFile, IEditorLine, IEditorBundle, ICodeBlockContext, CreateNewFile, IEditorLabel, CreateNewEditorLabel, IPropertyData, IEditorZone } from "../data/EditorData.js";
 import { ISourceCodeLabel } from "../data/ProjectData.js";
 import { AsmTools } from "../Tools.js";
 import { IMainData } from "../data/MainData.js";
@@ -69,13 +69,9 @@ export class CodeBlockContext implements ICodeBlockContext {
             var indexP = context.parent.children.indexOf(context);
             if (indexP > -1) context.parent.children.splice(indexP,1);
         }
-        if (context.isZone) {
-            var zoneIndex = this.bundle.zones.indexOf(context);
-            if (zoneIndex > -1) this.bundle.zones.splice(zoneIndex,1); 
-        }
         if (context.isMacro) {
-            var macroIndex = this.bundle.macros.indexOf(context);
-            if (macroIndex > -1) this.bundle.macros.splice(macroIndex,1);
+            var macroIndex = this.appData.macros.indexOf(context);
+            if (macroIndex > -1) this.appData.macros.splice(macroIndex,1);
         }
     }
 
@@ -86,46 +82,40 @@ export class CodeBlockContext implements ICodeBlockContext {
         var cleanName = name.replace(":", "");
      
         // check if it already exists
-        var zoneContext = this.bundle.zones.find(x => x.name === cleanName);
-        if (zoneContext == null) {
+        var zone: IEditorZone | undefined = this.appData.zones.find(x => x.name === cleanName);
+        if (zone == null || zone == undefined) {
             // Create new zone
-            // if we where already in a zone, go back to the parent to create a new context
-            if (line.context.isZone && this.parent != null)
-                zoneContext = this.parent.CreateChild();
-            else
-                zoneContext = this.CreateChild();
-            zoneContext.name = cleanName;
-            zoneContext.nameDirty = name;
-            zoneContext.isLocalZone = isLocalZone;
-            zoneContext.isZone = true;
+            zone= {
+                line: line,
+                name: cleanName,
+                isAnonymousZone: false,
+                nameDirty: name,
+                isLocalZone: isLocalZone,
+            }
             var isNextAn = cleanName == "+" || cleanName.indexOf("++") > -1;
             var isPrevAn = cleanName == "-" || cleanName.indexOf("--") > -1;
 
             if (isNextAn || isPrevAn) {
-                zoneContext.isAnonymous = true;
-                line.isAnonymousZone = true;
+                zone.isAnonymousZone = true;
             }
-            this.bundle.zones.push(zoneContext);
-            //if (!line.isAnonymousZone) {
-                // create label
+            this.appData.zones.push(zone);
+            // create label
             var label = this.CreateNewLabel(line.file, line, cleanName, true);
-                label.isZone = true;
-                label.showValueInCode = false;
-                line.labelZoneSource = label;
-            //} else {
-            //    if (line.indent == null) line.indent = "";
-            //    line.indentAfterZone = name + line.indent;
-            //}
+            label.isZone = true;
+            label.showValueInCode = false;
+            line.labelZoneSource = label;
+            line.zone = zone;
             console.log("Add zone:" + cleanName);
         } else {
             console.log("Update zone:" + cleanName);
             line.potentialLabel = cleanName;
+            if (line.zone != null)
+                line.zone.name = cleanName
             this.parseLabel(line);
             line.labelZoneSource = line.label;
         }
         line.isZone = true;
-        line.context = zoneContext;
-        return zoneContext;
+        return line.context;
     }
 
    
@@ -171,7 +161,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         // if we where already in a macro, go back to the parent to create a new context
         var macroContext: ICodeBlockContext;
         // check if it already exists
-        var macroContext = this.bundle.macros.find(x => x.name === cleanName);
+        var macroContext = this.appData.macros.find(x => x.name === cleanName);
         
         if (macroContext == null) {
             // Create new macro
@@ -182,7 +172,7 @@ export class CodeBlockContext implements ICodeBlockContext {
             macroContext.name = cleanName;
             macroContext.nameDirty = nameDirty;
             macroContext.isMacro = true;
-            this.bundle.macros.push(macroContext);
+            this.appData.macros.push(macroContext);
             console.log("Add macro:" + cleanName);
         }
         else {
@@ -222,7 +212,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         var name = nameDirty.replace(":", "");
         var hexValue = AsmTools.numToHex4(address);
         // check if it already exists
-        var label = this.bundle.labels.find(x => x.data.name === name);
+        var label = this.appData.labels.find(x => x.data.name === name);
         if (label == null) {
             // Create new label
             label = this.CreateNewLabel(line.file, line, name,false);
@@ -232,6 +222,8 @@ export class CodeBlockContext implements ICodeBlockContext {
             label.isVariable = true;
             label.labelhexValue = "00";
             label.showValueInCode = true;
+            this.variables.push(line);
+            this.appData.variables.push(label);
             this.setters.push(line);
             console.log("Add address setter:" + name + " \t" + hexValue + " (" + address + ")");
         } else {
@@ -242,6 +234,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         line.labelVariableSource = label;
         line.labelHexValue = "00";
         line.label = label;
+        
        
     }
     public AddSetter(line: IEditorLine, property: IPropertyData) {
@@ -252,12 +245,13 @@ export class CodeBlockContext implements ICodeBlockContext {
         if (property.dataLength > 0 && property.dataLength <= 4)
             hexValue = AsmTools.numToHex(property.defaultNumValue, property.dataLength);
 
-        var label = this.bundle.labels.find(x => x.data.name === name);
+        var label = this.appData.labels.find(x => x.data.name === name);
         if (label == null) {
             label = this.CreateNewLabel(line.file, line, property.name,false);
             label.isVariable = true;
             
             this.setters.push(line);
+            this.appData.variables.push(label);
             console.log("Add setter:" + property.name + " = " + hexValue);
         } else {
             console.log("Update setter:" + property.name + " = " + hexValue);
@@ -271,8 +265,6 @@ export class CodeBlockContext implements ICodeBlockContext {
         line.labelHexValue = hexValue;
         line.label = label;
         line.isVariable = true;
-        
-       
     }
 
     public AddLine(line: IEditorLine) {
@@ -305,17 +297,26 @@ export class CodeBlockContext implements ICodeBlockContext {
         // remove from variables
         lineIndex = this.variables.indexOf(line);
         if (lineIndex > -1) this.variables.splice(lineIndex, 1);
-        
+        // remove zone
+        if (line.isZone && line.zone !== null) {
+            var zoneIndex = this.appData.zones.indexOf(line.zone);
+            if (zoneIndex > -1) this.appData.zones.splice(zoneIndex, 1);
+            line.zone = null;
+        }
         // remove in label
         if (line.label != null) {
             lineIndex = line.label.lines.indexOf(line);
             if (lineIndex > -1) line.label.lines.splice(lineIndex, 1);
+            lineIndex = this.appData.variables.indexOf(line.label);
+            if (lineIndex > -1) this.appData.variables.splice(lineIndex, 1);
         }
+
         // remove in macro
         if (line.macro != null) {
             lineIndex = line.macro.lines.indexOf(line);
             if (lineIndex > -1) line.macro.lines.splice(lineIndex, 1);
         }
+
     }
 
 
@@ -342,7 +343,6 @@ export class CodeBlockContext implements ICodeBlockContext {
                 line.potentialMacro = "";
                 continue;
             }
-            if (line.isAnonymousZone) continue;
             if (line.isDataTransfer)
                 continue;
             if (line.context.isMacro) {
@@ -383,11 +383,11 @@ export class CodeBlockContext implements ICodeBlockContext {
     private CreateNewLabel(file: IEditorFile, line: IEditorLine, name: string, isZone:boolean): IEditorLabel {
         const label = CreateNewEditorLabel({ name: name, address: 0, value: 0, variableLength: 1 }, file, line);
         label.isZone = isZone;
-        this.bundle.labels.push(label);
-        if (this.appData.labelsWithoutZones != null && !isZone) {
-            var exists = this.appData.labelsWithoutZones.find(x => x.data.name === name);
+        this.appData.labels.push(label);
+        if (this.appData.labels != null && !isZone) {
+            var exists = this.appData.labels.find(x => x.data.name === name);
             if (exists == null )
-                this.appData.labelsWithoutZones.push(label);
+                this.appData.labels.push(label);
         }
         return label;
     }
@@ -395,9 +395,9 @@ export class CodeBlockContext implements ICodeBlockContext {
     private parseLabel(line: IEditorLine) {
         if (line.potentialLabel == null || line.potentialLabel.length < 1) 
             return;
-        var label = this.bundle.labels.find(x => x.data.name === line.potentialLabel)
+        var label = this.appData.labels.find(x => x.data.name === line.potentialLabel)
         if (label == null) {
-            if (line.isAnonymousZone){ 
+            if (line.zone != null && line.zone.isAnonymousZone) { 
                 return;
             }
             return;
@@ -418,7 +418,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         //    var test = line;
         //    debugger;
         //}
-        var macro = this.bundle.macros.find(x => x.name === line.potentialMacro)
+        var macro = this.appData.macros.find(x => x.name === line.potentialMacro)
         if (macro == null) {
             //line.hasError = true;
             return;

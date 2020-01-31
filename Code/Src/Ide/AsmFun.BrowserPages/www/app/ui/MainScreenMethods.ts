@@ -13,7 +13,7 @@ import { IEditorFile, IEditorLine, IEditorLabel } from "../data/EditorData.js";
 import { ProjectSaveCommand, ProjectSaveFolderCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand, UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.js";
 import { IBaseCommand } from "../data/commands/CommandsCommon.js";
 import { IProjectDetail } from "../data/ProjectData.js";
-import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand } from "../data/commands/EditorCommands.js";
+import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand } from "../data/commands/EditorCommands.js";
 import { SettingsOpenManagerCommand, SettingsSelectCompilerFileCommand } from "../data/commands/SettingsCommands.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "../data/commands/ASMFunPlayerManagerCommands.js";
@@ -146,6 +146,7 @@ export class MainScreenMethods {
     public SelectFile(file: IEditorFile) { MainScreenMethods.ExecuteCommand(new EditorSelectFileCommand(file));}
     public SwapOutputWindow() { MainScreenMethods.ExecuteCommand(new EditorSwapOutputCommand(null));}
     public EditorReloadLine(line) { MainScreenMethods.ExecuteCommand(new EditorReloadLineCommand(line)); }
+    public EditorScrollToLine(line) { MainScreenMethods.ExecuteCommand(new EditorScrollToLineCommand(line)); }
 
     // Video
     public VideoOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoOpenManagerCommand(state)); }
