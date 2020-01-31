@@ -64,7 +64,21 @@ export class KeyboardManager {
     private computerService: ComputerService;
     public isEnabled: boolean = false;
     private lastClipBoardText: string | null = null;
-
+    
+     public AllKeyMaps = [
+        "en-us",
+        "en-gb",
+        "de",
+        "nordic",
+        "it",
+        "pl",
+        "hu",
+        "es",
+        "fr",
+        "de-ch",
+        "fr-be",
+        "pt-br",
+    ];
 
     constructor(mainData: IMainData) {
         var thiss = this;

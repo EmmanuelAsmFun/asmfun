@@ -47,7 +47,7 @@ namespace AsmFun.Computer.Core.Managers
             var factory = ComputerFactories.FirstOrDefault(item 
                 => item.ComputerSettings.ComputerType == computerSettings.ComputerType && item.ComputerSettings.ComputerVersion == computerSettings.ComputerVersion);
             if (factory == null || factory.Instantiator == null) return;
-            Computer = factory.Instantiator().Create();
+            Computer = factory.Instantiator().Create(computerSettings);
             Computer.SoundEnabled = computerSettings.SoundEnabled;
             Computer.OnLoaded += Computer_OnLoaded;
             OnComputerBuilded?.Invoke(this, new ComputerEventArgs(Computer));

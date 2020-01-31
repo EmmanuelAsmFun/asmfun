@@ -865,7 +865,7 @@ body {
 .PreScLines .sc-value {
   position: absolute;
   margin-top: 0px;
-  left: 400px;
+  left: 510px;
   color: #9a8255;
   font-size: 11px;
   padding-left: 50px;
@@ -881,6 +881,7 @@ body {
   /* Internet Explorer/Edge */
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome and Opera */
+  cursor: pointer;
 }
 .PreScLines .sc-value input {
   width: 40px;
@@ -969,8 +970,8 @@ body {
   right: 110px;
   padding: 10px;
   color: #11b011;
-  width: 162px;
-  height: 90px;
+  width: 179px;
+  height: 89px;
   border: 1px solid #bebe95;
   z-index: 200;
 }
@@ -1021,29 +1022,29 @@ body {
   top: 48px;
   left: 10px;
 }
-.MemoryInfo .Accumulator {
-  position: absolute;
-  top: 70px;
-  text-align: center;
-  left: -1px;
-  right: -1px;
-  border: 1px solid #bebe95;
-}
-.MemoryInfo .RegisterX {
-  position: absolute;
-  top: 90px;
-  left: -1px;
-  width: 90px;
-  text-align: center;
-  border: 1px solid #bebe95;
-}
+.MemoryInfo .Accumulator,
+.MemoryInfo .RegisterX,
 .MemoryInfo .RegisterY {
   position: absolute;
-  top: 90px;
-  left: 90px;
   text-align: center;
-  width: 91px;
+  height: 18px;
   border: 1px solid #bebe95;
+  font-size: 13px;
+}
+.MemoryInfo .Accumulator {
+  top: 71px;
+  left: -1px;
+  right: -1px;
+}
+.MemoryInfo .RegisterX {
+  top: 90px;
+  left: -1px;
+  width: 99px;
+}
+.MemoryInfo .RegisterY {
+  top: 90px;
+  left: 100px;
+  width: 98px;
 }
 .home {
   position: absolute;
@@ -1584,6 +1585,7 @@ body {
 .videoManager h2 {
   font-weight: 100;
   font-size: 22px;
+  margin-top: 0;
 }
 .videoManager .content {
   position: absolute;

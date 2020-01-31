@@ -7,6 +7,7 @@
 using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common;
 using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Computer.Common.Data;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +25,7 @@ namespace AsmFun.Computer.Core.Computer
             container = resolverFactory;
         }
 
-        public abstract IComputer Create();
+        public abstract IComputer Create(ComputerSettings computerSettings);
 
         protected TService Resolve<TService>()
             where TService : class

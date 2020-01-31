@@ -75,6 +75,7 @@ export enum ComputerRunMode {
 
 
 export interface IUserSettings {
+    
     lastOpenedProjectFileName: string;
     computerSettings: IComputerSettings;
     ideSettings: IIdeSettings;
@@ -89,6 +90,7 @@ export interface IComputerSettings {
     soundEnabled: boolean;
     runMode: ComputerRunMode;
     computerType: string;
+    keyMapIndex: number;
 }
 
 export interface IIdeSettings {
@@ -113,6 +115,8 @@ export interface ICc65CompilerSettings {
     cc65FileName: string;
 }
 export interface ISettings {
+    keyMapChanged: () => void;
+    selectedKeyMap: string;
     userSettings?: IUserSettings | null;
     projectSettings?: IProjectSettings | null;
     isVisible: boolean;
@@ -121,6 +125,7 @@ export interface ISettings {
     saveProjectSettings: () => void;
     saveUserSettings: () => void;
     serverAddressWithPort: string;
+    keyMaps: string[],
 }
 
 export interface IProjectSettings {

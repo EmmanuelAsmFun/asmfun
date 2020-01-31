@@ -15,5 +15,8 @@ namespace AsmFun.Computer.Common.IO
 
         void DoScanCodeDown(int scancode);
         void DoScanCodeUp(int scancode, bool withBreak = true);
+
+        string[] GetKeyMaps();
+        void SelectKeyMap(byte keymapIndex);
     }
 }

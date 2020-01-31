@@ -7,6 +7,7 @@ namespace AsmFun.CommanderX16
 {
     public class X16MemoryComputer : MemoryDataAccessDeffered
     {
+        private byte keymap = 0;
 
         public X16MemoryComputer(IntPtr data, int length) : base(data, length)
         {
@@ -32,7 +33,7 @@ namespace AsmFun.CommanderX16
                 case 5:
                     return 0; // record_gif;
                 case 13:
-                    return 10;// keymap;
+                    return keymap;// keymap; 10 = be
                 case 14:
                     return (byte)'1'; // emulator detection
                 case 15:
@@ -45,7 +46,28 @@ namespace AsmFun.CommanderX16
         private void Write(int register, int bank, byte data)
         {
 
-            
+            switch (register)
+            {
+                case 0:
+                    break;// (byte)(debugger_enabled ? 1 : 0);
+                case 1:
+                    break; // (byte)(log_video ? 1 : 0);
+                case 2:
+                    break;// (byte)(log_keyboard ? 1 : 0);
+                case 3:
+                    break; // echo_mode;
+                case 4:
+                    break;// (byte)(save_on_exit ? 1 : 0);
+                case 5:
+                    break; // record_gif;
+                case 13:
+                    keymap = data;
+                    break;
+                case 14:
+                    break; // emulator detection
+                case 15:
+                    break; // emulator detection
+            }
         }
     }
 }

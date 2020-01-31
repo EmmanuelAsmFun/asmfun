@@ -18,6 +18,7 @@ namespace AsmFun.Computer.Common.Data
         public string ComputerType{ get; set; }
         public string ComputerVersion { get; set; }
         public bool SoundEnabled { get; set; }
+        public byte KeyMapIndex{ get; set; }
 
         public ComputerSettings()
         {
@@ -28,6 +29,7 @@ namespace AsmFun.Computer.Common.Data
         public void Parse(ComputerSettings computerSettings)
         {
             SoundEnabled = computerSettings.SoundEnabled;
+            KeyMapIndex = computerSettings.KeyMapIndex;
         }
     }
 }

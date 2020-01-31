@@ -15,6 +15,7 @@ import { IProcessorData } from "../data/ProcessorData.js";
 import { NotifyIcon } from "../common/Enums.js";
 import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 import { IProjectSettings } from "../data/ProjectData.js";
+import { KeyboardManager } from "./KeyboardManager.js";
 
 
 export class ComputerManager {
@@ -23,6 +24,7 @@ export class ComputerManager {
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     private data: IComputerManagerData;
+    
     private lastProjectSettings: IProjectSettings | null;
     
 
@@ -32,6 +34,7 @@ export class ComputerManager {
         this.data = mainData.appData.computer;
         this.lastProjectSettings = null;
         this.computerService = this.mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService(mainData);
+        
         this.mainData.commandManager.Subscribe2(new ComputerOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new ComputerStartCommand(), this, x => this.StartComputer());
         this.mainData.commandManager.Subscribe2(new ComputerStopCommand(), this, x => this.StopComputer());
@@ -42,6 +45,8 @@ export class ComputerManager {
         this.mainData.commandManager.Subscribe2(new ComputerUpdateStateCommand(), this, x => this.UpdateComputerState(false));
         this.mainData.eventManager.Subscribe2(new ComputerProcessorDataChanged(null), this, x => this.ParseProcessorData(x.processorData));
         this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => this.ProjectSettingsLoaded(x.projectSettings));
+
+        
         // Load first state
         setTimeout(() => { this.UpdateComputerState(false); }, 100);
         // Load every 5 seconds the state

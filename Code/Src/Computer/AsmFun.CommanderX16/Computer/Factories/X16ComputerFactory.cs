@@ -14,6 +14,7 @@ using AsmFun.Common.Processors;
 using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Data.Computer;
 using AsmFun.Computer.Common.DataAccess;
 using AsmFun.Computer.Common.Debugger;
@@ -41,8 +42,9 @@ namespace AsmFun.CommanderX16.Computer.Factories
             ComputerType = new X16ComputerSetupSettings().ComputerType;
         }
 
-        public override IComputer Create()
+        public override IComputer Create(ComputerSettings computerSettings)
         {
+            
             ConfigureIOC();
             // Get computer setup
             Resolve<ComputerSetupSettings>().Version = base.ComputerVersion;
@@ -67,9 +69,11 @@ namespace AsmFun.CommanderX16.Computer.Factories
             Resolve<IAccessorContainer>().Reset();
             ((X16Computer)Resolve<IComputer>()).ParseUsedServiceTypes(GetUsedServices());
 
+            
             Resolve<P65c02Instructions>().Init(Resolve<IProcessor>());
             var computer = Resolve<IComputer>();
             computer.Reset();
+            Resolve<IKeyboardAccess>().SelectKeyMap(computerSettings.KeyMapIndex);
             return computer;
         }
 

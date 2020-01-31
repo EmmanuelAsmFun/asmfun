@@ -16,6 +16,7 @@ import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { ProjectSettingsLoaded, UserSettingsLoaded, UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.js";
 import { IFileDialogData } from "../data/FileManagerData.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
+import { KeyboardManager } from "./KeyboardManager.js";
 
 
 export class SettingsManager {
@@ -24,12 +25,14 @@ export class SettingsManager {
     private mainData: IMainData;
     private myAppData: IAsmFunAppData;
     public settings: ISettings;
+    private keyboard: KeyboardManager;
 
     constructor(mainData: IMainData) {
         var thiss = this;
         this.mainData = mainData;
         this.myAppData = mainData.appData;
         this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
+        this.keyboard = this.mainData.container.Resolve<KeyboardManager>(KeyboardManager.ServiceName) ?? new KeyboardManager(mainData);
         this.settings = SettingsManager.NewData();
         this.settings.saveUserSettings = () => thiss.SaveUserSettings();
         this.settings.saveProjectSettings = () => thiss.SaveProjectSettings();
@@ -40,6 +43,11 @@ export class SettingsManager {
         var showAsmFunCode = localStorage.getItem('showASMFunCode');
         this.myAppData.showASMFunCode = showAsmFunCode == "true" || showAsmFunCode == null || showAsmFunCode == undefined;
         this.UpdateServerAddress();
+        this.settings.keyMaps = this.keyboard.AllKeyMaps;
+        this.settings.keyMapChanged = () => {
+            if (this.settings.userSettings != null)
+                this.settings.userSettings.computerSettings.keyMapIndex = this.settings.keyMaps.indexOf(this.settings.selectedKeyMap);
+        };
         this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new SettingsSelectCompilerFileCommand(null), this, x => this.SettingsSelectCompilerFile(x.type));
         this.mainData.commandManager.Subscribe2(new UserSaveUserSettingsCommand(), this, x => this.SaveUserSettings());
@@ -58,6 +66,8 @@ export class SettingsManager {
     private ParseUserSettings(userSettings: IUserSettings | null) {
         if (userSettings == null) return;
         this.settings.userSettings = userSettings;
+        if (userSettings.computerSettings.keyMapIndex < this.settings.keyMaps.length)
+            this.settings.selectedKeyMap = this.settings.keyMaps[userSettings.computerSettings.keyMapIndex];
     }
 
     public SaveUserSettings() {
@@ -173,7 +183,10 @@ export class SettingsManager {
             isVisiblePopup: false,
             saveProjectSettings: () => { },
             saveUserSettings: () => { },
-            serverAddressWithPort: "http://localhost:5001"
+            serverAddressWithPort: "http://localhost:5001",
+            keyMaps: [],
+            selectedKeyMap: "en-us",
+            keyMapChanged: () => { },
         };
     }
 

@@ -324,7 +324,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         if (this.potentialRefLines.length === 0) return;
         for (var i = 0; i < this.potentialRefLines.length; i++) {
             var line = this.potentialRefLines[i];
-            // if (line.data.lineNumber === 902) {
+            // if (line.data.lineNumber === 177) {
             //    var test = line;
             //    debugger;
             //}
@@ -339,7 +339,8 @@ export class CodeBlockContext implements ICodeBlockContext {
             this.parseLabel(line);
             if (line.label != null) {
                 line.linkToMacro = false;
-                line.label.showValueInCode = true;
+                if (!line.label.isZone)
+                    line.label.showValueInCode = true;
                 line.potentialMacro = "";
                 continue;
             }

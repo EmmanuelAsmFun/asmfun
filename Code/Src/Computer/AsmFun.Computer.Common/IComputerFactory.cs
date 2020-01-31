@@ -7,6 +7,7 @@
 
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Computer.Common.Data;
 
 namespace AsmFun.Computer.Common
 {
@@ -15,6 +16,6 @@ namespace AsmFun.Computer.Common
         string ComputerType { get; }
         string ComputerVersion { get; }
 
-        IComputer Create();
+        IComputer Create(ComputerSettings computerSettings);
     }
 }

@@ -166,7 +166,7 @@
                     <a href="javascript:" v-on:click="ComputerStop()" title="Stop Player" v-if="computer.isComputerRunning" @mouseover="ComputerUpdateState">
                         <span class="fa fa-stop fa-fw"></span>
                     </a>
-                    <a href="javascript:" v-on:click="ComputerReset" title="Reset Player">
+                    <a href="javascript:" v-on:click="ComputerReset" title="Reset Player" v-if="computer.isComputerRunning">
                         <span class="fa-stack fa-lg fa-fw">
                             <i class="fa fa-desktop fa-stack-2x"></i>
                             <i class="fa fa-refresh fa-stack-1x fa-flip-horizontal"></i>
@@ -287,9 +287,6 @@
                 </div>
             </div>
         </div>
-
-
-
 
 
         <div class="Dissasembly" v-if="isShowDebugger">
@@ -709,6 +706,11 @@ programItem.address  | toHex2
                             <div class="form-item">
                                 <div class="form-lbl">Show ASMFun Code:</div>
                                 <input type="checkbox" v-model="showASMFunCode" />
+                            </div> 
+                            <div class="form-item">
+                                <div class="form-lbl">Keyboard map:</div>
+                                <editable-select v-model="settings.selectedKeyMap" :options="settings.keyMaps"
+                                                 v-on:valuechanged="settings.keyMapChanged"></editable-select>
                             </div>
                         </div>
                         <div class="form-item">
