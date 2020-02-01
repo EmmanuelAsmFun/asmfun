@@ -55,8 +55,8 @@ export class VideoManager {
         this.mainData.commandManager.Subscribe2(new VideoEnableAutoReloadCommand(null), this, (s) => this.SwapEnableAutoReload(s.state));
         this.mainData.commandManager.Subscribe2(new VideoEnableKeyForwardingCommand(null), this, (s) => this.EnableKeyForwarding(s.state));
         var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
-        this.videoLayerManager.Init(this.data, debugSvc,this.projectManager);
-        this.videoRamManager.Init(mainData, this.data, debugSvc,this.projectManager);
+        this.videoLayerManager.Init(this.data, debugSvc, this.projectManager);
+        this.videoRamManager.Init(mainData, this.data, debugSvc, this.projectManager, this.computerService);
         this.videoPaletteManager.Init(mainData,this.data);
         this.videoSpriteManager.Init(this.data, debugSvc, () => this.ReloadData(), this.projectManager);
         this.videoComposerManager.Init(this.data, debugSvc);
@@ -92,8 +92,14 @@ export class VideoManager {
                     thiss.videoLayerManager.RenderLayer(ram, thiss.data.layers[0], thiss.videoPaletteManager);
                     thiss.videoLayerManager.RenderLayer(ram, thiss.data.layers[1], thiss.videoPaletteManager);
                 }
+                this.videoRamManager.ParseLayers(thiss.data.layers);
             }
         });
+    }
+
+    private InitData() {
+        this.ReloadData();
+        this.videoSpriteManager.Reset();
     }
 
 
@@ -112,9 +118,9 @@ export class VideoManager {
         var thiss = this;
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(false));
         thiss.Show();
-        this.ReloadData();
-        this.videoSpriteManager.Reset();
+        
         this.keyboardManager = this.mainData.container.Resolve<KeyboardManager>(KeyboardManager.ServiceName);
+        this.InitData();
     }
     private Close() {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));

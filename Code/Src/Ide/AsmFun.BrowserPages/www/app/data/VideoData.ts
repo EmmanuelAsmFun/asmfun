@@ -1,4 +1,5 @@
-﻿
+﻿import { IMemoryDump } from "./ComputerData";
+
 
 // #region license
 // ASM Fun
@@ -23,6 +24,7 @@ export interface IVideoManagerData {
     spriteDatas: ISpritesData;
     composer: IVideoDisplayComposer;
     ram: IRamManagerData;
+    
 }
 
 export interface IVideoLayerData extends IDragableElement {
@@ -336,13 +338,15 @@ export interface IRamManagerData {
     endAddress: string;
     hexData: string;
     showHex: boolean;
+    memoryBlocks: IMemoryDump[];
 }
 export function NewRamManagerData(): IRamManagerData{
     return {
         startAddress: "",
         endAddress:"",
         hexData: "",
-        showHex:false,
+        showHex: false,
+        memoryBlocks:[],
     }
 }
 

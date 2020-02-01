@@ -26,5 +26,5 @@ export interface IMemoryDump {
     endAddressForUI: number;
     name: string;
     data: string;
-    type: number;
+    memoryType: number;
 }

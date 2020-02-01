@@ -889,24 +889,7 @@ programItem.address  | toHex2
                                         <td>Mode</td>
                                         <td>
                                             <editable-select v-model="layerInfo.ModeString" :options="layerInfo.Modes"
-                                                                v-on:valuechanged="layerInfo.valueChanged"></editable-select>
-                                        </td>
-                                    </tr>
-                                    <tr title="Specifies the base address where tile map data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
-                                        <td>Map Address</td>
-                                        <td>
-                                            0x<editable-field v-model="layerInfo.MapBaseHex" v-on:valuechanged="layerInfo.valueChanged">
-                                        </td>
-                                    </tr>
-                                    <tr title="Specify the map width and map height respectively:">
-                                        <td>Map Size</td>
-                                        <td>
-                                            <span>
-                                                <editable-field v-model="layerInfo.MapWidth" v-on:valuechanged="layerInfo.valueChanged">
-                                            </span> x
-                                            <span>
-                                                <editable-field v-model="layerInfo.MapHeight" v-on:valuechanged="layerInfo.valueChanged">
-                                            </span> tiles
+                                                             v-on:valuechanged="layerInfo.valueChanged"></editable-select>
                                         </td>
                                     </tr>
                                     <tr title="Specifies the base address where tile data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
@@ -927,6 +910,24 @@ programItem.address  | toHex2
                                             ({{layerInfo.TileSize}})
                                         </td>
                                     </tr>
+                                    <tr title="Specifies the base address where tile map data is fetched from. (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)">
+                                        <td>Map Address</td>
+                                        <td>
+                                            0x<editable-field v-model="layerInfo.MapBaseHex" v-on:valuechanged="layerInfo.valueChanged">
+                                        </td>
+                                    </tr>
+                                    <tr title="Specify the map width and map height respectively:">
+                                        <td>Map Size</td>
+                                        <td>
+                                            <span>
+                                                <editable-field v-model="layerInfo.MapWidth" v-on:valuechanged="layerInfo.valueChanged">
+                                            </span> x
+                                            <span>
+                                                <editable-field v-model="layerInfo.MapHeight" v-on:valuechanged="layerInfo.valueChanged">
+                                            </span> tiles
+                                        </td>
+                                    </tr>
+
 
                                     <tr><td>Layer Size</td><td>{{layerInfo.LayerWidth}} x {{layerInfo.LayerHeight}}</td></tr>
                                     <tr>
@@ -934,7 +935,7 @@ programItem.address  | toHex2
                                         <td>
                                             <span><editable-field v-model="layerInfo.HorizontalScroll" v-on:valuechanged="layerInfo.valueChanged"></span> x
                                             <span><editable-field v-model="layerInfo.VerticalScroll" v-on:valuechanged="layerInfo.valueChanged"></span>
-                                            
+
                                     <tr>
                                         <td>Palette Offset</td>
                                         <td>
@@ -973,7 +974,7 @@ programItem.address  | toHex2
 
                     <div class="Sprites">
                         <h3>Sprites</h3>
-                        <div class="vAddress">0x{{videoManager.spriteDatas.startAddress}} - 0x{{videoManager.spriteDatas.endAddress}}</div>
+                        <div class="vAddress">0x{{videoManager.spriteDatas.startAddress}} - 0x{{videoManager.spriteDatas.endAddress}} ({{videoManager.spriteDatas.sprites.length}})</div>
                         <div v-if="videoManager.spriteDatas.selectedSprite != null">
                             <div class="rawBinaryData">{{videoManager.spriteDatas.selectedSprite.RawDataString}} <a v-on:click="videoManager.spriteDatas.selectedSprite.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
                             <div class="table-cont">

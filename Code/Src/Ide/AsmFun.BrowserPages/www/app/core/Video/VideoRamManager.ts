@@ -1,4 +1,4 @@
-﻿import {IVideoSettings, IVideoManagerData, IRamManagerData
+﻿import {IVideoSettings, IVideoManagerData, IRamManagerData, IVideoLayerData
 } from "../../data/VideoData.js";
 import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
@@ -8,6 +8,7 @@ import { DebuggerService } from "../../services/DebuggerService.js";
 import { ProjectManager } from "../ProjectManager.js";
 import { VideoMemoryDumpCommand, VideoShowMemoryHexCommand } from "../../data/commands/VideoCommands.js";
 import { IMainData } from "../../data/MainData.js";
+import { ComputerService } from "../../services/ComputerService.js";
 
 // #region license
 // ASM Fun
@@ -16,19 +17,27 @@ import { IMainData } from "../../data/MainData.js";
 // #endregion
 
 export class VideoRamManager {
+    
+   
     private static StorageLayerData = "StorageRamData";
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
     private projectManager?: ProjectManager;
+    private computerService?: ComputerService;
     private data?: IRamManagerData;
     private ram?: Uint8Array;
+    private blockStartAddresses: number[] = [];
+    private blockEndAddresses: number[] = [];
+    private lastLayers: IVideoLayerData[] | null = null;
 
-    public Init(mainData: IMainData,videoManagerData: IVideoManagerData, debuggerService: DebuggerService, projectManager: ProjectManager) {
+    public Init(mainData: IMainData, videoManagerData: IVideoManagerData, debuggerService: DebuggerService, projectManager: ProjectManager,
+                                    computerService: ComputerService) {
         this.videoSettings = videoManagerData.settings;
         this.videoManagerData = videoManagerData;
         this.debuggerService = debuggerService;
         this.projectManager = projectManager;
+        this.computerService = computerService;
         this.data = videoManagerData.ram;
         mainData.commandManager.Subscribe2(new VideoMemoryDumpCommand(), this, x => this.VideoMemoryDump());
         mainData.commandManager.Subscribe2(new VideoShowMemoryHexCommand(null), this, x => this.ShowMemoryHex(x.state));
@@ -40,7 +49,57 @@ export class VideoRamManager {
         this.data.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
         this.ram = data;
         if (this.data.showHex)
+            this.ShowData();
+    }
+
+    public ParseLayers(layers: IVideoLayerData[]) {
+        this.lastLayers = layers;
+    }
+
+
+    public ShowData() {
+        if (this.computerService == null) return;
+        this.computerService.GetLoadedMemoryBlocks(r => {
+            if (this.data == null) return;
+            r = r.filter(x => x.memoryType == 6); // type Video = 6
+            if (this.lastLayers != null && this.lastLayers.length == 2) {
+                if (this.lastLayers[0].IsEnabled) {
+                    r.push(this.ConvertLayerToMemBlock(this.lastLayers[0]));
+                    r.push(this.ConvertLayerTileToMemBlock(this.lastLayers[0]));
+                }
+                if (this.lastLayers[1].IsEnabled) {
+                    r.push(this.ConvertLayerToMemBlock(this.lastLayers[1]));
+                    r.push(this.ConvertLayerTileToMemBlock(this.lastLayers[1]));
+                }
+               
+            }
+            this.blockStartAddresses = r.map(x => x.startAddress);
+            this.blockEndAddresses = r.map(x => x.endAddress);
+            this.data.memoryBlocks = r;
             this.data.hexData = this.MakeHexString();
+        });
+    }
+    private ConvertLayerToMemBlock(layer: IVideoLayerData): IMemoryDump {
+        return {
+            data: "",
+            startAddress: layer.MapBase,
+            endAddress: layer.MapBase + layer.LayerWidth * layer.LayerHeight,
+            endAddressForUI: 0,
+            memoryType: 6,
+            name: "Layer Map " + (layer.LayerIndex +1),
+        };
+    }
+    private ConvertLayerTileToMemBlock(layer: IVideoLayerData): IMemoryDump {
+        var data = {
+            data: "",
+            startAddress: layer.TileBase,
+            endAddress: layer.TileBase + layer.TileWidth * layer.TileHeight * (layer.BitsPerPixel / 8) * 256,
+            endAddressForUI: 0,
+            memoryType: 6,
+            name: "Layer Tiles " + (layer.LayerIndex +1),
+        };
+        data.endAddressForUI = data.endAddress;
+        return data;
     }
 
     private ShowMemoryHex(state: boolean | null) {
@@ -50,7 +109,7 @@ export class VideoRamManager {
         else
             this.data.showHex = state;
         if (this.data.showHex)
-            this.data.hexData = this.MakeHexString();
+            this.ShowData();
     }
 
     private MakeHexString():string {
@@ -60,8 +119,21 @@ export class VideoRamManager {
         var insertAddress = true;
         var hasWrittenOnlyZero = true;
         var wasWrittenZero = false;
+        if (this.data == null) return "";
         for (var i = 0; i < this.ram.length; i++) {
-
+            var startIndex = this.blockStartAddresses.indexOf(i);
+            if (startIndex > -1) {
+                var block = this.data.memoryBlocks[startIndex];
+                writer += "<div class=\"addr-start-region\">Start 0x" + AsmTools.numToHex5(block.startAddress) + "-0x" + AsmTools.numToHex5(block.endAddress) + " " + block.name + "</div>";
+                hasWrittenOnlyZero = false;
+            } else {
+                var startIndex = this.blockEndAddresses.indexOf(i);
+                if (startIndex > -1) {
+                    var block = this.data.memoryBlocks[startIndex];
+                    writer += "<div class=\"addr-end-region\">End 0x" + AsmTools.numToHex5(block.startAddress) + "-0x" + AsmTools.numToHex5(block.endAddress) + " " + block.name + "</div>";
+                    hasWrittenOnlyZero = false;
+                }
+            }
             if (insertAddress) {
                 insertAddress = false;
                 writer += "<span class=\"addr\">0x"+AsmTools.numToHex5(i) +"</span> &nbsp";

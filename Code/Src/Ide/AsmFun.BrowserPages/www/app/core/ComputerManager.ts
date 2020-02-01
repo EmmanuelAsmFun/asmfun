@@ -85,9 +85,7 @@ export class ComputerManager {
     private RunProgram() {
         this.computerService.RunProgram(() => {
             this.UpdateComputerState(true);
-            setTimeout(() => {
-                this.computerService.GetLoadedMemoryBlocks(r => { });
-            }, 1000);
+           
         });
     }
 

@@ -1752,6 +1752,16 @@ body {
 .videoManager .RamViewer .addr {
   color: #a9a98b;
 }
+.videoManager .RamViewer .addr-start-region,
+.videoManager .RamViewer .addr-end-region {
+  font-size: 30px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.videoManager .RamViewer .addr-end-region {
+  font-style: italic;
+  font-size: 20px;
+}
 .videoManager .documentation {
   clear: both;
   font-size: 10px;

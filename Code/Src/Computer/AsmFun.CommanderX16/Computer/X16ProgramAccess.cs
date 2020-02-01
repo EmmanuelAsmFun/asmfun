@@ -110,7 +110,7 @@ namespace AsmFun.CommanderX16.Computer
 					memoryAccess.WriteVideo(3, fileBytes[i]);
 					bytes_read++;
 				}
-				memoryBlock.EndAddress = memoryBlock.StartAddress + fileBytes.Length;
+				memoryBlock.EndAddress = memoryBlock.StartAddress + fileBytes.Length-2;
 				memoryBlock.MemoryType = MemoryAddressType.Video;
 				//System.Console.WriteLine(" - 0x" + start.ToString("X2") + " - 0x" + memoryBlock.EndAddress.ToString("X2"));
 			}
