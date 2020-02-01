@@ -293,9 +293,6 @@ export function CreateNewBundle(bundle: ISourceCodeBundle): IEditorBundle {
         labels: [],
         files: [],
         allContext: [],
-        zones: [],
-        macros: [],
-        
     };
 }
 export function CreateNewEditorLabel(label: ISourceCodeLabel, file: IEditorFile, line: IEditorLine): IEditorLabel {

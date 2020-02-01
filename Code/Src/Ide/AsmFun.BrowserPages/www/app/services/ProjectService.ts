@@ -46,8 +46,8 @@ export class ProjectService extends ApiService {
         this.post("Save", bundle, doneMethod, error);
     }
 
-    public SaveUserSettings(data: IUserSettings, doneMethod) {
-        this.post("SaveUserSettings", data, doneMethod);
+    public SaveUserSettings(data: IUserSettings, doneMethod, error: (e) => void) {
+        this.post("SaveUserSettings", data, () => { this.eventManager.InvokeEvent(new UserSettingsLoaded(data)); doneMethod(data); }, error);
     }
 
     public SaveProjectSettings(data: IProjectSettings, doneMethod, error: (e) => void) {

@@ -18,7 +18,7 @@ import { VideoComposerManager } from "./Video/VideoComposerManager.js";
 import { DebuggerService } from "../services/DebuggerService.js";
 import { ProjectManager } from "./ProjectManager.js";
 import { VideoRamManager } from "./Video/VideoRamManager.js";
-import { KeyboardManager } from "./KeyboardManager.js";
+import { KeyboardManager } from "./keyboard/KeyboardManager.js";
 import { IKeyboardKey } from "../data/ComputerData.js";
 
 

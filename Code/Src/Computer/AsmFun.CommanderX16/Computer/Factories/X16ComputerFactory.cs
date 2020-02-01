@@ -105,6 +105,7 @@ namespace AsmFun.CommanderX16.Computer.Factories
             AddVia();
             Add<IAccessorContainer, AccessorContainer>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<IKeyboardAccess, X16Keyboard>().WithLifestyle(EmServiceLifestyle.Singleton);
+            Add<IKeyboardMapping, KeyboardMapping>().WithLifestyle(EmServiceLifestyle.Singleton);
             // Video Accessors in memory
             Add<IVideoRamAccess, X16VideoRamAccess>().WithLifestyle(EmServiceLifestyle.Singleton);
             Add<IVideoLayerAccess, X16VideoLayerAccess>().WithLifestyle(EmServiceLifestyle.Singleton);

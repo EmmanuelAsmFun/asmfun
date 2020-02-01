@@ -16,7 +16,8 @@ import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { ProjectSettingsLoaded, UserSettingsLoaded, UserSaveUserSettingsCommand } from "../data/commands/ProjectsCommands.js";
 import { IFileDialogData } from "../data/FileManagerData.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
-import { KeyboardManager } from "./KeyboardManager.js";
+import { KeyboardManager } from "./keyboard/KeyboardManager.js";
+import { ComputerStopCommand } from "../data/commands/ComputerCommands.js";
 
 
 export class SettingsManager {
@@ -43,10 +44,16 @@ export class SettingsManager {
         var showAsmFunCode = localStorage.getItem('showASMFunCode');
         this.myAppData.showASMFunCode = showAsmFunCode == "true" || showAsmFunCode == null || showAsmFunCode == undefined;
         this.UpdateServerAddress();
-        this.settings.keyMaps = this.keyboard.AllKeyMaps;
+        this.settings.keyMaps = this.keyboard.GetAllKeyMaps();
         this.settings.keyMapChanged = () => {
-            if (this.settings.userSettings != null)
+            if (this.settings.userSettings != null) {
+                var prev = this.settings.userSettings.computerSettings.keyMapIndex;
                 this.settings.userSettings.computerSettings.keyMapIndex = this.settings.keyMaps.indexOf(this.settings.selectedKeyMap);
+                if (prev !== this.settings.userSettings.computerSettings.keyMapIndex) {
+                    // We need to load the new keymap in the computer
+                    this.mainData.commandManager.InvokeCommand(new ComputerStopCommand());
+                }
+            }
         };
         this.mainData.commandManager.Subscribe2(new SettingsOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new SettingsSelectCompilerFileCommand(null), this, x => this.SettingsSelectCompilerFile(x.type));
@@ -77,7 +84,7 @@ export class SettingsManager {
         if (this.settings.userSettings == null) return;
         this.projectService.SaveUserSettings(this.settings.userSettings, () => {
             this.mainData.appData.alertMessages.Notify("User settings saved.", NotifyIcon.OK);
-        });
+        }, e => { });
     }
     public SaveProjectSettings() {
         if (this.settings.projectSettings == null) return;

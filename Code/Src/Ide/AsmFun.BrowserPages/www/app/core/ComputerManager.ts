@@ -15,7 +15,7 @@ import { IProcessorData } from "../data/ProcessorData.js";
 import { NotifyIcon } from "../common/Enums.js";
 import { ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 import { IProjectSettings } from "../data/ProjectData.js";
-import { KeyboardManager } from "./KeyboardManager.js";
+import { KeyboardManager } from "./keyboard/KeyboardManager.js";
 
 
 export class ComputerManager {

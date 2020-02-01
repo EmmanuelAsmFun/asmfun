@@ -25,7 +25,7 @@ import { SourceCodeManager } from "./core/SourceCodeManager.js";
 import { ComputerManager } from "./core/ComputerManager.js";
 import { SpritesManager } from "./core/SpritesManager.js";
 import { ASMFunPlayerManager } from "./core/ASMFunPlayerManager.js";
-import { KeyboardManager } from "./core/KeyboardManager.js";
+import { KeyboardManager } from "./core/keyboard/KeyboardManager.js";
 import { VideoManager } from "./core/VideoManager.js";
 import { VideoLayerManager } from "./core/Video/VideoLayerManager.js";
 import { VideoPaletteManager } from "./core/Video/VideoPaletteManager.js";

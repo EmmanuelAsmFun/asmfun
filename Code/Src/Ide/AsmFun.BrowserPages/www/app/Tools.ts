@@ -96,7 +96,7 @@ export class AsmTools {
 
     public static scrollIntoViewIfOutOfView(elementId, directScroll:boolean = false) {
         setTimeout(() => {
-            var ell = document.getElementById(el);
+            var ell = document.getElementById(elementId);
             if (ell == null) return;
             if (directScroll)
                 ell.scrollIntoView({ behavior: "auto", block: "nearest", });

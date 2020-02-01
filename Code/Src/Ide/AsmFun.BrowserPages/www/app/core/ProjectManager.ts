@@ -154,6 +154,7 @@ export class ProjectManager  {
                 selectAFile: true,
                 title: "Select a PRG file",
                 subTitle: "*.prg",
+                onClose: () => { },
             };
             fileDialogSettings.onSelected = file => {
                 if (file != null && file.length > 1) {
