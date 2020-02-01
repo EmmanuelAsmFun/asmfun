@@ -269,8 +269,8 @@ namespace AsmFun.CommanderX16.Video.Painter
                 byte colorIndex = 0;
                 int realX = x;
                     
-                int newX;
-                int newY;
+                int newX = 0 ;
+                int newY = 0;
                 uint tileStart = 0;
                 VideoMapTile tile = null;
                 var paletteOffset = 0;
@@ -283,19 +283,24 @@ namespace AsmFun.CommanderX16.Video.Painter
                     uint mapAddress = LayerAccess.CalcLayerMapAddress(layer, realX, realY) - map_addr_begin;
                     // Todo: to enhance performance, do not always do a reload, only when data has changed
                     tile = mapTileAccess.GetTile(mapAddress, layer,true, tile_bytes);
-
-                    paletteOffset = (byte)(tile.PaletteOffset << 4);
-                    // offset within tilemap of the current tile
-                    tileStart = tile.TileIndex * layer.TileSize;
-                    if (tile.VerticalFlip)
-                        newY = newY ^ layer.TileHeight - 1;
-                    if (tile.HorizontalFlip)
-                        newX = newX ^ layer.TileWidth - 1;
+                    if (tile != null)
+                    {
+                        paletteOffset = (byte)(tile.PaletteOffset << 4);
+                        // offset within tilemap of the current tile
+                        tileStart = tile.TileIndex * layer.TileSize;
+                        if (tile.VerticalFlip)
+                            newY = newY ^ layer.TileHeight - 1;
+                        if (tile.HorizontalFlip)
+                            newX = newX ^ layer.TileWidth - 1;
+                    }
+                    else tile = new VideoMapTile { Layer = layer,};
                 }
                 else
                 {
-                    newX = realX % layer.TileWidth;
-                    newY = realY % layer.TileHeight;
+                    var w = layer.TileWidth;
+                    var h = layer.TileHeight;
+                    newX = w > 0 ? realX % w : 0;
+                    newY = h >0 ? realY % h : 0;
                     paletteOffset = (byte)(layer.PaletteOffset << 4);
                 }
                 // Additional bytes to reach the correct line of the tile
@@ -332,12 +337,16 @@ namespace AsmFun.CommanderX16.Video.Painter
             switch (layer.BitsPerPixel)
             {
                 case 1:
-                    BitsPerPxlCalculation[layer.LayerIndex] = (color, newX, tile) =>
-                    {
-                        bool bit = (color >> 7 - newX & 1) != 0;
-                        var colorIndex = bit ? tile.ForegroundColor : tile.BackgroundColor;
-                        return colorIndex;
-                    };
+                   
+                        BitsPerPxlCalculation[layer.LayerIndex] = (color, newX, tile) =>
+                        {
+                            if (tile == null) return 0;
+                            bool bit = (color >> 7 - newX & 1) != 0;
+                            var colorIndex = bit ? tile.ForegroundColor : tile.BackgroundColor;
+                            return colorIndex;
+                        };
+                    
+                   
                     break;
                 case 2:
                     BitsPerPxlCalculation[layer.LayerIndex] = (color, newX, tile) => (byte)(color >> 6 - ((newX & 3) << 1) & 3); 

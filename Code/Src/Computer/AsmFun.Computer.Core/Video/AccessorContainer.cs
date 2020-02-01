@@ -119,7 +119,8 @@ namespace AsmFun.Computer.Core.Video
                     StartAddress = (int)accessor.StartAddress,
                     EndAddress = (int)accessor.EndAddress,
                     EndAddressForUI = (int)accessor.EndAddressForUI,
-                    Name = accessor.Name ?? accessor.Accessor.Name
+                    Name = accessor.Name ?? accessor.Accessor.Name,
+                    MemoryType = Common.Computer.Data.MemoryAddressType.Video,
                 };
                 dump.Data = accessor.Accessor.MemoryDump((int)accessor.StartAddress);
                 returnData.Add(dump);

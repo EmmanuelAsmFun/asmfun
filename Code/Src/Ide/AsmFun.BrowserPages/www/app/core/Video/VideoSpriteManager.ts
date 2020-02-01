@@ -1,10 +1,11 @@
-﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoColor, IVideoSpriteProperties, X16SpriteModes, ISpritesData } from "../../data/VideoData.js";
+﻿import { IVideoLayerData, IVideoSettings, IVideoManagerData, IVideoColor, IVideoSpriteProperties, X16SpriteModes, ISpritesData, IDragableElement } from "../../data/VideoData.js";
 import { ServiceName } from "../../serviceLoc/ServiceName.js";
 import { IMemoryDump } from "../../data/ComputerData.js";
 import { AsmTools } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
 import { DebuggerService } from "../../services/DebuggerService.js";
 import { ProjectManager } from "../ProjectManager.js";
+import { ElementDragger } from "./ElementDragger.js";
 
 // #region license
 // ASM Fun
@@ -19,7 +20,7 @@ export class VideoSpriteManager {
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
     private requestReloadMemory?: () => void;
-    private htmlDragables: DragableSprite[] = new Array(512);
+    private htmlDragables: ElementDragger<IVideoSpriteProperties>[] = new Array(512);
     private projectManager?: ProjectManager;
 
     public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, requestReloadMemory: () => void, projectManager: ProjectManager) {
@@ -190,7 +191,7 @@ export class VideoSpriteManager {
                 if (spriteHtml == null && spriteHolder != null) {
                     spriteHtml = document.createElement("canvas") as HTMLCanvasElement;
                     spriteHtml.style.position = "absolute";
-                    this.htmlDragables[spriteIndex] = new DragableSprite(spriteHtml, sprite,s => thiss.SelectSprite(s));
+                    this.htmlDragables[spriteIndex] = new ElementDragger<IVideoSpriteProperties>(spriteHtml, sprite,s => thiss.SelectSprite(s));
                     spriteHolder.appendChild(spriteHtml);
                 }
                 this.htmlDragables[spriteIndex].UpdateSprite(sprite);
@@ -285,67 +286,5 @@ export class VideoSpriteManager {
         };
     }
     public static ServiceName: ServiceName = { Name: "VideoSpriteManager" };
-}
-
-class DragableSprite {
-   
-
-    private dragging = false;
-    private mouseDownPositionX = 0;
-    private mouseDownPositionY = 0;
-    private elementOriginalLeft = 0;
-    private elementOriginalTop = 0;
-    private element: HTMLElement;
-    private sprite: IVideoSpriteProperties;
-    private selectSpriteM: (s: IVideoSpriteProperties) => void;
-
-    constructor(element, sprite: IVideoSpriteProperties, selectSpriteM: (s: IVideoSpriteProperties) => void) {
-        this.dragging = false;
-        this.mouseDownPositionX = 0;
-        this.mouseDownPositionY = 0;
-        this.elementOriginalLeft = 0;
-        this.elementOriginalTop = 0;
-        this.element = element;
-        this.sprite = sprite;
-        this.selectSpriteM = selectSpriteM;
-        this.element.onmousedown = e => this.startDrag(e);
-        this.element.onmouseup = e => this.stopDrag(e);
-        window.addEventListener('onmousedown', d => this.unsetMouseMove());
-    }
-
-    private startDrag(e) {
-        e.preventDefault();
-        this.dragging = true;
-        this.mouseDownPositionX = e.clientX;
-        this.mouseDownPositionY = e.clientY;
-        this.elementOriginalLeft = parseInt(this.element.style.left);
-        this.elementOriginalTop = parseInt(this.element.style.top);
-        // set mousemove event
-        window.addEventListener('mousemove', d => this.dragElement(d));
-        this.selectSpriteM(this.sprite);
-    }
-
-    private unsetMouseMove() {
-        // unset mousemove event
-        window.removeEventListener('mousemove', d => this.dragElement(d));
-    }
-    private stopDrag(e) {
-        e.preventDefault();
-        this.dragging = false;
-        this.unsetMouseMove();
-    }
-    private dragElement(e) {
-        if (!this.dragging)
-            return;
-        e.preventDefault();
-        // move element
-        this.sprite.X = this.elementOriginalLeft + (e.clientX - this.mouseDownPositionX);
-        this.sprite.Y = this.elementOriginalTop + (e.clientY - this.mouseDownPositionY);
-        this.element.style.left = this.sprite.X + 'px';
-        this.element.style.top = this.sprite.Y + 'px';
-    }
-    public UpdateSprite(sprite: IVideoSpriteProperties) {
-        this.sprite = sprite;
-    }
 }
 

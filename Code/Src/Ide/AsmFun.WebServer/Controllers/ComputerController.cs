@@ -106,7 +106,14 @@ namespace AsmFun.WebServer.Controllers
         {
             var data = computerManager.VideoMemoryDump();
             return data;
+        } 
+        [HttpGet]
+        public List<MemoryDumpData> GetLoadedMemoryBlocks()
+        {
+            var data = computerManager.GetLoadedMemoryBlocks();
+            return data;
         }
+        [HttpGet]
         public ProcessorStackModel GetStack()
         {
             var data = processorManager.GetStack();

@@ -934,6 +934,7 @@ programItem.address  | toHex2
                                         <td>
                                             <span><editable-field v-model="layerInfo.HorizontalScroll" v-on:valuechanged="layerInfo.valueChanged"></span> x
                                             <span><editable-field v-model="layerInfo.VerticalScroll" v-on:valuechanged="layerInfo.valueChanged"></span>
+                                            
                                     <tr>
                                         <td>Palette Offset</td>
                                         <td>
@@ -949,9 +950,14 @@ programItem.address  | toHex2
 
                             </div>
                             <div v-show="layerInfo.ShowPreview">
-                                <div class="Canvas-cont">
+                               
+                                <div class="Canvas-cont layer-dragger-cont" v-on:mousedown="layerInfo.VideoLayerScoll(event,layerInfo.name +'Dragger')">
                                     <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
+                                    <span v-bind:id="layerInfo.name +'Dragger'" class="layer-dragger" style="top:0px; left:0px;">
+                                        <span class="fa fa-arrows"></span>
+                                    </span>
                                 </div>
+
 
                                 <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode">
                                     <div>Tile: {{layerInfo.selectedTileIndex}}</div>

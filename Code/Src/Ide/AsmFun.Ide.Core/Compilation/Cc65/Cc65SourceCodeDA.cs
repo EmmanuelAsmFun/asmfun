@@ -165,9 +165,11 @@ namespace AsmFun.Ide.Core.Compilation.Cc65
                     var labeld = labelRaw.Split(';')[0].Split('=');
                     if (labeld.Length < 2) continue;
                     var val = labeld[1].Trim().Replace("$", "");
+                    
                     if (val.Length == 1 || val.Length == 3 || val.Length == 5 || val.Length == 7)
                         val = "0" + val;
-                    var valnum = int.Parse(val, System.Globalization.NumberStyles.HexNumber);
+                    int valnum = 0;
+                    int.TryParse(val, System.Globalization.NumberStyles.HexNumber,null,out valnum);
 
                     var label = new SourceCodeLabel
                     {
@@ -175,19 +177,19 @@ namespace AsmFun.Ide.Core.Compilation.Cc65
                         Name = labeld[0].Trim(),
                     };
                     label.VariableLength = 1;
-                    // Check if its a zone
-                    foreach (var file in bundle.Files)
-                    {
-                        foreach (var line in file.Lines)
-                        {
-                            if (line.RawContent.Contains(label.Name + ":"))
-                                label.IsZone = true;
-                            else
-                            {
+                    //// Check if its a zone
+                    //foreach (var file in bundle.Files)
+                    //{
+                    //    foreach (var line in file.Lines)
+                    //    {
+                    //        if (line.RawContent.Contains(label.Name + ":"))
+                    //            label.IsZone = true;
+                    //        else
+                    //        {
 
-                            }
-                        }
-                    }
+                    //        }
+                    //    }
+                    //}
                     bundle.Labels.Add(label);
                 }
                 catch (Exception ex)

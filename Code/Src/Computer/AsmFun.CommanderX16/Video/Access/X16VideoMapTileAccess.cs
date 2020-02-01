@@ -66,11 +66,16 @@ namespace AsmFun.CommanderX16.Video
                 if (datas.Length > 1)
                 {
                     //var datas = spriteManager.ReadBlock(mapAddress & 0xf, 2);
-                    if (offset > datas.Length)
+                    if (offset >= datas.Length)
                         offset = 0;
-                    var byte0 = datas[offset];
-                    var byte1 = datas[offset + 1];
-                    if (layer.TextMode)
+                    byte byte0 = 0;
+                    byte byte1 = 0;
+                    if (datas.Length> 0)
+                    {
+                        byte0 = datas[offset];
+                        byte1 = datas[offset + 1];
+                    }
+                        if (layer.TextMode)
                     {
                         tile.TileIndex = byte0;
 

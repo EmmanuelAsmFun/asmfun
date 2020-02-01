@@ -193,6 +193,12 @@ namespace AsmFun.Computer.Core.Managers
             Computer.WriteMemoryBlock(startAddress, data, count);
         }
 
+        public List<MemoryDumpData> GetLoadedMemoryBlocks()
+        {
+            if (Computer == null) return new List<MemoryDumpData>();
+            return Computer.GetLoadedMemoryBlocks();
+        }
+
         private class ComputerFactoryItem
         {
             public ComputerSettings ComputerSettings { get; set; }

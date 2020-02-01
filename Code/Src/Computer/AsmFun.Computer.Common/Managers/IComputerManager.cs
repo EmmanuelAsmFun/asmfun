@@ -9,6 +9,7 @@ using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Data.EventArgss;
 using AsmFun.Computer.Common.Processors;
 using System;
+using System.Collections.Generic;
 
 namespace AsmFun.Computer.Common.Managers
 {
@@ -38,5 +39,6 @@ namespace AsmFun.Computer.Common.Managers
         MemoryDumpData[] VideoMemoryDump();
         void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
         void WriteMemoryBlock(int startAddress, byte[] data, int count);
+        List<MemoryDumpData> GetLoadedMemoryBlocks();
     }
 }

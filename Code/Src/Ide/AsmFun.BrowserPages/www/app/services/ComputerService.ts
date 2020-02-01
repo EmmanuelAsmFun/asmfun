@@ -50,6 +50,9 @@ export class ComputerService extends ApiService {
     public RunProgram(doneMethod) {
         this.callApi("RunProgram", doneMethod);
     }
+    public GetLoadedMemoryBlocks(doneMethod: (d:IMemoryDump[]) => void) {
+        this.callApi("GetLoadedMemoryBlocks", doneMethod);
+    }
 
     public getStack(doneMethod) {
         this.callApi("getStack", doneMethod);

@@ -55,6 +55,10 @@ namespace AsmFun.Computer.Common.Data.Computer
                 return ByType[type].ReadByte(address, bank);
             return 0;
         }
+        public virtual void WriteVideo(ushort address, byte value)
+        {
+            ByType[MemoryAddressType.Video].WriteByte(address, 0, value);
+        }
         public virtual void WriteByte(ushort address, byte value)
         {
             var type = computerAccess.GetAddressType(address, 0);

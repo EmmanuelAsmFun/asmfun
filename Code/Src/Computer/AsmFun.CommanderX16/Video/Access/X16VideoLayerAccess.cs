@@ -210,8 +210,10 @@ namespace AsmFun.CommanderX16.Video
 
         public uint CalcLayerMapAddress(VideoLayerData props, int eff_x, int eff_y)
         {
-            if (props.TileWidth == 0 || props.TileHeight == 0 || props.MapWidth ==0) return 0;
-            return (uint)(props.MapBase + (eff_y / props.TileHeight * props.MapWidth + eff_x / props.TileWidth) * 2);
+            var h = props.TileHeight ;
+            var w = props.TileWidth;
+            if (w == 0 || h == 0) return 0;
+            return (uint)(props.MapBase + (eff_y / h * props.MapWidth + eff_x / w) * 2);
         }
         
         public uint ReadSpaceReadRange(out byte[] tile_bytes, VideoLayerData layer, ushort y)

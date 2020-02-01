@@ -9,6 +9,7 @@ using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.Processors;
 using System;
+using System.Collections.Generic;
 
 namespace AsmFun.Computer.Common.Computer.Data
 {
@@ -49,5 +50,7 @@ namespace AsmFun.Computer.Common.Computer.Data
         void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
         void WriteMemoryBlock(int startAddress, byte[] data, int count);
         void SetWriteAudioMethod(Action<int, int> writeAudio);
+
+        List<MemoryDumpData> GetLoadedMemoryBlocks();
     }
 }

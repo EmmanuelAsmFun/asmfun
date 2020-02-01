@@ -1,19 +1,18 @@
 ﻿using AsmFun.Common.Processors;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.DataAccess;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Computer.Common.Video;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace AsmFun.CommanderX16.Computer
 {
-	public interface IProgramAccess
-	{
-		void Step();
-		void SetStartFolder(string folder);
-	}
+	
 	public class X16ProgramAccess : IProgramAccess
 	{
 		internal ushort FA = 0x000280;
@@ -27,6 +26,7 @@ namespace AsmFun.CommanderX16.Computer
 		private readonly ProcessorData processorData;
 		private readonly IVideoAccess videoAccess;
 		private string startFolder;
+		private List<MemoryDumpData> _usedMemoryBlocks = new List<MemoryDumpData>();
 
 		public X16ProgramAccess(IComputerMemoryAccess memoryAccess, IProcessor processor, ProcessorData processorData, ISymbolsDA symbolsDA, IVideoAccess videoAccess)
 		{
@@ -68,6 +68,8 @@ namespace AsmFun.CommanderX16.Computer
 
 		private void Load()
 		{
+			var memoryBlock = new MemoryDumpData();
+			memoryBlock.MemoryType = MemoryAddressType.Unknown;
 			var fnLength = memoryAccess.ReadByte(FNLEN);
 			var fnAddr = memoryAccess.ReadUShort(FNADR);
 			var fnAddBytes = memoryAccess.ReadBlock(fnAddr, fnLength);
@@ -80,6 +82,8 @@ namespace AsmFun.CommanderX16.Computer
 				processorData.Status |= 1;
 				return;
 			}
+			memoryBlock.Name = fileName;
+
 			var fileBytes = File.ReadAllBytes(fullFileName);
 			var override_start = processorData.X | (processorData.Y << 8);
 			var sa = memoryAccess.ReadByte(SA);
@@ -88,21 +92,27 @@ namespace AsmFun.CommanderX16.Computer
 				start = override_start;
 			else
 				start = fileBytes[1] << 8 | fileBytes[0];
+			memoryBlock.StartAddress = start;
 			int bytes_read = 0; 
 			var ramEndAddress = memoryAccess.GetEndAddress(MemoryAddressType.RAM);
 			var bankedRamEndAddress = memoryAccess.GetEndAddress(MemoryAddressType.BankedRAM);
+			memoryBlock.EndAddress = ramEndAddress;
+			memoryBlock.EndAddressForUI = bankedRamEndAddress;
 			if (processorData.A > 1)
 			{
 				// Video RAM
-				var add =memoryAccess.GetStartAddress(MemoryAddressType.Video);
-				memoryAccess.WriteByte((ushort)(add + 0), (byte)(start & 0xff));
-				memoryAccess.WriteByte((ushort)(add + 1), (byte)(start >> 8));
-				memoryAccess.WriteByte((ushort)(add + 2), (byte)(((processorData.A - 2) & 0xf) | 0x10));
+				memoryBlock.StartAddress = start;
+				memoryAccess.WriteVideo( 0, (byte)(start & 0xff));
+				memoryAccess.WriteVideo( 1, (byte)(start >> 8));
+				memoryAccess.WriteVideo( 2, (byte)(((processorData.A - 2) & 0xf) | 0x10));
 				for (int i = 2; i < fileBytes.Length; i++)
 				{
-					memoryAccess.WriteByte((ushort)(add + 3), fileBytes[i]);
+					memoryAccess.WriteVideo(3, fileBytes[i]);
 					bytes_read++;
 				}
+				memoryBlock.EndAddress = memoryBlock.StartAddress + fileBytes.Length;
+				memoryBlock.MemoryType = MemoryAddressType.Video;
+				//System.Console.WriteLine(" - 0x" + start.ToString("X2") + " - 0x" + memoryBlock.EndAddress.ToString("X2"));
 			}
 			else if (start < ramEndAddress)
 			{
@@ -112,6 +122,8 @@ namespace AsmFun.CommanderX16.Computer
 				// Write the program without first two bytes.
 				memoryAccess.WriteRAM(fileBytes, 2, start, fileBytes.Length - 2);
 				bytes_read = fileBytes.Length -2;
+				memoryBlock.MemoryType = MemoryAddressType.RAM;
+				memoryBlock.EndAddress = start + bytes_read;
 			}
 			else if (start < 0xa000)
 			{
@@ -137,21 +149,41 @@ namespace AsmFun.CommanderX16.Computer
 				//	//memory_set_ram_bank(1 + memory_get_ram_bank());
 				//}
 				memoryAccess.RamBank += numOfRequiredBanks; // =8192
+				memoryBlock.StartAddress = start + (memoryAccess.RamBank << 13);
+				memoryBlock.EndAddress = memoryBlock.StartAddress + fileBytes.Length -2;
+				memoryBlock.MemoryType = MemoryAddressType.BankedRAM;
 			}
 			else
 			{
 				// ROM
 			}
-
+			
 			var end = start + bytes_read;
 			processorData.X =  (byte)(end & 0xff);
 			processorData.Y = (byte)(end >> 8);
 			processorData.Status &= 0xfe;
 			memoryAccess.WriteByte(STATUS, 0);
 			processorData.A = 0;
+			if (memoryBlock.MemoryType != MemoryAddressType.Unknown)
+			{
+				var exists = _usedMemoryBlocks.FirstOrDefault(item => item.Name == memoryBlock.Name);
+				if (exists == null)
+					_usedMemoryBlocks.Add(memoryBlock);
+				else
+				{
+					var index = _usedMemoryBlocks.IndexOf(exists);
+					_usedMemoryBlocks[index] = memoryBlock;
+				}
+			}
 		}
 
 		private byte MIN(byte a, byte b) => (a < b) ? a : b;
 		private byte MAX(byte a, byte b) => (a > b) ? a : b;
-    }
+
+		public List<MemoryDumpData> GetLoadedMemoryBlocks()
+		{
+			var ordered = _usedMemoryBlocks.OrderBy(x => x.MemoryType).OrderBy(x => x.StartAddress).ToList();
+			return ordered;
+		}
+	}
 }

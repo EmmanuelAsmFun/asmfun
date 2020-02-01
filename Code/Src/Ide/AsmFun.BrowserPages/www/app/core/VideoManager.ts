@@ -119,6 +119,7 @@ export class VideoManager {
     private Close() {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
         this.Hide();
+        this.videoLayerManager.Dispose();
     }
     private Show() {
         var thiss = this;

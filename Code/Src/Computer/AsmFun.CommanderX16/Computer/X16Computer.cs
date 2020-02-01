@@ -350,6 +350,10 @@ namespace AsmFun.CommanderX16.Computer
             if (!SoundEnabled) return;
             computerAccess.Memory.SetWriteAudioMethod(writeAudio);
         }
+        public List<MemoryDumpData> GetLoadedMemoryBlocks()
+        {
+            return programAccess.GetLoadedMemoryBlocks();
+        }
 
         public void Dispose()
         {

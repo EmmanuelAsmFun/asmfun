@@ -133,8 +133,6 @@ var scStartPosY = 0;
 
 
 
-
-
 document.onkeyup = function (e) {
     myMainData.ctrlKeyIsDown = e.ctrlKey;
     if (myMainData.appData.videoManager.isVisible) {

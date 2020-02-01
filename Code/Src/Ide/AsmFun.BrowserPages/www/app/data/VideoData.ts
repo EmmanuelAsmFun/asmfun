@@ -5,6 +5,10 @@
 // Copyright (c) 2019-2040 Emmanuel from ASMFun. Read the license file.
 //
 // #endregion
+export interface IDragableElement {
+    X: number;
+    Y: number;
+}
 
 
 export interface IVideoManagerData {
@@ -21,7 +25,7 @@ export interface IVideoManagerData {
     ram: IRamManagerData;
 }
 
-export interface IVideoLayerData {
+export interface IVideoLayerData extends IDragableElement {
     RawDataString: string;
     IsEnabled: boolean;
 
@@ -67,6 +71,7 @@ export interface IVideoLayerData {
     endAddress: string;
 
     valueChanged: (v) => void;
+    VideoLayerScoll: (evt,obj) => void;
     CopyToClipBoard: () => void;
     SelectTileByImage: (e) => void;
     selectedTileIndex: number;
@@ -112,6 +117,7 @@ export function NewVideoLayer(layerIndex:number): IVideoLayerData {
         endAddress: "",
         RawDataString: "",
         valueChanged: () => { },
+        VideoLayerScoll: (evt, obj) => { },
         CopyToClipBoard: () => { },
         SelectTileByImage: (e) => { },
         selectedTileIndex: 0,
@@ -119,6 +125,8 @@ export function NewVideoLayer(layerIndex:number): IVideoLayerData {
         Show: true,
         ShowFull: true,
         ShowPreview: true,
+        X: 0,
+        Y:0,
     };
 }
 export enum LayerModes {
@@ -171,7 +179,7 @@ export enum X16SpriteModes {
     Bpp4 = 0,
     Bpp8 = 1,
 }
-export interface IVideoSpriteProperties {
+export interface IVideoSpriteProperties extends IDragableElement{
     /**
      * Sprite Disabled = 0,
      * Sprite Between BG And Layer0 = 1,
@@ -179,9 +187,6 @@ export interface IVideoSpriteProperties {
      * Sprite In Front Of Layer1 = 3,
      */
     ZDepth: number;
-    X: number;
-    
-    Y: number;
     Width: number;
     Height: number;
     HFlip: boolean;

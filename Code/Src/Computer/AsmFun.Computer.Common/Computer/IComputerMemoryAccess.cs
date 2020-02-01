@@ -25,6 +25,7 @@ namespace AsmFun.Computer.Common.Computer
         byte ReadByte(ushort address, int bank = 0);
         ushort ReadUShort(int address);
         void TraceData(MemoryAddressType type, int offset, int length);
+        void WriteVideo(ushort address, byte value);
         void WriteByte(ushort address, byte value);
         void WriteByte(ushort address, int bank, byte value);
         void WriteRAM(byte[] bytes, int startIndex = 0);

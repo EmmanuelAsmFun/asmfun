@@ -5,6 +5,7 @@ import { AsmTools, ASMStorage } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
 import { DebuggerService } from "../../services/DebuggerService.js";
 import { ProjectManager } from "../ProjectManager.js";
+import { ElementDragger } from "./ElementDragger.js";
 
 // #region license
 // ASM Fun
@@ -23,6 +24,7 @@ export class VideoLayerManager {
     private layerDatas: IVideoLayerManagerData = NewVideoLayerManagerData();
     private projectManager?: ProjectManager;
     private layers: IVideoLayerData[] = [NewVideoLayer(0), NewVideoLayer(1)];
+    private draggers: (ElementDragger<IVideoLayerData> | null)[] = [null,null];
 
     public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, projectManager: ProjectManager) {
         this.videoSettings = videoManagerData.settings;
@@ -52,22 +54,56 @@ export class VideoLayerManager {
         vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
         vidLayer.valueChanged = v => {
             //alert("oo");
-            let data = this.RecalculateArray(vidLayer);
-            vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
-            if (this.debuggerService != null)
-                this.debuggerService.WriteVideoMemoryBlock(memDump.startAddress, data, data.length, () => { });
-            this.ParseData(vidLayer, data);
+            this.UpdateLayer(vidLayer, memDump.startAddress);
+        };
+        vidLayer.VideoLayerScoll = (evt, elId) => {
+          
+            var dragger = this.draggers[vidLayer.LayerIndex];
+            if (dragger != null) {
+                dragger.StartXOffset = vidLayer.HorizontalScroll;
+                dragger.StartYOffset = vidLayer.VerticalScroll;
+            }
         };
         vidLayer.CopyToClipBoard = () => AsmTools.CopyToClipBoard(vidLayer.RawDataString);
         this.videoManagerData.layers.push(vidLayer);
         vidLayer.Modes = AsmTools.EnumToArray(LayerModes).map(x => x.replace(/_/g, " ") + " bpp");
-
-       
-
+        if (this.draggers[vidLayer.LayerIndex] == null) {
+            const startAddress = memDump.startAddress;
+            setTimeout(() => {
+                // We need to set a timeout so html is rendered
+                let dr = this.draggers[vidLayer.LayerIndex];
+                let w = 0;
+                if (dr != null) dr.Dispose();
+                this.draggers[vidLayer.LayerIndex] = new ElementDragger<IVideoLayerData>(document.getElementById(vidLayer.name + 'Dragger'), vidLayer, s => { },
+                    d => {
+                        // Dragging
+                        // Fast drag absorber
+                        w++;
+                        if (w == 10) {
+                            const vidL = <IVideoLayerData>d.spriteG;
+                            vidL.HorizontalScroll = -vidL.X + d.StartXOffset;
+                            vidL.VerticalScroll = -vidL.Y + d.StartYOffset;
+                            this.UpdateLayer(vidL, startAddress);
+                            w = 0;
+                        }
+                    },
+                    s => {
+                        // End Drag
+                        s.ResetStartPos(0, 0);
+                    });
+            }, 500);
+        }
         this.StoreNewLayerInfo(vidLayer);
         return vidLayer;
     }
 
+    private UpdateLayer(vidLayer: IVideoLayerData, startAddress: number) {
+        let data = this.RecalculateArray(vidLayer);
+        vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+        if (this.debuggerService != null)
+            this.debuggerService.WriteVideoMemoryBlock(startAddress, data, data.length, () => { });
+        this.ParseData(vidLayer, data);
+    }
  
 
     private RecalculateArray(vidLayer: IVideoLayerData) {
@@ -505,6 +541,13 @@ export class VideoLayerManager {
         vidLayer.Show = lay.Show;
         vidLayer.ShowFull = lay.ShowFull;
         vidLayer.ShowPreview = lay.ShowPreview;
+    }
+    public Dispose() {
+        var d = this.draggers[0];
+        if (d != null) d.Dispose();
+        d = this.draggers[1];
+        if (d != null) d.Dispose();
+        this.draggers = [null, null];
     }
   
     public static ServiceName: ServiceName = { Name: "VideoLayerManager" };

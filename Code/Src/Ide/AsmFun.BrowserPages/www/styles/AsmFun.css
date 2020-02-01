@@ -1672,6 +1672,7 @@ body {
 .videoManager .layers .Canvas-cont {
   /*width: 320px;*/
   width: 208px;
+  position: relative;
 }
 .videoManager .layers .LayerCanvas {
   width: 100%;
@@ -1679,6 +1680,31 @@ body {
 }
 .videoManager .layers .LayerTiles-cont {
   margin-top: 5px;
+}
+.videoManager .layers .layer-dragger-cont {
+  position: relative;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.videoManager .layers .layer-dragger {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 208px;
+  height: 150px;
+  z-index: 40;
+  display: block;
+  cursor: pointer;
 }
 .videoManager .Sprites {
   float: left;
