@@ -81,6 +81,9 @@ export class CommonInterpreter  {
         //    var test = lineWithoutComment;
         //    debugger;
         //}
+        //if (line.file.data.fileName == "levels.asm" && line.data.lineNumber == 1132) {
+        //    debugger;
+        //}
 
         // Compiler Line
         if (lineWithoutComment.indexOf(this.cpChar+'') > -1 || lineWithoutComment.indexOf('}') > -1) {
@@ -428,7 +431,7 @@ export class CommonInterpreter  {
 
     public InterpretMacroCall(line: IEditorLine, lineWithoutComment: string): ICodeBlockContext {
         var name = this.GetName(1, lineWithoutComment);
-        //if (lineWithoutComment.indexOf("VERA_END_IRQ") > -1) {
+        //if (lineWithoutComment.indexOf("LOAD_LEVEL_PARAM") > -1) {
         //    var test = name;
         //    debugger;
         //}

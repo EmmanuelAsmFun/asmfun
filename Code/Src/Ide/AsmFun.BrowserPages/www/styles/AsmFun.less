@@ -98,7 +98,12 @@ a:hover {
 
     .labels-top {
         font-size: 12px;
-
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
         a, a:link, a:visited, a:hover {
             display: inline-block;
             background: #a1a17b;
@@ -126,9 +131,7 @@ a:hover {
         border: 1px solid #313126;
     }
 
-    .listing::-webkit-scrollbar {
-        display: none;
-    }
+
 
     .ad {
         padding-right: 10px;
@@ -144,8 +147,9 @@ a:hover {
         margin: 0;
         padding: 0;
     }
+
     td {
-        padding-right:5px;
+        padding-right: 5px;
     }
 
     .variables {

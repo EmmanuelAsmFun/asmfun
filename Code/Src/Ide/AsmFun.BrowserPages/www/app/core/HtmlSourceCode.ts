@@ -26,6 +26,8 @@ export class HtmlSourceCode {
         //    var test = line;
         //    debugger;
         //}
+        //if (line.file.data.fileName == "levels.asm" && line.data.lineNumber == 1132) 
+        //    debugger;
 
         var writtenChars =0
         var lineRoot = this.CreateSpanRoot();
@@ -108,7 +110,7 @@ export class HtmlSourceCode {
     }
 
     private CreateMacro(lineRoot: HTMLSpanElement, line: IEditorLine, writtenChars: number): HTMLSpanElement {
-        var labelHtml = this.CreateSpan(lineRoot, this.varToHtml(line.data.sourceCode), writtenChars);
+        var labelHtml = this.CreateSpan(lineRoot, this.varToHtml(line.dataCode), writtenChars);
         labelHtml.className = "macro";
         if (line.macro != null && line.macro.name != null) 
             labelHtml.id = "m_" + line.macro.name;

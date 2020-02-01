@@ -266,6 +266,9 @@ export class SourceCodeManager {
                         editorLine.hasError = false;
                         context = this.InterpretLine(context, editorLine, true);
                         context.AddLine(editorLine);
+                        if (editorLine.isEndOfBlock && context.parent != null) {
+                            context = context.parent;
+                        }
                     }
                 }
             }

@@ -1920,6 +1920,18 @@ button.btn {
 }
 .labels .labels-top {
   font-size: 12px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 .labels .labels-top a,
 .labels .labels-top a:link,
@@ -1949,9 +1961,6 @@ button.btn {
   line-height: 12px;
   width: 200px;
   border: 1px solid #313126;
-}
-.labels .listing::-webkit-scrollbar {
-  display: none;
 }
 .labels .ad {
   padding-right: 10px;

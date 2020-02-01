@@ -133,8 +133,9 @@ export class CodeBlockContext implements ICodeBlockContext {
         return context;
     }
     public CloseCurrentBlock(line: IEditorLine): ICodeBlockContext {
-        if (this.parent != null)
-            return this.parent;
+        line.isEndOfBlock = true;
+        //if (this.parent != null)
+        //    return this.parent;
         return this;
     }
 
@@ -197,7 +198,6 @@ export class CodeBlockContext implements ICodeBlockContext {
     }
 
     public AddPotentialReference(line: IEditorLine, referenceName: string){
-       
         line.potentialLabel = referenceName;
         line.potentialMacro = referenceName;
         //this.potentialLabelRefLines.push(line);
@@ -233,10 +233,9 @@ export class CodeBlockContext implements ICodeBlockContext {
         line.isAddressSetter = true;
         line.labelVariableSource = label;
         line.labelHexValue = "00";
-        line.label = label;
-        
-       
+        line.label = label; 
     }
+
     public AddSetter(line: IEditorLine, property: IPropertyData) {
         if (property.name == null || property.name === "") {
             return line.context;
@@ -328,7 +327,7 @@ export class CodeBlockContext implements ICodeBlockContext {
             //    var test = line;
             //    debugger;
             //}
-
+           
            
             this.parseMacro(line);
             if (line.macro != null) {
@@ -358,6 +357,7 @@ export class CodeBlockContext implements ICodeBlockContext {
                     continue;
                 }
             }
+
             var codeOnly = line.data.sourceCode.trim();
             if (codeOnly != "") {
                 // check if its a number
@@ -423,6 +423,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         //    var test = line;
         //    debugger;
         //}
+        
         var macro = this.appData.macros.find(x => x.name === line.potentialMacro)
         if (macro == null) {
             //line.hasError = true;

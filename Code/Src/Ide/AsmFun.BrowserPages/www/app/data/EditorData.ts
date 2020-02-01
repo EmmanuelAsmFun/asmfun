@@ -116,6 +116,7 @@ export interface IEditorFile {
     
 }
 export interface IEditorLine {
+    
     zone: IEditorZone | null;
     isVariable: boolean;
     linkToLocalVariable?: string | null;
@@ -171,6 +172,8 @@ export interface IEditorLine {
     // error
     hasError: boolean;
     error?: ILineError | null;
+
+    isEndOfBlock: boolean;
 }
 export enum PropertyNumType {
     Unknown = 0,
@@ -272,7 +275,8 @@ export function CreateNewEditorLine(context: ICodeBlockContext, line: ISourceCod
         linkToZone: false,
         hilite: false,
         file: editorFile,
-        zone:null,
+        zone: null,
+        isEndOfBlock: false,
         // codeHtml: null,
     };
 };

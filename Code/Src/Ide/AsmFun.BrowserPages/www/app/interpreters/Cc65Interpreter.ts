@@ -49,6 +49,13 @@ export class Cc65Interpreter implements IInterpreter {
         if (parts.length == 0) return line.context;
         var wordDef = parts[0];
         var secondWord = parts.length > 1 ? parts[1].trim() : "";
+        //if (line.data.sourceCode.indexOf("LOAD_LEVEL_PARAM") > -1) {
+        //    var test = name;
+        //    debugger;
+        //}
+        //if (line.file.data.fileName == "levels.asm" && line.data.lineNumber == 1183) {
+        //    debugger;
+        //}
         switch (wordDef) {
             case ".macro":
                 parts.shift();
@@ -118,6 +125,9 @@ export class Cc65Interpreter implements IInterpreter {
         return line.context;
     }
 
+
+
+
     public postInterpretLineMethod(lineWithoutCommentNotrim: string, lineWithoutComment: string, line: IEditorLine): ICodeBlockContext | null {
         //if (line.data.lineNumber == 21) {
         //    debugger;
@@ -128,7 +138,7 @@ export class Cc65Interpreter implements IInterpreter {
         if (parts == null || parts.length == 0) return null;
         var firstWord = parts[0];
         line.context.AddPotentialReference(line, firstWord);
-        return null;
+        return line.context;
     }
 
     public GetCompilerResultErrors(c: ICompilationResult): ICompilationError[] {
