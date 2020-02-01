@@ -22,10 +22,18 @@ namespace AsmFun.WebServer.Startup
         public async Task Invoke(HttpContext context)
         {
 #if DEBUG
-            if (context.Request.Host.Host == "localhost")
-                context.Response.Headers.Add("Access-Control-Allow-Origin", "https://localhost:44343");
-            else
-                context.Response.Headers.Add("Access-Control-Allow-Origin", "https://asmfun.com,https://localhost:44343");
+            var sett = false;
+            if (context.Request.Headers.ContainsKey("origin")){
+                var ori = context.Request.Headers["origin"];
+                if (ori.Count > 0 && ori[0].IndexOf("localhost") > -1)
+                {
+                    context.Response.Headers.Add("Access-Control-Allow-Origin", "https://localhost:44343");
+                    sett = true;
+                }
+               
+            }
+            if (!sett)
+                context.Response.Headers.Add("Access-Control-Allow-Origin", "https://asmfun.com");
 #else
             context.Response.Headers.Add("Access-Control-Allow-Origin", "https://asmfun.com");
 #endif

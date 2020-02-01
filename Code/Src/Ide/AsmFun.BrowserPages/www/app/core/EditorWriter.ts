@@ -87,8 +87,7 @@ export class EditorWriter  {
         newLine.data.lineNumber = lineIndex + 1;
         context.currentFile.lines.splice(lineIndex, 0, newLine);
         // Set lineNumbers
-        for (var i = lineIndex + 1; i < context.currentFile.lines.length; i++)
-            context.currentFile.lines[i].data.lineNumber = i + 1;
+        this.RenumberLines(context, lineIndex + 1, context.currentFile.lines.length);
         var textPartS = context.currentLine.data.sourceCode.substring(0, context.editorData.cursorX);
         var textPartE = context.currentLine.data.sourceCode.substring(context.editorData.cursorX);
         // when not pasting, insert the same amount of spaces as the currentline.
@@ -135,8 +134,7 @@ export class EditorWriter  {
                 previousLine.data.sourceCode += context.currentLine.data.sourceCode;
                 context.currentLine.context.RemoveLine(context.currentLine);
                 (<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
-                for (var i = context.currentLine.data.lineNumber - 1; i < currentFile.lines.length; i++)
-                    currentFile.lines[i].data.lineNumber = i + 1;
+                this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
                 context.currentLine = previousLine;
                 context.RedrawLine();
                 context.cursorLogic.UpdateCursor(context);
@@ -165,8 +163,7 @@ export class EditorWriter  {
             // Delete next line, line numbers are index + 1
             context.currentLine.context.RemoveLine(currentFile.lines[context.currentLine.data.lineNumber]);
             (<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
-            for (var i = context.currentLine.data.lineNumber - 1; i < currentFile.lines.length; i++)
-                currentFile.lines[i].data.lineNumber = i + 1;
+            this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
             context.currentLine = currentFile.lines[context.currentLine.data.lineNumber - 1];
             if (context.currentLine != null && (<any>context.currentLine).sourceCode != null)
                 context.editorData.maxX = (<any>context.currentLine).sourceCode.length;
@@ -235,10 +232,7 @@ export class EditorWriter  {
             console.log("Deleted Lines", dels.map(x => x.data.sourceCode));
 
             // Renumber the next lines
-            for (var i = selection.startLine; i < context.currentFile.lines.length; i++) {
-                context.currentFile.lines[i].data.lineNumber = i + 1;
-                context.RedrawLine2(context.currentFile.lines[i]);
-            }
+            this.RenumberLines(context,selection.startLine, context.currentFile.lines.length);
 
         }
         this.AddUndoMultiLine(firstLine, undoLineTexts, x,y - 1);
@@ -250,6 +244,13 @@ export class EditorWriter  {
         return true;
     }
 
+    private RenumberLines(context: IEditorContext, startIndex: number, length: number) {
+        if (context.currentFile == null) return;
+        for (var i = startIndex; i < length; i++) {
+            context.currentFile.lines[i].data.lineNumber = i + 1;
+            context.RedrawLineNumber(context.currentFile.lines[i]);
+        }
+    }
 
     public InsertTextFromCodeAssist(context: IEditorContext,text?: string, textToRemove?: string) {
         if (context.currentLine == null || text == null) return;
@@ -307,10 +308,7 @@ export class EditorWriter  {
                         }
                     }
                     // Renumber the next lines
-                    for (var i = undo.y; i < context.currentFile.lines.length; i++) {
-                        context.currentFile.lines[i].data.lineNumber = i + 1;
-                        context.RedrawLine2(context.currentFile.lines[i]);
-                    }
+                    this.RenumberLines(context, undo.y, context.currentFile.lines.length);
                 }
             }
            

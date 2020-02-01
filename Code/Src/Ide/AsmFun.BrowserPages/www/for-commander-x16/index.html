@@ -752,8 +752,8 @@ programItem.address  | toHex2
 
                             <a v-on:click="VideoMemoryDump" title="Video Memory Dump"><span class="fa fa-save"></span> </a>
                             &nbsp;
-                            <a v-show="!videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory"><span class="fa fa-eye"></span> </a>
-                            <a v-show="videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(false)" title="Hide Hex Video Memory"><span class="fa fa-eye"></span> Hide Hex</a>
+                            <a v-show="!videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(true)" title="Show Hex Video Memory">X2 </a>
+                            <a v-show="videoManager.ram.showHex" v-on:click="VideoShowMemoryHex(false)" title="Hide Hex Video Memory">X2 Hide Hex</a>
                             &nbsp;
                             <a v-on:click="VideoEnableKeyForwarding(null)" title="Forward keyboard to emulator">
                                 <span class="fa fa-keyboard-o"></span>
@@ -765,8 +765,8 @@ programItem.address  | toHex2
                             <div v-html="videoManager.ram.hexData"></div>
                         </div>
                         <div class="fullVideo" v-show="!videoManager.ram.showHex" v-if="videoManager.layers.length > 1" v-bind:style="{ backgroundColor: videoManager.composer.BorderColorData.colorHex}">
-                            <canvas class="Layer1CanvasFS" id="Layer1CanvasFS" width="640" height="480" v-show="videoManager.layers[0].ShowFull"></canvas>
-                            <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480" v-show="videoManager.layers[1].ShowFull"></canvas>
+                            <canvas class="Layer1CanvasFS" id="Layer1CanvasFS" width="640" height="480" v-show="videoManager.layers[0].ShowFull && videoManager.layers[0].IsEnabled"></canvas>
+                            <canvas class="Layer2CanvasFS" id="Layer2CanvasFS" width="640" height="480" v-show="videoManager.layers[1].ShowFull && videoManager.layers[1].IsEnabled"></canvas>
                             <div class="spriteHolder" id="spriteHolder"></div>
                         </div>
                     </div>
@@ -953,7 +953,7 @@ programItem.address  | toHex2
                                     <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
                                 </div>
 
-                                <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode && layerInfo.IsEnabled">
+                                <div class="LayerTiles-cont" v-show="!layerInfo.BitmapMode">
                                     <div>Tile: {{layerInfo.selectedTileIndex}}</div>
                                     <canvas v-bind:id="layerInfo.name +'Tiles'" class="LayerTiles" width="208" height="160" @mousemove="layerInfo.SelectTileByImage(event)"></canvas>
                                 </div>

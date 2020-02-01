@@ -55,7 +55,7 @@ export class KeyboardManager {
 
 
     private UserSettingsLoaded(userSettings: IUserSettings | null) {
-        if (userSettings == null || userSettings.computerSettings == null) return;
+        if (userSettings == null || userSettings.computerSettings == null || userSettings.computerSettings.keyMapIndex == null) return;
         this.keyboardMapping.SelectKeyMap(userSettings.computerSettings.keyMapIndex);
     }
   

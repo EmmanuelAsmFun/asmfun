@@ -63,7 +63,7 @@ export class ProjectManager  {
         this.userSettings.projectsFolder = this.data.projectsFolder;
         this.service.SaveUserSettings(this.userSettings, (r) => {
             thiss.myAppData.alertMessages.Notify("Projects folder updated.", NotifyIcon.OK);
-        });
+        }, () => { });
     }
 
     public NewProjectRequest() {

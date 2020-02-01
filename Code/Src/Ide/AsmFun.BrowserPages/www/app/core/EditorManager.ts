@@ -27,6 +27,7 @@ export interface IEditorContext {
     requireSave: boolean;
     RedrawLine();
     RedrawLine2(line: IEditorLine);
+    RedrawLineNumber(line: IEditorLine);
     UpdateOpcode();
 }
 
@@ -235,6 +236,10 @@ export class EditorManager implements IEditorContext {
             this.UpdateOpcode();
         }
         // console.log("HTML:"+this.currentLine.sourceCodeHtml);
+    }
+    public RedrawLineNumber(line: IEditorLine) {
+        if (this.sourceCode == null) return;
+        this.sourceCodeManager.UpdateLineHtml(line, this.mainData.appData.labels);
     }
 
     public UpdateOpcode() {

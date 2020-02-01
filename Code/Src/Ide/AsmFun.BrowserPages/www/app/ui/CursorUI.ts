@@ -14,7 +14,7 @@ export interface ICursorUI {
     Hide();
     Show();
     GetSelection(): IEditorSelection | null;
-    SetSelectionStart(x, y);
+    SetSelectionStart(x, y, forceRecreateNew: boolean);
     SetSelectionEnd(x, y);
 }
 

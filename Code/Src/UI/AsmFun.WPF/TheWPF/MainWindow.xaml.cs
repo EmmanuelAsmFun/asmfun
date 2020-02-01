@@ -383,7 +383,11 @@ namespace AsmFun.WPF
 
         private void RenderLayer(IntPtr layerData, Image layerImg, VideoLayerData videoLayerData, BitmapPalette palette)
         {
-            if (!videoLayerData.IsEnabled) return;
+            if (!videoLayerData.IsEnabled)
+            {
+                layerImg.Visibility = Visibility.Hidden;
+                return;
+            }
 
             var w = displayComposer.HStop - displayComposer.HStart;
             var h = displayComposer.VStop - displayComposer.VStart;
@@ -395,6 +399,7 @@ namespace AsmFun.WPF
             layerImg.Source = cropped;
             layerImg.Width = w * displayComposer.HScale;
             layerImg.Height = h * displayComposer.VScale;
+            layerImg.Visibility = Visibility.Visible;
         }
         #endregion
     }

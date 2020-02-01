@@ -360,14 +360,18 @@ export class CodeBlockContext implements ICodeBlockContext {
             }
             var codeOnly = line.data.sourceCode.trim();
             if (codeOnly != "") {
-                line.hasError = true;
-                if (line.error == null || !line.error.isFromCompiler)
-                    line.error = {
-                        line: line,
-                        message: "Don't know what you mean, or haven't implemented yet.",
-                        isFromCompiler: false,
-                        compilerName:"Emmanuel"
-                    }
+                // check if its a number
+                if (parseInt(codeOnly) === NaN) {
+                    // Not a number
+                    line.hasError = true;
+                    if (line.error == null || !line.error.isFromCompiler)
+                        line.error = {
+                            line: line,
+                            message: "Don't know what you mean, or haven't implemented yet.",
+                            isFromCompiler: false,
+                            compilerName: "Emmanuel"
+                        }
+                }
             }
         }
     }

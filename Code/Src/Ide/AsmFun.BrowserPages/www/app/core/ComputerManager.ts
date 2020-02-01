@@ -134,7 +134,7 @@ export class ComputerManager {
     }
 
     private Close() {
-        this.data.isVisible = false;
+       // this.data.isVisible = false;
     }
 
     private OpenDetailState(state: boolean | null) {

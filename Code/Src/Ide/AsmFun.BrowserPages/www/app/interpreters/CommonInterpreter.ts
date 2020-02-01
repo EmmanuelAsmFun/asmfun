@@ -77,7 +77,7 @@ export class CommonInterpreter  {
             return line.context;
         }
 
-        //if (line.data.lineNumber === 113) {
+        //if (line.data.lineNumber === 369) {
         //    var test = lineWithoutComment;
         //    debugger;
         //}
@@ -122,6 +122,10 @@ export class CommonInterpreter  {
                 var context = this.InterpretZoneCreation(line, lineWithoutComment, wordWithoutSpace, isRootZone);
                 if (dottedIndex > -1)
                     line.dataCode = lineWithoutCommentNotrim.substring(lineWithoutCommentNotrim.indexOf(":"));
+                if (line.zone != null) {
+                    var idx = lineWithoutCommentNotrim.indexOf(line.zone.name);
+                    line.indent = lineWithoutCommentNotrim.substring(0, idx);
+                }
                 return context;
             }
 

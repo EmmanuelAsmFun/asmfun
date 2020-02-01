@@ -127,7 +127,7 @@ export class CursorLogic {
                 var prevY = ctx.editorData.cursorY;
                 ctx.editorData.cursorX = 0;
                 ctx.editorData.cursorWishedX = 0;
-                this.MoveUp(ctx, false, false);
+                this.MoveUp(ctx, ctrlIsDown, shiftisDown);
                 ctx.editorData.cursorX = ctx.editorData.maxX;
                 if (prevY !== ctx.editorData.cursorY && prevText !== "") {
                     this.MoveLeft(ctx, ctrlIsDown, shiftisDown, recurence +1);
@@ -174,12 +174,15 @@ export class CursorLogic {
             else {
                 factor = 0;
             }
-            if ((!match || factor == 0) && recurence ===0) {
+            if (!match && ctx.editorData.cursorX < ctx.currentLine.data.sourceCode.length - 1) {
+                factor = ctx.currentLine.data.sourceCode.length - ctx.editorData.cursorX;
+            }
+            else if ((!match || factor == 0) && recurence ===0) {
                 // goto nextLine
                 var prevY = ctx.editorData.cursorY;
                 ctx.editorData.cursorX = 0;
                 ctx.editorData.cursorWishedX = 0;
-                this.MoveDown(ctx, false, false);
+                this.MoveDown(ctx, ctrlIsDown, shiftisDown);
                 if (prevY !== ctx.editorData.cursorY && nextText !== "") {
                     this.MoveRight(ctx, ctrlIsDown, shiftisDown, recurence +1);
                     hasMovedNewLine = true;
@@ -219,10 +222,12 @@ export class CursorLogic {
     }
 
     public UpdateCursor(ctx: IEditorContext, withSmoothScoll: boolean = false) {
-        //var lineText = "";
-        //if (ctx.currentLine != null)
-        //    lineText = ctx.currentLine.sourceCode.length + " \t" + ctx.currentLine.sourceCode;
-        //console.log("CursorPos :" + ctx.editorData.cursorX + "x" + ctx.editorData.cursorY + "\t:maxX=" + ctx.editorData.maxX + ":" + ctx.editorData.cursorWishedX + "\t" + lineText + "\t");
+        var lineText = "";
+        //if (ctx.currentLine != null) {
+        //    lineText = ctx.currentLine.data.sourceCode;
+        //    console.log("CursorPos :" + ctx.editorData.cursorX + "x" + ctx.editorData.cursorY + "\t:maxX=" + ctx.editorData.maxX
+        //        + ":" + ctx.editorData.cursorWishedX + "\t|" + lineText + "|\t" + ctx.currentLine.data.sourceCode.length + " \t");
+        //}
         //var pxPosX = ctx.editorData.cursorX * ctx.editorData.charWidth + ctx.editorData.screenXOffset;
         //var pxPosY = ctx.editorData.cursorY * ctx.editorData.charHeight + ctx.editorData.screenYOffset;
         this.cursorUI.UpdateCursor(ctx.editorData, withSmoothScoll);
@@ -275,10 +280,10 @@ export class CursorLogic {
     public Deselect() {
         this.cursorUI.Deselect();
     }
-    public SetSelectionStart(ctx: IEditorContext,x: number, y:number) {
-        this.cursorUI.SetSelectionStart(x, y);
+    public SetSelectionStart(ctx: IEditorContext, x: number, y: number, forceRecreateNew: boolean = false) {
+        this.cursorUI.SetSelectionStart(x, y, forceRecreateNew);
     }
-    public SetSelectionEnd(ctx: IEditorContext,x: number, y: number) {
+    public SetSelectionEnd(ctx: IEditorContext, x: number, y: number) {
         this.cursorUI.SetSelectionEnd(x, y);
     }
    
