@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace AsmFun.Ide.Common.Data.Programm
 {
-    [DebuggerDisplay("SourceCodeLine:{LineNumber}:{RawContent}")]
+    [DebuggerDisplay("SourceCodeLine:{LineNumber}:Length={DataLength}:Addr={ResultMemoryAddress}:{RawContent}")]
     public class SourceCodeLine
     {
         public int LineNumber { get; set; }
@@ -16,5 +16,6 @@ namespace AsmFun.Ide.Common.Data.Programm
         public string ResultMemoryAddress { get; set; }
         public string ByteValues { get; set; }
         public string SourceCode { get; set; }
+        public int DataLength { get; set; }
     }
 }

@@ -16,6 +16,7 @@ import { ISourceCodeLabel } from "../data/ProjectData.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { EditorManager } from "./EditorManager.js";
 import { ProcessorOpenDebuggerCommand, ProcessorNextStepCommand, ProcessorStepOverCommand, ProcessorDebuggerRunCommand, ProcessorReloadValuesCommand, ProcessorDebuggerSetBreakpointCommand } from "../data/commands/ProcessorCommands.js";
+import { IProcessorData, IStackData, IStackItemData } from "../data/ProcessorData.js";
 
 
 export class ProcessorManager {
@@ -84,14 +85,44 @@ export class ProcessorManager {
 
     public reloadStack() {
         var thiss = this;
-        this.computerService.getStack((r) => {
-            thiss.myAppData.stack = r;
+        this.computerService.getStack((r: IStackData) => {
+            if (r == null || r.datas == null) return;
+            var blocks: IStackItemData[] = [];
+            thiss.myAppData.stack = {
+                datas: [],
+            };
+            if (thiss.myAppData.stack.datas == undefined) return;
+            var newDatas = r.datas;
+            var addBlock = false;
+            // remove repeating zeros
+            for (var i = 0; i < newDatas.length; i++) {
+                var item = newDatas[i];
+                if (item.data1 != 0) {
+                    addBlock = true;
+                }
+                blocks.push(item);
+                if (i % 8) {
+                    if (addBlock) {
+                        for (var j = 0; j < blocks.length; j++) {
+                            thiss.myAppData.stack.datas.push(blocks[j]);
+                        }
+                    }
+                    blocks = [];
+                    addBlock = false;
+                }
+            }
+            if (addBlock) {
+                for (var j = 0; j < blocks.length; j++) {
+                    thiss.myAppData.stack.datas.push(blocks[j]);
+                }
+            }
         });
     }
    
 
 
-    public parseData6502(data) {
+    public parseData6502(data: IProcessorData | null) {
+        if (data == null) return;
         this.myAppData.data6502 = data;
         if (this.myAppData.dissasembly != null && this.myAppData.dissasembly.datas != null) {
             var found = this.myAppData.dissasembly.datas.find(x => x.address == data.programCounter);

@@ -204,16 +204,17 @@ export class SourceCodeManager {
         }
 
         if (s.files == null) return bundle;
+        
         for (var i = 0; i < s.files.length; i++) {
             var fileCompiled = s.files[i];
             if (fileCompiled.lines == null) continue;
             var file = bundle.files.find(x => x.data.fileName == fileCompiled.fileName);
             if (file != null) {
-                if (file.lines != null) {
-                    for (var j = 0; j < file.lines.length; j++) {
+                if (file.lines != null && fileCompiled.lines != null) {
+                    for (var j = 0; j < fileCompiled.lines.length; j++) {
                         var lineCompiled = fileCompiled.lines[j];
-                        var line = file.lines[j];
-                        if (line.data != null && lineCompiled != null)
+                        var line = file.lines.find(x => x.data.lineNumber == lineCompiled.lineNumber);
+                        if (line != null && line.data != null && lineCompiled != null)
                             line.data.resultMemoryAddress = lineCompiled.resultMemoryAddress;
                     }
                 }

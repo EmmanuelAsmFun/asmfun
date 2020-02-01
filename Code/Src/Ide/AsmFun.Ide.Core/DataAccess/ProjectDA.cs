@@ -171,6 +171,8 @@ namespace AsmFun.Core.DataAccess
                     UnderConstruction = false,
                     CompilerVariables = ""
                 },
+                // orking ok
+                // https://github.com/JustinBaldock/x16-guides/tree/master/2020-02-GraphicFunctions
                  //  ca65 assembler
                 //new ProjectDetail
                 //{

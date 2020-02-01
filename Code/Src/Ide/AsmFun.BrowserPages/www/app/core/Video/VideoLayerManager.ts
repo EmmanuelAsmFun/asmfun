@@ -323,7 +323,7 @@ export class VideoLayerManager {
         var h = layer.TileHeight;
         var numTiles = 1024 * 32 / (w * h);
         var maxHTiles = Math.floor(canvas.width / w);
-        console.log("NumTiles:" + numTiles, layer.name);
+        //console.log("NumTiles:" + numTiles, layer.name);
         var strideX = maxHTiles * w;
         var tileXIndex = 0;
         var tileYIndex = 0;
