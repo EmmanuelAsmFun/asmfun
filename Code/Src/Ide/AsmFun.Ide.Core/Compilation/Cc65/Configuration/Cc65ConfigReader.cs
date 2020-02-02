@@ -13,6 +13,7 @@ namespace AsmFun.Ide.Core.Compilation.Cc65.Configuration
         public Cc65ConfigReader(string cc65FileName)
         {
             this.cc65FileName = cc65FileName;
+            if (string.IsNullOrWhiteSpace(cc65FileName)) return;
             var dir = Directory.GetParent(Path.GetDirectoryName(cc65FileName)).FullName;
             configFolder = Path.Combine(dir, "cfg");
             configFileName = Path.Combine(configFolder, "cx16.cfg");
@@ -21,7 +22,7 @@ namespace AsmFun.Ide.Core.Compilation.Cc65.Configuration
         public Cc65Config Read()
         {
             var config = new Cc65Config();
-            if (File.Exists(configFileName))
+            if (!string.IsNullOrWhiteSpace(configFileName) &&  File.Exists(configFileName))
             {
                 var lines = File.ReadAllLines(configFileName);
                 for (int i = 0; i < lines.Length; i++)

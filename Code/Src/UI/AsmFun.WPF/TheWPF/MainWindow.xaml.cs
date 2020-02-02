@@ -349,18 +349,20 @@ namespace AsmFun.WPF
         private bool requireDrawLayer1 = false;
         private IntPtr newLyerData0;
         private IntPtr newLyerData1;
-        VideoLayerData[] videoLayerDatas;
-        public void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerDatas)
+        VideoLayerData[] videoLayerDatas = new[] { new VideoLayerData(0), new VideoLayerData(1) };
+        public void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerData)
         {
             if (layerIndex == 0)
             {
                 requireDrawLayer0 = true;
                 newLyerData0 = colorIndexes;
+                videoLayerDatas[0] = videoLayerData;
             }
             else
             {
                 requireDrawLayer1 = true;
                 newLyerData1 = colorIndexes;
+                videoLayerDatas[1] = videoLayerData;
             }
         }
         public void RequestRedrawLayers(IntPtr[] layer_lineV, VideoLayerData[] videoLayerDatas)

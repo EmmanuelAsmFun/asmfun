@@ -133,6 +133,7 @@ export class KeyboardMapping {
             case "ArrowDown": scancode = 0x172; break;     // DOWN
             case "ArrowLeft": scancode = 0x16B; break;     // LEFT
             case "ArrowRight": scancode = 0x174; break;     // RIGHT
+            case "Escape": scancode = 0x76; break;     // ESC
             case "F1": scancode = 0x05; break;     // F1
             case "F2": scancode = 0x06; break;     // F2
             case "F3": scancode = 0x04; break;     // F3

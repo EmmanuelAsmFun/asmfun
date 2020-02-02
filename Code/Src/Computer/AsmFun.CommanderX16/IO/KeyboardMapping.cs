@@ -128,6 +128,7 @@ namespace AsmFun.CommanderX16.IO
                 case 26: scancode = 0x172; break;     // DOWN
                 case 23: scancode = 0x16B; break;     // LEFT
                 case 25: scancode = 0x174; break;     // RIGHT
+                case 13: scancode = 0x76; break;     // ESC
                 case 90: scancode = 0x05; break;     // F1
                 case 91: scancode = 0x06; break;     // F2
                 case 92: scancode = 0x04; break;     // F3

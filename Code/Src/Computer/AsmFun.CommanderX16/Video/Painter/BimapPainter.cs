@@ -53,42 +53,37 @@ namespace AsmFun.CommanderX16.Video.Painter
 
         public bool PaintFrame(IntPtr layerBuffer, ushort vStart, byte vScale)
         {
+            if (!enabled) return false;
             for (ushort y = 0; y < height; y++)
             {
                 ushort eff_y = (ushort)(vScale * (y - vStart) / 128);
-                RenderLayerLine(eff_y, layerBuffer);
+
+                var newY = tileHeight > 0 ? eff_y % tileHeight : 0;
+                // Additional bytes to reach the correct line of the tile
+                uint y_add = (uint)(newY * tileWidth * bitsPerPixel >> 3);
+
+                for (int x = 0; x < width; x++)
+                {
+                    var newX = tileWidth > 0 ? x % tileWidth : 0;
+
+                    // Additional bytes to reach the correct column of the tile
+                    ushort x_add = (ushort)(newX * bitsPerPixel >> 3);
+                    // Get the offset address of the tile.
+                    uint tile_offset = y_add + x_add;
+                    byte color = videoBytes[tile_offset];
+
+                    // Convert tile byte to indexed color
+                    var colorIndex = BitsPerPxlCalculation(color, newX);
+
+                    // Apply Palette Offset
+                    if (paletteOffset > 0)
+                        colorIndex += paletteOffset;
+                    var place = x + eff_y * width;
+                    if (place < 41861120)
+                        Marshal.WriteByte(layerBuffer + place, colorIndex);
+                }
             }
             return true;
-        }
-
-        public void RenderLayerLine(ushort y, IntPtr layerBuffer)
-        {
-            if (!enabled) return;
-
-            var newY = tileHeight > 0 ? y % tileHeight : 0;
-            // Additional bytes to reach the correct line of the tile
-            uint y_add = (uint)(newY * tileWidth * bitsPerPixel >> 3);
-            
-            for (int x = 0; x < width; x++)
-            {
-                var newX = tileWidth > 0 ? x % tileWidth : 0;
-                
-                // Additional bytes to reach the correct column of the tile
-                ushort x_add = (ushort)(newX * bitsPerPixel >> 3);
-                // Get the offset address of the tile.
-                uint tile_offset = y_add + x_add;
-                byte color = videoBytes[tile_offset];
-                
-                // Convert tile byte to indexed color
-                var colorIndex = BitsPerPxlCalculation(color, newX);
-
-                // Apply Palette Offset
-                if (paletteOffset > 0)
-                    colorIndex += paletteOffset;
-                var place = x + y * width;
-                if (place < 41861120)
-                    Marshal.WriteByte(layerBuffer + place, colorIndex);
-            }
         }
 
 

@@ -96,10 +96,10 @@ namespace AsmFun.CommanderX16.Video.Painter
             {
                 var realX = PainterCalculations.CalcLayerEffX(hScroll, layerWithMax, x);
                 var newX = realX & layer.TileWidthMax;
-                uint mapAddress = PainterCalculations.CalcLayerMapAddress(tileWidth, tileHeight, mapWidth, realX, realY) - map_addr_begin;
+                uint mapAddress = PainterCalculations.CalcLayerMapAddress(tileWidth, tileHeight, mapWidth, realX, realY);
 
-                var byte0 = tile_bytes[map_addr_begin + mapAddress];
-                var byte1 = tile_bytes[map_addr_begin + mapAddress + 1];
+                var byte0 = tile_bytes[mapAddress];
+                var byte1 = tile_bytes[mapAddress + 1];
                 var tileIndex = byte0;
                 byte foregroundColor = byte1;
                 byte backgroundColor = 0;
