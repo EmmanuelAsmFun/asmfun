@@ -293,14 +293,20 @@ namespace AsmFun.CommanderX16.IO
 
 
 
-
+		private int waiter = 0;
 		public void Step()
 		{
 			if (!state[0].has_byte && !state[0].sending && pressedKeys.Count > 0)
-			{
-				byte b;
-				lock (pressedKeys) b = pressedKeys.Dequeue();
-				ps2_buffer_add(0, b);
+			{ 
+				waiter++;
+				if (waiter > 30000)
+				{
+					byte b;
+					lock (pressedKeys) b = pressedKeys.Dequeue();
+					ps2_buffer_add(0, b);
+					waiter = 0;
+				}
+				
 			}
 			ps2_step(0);
 			ps2_step(1);

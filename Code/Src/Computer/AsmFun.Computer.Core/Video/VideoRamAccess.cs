@@ -56,6 +56,8 @@ namespace AsmFun.Computer.Core.Video
         public virtual byte[] ReadBlock(uint address, int length)
         {
             var buf = new byte[length];
+            if (length + address > ramSize)
+                length = (int)(ramSize - address);
             Marshal.Copy(videoRAM + (int)address, buf, 0, length);
             return buf;
         }

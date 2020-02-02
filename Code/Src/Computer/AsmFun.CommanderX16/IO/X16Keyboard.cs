@@ -70,9 +70,9 @@ namespace AsmFun.CommanderX16.IO
                 if (int.TryParse(item.ToString(), out num))
                     code = num + 74;
                 HandlePressedKey(new KeyQueueItem(item, code, true));
-                Task.Delay(30).Wait();
+                //Task.Delay(1).Wait();
                 HandlePressedKey(new KeyQueueItem(item, code, false));
-                Task.Delay(30).Wait();
+                //Task.Delay(1).Wait();
             }
         }
         

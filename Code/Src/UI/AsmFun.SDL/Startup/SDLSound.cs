@@ -14,7 +14,7 @@ namespace AsmFun.Startup
         uint audio_dev = 0;
         private SDL2.SDL.SDL_AudioSpec want;
         private SDL2.SDL.SDL_AudioSpec have;
-        private ushort AUDIO_SAMPLES = 1024;// 4096;
+        private ushort AUDIO_SAMPLES = 1024; // 1024;// 4096 // 256
         private int SAMPLERATE = 22050;
 
         private Ym2151 ym2151;
@@ -46,7 +46,7 @@ namespace AsmFun.Startup
             }
 
             // init YM2151 emulation. 4 MHz clock
-            ym2151.YM_Create(7159090); // 4000000
+            ym2151.YM_Create(7159090); // 4000000 // 7159090
             ym2151.YM_init(have.freq, 60);
 
             // start playback
