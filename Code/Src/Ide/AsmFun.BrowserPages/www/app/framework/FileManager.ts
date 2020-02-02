@@ -7,7 +7,7 @@
 import { ServiceName } from "../serviceLoc/ServiceName.js";
 import { IMainData } from '../data/MainData.js';
 import { NewFileManagerData, IFileManagerData, IAsmFolder, IAsmFile, IFileDialogData } from '../data/FileManagerData.js';
-import { ProjectService } from "../services/projectService.js";
+import { ProjectService } from "../services/ProjectService.js";
 import { FileService } from "../services/FileService.js";
 import { FileOpenManagerCommand } from "../data/commands/FileCommands.js";
 import { ASMStorage } from "../Tools.js";

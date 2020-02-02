@@ -7,7 +7,7 @@
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
 import { IProjectManagerData, ProjectCompilerTypes, ProjectComputerTypes, IUserSettings, InternetSourceType, IProjectDetail, IProjectSettings, IBuildConfiguration, CompilerNames, RomVersionNames, NewProjectManagerData, NewBuildConfiguration } from "../data/ProjectData.js";
-import { ProjectService } from "../services/projectService.js";
+import { ProjectService } from "../services/ProjectService.js";
 import { NotifyIcon, ConfirmIcon, ErrorIconName, ErrorIcon } from "../common/Enums.js";
 import { ProjectLoadCommand, ProjectLoadWebCommand, ProjectLoadLocalCommand, ProjectRequestCreateNewCommand, ProjectCreateNewCommand, ProjectSaveFolderCommand, ProjectOpenManagerCommand, ProjectOpenProjectWebsiteCommand, ProjectRequestLoadProgramCommand, ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";

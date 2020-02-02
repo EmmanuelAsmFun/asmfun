@@ -6,7 +6,7 @@
 
 import { IAsmFunAppData } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { ProjectService } from "../services/projectService.js";
+import { ProjectService } from "../services/ProjectService.js";
 import { IUserSettings, IProjectSettings, ISettings, ComputerRunMode } from "../data/ProjectData.js";
 import { NotifyIcon } from "../common/Enums.js";
 import { EditorEnableCommand } from "../data/commands/EditorCommands.js";

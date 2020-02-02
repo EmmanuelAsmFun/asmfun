@@ -18,7 +18,7 @@
     "./www/typings"
   ],
   "files": [
-    "www/app/main.ts"
+    "www/app/Main.ts"
   ],
 
   "exclude": [

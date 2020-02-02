@@ -6,7 +6,7 @@
 
 import { IAsmFunAppData, IAsmFunIdeData, BrowserTypes } from "../data/AsmFunAppData.js"
 import { IMainData } from "../data/MainData.js";
-import { ProjectService } from "../services/projectService.js";
+import { ProjectService } from "../services/ProjectService.js";
 import { ApiService } from "../services/ApiService.js";
 import { ConfirmIcon, NotifyIcon } from "../common/Enums.js";
 import { ServiceName } from "../serviceLoc/ServiceName.js";
@@ -110,7 +110,7 @@ export class ASMFunPlayerManager {
 
     private Done() {
         var svc = this.mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName);
-        if (svc != null && this.myAppData.selectedFile?.lines.length === 0)
+        if (svc != null && this.myAppData.selectedFile != null && this.myAppData.selectedFile.lines.length === 0)
             svc.LoadOne();
         this.mainData.commandManager.InvokeCommand(new UserSaveUserSettingsCommand())
         this.data.isVisiblePlayerManager = false;

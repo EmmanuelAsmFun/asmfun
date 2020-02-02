@@ -20,7 +20,7 @@ import { AlertMessages } from './ui/AlertMessages.js'
 import { CodeAssistPopupManager } from "./core/CodeAssistPopupManager.js";
 import { AvatarManager } from "./core/AvatarManager.js";
 import { ProjectManager } from "./core/ProjectManager.js";
-import { MemoryManager } from "./core/memoryManager.js";
+import { MemoryManager } from "./core/MemoryManager.js";
 import { SourceCodeManager } from "./core/SourceCodeManager.js";
 import { ComputerManager } from "./core/ComputerManager.js";
 import { SpritesManager } from "./core/SpritesManager.js";
@@ -39,7 +39,7 @@ import { OpcodeManager } from "./core/OpcodeManager.js";
 import { HtmlSourceCode } from "./core/HtmlSourceCode.js";
 
 // Services
-import { ProjectService } from "./services/projectService.js";
+import { ProjectService } from "./services/ProjectService.js";
 import { DebuggerService } from "./services/DebuggerService.js";
 import { ComputerService } from "./services/ComputerService.js";
 import { FileService } from "./services/FileService.js";
@@ -151,18 +151,19 @@ export class ServiceRegisterer {
     }
 
     public Init() {
-        this.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName)
-        this.container.Resolve<MemoryManager>(MemoryManager.ServiceName)
-        this.container.Resolve<ProjectManager>(ProjectManager.ServiceName)
-        this.container.Resolve<SpritesManager>(SpritesManager.ServiceName)
-        this.container.Resolve<ComputerManager>(ComputerManager.ServiceName)
-        this.container.Resolve<ProcessorManager>(ProcessorManager.ServiceName)
-        this.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.ServiceName)
-        this.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName)
-        this.container.Resolve<EditorManager>(EditorManager.ServiceName)
-        this.container.Resolve<AvatarManager>(AvatarManager.ServiceName)
-        this.container.Resolve<VideoManager>(VideoManager.ServiceName)
-        this.container.Resolve<FileManager>(FileManager.ServiceName)
-        this.myAppData.settings = this.container.Resolve<SettingsManager>(SettingsManager.ServiceName)?.settings ?? SettingsManager.NewData();
+        this.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName);
+        this.container.Resolve<MemoryManager>(MemoryManager.ServiceName);
+        this.container.Resolve<ProjectManager>(ProjectManager.ServiceName);
+        this.container.Resolve<SpritesManager>(SpritesManager.ServiceName);
+        this.container.Resolve<ComputerManager>(ComputerManager.ServiceName);
+        this.container.Resolve<ProcessorManager>(ProcessorManager.ServiceName);
+        this.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.ServiceName);
+        this.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName);
+        this.container.Resolve<EditorManager>(EditorManager.ServiceName);
+        this.container.Resolve<AvatarManager>(AvatarManager.ServiceName);
+        this.container.Resolve<VideoManager>(VideoManager.ServiceName);
+        this.container.Resolve<FileManager>(FileManager.ServiceName);
+        var settingsManager = this.container.Resolve<SettingsManager>(SettingsManager.ServiceName);
+        this.myAppData.settings = settingsManager != null && settingsManager.settings != null ? settingsManager.settings:  SettingsManager.NewData();
     }
 }
