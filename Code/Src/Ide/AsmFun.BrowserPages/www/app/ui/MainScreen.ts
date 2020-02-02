@@ -12,7 +12,7 @@ import { ProjectSaveCommand } from "../data/commands/ProjectsCommands.js";
 import { MainScreenMethods } from "./MainScreenMethods.js";
 import { myEditableFieldInit } from "./EditableField.js";
 import { IKeyboardKey } from "../data/ComputerData.js";
-import { ASMFunPlayerManager } from "../Core/ASMFunPlayerManager.js";
+import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
 import { ComputerManager } from "../core/ComputerManager.js";
 import { ProjectManager } from "../core/ProjectManager.js";
 import { EditorManager } from "../core/EditorManager.js";

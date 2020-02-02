@@ -13,7 +13,7 @@ import { IMainData } from "../data/MainData.js";
 import { ProjectSaveCommand, ProjectLoadCommand, ProjectSettingsLoaded } from "../data/commands/ProjectsCommands.js";
 import { IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorLine, IEditorLabel, CreateNewFile, CreateNewBundle, CreateNewEditorLabel, ICodeBlockContext } 
         from '../data/EditorData.js';
-import { ProjectService } from '../services/projectService.js';
+import { ProjectService } from '../services/ProjectService.js';
 import { NotifyIconName, NotifyIcon, ErrorIcon } from '../common/Enums.js';
 import { AcmeInterpreter } from '../interpreters/AcmeInterpreter.js';
 import { IInterpreter } from '../interpreters/IInterpreter.js';
