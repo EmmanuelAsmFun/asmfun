@@ -253,25 +253,25 @@ namespace AsmFun.Startup
             if (messageSurf == null) return;
 #if WINDOWS
 #if DEBUG
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // Determine frame rate in fps (frames per second).
-                long frameRateSDL = (long)(_frameCounterSDL / _stopwatchSDL.Elapsed.TotalSeconds);
-                long framePaint = (long)(_framePaintFpsCounter / _stopwatchFramePaint.Elapsed.TotalSeconds);
-                // Update elapsed time, number of frames, and frame rate.
-                var txt = "fps " + (Math.Floor(mhzRunning / 1000) / 100).ToString() + " / " + frameRateSDL;
-                surfaceMessage = SDL2.SDL_ttf.TTF_RenderText_Solid(font, txt, textColor);
-                messageSurf = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
-                var emptyRect = new SDL2.SDL.SDL_Rect() { x = 0, y = 00, w = 100, h = 100 };
-                SDL2.SDL.SDL_RenderCopy(renderer, messageSurf, ref emptyRect, ref Message_rect);
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            //{
+            //    // Determine frame rate in fps (frames per second).
+            //    long frameRateSDL = (long)(_frameCounterSDL / _stopwatchSDL.Elapsed.TotalSeconds);
+            //    long framePaint = (long)(_framePaintFpsCounter / _stopwatchFramePaint.Elapsed.TotalSeconds);
+            //    // Update elapsed time, number of frames, and frame rate.
+            //    var txt = "fps " + (Math.Floor(mhzRunning / 1000) / 100).ToString() + " / " + frameRateSDL;
+            //    surfaceMessage = SDL2.SDL_ttf.TTF_RenderText_Solid(font, txt, textColor);
+            //    messageSurf = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+            //    var emptyRect = new SDL2.SDL.SDL_Rect() { x = 0, y = 00, w = 100, h = 100 };
+            //    SDL2.SDL.SDL_RenderCopy(renderer, messageSurf, ref emptyRect, ref Message_rect);
 
-                //myFrameCounterGameLabel.Text = _framePaintCounter.ToString("X2");
-                //myFramePaintLabel.Text = framePaint.ToString();
-                //myFrameRateWpfLabel.Text = frameRateWpf.ToString();
-                //MymhzRunning.Text = (Math.Floor(mhzRunning / 1000) / 100).ToString();
-                //myprogramCounterLabel.Text = programCounter.ToString("X4");
-                _frameCounterSDL++;
-            }
+            //    //myFrameCounterGameLabel.Text = _framePaintCounter.ToString("X2");
+            //    //myFramePaintLabel.Text = framePaint.ToString();
+            //    //myFrameRateWpfLabel.Text = frameRateWpf.ToString();
+            //    //MymhzRunning.Text = (Math.Floor(mhzRunning / 1000) / 100).ToString();
+            //    //myprogramCounterLabel.Text = programCounter.ToString("X4");
+            //    _frameCounterSDL++;
+            //}
 #endif
 #endif
         } 
