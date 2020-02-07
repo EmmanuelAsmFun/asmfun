@@ -96,12 +96,12 @@
                         <div class="fileList">
                             <table>
                                 <!--<thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>File size</th>
-                                        <th>Date modified</th>
-                                    </tr>
-                                </thead>-->
+                                <tr>
+                                    <th>Name</th>
+                                    <th>File size</th>
+                                    <th>Date modified</th>
+                                </tr>
+                            </thead>-->
                                 <tbody>
                                     <tr v-for="folder in fileManager.currentFolder.folders">
                                         <td>
@@ -143,6 +143,7 @@
                 <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
                 <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
+                <a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-edit"></span></a>
             </div>
             <div class="newVersionText" v-if="ide.newVersionAvailable">
                 <a href="javascript:" v-on:click="ASMFunPlayerOpenManager(true)">
@@ -242,8 +243,8 @@
         <div class="labels" v-on:click="DbgLoadLabelValues()">
             <div class="labels-top">
                 <a class="label-tab" v-on:click="ide.selectVarTab('Zones');" v-bind:class="{ 'selected' : ide.showZones }">Zones</a>
-                <a class="label-tab" v-on:click="ide.selectVarTab('Macros');"  v-bind:class="{ 'selected' : ide.showMacros }">Macros</a>
-                <a class="label-tab" v-on:click="ide.selectVarTab('Variables');"  v-bind:class="{ 'selected' : ide.showVariables }">Variables</a>
+                <a class="label-tab" v-on:click="ide.selectVarTab('Macros');" v-bind:class="{ 'selected' : ide.showMacros }">Macros</a>
+                <a class="label-tab" v-on:click="ide.selectVarTab('Variables');" v-bind:class="{ 'selected' : ide.showVariables }">Variables</a>
             </div>
             <div class="listing">
                 <div class="zones" v-if="ide.showZones">
@@ -314,7 +315,7 @@ programItem.address  | toHex2
                 <div v-show="codeAssistPopupData.isVisible" class="codeAssistPopup" v-bind:style="{ left: codeAssistPopupData.posX, top: codeAssistPopupData.posY }">
                     <div v-for="item in codeAssistPopupData.items">
                         <div v-bind:id="'codeAs'+item.index" v-on:click="item.select(item)"
-                                v-bind:class="{  'isSelected' : item.isSelected }">
+                             v-bind:class="{  'isSelected' : item.isSelected }">
                             <span class="ca-name">{{item.name}}</span>
                             <span class="ca-hint" v-html="item.hint"></span>
                         </div>
@@ -325,34 +326,34 @@ programItem.address  | toHex2
                 <div v-if="selectedFile != null">
                     <div class="PreScLines">
                         <div class="ln" v-for="sourceCodeLine in selectedFile.lines"
-                                v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
+                             v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                             <span class="debugInfo">
                                 <span class="l-address" v-if="isShowDebugger">{{sourceCodeLine.data.resultMemoryAddress}}</span>
                                 <span class="breakPoint" v-if="isShowDebugger">
                                     <a v-on:click="DbgSetBreakpointCurrentLine(selectedFile,sourceCodeLine)"
-                                        v-bind:class="{ 'debugable' :sourceCodeLine.resultMemoryAddress !=='', 'isBpSelected' : sourceCodeLine.hasBreakPoint }">
+                                       v-bind:class="{ 'debugable' :sourceCodeLine.resultMemoryAddress !=='', 'isBpSelected' : sourceCodeLine.hasBreakPoint }">
                                         <span class="fa fa-circle"></span>
                                     </a>
                                 </span>
                             </span>
                             <span v-bind:id="'line'+sourceCodeLine.data.lineNumber" class="lnn"
-                                    v-on:click="EditorReloadLine(sourceCodeLine)"
-                                    v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
+                                  v-on:click="EditorReloadLine(sourceCodeLine)"
+                                  v-bind:title="'Address: ' + sourceCodeLine.data.resultMemoryAddress">
                                 {{sourceCodeLine.data.lineNumber}}
 
                             </span>
                             <span v-html="sourceCodeLine.asmFunCode" v-if="showASMFunCode"></span>
                             <span class="sc-value" v-if="isShowDebugger && sourceCodeLine.label != null && sourceCodeLine.label.showValueInCode">
                                 <input v-bind:id="'labelEdit'+sourceCodeLine.data.lineNumber" v-if="sourceCodeLine.label != null && sourceCodeLine.label.isInEditMode"
-                                        type="text" v-model="sourceCodeLine.label.newValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.label)" />
+                                       type="text" v-model="sourceCodeLine.label.newValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.label)" />
                                 <span v-if="sourceCodeLine.label != null && !sourceCodeLine.label.isInEditMode === true"
-                                        v-on:click="SwapChangeLabelValue(sourceCodeLine)"> = {{ sourceCodeLine.label.labelhexValue}}</span>
+                                      v-on:click="SwapChangeLabelValue(sourceCodeLine)"> = {{ sourceCodeLine.label.labelhexValue}}</span>
                             </span>
                         </div>
                     </div>
                     <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)">
                         <span class="ln" v-for="sourceCodeLine in selectedFile.lines"
-                                v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
+                              v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                             <span class="scline" v-html="sourceCodeLine.sourceCodeHtml"> </span>
                             <br />
                             <span class="errorDetail" v-if="sourceCodeLine.hasError && sourceCodeLine.error != null">{{sourceCodeLine.error.compilerName}}: {{sourceCodeLine.error.message}}</span>
@@ -400,11 +401,11 @@ programItem.address  | toHex2
             </div>
             <div class="memoryEdit" v-if="!memoryViewer.showTOC && memoryViewer.isMemoryEditing" v-bind:style="{top: (memoryViewer.memoryEditYOffset - 2)}">
                 <input type="text" v-model="memoryViewer.memoryEditText" v-on:input="$emit('input',$event.target.value)"
-                        v-on:keyup="memoryViewer.memoryEditKeyUp(event)" autofocus />
+                       v-on:keyup="memoryViewer.memoryEditKeyUp(event)" autofocus />
             </div>
             <div class="memoryblock" v-if="memoryViewer.memoryBlock != null && !memoryViewer.showTOC">
                 <span v-for="data in memoryViewer.memoryBlock.datas" v-html="data.code"
-                        v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
+                      v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
             </div>
         </div>
         <div class="memoryViewerSel" v-if="memoryViewer.isVisible">
@@ -527,25 +528,25 @@ programItem.address  | toHex2
                                     <div class="form-lbl">ACME compiler filename:</div>
                                     <input type="text" v-model="settings.userSettings.ideSettings.acme.acmeFileName" style="width:400px" />
                                     <button v-on:click="SettingsSelectCompilerFile('ACME');"><span class="fa fa-search"></span> Browse</button>
-<small v-show="ide.isLinux"><br />ex.: .../src/acme<br /></small>
-                                    <br/>
+                                    <small v-show="ide.isLinux"><br />ex.: .../src/acme<br /></small>
+                                    <br />
                                 </div>
                                 <br /><br />
                                 <!--<div class="form-item">
-        <div class="form-lbl">DASM compiler filename :</div>
-        <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFileName" style="width:400px" />
-        <button v-on:click="SettingsSelectCompilerFile('DASM');"><span class="fa fa-search"></span> Browse</button>
-    </div> <br /><br />
-    <div class="form-item">
-        <div class="form-lbl">VASM compiler filename :</div>
-        <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFileName" style="width:400px" />
-        <button v-on:click="SettingsSelectCompilerFile('VASM');"><span class="fa fa-search"></span> Browse</button>
-    </div>-->
+                                <div class="form-lbl">DASM compiler filename :</div>
+                                <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFileName" style="width:400px" />
+                                <button v-on:click="SettingsSelectCompilerFile('DASM');"><span class="fa fa-search"></span> Browse</button>
+                            </div> <br /><br />
+                            <div class="form-item">
+                                <div class="form-lbl">VASM compiler filename :</div>
+                                <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFileName" style="width:400px" />
+                                <button v-on:click="SettingsSelectCompilerFile('VASM');"><span class="fa fa-search"></span> Browse</button>
+                            </div>-->
                                 <div class="form-item">
                                     <div class="form-lbl">Cc65 compiler filename:</div>
                                     <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65FileName" style="width:400px" />
                                     <button v-on:click="SettingsSelectCompilerFile('Cc65');"><span class="fa fa-search"></span> Browse</button><br />
-<small v-show="ide.isLinux"><br />ex.: .../cc65/bin/ca65<br /></small>
+                                    <small v-show="ide.isLinux"><br />ex.: .../cc65/bin/ca65<br /></small>
                                 </div>
                                 <br /> <br /> <br />
                                 <div style="margin-left:200px;">
@@ -558,7 +559,7 @@ programItem.address  | toHex2
                     </div>
                 </div>
                 <div>
-                    
+
                 </div>
             </div>
         </div>
@@ -656,7 +657,7 @@ programItem.address  | toHex2
                             <div class="form-item" v-if="!settings.projectSettings.isProgramOnly">
                                 <div class="form-lbl"></div>
                                 <button v-on:click="settings.saveProjectSettings()"><span class="fa fa-save"></span> Save</button>
-                                <small style="font-size:9px;" >Stored in [PROJECT]/AsmFun/AsmFunSettings.json</small>
+                                <small style="font-size:9px;">Stored in [PROJECT]/AsmFun/AsmFunSettings.json</small>
                             </div>
                             <div class="form-item" v-if="settings.projectSettings.isProgramOnly">
                                 <div class="form-lbl"></div>
@@ -679,15 +680,15 @@ programItem.address  | toHex2
                                         <button v-on:click="SettingsSelectCompilerFile('ACME');"><span class="fa fa-search"></span> Browse</button>
                                     </div>
                                     <!--<div class="form-item">
-                                        <div class="form-lbl">DASM compiler filename :</div>
-                                        <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFileName" style="width:400px" />
-                                        <button v-on:click="SettingsSelectCompilerFile('DASM');"><span class="fa fa-search"></span> Browse</button>
-                                    </div>
-                                    <div class="form-item">
-                                        <div class="form-lbl">VASM compiler filename :</div>
-                                        <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFileName" style="width:400px" />
-                                        <button v-on:click="SettingsSelectCompilerFile('VASM');"><span class="fa fa-search"></span> Browse</button>
-                                    </div>-->
+                                    <div class="form-lbl">DASM compiler filename :</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.dasm.dasmFileName" style="width:400px" />
+                                    <button v-on:click="SettingsSelectCompilerFile('DASM');"><span class="fa fa-search"></span> Browse</button>
+                                </div>
+                                <div class="form-item">
+                                    <div class="form-lbl">VASM compiler filename :</div>
+                                    <input type="text" v-model="settings.userSettings.ideSettings.vasm.vasmFileName" style="width:400px" />
+                                    <button v-on:click="SettingsSelectCompilerFile('VASM');"><span class="fa fa-search"></span> Browse</button>
+                                </div>-->
                                     <div class="form-item">
                                         <div class="form-lbl">Cc65 compiler filename:</div>
                                         <input type="text" v-model="settings.userSettings.ideSettings.cc65.cc65FileName" style="width:400px" />
@@ -709,7 +710,7 @@ programItem.address  | toHex2
                             <div class="form-item">
                                 <div class="form-lbl">Show ASMFun Code:</div>
                                 <input type="checkbox" v-model="showASMFunCode" />
-                            </div> 
+                            </div>
                             <div class="form-item">
                                 <div class="form-lbl">Keyboard map:</div>
                                 <editable-select v-model="settings.selectedKeyMap" :options="settings.keyMaps"
@@ -783,24 +784,24 @@ programItem.address  | toHex2
                                 <td>OutMode</td>
                                 <td>
                                     <editable-select v-model="videoManager.composer.OutModeString" :options="videoManager.composer.OutModes"
-                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
                                 </td>
                             </tr>
                             <tr>
                                 <td>ChromaDisable</td>
                                 <td>
                                     <editable-checkbox v-model="videoManager.composer.ChromaDisable"
-                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox>
+                                                       v-on:valuechanged="videoManager.composer.valueChanged"></editable-checkbox>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Scale</td>
                                 <td>
                                     <editable-select v-model="videoManager.composer.HScaleString" :options="videoManager.composer.HScales"
-                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
                                     x
                                     <editable-select v-model="videoManager.composer.VScaleString" :options="videoManager.composer.VScales"
-                                                        v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
+                                                     v-on:valuechanged="videoManager.composer.valueChanged"></editable-select>
                                 </td>
                             </tr>
                             <tr>
@@ -851,26 +852,26 @@ programItem.address  | toHex2
                             </div>
                         </div>
                         <div class="paletteColors">
-                            <span v-for="color in videoManager.palette.colors" class="paletteColor"
-                                    v-on:click="videoManager.palette.changeColor(color)"
-                                    v-bind:title=" color.colorRGB+' | '+color.colorHex"
-                                    v-bind:style="{ backgroundColor: color.colorHex}">
+                            <span v-for="color in videoManager.palette.palette.colors" class="paletteColor"
+                                  v-on:click="videoManager.palette.palette.changeColor(color)"
+                                  v-bind:title=" color.colorRGB+' | '+color.colorHex"
+                                  v-bind:style="{ backgroundColor: color.colorHex}">
                                 &nbsp;
                             </span>
                         </div>
-                        <div class="selectedColor" v-if="videoManager.palette.selectedColor != null">
+                        <div class="selectedColor" v-if="videoManager.palette.palette.selectedColor != null">
                             <table>
                                 <tr>
                                     <td>Hex</td>
                                     <td>
                                         &nbsp;
-                                        {{videoManager.palette.selectedColor.colorHex}} ({{videoManager.palette.selectedColor.index}}, {{videoManager.palette.selectedColor.colorNumber}})
-                                        <span class="paletteColor" v-bind:style="{ backgroundColor: videoManager.palette.selectedColor.colorHex}">&nbsp;</span>
+                                        {{videoManager.palette.palette.selectedColor.colorHex}} ({{videoManager.palette.palette.selectedColor.index}}, {{videoManager.palette.palette.selectedColor.colorNumber}})
+                                        <span class="paletteColor" v-bind:style="{ backgroundColor: videoManager.palette.palette.selectedColor.colorHex}">&nbsp;</span>
                                     </td>
                                 </tr>
-                                <tr><td>R</td><td>{{videoManager.palette.selectedColor.r}}</td></tr>
-                                <tr><td>G</td><td>{{videoManager.palette.selectedColor.g}}</td></tr>
-                                <tr><td>B</td><td>{{videoManager.palette.selectedColor.b}}</td></tr>
+                                <tr><td>R</td><td>{{videoManager.palette.palette.selectedColor.r}}</td></tr>
+                                <tr><td>G</td><td>{{videoManager.palette.palette.selectedColor.g}}</td></tr>
+                                <tr><td>B</td><td>{{videoManager.palette.palette.selectedColor.b}}</td></tr>
                             </table>
                         </div>
                     </div>
@@ -954,7 +955,7 @@ programItem.address  | toHex2
 
                             </div>
                             <div v-show="layerInfo.ShowPreview">
-                               
+
                                 <div class="Canvas-cont layer-dragger-cont" v-on:mousedown="layerInfo.VideoLayerScoll(event,layerInfo.name +'Dragger')">
                                     <canvas v-bind:id="layerInfo.name +'Canvas'" class="LayerCanvas" width="640" height="480"></canvas>
                                     <span v-bind:id="layerInfo.name +'Dragger'" class="layer-dragger" style="top:0px; left:0px;">
@@ -991,7 +992,7 @@ programItem.address  | toHex2
                                         <td>Mode</td>
                                         <td>
                                             <editable-select v-model="videoManager.spriteDatas.selectedSprite.ModeString" :options="videoManager.spriteDatas.selectedSprite.Modes"
-                                                                v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
+                                                             v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1169,6 +1170,154 @@ programItem.address  | toHex2
                 </div>
             </div>
         </div>
+
+
+        <div v-if="painterManager.isVisible" >
+            <div v-show="painterManager.isVisiblePopup" class="painterManager v-scaler">
+                <div class="nav-btns">
+                    <a class="close-btn" v-on:click="PainterOpenManager(false)">X</a>
+                </div>
+                <div class="content">
+                    <h2>Painter under construction</h2>
+                    <div>
+
+
+                        <div class="paint-tools">
+                            <a v-on:click="painterManager.SelectTool('Paint');"><span class="fa fa-pencil fa-fw"></span></a>
+                            <a v-on:click="painterManager.SelectTool('Erase');"><span class="fa fa-eraser fa-fw"></span></a>
+                            <a v-on:click="painterManager.SelectTool('Select');"><span class="fa fa-plus-square-o fa-fw"></span></a>
+                        </div>
+
+                        <div class="grid painter">
+                            <div class="gridHeader">
+                                <div class="grid-mouseCellInfo">
+                                    <a v-on:click="painterManager.Painter.Grid.SwapGridVisibility"><span class="fa fa-th" title="Show/Hide Grid"></span></a>
+                                    {{painterManager.Painter.Grid.ViewOffsetX+1}} x {{painterManager.Painter.Grid.ViewOffsetY+1}} |
+                                    {{painterManager.Painter.Grid.RealMouseCellX+1}} x {{painterManager.Painter.Grid.RealMouseCellY+1}} |
+                                    {{painterManager.Painter.Grid.MouseCellX+1}} x {{painterManager.Painter.Grid.MouseCellY+1}}
+                                    ({{painterManager.Painter.Grid.ZoomLevel}})
+                                </div>
+                            </div>
+
+                            <div @wheel="painterManager.Painter.Grid.MouseScroll">
+                                <div id="paintGridControl" width="480" height="480" class="gridControl">
+                                    <canvas id="paintCanvas" width="480" height="480" class="paintCanvas"></canvas>
+                                    <div id="paintCellHilite" class="cellHilite"></div>
+                                    <div class="activator" v-bind:class="{'IsActive' : painterManager.Painter.Grid.IsActive}">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="paint-info" style="top:600px;">
+                            <div class="paint-info-block">
+                                Zoom = CTRL + MouseScroll | Move = MouseMove + Click + SPACE or ArrowKey + SPACE | 
+                            </div>
+                            <br />
+                            Byte offset: <input v-model="painterManager.ImportOffset" style="width: 50px;"/><br />
+                            Load palette: <input type="file" id="file-input" v-on:change="painterManager.PaletteFileSelected($event)" /><br />
+                            Load tiles: <input type="file" id="file-input" v-on:change="painterManager.FileTilesSelected($event)" /><br />
+                            Load tileMap: <input type="file" id="file-input" v-on:change="painterManager.FileTileMapSelected($event)" />
+                        </div>
+
+
+                        <div class="layers">
+                            <div class="layers-list">
+                                <div v-for="layer in painterManager.Layers" v-bind:class="{ 'isSelected' : layer.IsSelected}" class="layer">
+                                    <a class="visibility" v-on:click="painterManager.ChangeLayerVisibility(layer)" title="Show layer" v-if="!layer.IsVisible"><span class="fa fa-eye-slash"></span></a>
+                                    <a class="visibility" v-on:click="painterManager.ChangeLayerVisibility(layer)" title="Hide layer" v-if="layer.IsVisible"><span class="fa fa-eye"></span></a>
+
+                                    <editable-field v-model="layer.Name" v-on:valuechanged="painterManager.valueChanged"></editable-field>
+                                    <span v-on:click="painterManager.SelectLayer(layer)" title="Select layer" class="layer-select">&nbsp;</span>
+                                </div>
+                            </div>
+                            <div class="bottom-btns">
+                                <a v-on:click="painterManager.AddLayer()" title="Add layer"><span class="fa fa-plus"></span></a>
+                                <a v-on:click="painterManager.RemoveLayer()" title="Delete layer"><span class="fa fa-trash"></span></a>
+                            </div>
+                        </div>
+
+
+
+                        <div class="palette">
+                            <div class="paletteColors">
+                                <span v-for="color in painterManager.palette.colors" class="paletteColor"
+                                      v-on:click="painterManager.palette.changeColor(color)"
+                                      v-bind:title=" color.colorRGB+' | '+color.colorHex"
+                                      v-bind:style="{ backgroundColor: color.colorHex}">
+                                    &nbsp;
+                                </span>
+                            </div>
+                            <div class="selectedColor" v-if="painterManager.palette.selectedColor != null">
+                                <table>
+                                    <tr><td></td><td> <span class="paletteColor" v-bind:style="{ backgroundColor: painterManager.palette.selectedColor.colorHex}">&nbsp;</span></td></tr>
+                                    <tr>
+                                        <td>Hex</td>
+                                        <td>
+                                            &nbsp;
+                                            {{painterManager.palette.selectedColor.colorHex}} ({{painterManager.palette.selectedColor.index}}, {{painterManager.palette.selectedColor.colorNumber}})
+
+                                        </td>
+                                    </tr>
+                                    <tr><td>R</td><td>{{painterManager.palette.selectedColor.r}}</td></tr>
+                                    <tr><td>G</td><td>{{painterManager.palette.selectedColor.g}}</td></tr>
+                                    <tr><td>B</td><td>{{painterManager.palette.selectedColor.b}}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <div class="grid tiler">
+                            <div class="gridHeader">
+                                <div class="grid-mouseCellInfo">
+                                    <a v-on:click="painterManager.Tiler.Grid.SwapGridVisibility"><span class="fa fa-th" title="Show/Hide Grid"></span></a>
+                                    {{painterManager.Tiler.Grid.ViewOffsetX+1}} x {{painterManager.Tiler.Grid.ViewOffsetY+1}} |
+                                    {{painterManager.Tiler.Grid.RealMouseCellX+1}} x {{painterManager.Tiler.Grid.RealMouseCellY+1}} |
+                                    {{painterManager.Tiler.Grid.MouseCellX+1}} x {{painterManager.Tiler.Grid.MouseCellY+1}}
+                                    ({{painterManager.Tiler.Grid.ZoomLevel}})
+                                </div>
+                            </div>
+
+                            <div @wheel="painterManager.Tiler.Grid.MouseScroll">
+                                <div id="tilerGridControl" width="240" height="240" class="gridControl">
+                                    <canvas id="tilerCanvas" width="240" height="240" class="paintCanvas"></canvas>
+                                    <div id="tilerCellHilite" class="cellHilite"></div>
+                                    <div class="activator" v-bind:class="{'IsActive' : painterManager.Tiler.Grid.IsActive}">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div> 
+                        
+                        <div class="grid tileMapper">
+                            <div class="gridHeader">
+                                <div class="grid-mouseCellInfo">
+                                    <a v-on:click="painterManager.TileMapper.Grid.SwapGridVisibility"><span class="fa fa-th" title="Show/Hide Grid"></span></a>
+                                    {{painterManager.TileMapper.Grid.ViewOffsetX+1}} x {{painterManager.TileMapper.Grid.ViewOffsetY+1}} |
+                                    {{painterManager.TileMapper.Grid.RealMouseCellX+1}} x {{painterManager.TileMapper.Grid.RealMouseCellY+1}} |
+                                    {{painterManager.TileMapper.Grid.MouseCellX+1}} x {{painterManager.TileMapper.Grid.MouseCellY+1}}
+                                    ({{painterManager.TileMapper.Grid.ZoomLevel}})
+                                </div>
+                            </div>
+
+                            <div @wheel="painterManager.TileMapper.Grid.MouseScroll">
+                                <div id="tileMapperGridControl" width="240" height="240" class="gridControl">
+                                    <canvas id="tileMapperCanvas" width="240" height="240" class="paintCanvas"></canvas>
+                                    <div id="tileMapperCellHilite" class="cellHilite"></div>
+                                    <div class="activator" v-bind:class="{'IsActive' : painterManager.TileMapper.Grid.IsActive}">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+             </div>
+         </div>
 
 
         <div class="avatar">

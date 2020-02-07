@@ -1,0 +1,286 @@
+﻿@import "colors";
+@media-column-width: 208px;
+
+.painterManager {
+    position: fixed;
+    top: 30px;
+    left: 0px;
+    right: 0px;
+    bottom: 20px;
+    z-index: 200;
+    background: black;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+
+    h3 {
+        color: #c4c480;
+    }
+
+    a {
+        font-size: 13px;
+        cursor: pointer;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    }
+
+    h2 {
+        font-weight: 100;
+        font-size: 22px;
+        margin-top: -10px;
+        padding:0;
+    }
+
+
+
+
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 20px;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    .nav-btns {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+        font-size: 18px;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        cursor: pointer;
+        font-size: 22px;
+        z-index: 10;
+    }
+
+
+
+    .paint-info {
+        font-size: 9px;
+        position: absolute;
+    }
+
+    .paintCanvasPeview, .tilesCanvas, .tileMapCanvas {
+        display: inline-block;
+        margin-top: 2px;
+        margin-left: 2px;
+        vertical-align: top;
+    }
+
+    .tilesCanvas, .tileMapCanvas {
+        background: #333333;
+    }
+
+    .layers {
+        display: inline-block;
+        background: #333333;
+        font-size: 12px;
+        border: 1px solid #49492f;
+        position: absolute;
+        top: 360px;
+        left: 520px;
+        height: 250px;
+        width: 192px;
+
+        .isSelected {
+            background: #111111;
+        }
+
+        .bottom-btns {
+            line-height: 22px;
+            padding: 5px;
+            background: #222222;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-top: 1px solid #111111;
+
+            a {
+                display: inline-block;
+                padding-left: 10px;
+            }
+        }
+
+        .layers-list {
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            right: 0;
+            top: 0;
+            overflow: scroll;
+        }
+    }
+
+    .layer {
+        border-bottom: 1px solid #111111;
+        height: 22px;
+        padding: 0 0px 0 5px;
+        vertical-align: middle;
+        overflow: hidden;
+
+        a {
+            vertical-align: super;
+            height: 22px;
+            display: inline-block;
+            width: 14px;
+        }
+
+        .ef-view {
+            display: inline-block;
+            width: 112px;
+            overflow: hidden;
+            font-size: 11px;
+            line-height: 20px;
+            white-space: nowrap;
+            text-wrap: none;
+        }
+
+        input[type=text] {
+            width: 90px;
+        }
+
+        .layer-select {
+            cursor: pointer;
+            height: 22px;
+            display: inline-block;
+            background: transparent;
+            width: 35px;
+            vertical-align: top;
+            border-left: 1px solid #111111;
+        }
+    }
+
+    .palette {
+        display: inline-block;
+        width: 192px;
+        position: absolute;
+        top: 80px;
+        left: 520px;
+
+        table, tr, td {
+            font-size: 10px;
+            line-height: 10px;
+        }
+
+        .paletteColor {
+            font-size: 1px;
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+            cursor: pointer;
+        }
+    }
+
+    .paint-tools {
+        position:absolute;
+        z-index:20;
+        top: 50px;
+        left:20px;
+
+        a {
+            font-size: 18px;
+            display: inline-block;
+            float: left;
+            width: 25px;
+            height: 22px;
+            border: 1px solid #666666;
+            text-align: center;
+            vertical-align: middle;
+            padding-top: 3px;
+
+            &:hover {
+                background: #333333;
+            }
+        }
+    }
+
+    .grid.painter {
+    }
+
+    .grid.tiler {
+        position: absolute;
+        left: 730px;
+        width: 240px;
+
+        .gridControl {
+            width: 240px;
+            height: 240px;
+        }
+    }
+
+    .grid.tileMapper {
+        position: absolute;
+        left: 1000px;
+    }
+
+    .grid {
+        clear: both;
+        width: 480px;
+        position: absolute;
+        left: 20px;
+        top: 80px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        .gridHeader {
+            .grid-mouseCellInfo {
+                font-size: 9px;
+                text-align: right;
+            }
+        }
+
+        .paintCanvas {
+            position: absolute;
+            z-index: 10;
+        }
+
+        .gridControl {
+            border: 1px solid #333333;
+            background: transparent;
+            width: 480px;
+            height: 480px;
+            position: relative;
+            cursor: crosshair;
+            z-index: 20;
+        }
+
+
+
+        .cellHilite {
+            position: absolute;
+            border: 1px solid #333333;
+            width: 5px;
+            height: 5px;
+            z-index: 30;
+        }
+
+        .activator {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+
+            &.IsActive {
+                border: 1px solid #a1a1a1;
+            }
+        }
+    }
+}

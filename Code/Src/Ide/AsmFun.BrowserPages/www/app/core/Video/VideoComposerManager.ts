@@ -4,6 +4,7 @@ import { IMemoryDump } from "../../data/ComputerData.js";
 import { AsmTools } from "../../Tools.js";
 import { VideoPaletteManager } from "./VideoPaletteManager.js";
 import { DebuggerService } from "../../services/DebuggerService.js";
+import { NewEmptyColor } from "../../data/PaletteData.js";
 
 // #region license
 // ASM Fun
@@ -219,7 +220,7 @@ export class VideoComposerManager {
             startAddress: "",
             endAddress: "",
             BorderColor: 0,
-            BorderColorData: VideoPaletteManager.NewEmptyColor(),
+            BorderColorData: NewEmptyColor(),
             b_HScale: 1,
             b_VScale: 1,
             ChromaDisable: false,

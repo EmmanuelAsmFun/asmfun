@@ -1,4 +1,5 @@
-﻿import { IMemoryDump } from "./ComputerData";
+﻿import { IMemoryDump } from "./ComputerData.js";
+import { IPaletteData, IPaletteColor } from "./PaletteData.js";
 
 
 // #region license
@@ -153,19 +154,11 @@ export interface IVideoSettings {
 
 
 export interface IVideoPalette {
-    colors: IVideoColor[];
-    selectedColor: IVideoColor | null;
+    palette: IPaletteData;
     startAddress: string;
     endAddress: string;
-    changeColor: (color: IVideoColor) => void;
 }
-export interface IVideoColor {
-    colorNumber: number;
-    colorRGB: string;
-    colorHex: string;
-    r: number, g: number, b: number,
-    index: number;
-}
+
 export interface ISpritesData {
     sprites: IVideoSpriteProperties[];
     selectedSprite: IVideoSpriteProperties | null;
@@ -250,7 +243,7 @@ export interface IVideoDisplayComposer {
     VScaleString: string;
     /**This value contains the index into palette memory for the display border. If the Output mode is set to 0, this is ignored. */
     BorderColor: number;
-    BorderColorData: IVideoColor;
+    BorderColorData: IPaletteColor;
     HStart: number;
     HStop: number;
     VStart: number;

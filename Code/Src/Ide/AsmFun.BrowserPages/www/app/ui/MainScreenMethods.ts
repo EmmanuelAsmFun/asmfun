@@ -29,6 +29,7 @@ import {
 import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
 import { VideoOpenManagerCommand, VideoReloadAllCommand, VideoEnableAutoReloadCommand, VideoMemoryDumpCommand, VideoShowMemoryHexCommand, VideoEnableKeyForwardingCommand, VideoPaletteDumpCommand } from "../data/commands/VideoCommands.js";
 import { IAsmFile, IFileDialogData } from "../data/FileManagerData.js";
+import { PainterOpenManagerCommand } from "../data/commands/PainterCommands.js";
 
 
 export class MainScreenMethods {
@@ -156,6 +157,9 @@ export class MainScreenMethods {
     public VideoShowMemoryHex(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoShowMemoryHexCommand(state)); }
     public VideoEnableKeyForwarding(state: boolean | null) { MainScreenMethods.ExecuteCommand(new VideoEnableKeyForwardingCommand(state)); }
     public VideoPaletteDump() { MainScreenMethods.ExecuteCommand(new VideoPaletteDumpCommand()); }
+
+    // Painter
+    public PainterOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new PainterOpenManagerCommand(state)); }
 
     // Project manager
     public ProjectOpenManager(state: boolean | null) { MainScreenMethods.ExecuteCommand(new ProjectOpenManagerCommand(state)); }
