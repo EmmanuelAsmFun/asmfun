@@ -329,7 +329,7 @@ programItem.address  | toHex2
                              v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                             <span class="debugInfo">
                                 <span v-if="processor.isShowDebugger">
-                                    <span class="l-address" >{{sourceCodeLine.data.resultMemoryAddress}}</span>
+                                    <span class="l-address">{{sourceCodeLine.data.resultMemoryAddress}}</span>
                                     <span class="breakPoint" v-if="sourceCodeLine.canSetBreakPoint">
                                         <a v-on:click="DbgSetBreakpointCurrentLine(editor.selectedFile,sourceCodeLine)"
                                            class="debugable"
@@ -982,67 +982,67 @@ programItem.address  | toHex2
                         </div>
 
                         <div class="Sprites video-block">
-                        <h3>Sprites</h3>
-                        <div class="vAddress">0x{{videoManager.spriteDatas.startAddress}} - 0x{{videoManager.spriteDatas.endAddress}} ({{videoManager.spriteDatas.sprites.length}})</div>
-                        <div v-if="videoManager.spriteDatas.selectedSprite != null">
-                            <div class="rawBinaryData">{{videoManager.spriteDatas.selectedSprite.RawDataString}} <a v-on:click="videoManager.spriteDatas.selectedSprite.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
-                            <div class="table-cont">
-                                <select v-model="videoManager.spriteDatas.selectedSprite">
-                                    <option v-for="option in videoManager.spriteDatas.sprites" v-bind:value="option">{{ option.name }}</option>
-                                </select>
-                                <a v-on:click="videoManager.spriteDatas.changeSprite(-1)">&lt;</a>
-                                <a v-on:click="videoManager.spriteDatas.changeSprite(1)">&gt;</a>
-                                <table>
-                                    <tr>
-                                        <td>Mode</td>
-                                        <td>
-                                            <editable-select v-model="videoManager.spriteDatas.selectedSprite.ModeString" :options="videoManager.spriteDatas.selectedSprite.Modes"
-                                                             v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Position</td>
-                                        <td>
-                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.X" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
-                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Y" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
-                                        </td>
-                                    </tr>
-                                    <tr><td>Z Depth</td><td><editable-field v-model="videoManager.spriteDatas.selectedSprite.ZDepth" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></td></tr>
-                                    <tr>
-                                        <td>Size</td>
-                                        <td>
-                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Width" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
-                                            <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Height" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Flip</td>
-                                        <td>
-                                            <span><editable-checkbox v-model="videoManager.spriteDatas.selectedSprite.HFlip" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-checkbox></span> x
-                                            <span><editable-checkbox v-model="videoManager.spriteDatas.selectedSprite.VFlip" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-checkbox></span>
-                                        </td>
-                                    </tr>
+                            <h3>Sprites</h3>
+                            <div class="vAddress">0x{{videoManager.spriteDatas.startAddress}} - 0x{{videoManager.spriteDatas.endAddress}} ({{videoManager.spriteDatas.sprites.length}})</div>
+                            <div v-if="videoManager.spriteDatas.selectedSprite != null">
+                                <div class="rawBinaryData">{{videoManager.spriteDatas.selectedSprite.RawDataString}} <a v-on:click="videoManager.spriteDatas.selectedSprite.CopyToClipBoard()" title="Copy to clipboard"><span class="fa fa-copy"></span></a></div>
+                                <div class="table-cont">
+                                    <select v-model="videoManager.spriteDatas.selectedSprite">
+                                        <option v-for="option in videoManager.spriteDatas.sprites" v-bind:value="option">{{ option.name }}</option>
+                                    </select>
+                                    <a v-on:click="videoManager.spriteDatas.changeSprite(-1)">&lt;</a>
+                                    <a v-on:click="videoManager.spriteDatas.changeSprite(1)">&gt;</a>
+                                    <table>
+                                        <tr>
+                                            <td>Mode</td>
+                                            <td>
+                                                <editable-select v-model="videoManager.spriteDatas.selectedSprite.ModeString" :options="videoManager.spriteDatas.selectedSprite.Modes"
+                                                                 v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Position</td>
+                                            <td>
+                                                <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.X" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
+                                                <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Y" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
+                                            </td>
+                                        </tr>
+                                        <tr><td>Z Depth</td><td><editable-field v-model="videoManager.spriteDatas.selectedSprite.ZDepth" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></td></tr>
+                                        <tr>
+                                            <td>Size</td>
+                                            <td>
+                                                <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Width" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span> x
+                                                <span><editable-field v-model="videoManager.spriteDatas.selectedSprite.Height" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Flip</td>
+                                            <td>
+                                                <span><editable-checkbox v-model="videoManager.spriteDatas.selectedSprite.HFlip" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-checkbox></span> x
+                                                <span><editable-checkbox v-model="videoManager.spriteDatas.selectedSprite.VFlip" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></editable-checkbox></span>
+                                            </td>
+                                        </tr>
 
-                                    <tr><td>Address</td><td>0x<editable-field v-model="videoManager.spriteDatas.selectedSprite.SpriteAddressHex" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></td></tr>
-                                    <tr><td>End Address</td><td>0x{{videoManager.spriteDatas.selectedSprite.SpriteEndAddressHex}}</td></tr>
-                                    <tr>
-                                        <td>Palette Offset</td>
-                                        <td>
-                                            <editable-field v-model="videoManager.spriteDatas.selectedSprite.PaletteOffset" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged">
-                                            </editable-field> (multi of 16)
-                                    </tr>
-                                    <tr><td>Collision Mask</td><td>{{videoManager.spriteDatas.selectedSprite.CollisionMask}}</td></tr>
-                                </table>
+                                        <tr><td>Address</td><td>0x<editable-field v-model="videoManager.spriteDatas.selectedSprite.SpriteAddressHex" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged"></td></tr>
+                                        <tr><td>End Address</td><td>0x{{videoManager.spriteDatas.selectedSprite.SpriteEndAddressHex}}</td></tr>
+                                        <tr>
+                                            <td>Palette Offset</td>
+                                            <td>
+                                                <editable-field v-model="videoManager.spriteDatas.selectedSprite.PaletteOffset" v-on:valuechanged="videoManager.spriteDatas.selectedSprite.valueChanged">
+                                                </editable-field> (multi of 16)
+                                        </tr>
+                                        <tr><td>Collision Mask</td><td>{{videoManager.spriteDatas.selectedSprite.CollisionMask}}</td></tr>
+                                    </table>
+                                </div>
+                                <canvas class="spriteCanvas" id="spriteCanvas" width="194" height="512" v-on:click="videoManager.spriteDatas.selectByImage(event)"></canvas>
                             </div>
-                            <canvas class="spriteCanvas" id="spriteCanvas" width="194" height="512" v-on:click="videoManager.spriteDatas.selectByImage(event)"></canvas>
                         </div>
-                    </div>
 
                     </div>
                     <div class="documentation">
                         <a href="https://docs.google.com/document/d/1pFlevjsf_PRcOb0QLJp9IGihgYsVtUIxEW5ZZqtu0z0" target="_blank">VERA Documentation (Unofficial)</a>
                     </div>
-               
+
                 </div>
             </div>
         </div>
@@ -1336,99 +1336,100 @@ programItem.address  | toHex2
             </div>
         </div>
 
-    <div class="avatar" v-if="avatar.entertainer != null">
-        <div class="entertainer" v-on:click="avatar.swapOpenMenu()" v-bind:class="{ 'mouseActive' : avatar.entertainer.isActive}">
-            <img v-bind:src="avatar.entertainer.imageUrl" v-bind:title="avatar.entertainer.name" v-bind:alt="avatar.entertainer.name" />
-        </div>
-        <div class="chat">
-            <div v-for="chatItem in avatar.entertainer.chat.chatItems">
-                <div class="chatItem" v-bind:class="{ 'isEntertainer' : chatItem.who === 'entertainer'}">{{ chatItem.text}}</div>
+        <div class="avatar" v-if="avatar.entertainer != null">
+            <div class="entertainer" v-on:click="avatar.swapOpenMenu()" v-bind:class="{ 'mouseActive' : avatar.entertainer.isActive}">
+                <img v-bind:src="avatar.entertainer.imageUrl" v-bind:title="avatar.entertainer.name" v-bind:alt="avatar.entertainer.name" />
             </div>
-        </div>
-        <div class="avatar-menu" v-if="avatar.menu.isVisible">
-            <div v-for="menuItem in avatar.menu.menuItems">
-                <div class="menu-item" v-if="menuItem.isVisible" v-bind:class="{ 'selected' : avatar.menu.isSelected}">
-                    <div class="menu-label" v-on:click="menuItem.action(menuItem)">{{menuItem.label}}</div>
-                    <div class="menu-childs">
-                        <div v-for="menuItemChild in menuItem.menuItems" v-if="menuItem.isSelected">
-                            <div class="menu-item-child">
-                                <div class="menu-label" v-on:click="menuItemChild.action(menuItemChild)">{{menuItemChild.label}}</div>
+            <div class="chat">
+                <div v-for="chatItem in avatar.entertainer.chat.chatItems">
+                    <div class="chatItem" v-bind:class="{ 'isEntertainer' : chatItem.who === 'entertainer'}">{{ chatItem.text}}</div>
+                </div>
+            </div>
+            <div class="avatar-menu" v-if="avatar.menu.isVisible">
+                <div v-for="menuItem in avatar.menu.menuItems">
+                    <div class="menu-item" v-if="menuItem.isVisible" v-bind:class="{ 'selected' : avatar.menu.isSelected}">
+                        <div class="menu-label" v-on:click="menuItem.action(menuItem)">{{menuItem.label}}</div>
+                        <div class="menu-childs">
+                            <div v-for="menuItemChild in menuItem.menuItems" v-if="menuItem.isSelected">
+                                <div class="menu-item-child">
+                                    <div class="menu-label" v-on:click="menuItemChild.action(menuItemChild)">{{menuItemChild.label}}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="Compilation">
-        <div class="c-link-btn">
-            <a href="javascript:" v-on:click="SwapOutputWindow"><span class="fa fa-microchip"></span> Output</a>
-        </div>
-        <div class="OutputWindow" v-if="compilation.isVisible">
-            <a href="javascript:" v-on:click="SwapOutputWindow" class="close-btn">X</a>
-            <div>
-                <h3 v-on:click="SwapOutputWindow">Output</h3>
-                <div class="CompilationResult">
-                    <div class="hasErrors" v-html="compilation.compilerErrors"></div>
-                    <br />
-                    <div v-html="compilation.compilerResult"></div>
-                </div>
+        <div class="Compilation">
+            <div class="c-link-btn">
+                <a href="javascript:" v-on:click="SwapOutputWindow"><span class="fa fa-microchip"></span> Output</a>
             </div>
-        </div>
-    </div>
-        
-    <div class="Breakpoints" v-if="processor.isShowDebugger">
-        <div class="c-link-btn">
-            <a href="javascript:" v-on:click="breakpoints.isVisible = !breakpoints.isVisible"><span class="fa fa-circle"></span> Breakpoints</a>
-        </div>
-        <div class="OutputWindow" v-if="breakpoints.isVisible">
-            <a href="javascript:" v-on:click="breakpoints.isVisible = !breakpoints.isVisible" class="close-btn">X</a>
-            <div>
-                <div class="add-breakpoint">
-                    <span v-if="!breakpoints.isAddingBreakpointAddress">
-                        <a v-on:click="breakpoints.swapAddBreakPoint(true)">Add breakpoint</a>
-                    </span>
-                    <span v-if="breakpoints.isAddingBreakpointAddress">
-                        0x <input type="text" v-model="breakpoints.newBreakpointAddress" v-on:keyup.enter="breakpoints.addBreakPoint()"/>
-                        <a v-on:click="breakpoints.swapAddBreakPoint(false)">X</a>
-                    </span>
-                </div>
-                <h3 v-on:click="breakpoints.isVisible = !breakpoints.isVisible">Breakpoints</h3>
-                <div class="list">
-                    <div v-for="breakpoint in breakpoints.list" class="breakpoint-ln">
-                        <span class="enable-state" v-on:click="DbgBreakpointSwapState(breakpoint)">
-                            <span class="fa fa-square-o fa-fw" v-if="!breakpoint.IsEnabled"></span>
-                            <span class="fa fa-check-square-o fa-fw" v-if="breakpoint.IsEnabled"></span>
-                        </span>
-                        <span class="ln-add" v-on:click="EditorScrollToLine(breakpoint.Line)">0x{{breakpoint.AddressHex}}</span>
-                        <span v-on:click="DbgBreakpointSetByAddress(breakpoint.AddressHex,false)">
-                            <span class="fa fa-circle"></span>
-                        </span>
-                        <span class="ln-add" v-on:click="EditorScrollToLine(breakpoint.Line)">{{breakpoint.LineNumber}}</span>
-                        <span class="sc-line" v-if="breakpoint.Line != null" v-html="breakpoint.LineText"></span>
+            <div class="OutputWindow" v-if="compilation.isVisible">
+                <a href="javascript:" v-on:click="SwapOutputWindow" class="close-btn">X</a>
+                <div>
+                    <h3 v-on:click="SwapOutputWindow">Output</h3>
+                    <div class="CompilationResult">
+                        <div class="hasErrors" v-html="compilation.compilerErrors"></div>
+                        <br />
+                        <div v-html="compilation.compilerResult"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="serverVersionFooter">
-        <a v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span> V{{ide.currentVersion}}</a>
-    </div>
-     
-
-    <div class="fullPageInfo" id="fullPageInfo" style="display:none;">
-        <div class="nav-btns">
-            <a id="fullPageInfoBtnClose" class="close-btn" v-on:click="avatar.fullPageInfo.close()">X</a>
+        <div class="Breakpoints" v-if="processor.isShowDebugger">
+            <div class="c-link-btn">
+                <a href="javascript:" v-on:click="breakpoints.isVisible = !breakpoints.isVisible"><span class="fa fa-circle"></span> Breakpoints</a>
+            </div>
+            <div class="OutputWindow" v-if="breakpoints.isVisible">
+                <a href="javascript:" v-on:click="breakpoints.isVisible = !breakpoints.isVisible" class="close-btn">X</a>
+                <div>
+                    <div class="add-breakpoint">
+                        <span v-if="!breakpoints.isAddingBreakpointAddress">
+                            <a v-on:click="breakpoints.swapAddBreakPoint(true)">Add breakpoint</a>
+                        </span>
+                        <span v-if="breakpoints.isAddingBreakpointAddress">
+                            0x <input type="text" v-model="breakpoints.newBreakpointAddress" v-on:keyup.enter="breakpoints.addBreakPoint()" />
+                            <a v-on:click="breakpoints.swapAddBreakPoint(false)">X</a>
+                        </span>
+                    </div>
+                    <h3 v-on:click="breakpoints.isVisible = !breakpoints.isVisible">Breakpoints</h3>
+                    <div class="list">
+                        <div v-for="breakpoint in breakpoints.list" class="breakpoint-ln">
+                            <span class="enable-state" v-on:click="DbgBreakpointSwapState(breakpoint)">
+                                <span class="fa fa-square-o fa-fw" v-if="!breakpoint.IsEnabled"></span>
+                                <span class="fa fa-check-square-o fa-fw" v-if="breakpoint.IsEnabled"></span>
+                            </span>
+                            <span class="ln-add" v-on:click="EditorScrollToLine(breakpoint.Line)">0x{{breakpoint.AddressHex}}</span>
+                            <span v-on:click="DbgBreakpointSetByAddress(breakpoint.AddressHex,false)">
+                                <span class="fa fa-circle"></span>
+                            </span>
+                            <span class="ln-add" v-on:click="EditorScrollToLine(breakpoint.Line)">{{breakpoint.LineNumber}}</span>
+                            <span class="sc-line" v-if="breakpoint.Line != null" v-html="breakpoint.LineText"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h1 id="fullPageInfoTitle"></h1>
-        <div id="fullPageInfoContent"></div>
-    </div>
 
+        <div class="serverVersionFooter">
+            <a v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span> V{{ide.currentVersion}}</a>
+        </div>
+
+
+        <div class="fullPageInfo" id="fullPageInfo" style="display:none;">
+            <div class="nav-btns">
+                <a id="fullPageInfoBtnClose" class="close-btn" v-on:click="avatar.fullPageInfo.close()">X</a>
+            </div>
+            <h1 id="fullPageInfoTitle"></h1>
+            <div id="fullPageInfoContent"></div>
+        </div>
+    </div>
     <div class="footerbar">
         <span class="mouseInfo" id="mouseInfo"> </span>
     </div>
+   
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HTQ9YEL51"></script>
     <script>
