@@ -23,7 +23,7 @@ namespace AsmFun.CommanderX16.Computer
             return new List<DebuggerBreakpoint>();
         }
 
-        public override bool SetBreakpoint(int index, int address, bool state)
+        public override bool SetBreakpoint(int index, int address, bool state, bool isEnabled)
         {
             return false;
         }

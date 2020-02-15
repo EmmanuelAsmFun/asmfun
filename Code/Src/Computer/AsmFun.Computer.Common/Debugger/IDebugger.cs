@@ -14,7 +14,7 @@ namespace AsmFun.Computer.Common.Debugger
         void NextStep(bool onlyMyCode);
         void StepOver(bool onlyMyCode);
         bool Run();
-        bool SetBreakpoint(int index, int address, bool state);
+        bool SetBreakpoint(int index, int address, bool state, bool isEnabled);
         List<DebuggerBreakpoint> GetBreakPoints();
         void ParseSourceCodeAddresses(List<ushort> addresses);
 		void BreakFromProgram(ushort address);

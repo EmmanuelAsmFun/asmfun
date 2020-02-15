@@ -40,7 +40,7 @@ namespace AsmFun.Computer.Core.Debugger
         }
 
         public abstract bool DoBreak(ushort programCounter);
-        public abstract bool SetBreakpoint(int index, int address, bool state);
+        public abstract bool SetBreakpoint(int index, int address, bool state, bool isEnabled);
         public abstract List<DebuggerBreakpoint> GetBreakPoints();
 		public void BreakFromProgram(ushort address)
         {
