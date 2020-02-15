@@ -10,7 +10,7 @@ import { ICommandManager } from "../ICommandManager.js";
 import { IEventManager } from "../IAsmFunEventManager.js";
 import { IControlManager } from "../IControlManager.js";
 import { IPopupManager } from "./IPopupData.js";
-import { IInstructionItemData } from "../../features/processor/data/processordata.js";
+import { IInstructionItemData } from "../../features/processor/data/ProcessorData.js";
 import { IEditorLine, IEditorBundle } from "../../features/editor/data/EditorData.js";
 
 

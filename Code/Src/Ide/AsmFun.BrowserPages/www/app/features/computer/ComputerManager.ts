@@ -15,7 +15,7 @@ import { IComputerManagerData } from "./data/ComputerData.js";
 import { IProjectSettings } from "../project/data/ProjectData.js";
 import { ProjectSettingsLoaded } from "../project/commands/ProjectsCommands.js";
 import { NotifyIcon } from "../../common/Enums.js";
-import { IProcessorData } from "../processor/data/processordata.js";
+import { IProcessorData } from "../processor/data/ProcessorData.js";
 import { EditorEnableCommand } from "../editor/commands/EditorCommands.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameComputer } from "./ComputerFactory.js";

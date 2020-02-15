@@ -10,7 +10,7 @@ import { ProcessorManager } from "./ProcessorManager.js";
 import { IServiceResolverFactory } from "../../framework/serviceLoc/IServiceResolver.js";
 import { IMainData } from "../../framework/data/MainData.js";
 import { ServiceLifestyle } from "../../framework/serviceLoc/ServiceName.js";
-import { NewProcessorManagerData } from "./data/processordata.js";
+import { NewProcessorManagerData } from "./data/ProcessorData.js";
 import { DebuggerService } from "./services/DebuggerService.js";
 import { BreakPointsManager } from "./BreakPointsManager.js";
 import { NewBreakPointsManagerData, UIDataNameBreakPoints } from "./data/BreakPointsData.js";

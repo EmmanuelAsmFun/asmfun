@@ -1,4 +1,4 @@
-﻿import { IProcessorData } from "../../processor/data/processordata.js";
+﻿import { IProcessorData } from "../../processor/data/ProcessorData.js";
 
 // #region license
 // ASM Fun
