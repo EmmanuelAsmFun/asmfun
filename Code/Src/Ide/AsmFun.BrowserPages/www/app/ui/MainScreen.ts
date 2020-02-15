@@ -7,16 +7,15 @@
 import Vue from "../../lib/vue.esm.browser.min.js"
 import { AsmTools } from "../Tools.js"
 import { ServiceRegisterer } from "../ServiceRegisterer.js";
-import { KeyboardKeyCommand, EditorCodeAssistCommand, EditorPasteCommand } from "../data/commands/EditorCommands.js";
-import { ProjectSaveCommand } from "../data/commands/ProjectsCommands.js";
-import { MainScreenMethods } from "./MainScreenMethods.js";
+import { KeyboardKeyCommand, EditorCodeAssistCommand, EditorPasteCommand } from "../features/editor/commands/EditorCommands.js";
+import { ProjectSaveCommand } from "../features/project/commands/ProjectsCommands.js";
 import { myEditableFieldInit } from "./EditableField.js";
-import { IKeyboardKey } from "../data/ComputerData.js";
-import { ASMFunPlayerManager } from "../core/ASMFunPlayerManager.js";
-import { ComputerManager } from "../core/ComputerManager.js";
-import { ProjectManager } from "../core/ProjectManager.js";
-import { EditorManager } from "../core/EditorManager.js";
-import { VideoManager } from "../core/VideoManager.js";
+import { IKeyboardKey } from "../features/computer/data/ComputerData.js";
+import { ASMFunPlayerManager } from "../features/player/ASMFunPlayerManager.js";
+import { EditorManager } from "../features/editor/EditorManager.js";
+import { VideoManager } from "../features/video/VideoManager.js";
+import { MemoryItemHoverCommand } from "../features/memory/commands/MemoryCommands.js";
+import { MemoryEdit } from "../features/memory/MemoryMethods.js";
 
 // Initialize base objects
 var reg = new ServiceRegisterer();
@@ -53,7 +52,7 @@ reg.Init();
 // Program start
 reg.myMainData.container.Resolve<ASMFunPlayerManager>(ASMFunPlayerManager.ServiceName)?.Launch();
 
-
+reg.Start();
 
 
 
@@ -126,38 +125,40 @@ var scStartPosY = 0;
     }, 50);
 };
 
-(<any>window).MemoryItemHover = function (index: number, address: number, value: number) { if (MainScreenMethods != null && MainScreenMethods.S != null)
-        MainScreenMethods.S.MemoryItemHover(index, address, value);};
-(<any>window).MemoryEdit = function (address: number, el?: HTMLElement) { if (MainScreenMethods != null && MainScreenMethods.S != null) 
-    MainScreenMethods.S.MemoryEdit(address,el); };
+(<any>window).MemoryItemHover = function (index: number, address: number, value: number) {
+    if (myMainData != null)
+        myMainData.commandManager.InvokeCommand(new MemoryItemHoverCommand(index, address, value));
+};
+(<any>window).MemoryEdit = function (address: number, el?: HTMLElement) {
+    if (myMainData != null) 
+        myMainData.commandManager.InvokeCommand(new MemoryEdit(address, el));
+};
 
 
 
 document.onkeyup = function (e) {
     myMainData.ctrlKeyIsDown = e.ctrlKey;
-    if (myMainData.appData.videoManager.isVisible) {
-        var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
-        if (svc == null) return;
-        var keyy: IKeyboardKey = {
-            key: e.key, which: e.which, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey
-        }
-        return svc.KeyUp(keyy);
+    var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
+    if (svc == null || !svc.data.isVisible) return;
+    var keyy: IKeyboardKey = {
+        key: e.key, which: e.which, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey
     }
+    return svc.KeyUp(keyy);
 }
 document.onkeydown = function (e) {
     // z = 90       e = 69      r = 82      t = 84      d = 68  b = 66
     // e.altKey e.ctrlKey
-    // console.log(e.which);
-    if (myMainData.appData.videoManager.isVisible) {
+     console.log(e.which);
+    
         var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
-        if (svc == null) return;
+    if (svc != null && svc.data.isVisible) {
         var keyy: IKeyboardKey = {
             key: e.key, which: e.which, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey
         }
         return svc.KeyDown(keyy);
     }
-    var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
-    if (!editorManager?.GetIsEnabled()) return;
+    // var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
+    //if (!editorManager?.GetIsEnabled()) return;
 
     var handled = false;
     myMainData.ctrlKeyIsDown = e.ctrlKey;

@@ -5,7 +5,7 @@
 // #endregion
 
 import { Action2 } from '../common/System.js'
-import { IAsmFunBaseEvent, IAsmFunEventType } from '../data/EventsCommon.js';
+import { IAsmFunBaseEvent, IAsmFunEventType } from './data/EventsCommon.js';
 
 export interface IEventManager {
     /** Subscribes to a event. Pass an empty event as the first parameter with the namespace and eventname filled. */

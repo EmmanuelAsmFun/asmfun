@@ -69,11 +69,11 @@ namespace AsmFun.Ide.Core.Managers
             comp.Reset();
             return comp.GetProcessorData();
         }
-        public bool SetBreakpoint(int index, int address, bool state)
+        public bool SetBreakpoint(int index, int address, bool state, bool isEnabled)
         {
             var debg = computerManager.GetComputer()?.GetDebugger();
             if (debg == null) return false;
-            return debg.SetBreakpoint(index,address,state);
+            return debg.SetBreakpoint(index,address,state, isEnabled);
         }
         public List<DebuggerBreakpoint> GetBreakPoints()
         {

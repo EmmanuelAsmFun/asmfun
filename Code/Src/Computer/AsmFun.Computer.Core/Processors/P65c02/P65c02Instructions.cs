@@ -223,7 +223,7 @@ namespace AsmFun.Computer.Core.Processors.P65c02
         /// </summary>
         public virtual void Dbg()
         {
-
+            processor.BreakFromProgram();
         }
 
         public override void Brk()

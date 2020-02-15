@@ -7,7 +7,7 @@
 import { IAlertMessages, AlertMessageErrorData } from "../common/IAlertMessages.js";
 import { Action } from "../common/System.js";
 import { LiteEvent } from "../common/LiteEvent.js";
-import { ICommonPageViewModel } from "../serviceLoc/ICommonPageViewModel.js";
+import { ICommonPageViewModel } from "../framework/serviceLoc/ICommonPageViewModel.js";
 import { NotifyIconName, NotifyIcon, ErrorIcon, ConfirmIconName, ConfirmIcon, ErrorIconName, ErrorCode } from "../common/Enums.js";
 
    

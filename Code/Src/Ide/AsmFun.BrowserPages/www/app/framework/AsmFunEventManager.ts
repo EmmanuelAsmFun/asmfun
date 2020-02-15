@@ -6,8 +6,8 @@
 
 import { Action2, Dictionary } from '../common/System.js'
 import { IAsmFunEventEvent, IAsmFunEventSubscription, IEventManager } from './IAsmFunEventManager.js'
-import { IAsmFunBaseEvent,  IAsmFunEventType } from '../data/EventsCommon.js';
-import { ServiceName } from '../serviceLoc/ServiceName.js';
+import { IAsmFunBaseEvent,  IAsmFunEventType } from './data/EventsCommon.js';
+import { ServiceName } from './serviceLoc/ServiceName.js';
 
 /** Meditor item used internaly only. */
 class EventItem {

@@ -5,7 +5,7 @@
 // #endregion
 
 import { Action2 } from '../common/System.js'
-import { IBaseCommand, ICommandType } from '../data/commands/CommandsCommon.js';
+import { IBaseCommand, ICommandType } from './commands/CommandsCommon.js';
 
 export interface ICommandManager {
     /** Subscribes to a command. Pass an empty command as the first parameter with the namespace and commandname filled. */

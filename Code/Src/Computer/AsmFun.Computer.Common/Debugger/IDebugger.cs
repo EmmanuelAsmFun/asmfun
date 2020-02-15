@@ -17,5 +17,6 @@ namespace AsmFun.Computer.Common.Debugger
         bool SetBreakpoint(int index, int address, bool state);
         List<DebuggerBreakpoint> GetBreakPoints();
         void ParseSourceCodeAddresses(List<ushort> addresses);
+		void BreakFromProgram(ushort address);
     }
 }

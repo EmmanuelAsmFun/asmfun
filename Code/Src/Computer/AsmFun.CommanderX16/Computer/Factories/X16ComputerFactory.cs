@@ -55,6 +55,7 @@ namespace AsmFun.CommanderX16.Computer.Factories
                 );
             
 
+            ((X16Processor)Resolve<IProcessor>()).Init(Resolve<IDebugger>());
             ((X16DisplayComposer)Resolve<IDisplayComposer>()).Init(Resolve<IVideoPainter>());
             ((X16VideoRamAccess)Resolve<IVideoRamAccess>()).Init(Resolve<IX16VideoMapTileAccess>());
             ((X16ComputerAccess)Resolve<IComputerAccess>()).Init(

@@ -20,7 +20,7 @@ namespace AsmFun.Computer.Common.Managers
         ProcessorDataModel StepOver(bool onlyMyCode);
         bool Run();
         ProcessorDataModel ResetPc();
-        bool SetBreakpoint(int index, int address, bool state);
+        bool SetBreakpoint(int index, int address, bool state, bool isEnabled);
         List<DebuggerBreakpoint> GetBreakPoints();
         DissasemblyRange GetDisassembly(int start = 0, int length = 256, int bank = 0);
         SourceCodeLabel ChangeLabelValue(string name, int newValue);

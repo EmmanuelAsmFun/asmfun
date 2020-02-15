@@ -345,7 +345,10 @@ namespace AsmFun.Startup
             {
                 if (isDisposed) return;
                 var sprInfo = spriteAccess.GetSpriteInfo(sprIndex);
-                if (sprInfo == null || sprInfo.ZDepth == 0) return;
+                if (sprInfo == null || sprInfo.ZDepth == 0)
+                {
+                    continue;
+                }
                 var w = (int)(sprInfo.Width * displayComposer.HScale);
                 var h = (int)(sprInfo.Height * displayComposer.VScale);
                 var x = (int)(sprInfo.X * displayComposer.HScale) + displayComposer.HStart;

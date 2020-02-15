@@ -308,14 +308,19 @@ namespace AsmFun.WPF
             for (int sprIndex = 0; sprIndex < sprites.Count; sprIndex++)
             {
                 var sprInfo = spriteAccess.GetSpriteInfo(sprIndex);
-                if (sprInfo == null || sprInfo.ZDepth == 0) return;
+                var sprite = sprites[sprIndex];
+                if (sprInfo == null || sprInfo.ZDepth == 0)
+                {
+                    if (sprite != null)
+                        sprite.Visibility = Visibility.Hidden;
+                    continue;
+                }
                 var sRect = new Int32Rect(0, 0, sprInfo.Width, sprInfo.Height);
                 var data = spriteAccess.ReadSpriteColIndexData(sprIndex);
                 var w = (int)(sprInfo.Width * displayComposer.HScale);
                 var h = (int)(sprInfo.Height * displayComposer.VScale);
                 var wbitmap = new WriteableBitmap(sprInfo.Width, sprInfo.Height, 96, 96, PixelFormats.Indexed8, palette1);
                 wbitmap.WritePixels(sRect, data, sprInfo.Width, 0);
-                var sprite = sprites[sprIndex];
                 if (sprites[sprIndex] == null)
                 {
                     sprite = new Image();

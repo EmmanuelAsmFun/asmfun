@@ -5,7 +5,6 @@
 #endregion
 
 using AsmFun.Computer.Common.Computer;
-using AsmFun.Computer.Common.Data.Computer;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Computer.Core.Processors.P6502;
 using AsmFun.Computer.Core.Processors.P65c02;

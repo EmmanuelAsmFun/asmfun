@@ -6,8 +6,8 @@
 
 import { Action2, Dictionary } from '../common/System.js'
 import { ICommandEvent, ICommandSubscription, ICommandManager } from './ICommandManager.js'
-import { IBaseCommand, BaseCommand, ICommandType } from '../data/commands/CommandsCommon.js';
-import { ServiceName } from '../serviceLoc/ServiceName.js';
+import { IBaseCommand, BaseCommand, ICommandType } from './commands/CommandsCommon.js';
+import { ServiceName } from './serviceLoc/ServiceName.js';
 
 /** Meditor item used internaly only. */
 class CommandItem {

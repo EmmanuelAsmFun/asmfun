@@ -4,5 +4,28 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="www\out\**" />
+    <EmbeddedResource Remove="www\out\**" />
+    <None Remove="www\out\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="www\app\features\avatar\commands\" />
+    <Folder Include="www\app\features\palette\commands\" />
+    <Folder Include="www\app\features\processor\commands\" />
+    <Folder Include="www\app\features\processor\services\" />
+    <Folder Include="www\app\features\settings\data\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="www\app\features\fileManager\FileManagerFactory.ts">
+      <SubType>Code</SubType>
+    </None>
+    <None Update="www\app\features\fileManager\FileManagerMethods.ts">
+      <SubType>Code</SubType>
+    </None>
+  </ItemGroup>
+
   
 </Project>

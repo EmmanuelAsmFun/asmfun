@@ -10,7 +10,6 @@ using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Ide.Common.Data.Dissasembly;
-using AsmFun.Ide.Common.Data.Programm;
 using AsmFun.Ide.Common.Managers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -53,10 +52,10 @@ namespace AsmFun.WebServer.Controllers
             return data;
         }
         [HttpGet]
-        public bool SetBreakpoint(int index, int address, bool state)
+        public object SetBreakpoint(int index, int address, bool state, bool isEnabled)
         {
-            var data = debugger.SetBreakpoint(index, address, state);
-            return data;
+            var data = debugger.SetBreakpoint(index, address, state, isEnabled);
+            return new { isValid = data };
         }
         [HttpGet]
         public List<DebuggerBreakpoint> GetBreakPoints()

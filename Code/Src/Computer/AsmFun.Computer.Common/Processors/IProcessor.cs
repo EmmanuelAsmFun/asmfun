@@ -42,5 +42,6 @@ namespace AsmFun.Common.Processors
 
         ushort GetValue();
         bool IsOnReadyAddress();
+        void BreakFromProgram();
     }
 }

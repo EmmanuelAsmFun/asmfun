@@ -3,6 +3,7 @@
 using AsmFun.Common.Processors;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Data.Computer;
+using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.Processors;
 using System.Linq;
 
@@ -19,16 +20,22 @@ namespace AsmFun.Computer.Core.Processors.P6502
         protected TModes modes;
         protected TInstructions instructions;
         protected InstructionDB<TInstructions, TModes> instructionDB;
-
+        private IDebugger debugger;
 
         public Processor6502(ProcessorData processorData, TModes modes, TInstructions instructions, IComputerMemoryAccess computerMemory,
             InstructionDB<TInstructions, TModes> instructionsdb)
         {
             instructionDB = instructionsdb;
+            
             this.modes = modes;
             this.computerMemory = computerMemory;
             this.instructions = instructions;
             pData = processorData;
+        }
+
+        public void Init(IDebugger debugger)
+        {
+            this.debugger = debugger;
         }
 
 
@@ -272,6 +279,11 @@ namespace AsmFun.Computer.Core.Processors.P6502
             //return ok;
             var nok = pData.ProgramCounter != 0xffcf || !IsKernal();
             return nok;
+        }
+
+        public void BreakFromProgram()
+        {
+            debugger.BreakFromProgram(pData.ProgramCounter);
         }
     }
 }

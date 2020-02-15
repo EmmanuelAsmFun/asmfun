@@ -3,16 +3,13 @@
 
 .videoManager {
     position: fixed;
-    top: 50px;
-    left: 20px;
-    right: 50px;
-    bottom: 50px;
+    top: 30px;
+    left: 0px;
+    right: 0px;
+    bottom: 21px;
     z-index: 200;
     background: black;
-    border: 1px solid #bebe95;
-    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+
 
     h3 {
         color: #c4c480;
@@ -54,6 +51,7 @@
         font-weight: 100;
         font-size: 22px;
         margin-top: 0;
+        margin-bottom: 0;
     }
 
 
@@ -67,6 +65,15 @@
         padding: 20px;
         overflow-x: auto;
         overflow-y: auto;
+    }
+
+    .video-block {
+        float: left;
+        padding-right: 10px;
+        margin-left: 10px;
+        font-size: 10px;
+        border-right: 1px solid #222222;
+        min-height: 600px;
     }
 
     .nav-btns {
@@ -95,9 +102,7 @@
 
 
     .palette {
-        float: left;
-        margin-right: 20px;
-        font-size: 10px;
+
 
         .table-cont {
             min-height: 170px;
@@ -146,13 +151,9 @@
 
     .layers {
         float: left;
-        margin-right: 10px;
-        font-size: 10px;
         min-height: 400px;
 
         .layerInfo {
-            float: left;
-            margin-right: 20px;
         }
 
         .Canvas-cont {
@@ -193,9 +194,6 @@
     }
 
     .Sprites {
-        float: left;
-        margin-right: 10px;
-        font-size: 10px;
         width: @media-column-width;
 
 
@@ -209,18 +207,21 @@
     }
 
     .Composer {
-        float: left;
-        margin-right: 10px;
-        font-size: 10px;
     }
 
     .VideoViewer {
         float: left;
-        margin-right: 20px;
-        font-size: 10px;
+        position:relative;
 
         .vAddress {
             margin-bottom: 10px;
+        }
+
+        .btn-hide-Ram{
+            position:absolute;
+            right:20px;
+            font-size:22px;
+
         }
     }
 
@@ -275,14 +276,6 @@
 
     @media only screen and (max-width: 1660px) {
         .videoManager {
-            .palette {
-                .paletteColors {
-                    float: left;
-                }
-
-                .table-cont {
-                    float: left;
-                }
-            }
+            
         }
     }
