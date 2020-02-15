@@ -1021,6 +1021,17 @@ body {
   position: absolute;
   top: 48px;
   left: 10px;
+  padding-top: 5px;
+  font-size: 10px;
+}
+.MemoryInfo .debug-data {
+  position: absolute;
+  top: 28px;
+  right: 5px;
+  font-size: 10px;
+}
+.MemoryInfo .debug-data a {
+  cursor: pointer;
 }
 .MemoryInfo .Accumulator,
 .MemoryInfo .RegisterX,
@@ -2283,7 +2294,7 @@ button.btn {
 .stack .title {
   margin-bottom: 8px;
 }
-.stack .stackOpcode {
+.stack .isActifOpcode {
   color: #f0f167;
   -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
   -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;

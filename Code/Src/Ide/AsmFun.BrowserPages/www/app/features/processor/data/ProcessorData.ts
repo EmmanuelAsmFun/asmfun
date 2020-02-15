@@ -38,10 +38,11 @@ export interface IProcessorData {
     /// status, p
     /// 8 bit
     /// </summary>
-    statusRegister: number;
+    status: number;
 
     isComputerRunning: boolean;
 }
+
 
 
 export interface IProcessorExtraData {
@@ -107,7 +108,7 @@ export var NewProcessorData: IProcessorData = {
     registerX: 0,
     registerY: 0,
     stackPointer: 0,
-    statusRegister: 0,
+    status: 0,
     isComputerRunning: false,
 }
 export var NewStackData: IStackData = {
@@ -132,16 +133,38 @@ export var NewProgramData: IProgramData = {
 }
 
 export interface IProcessorManagerData {
+    debugOnlyMyCode: boolean;
+    stackPointerAddress: number;
     stack?: IStackData;
     data6502?: IProcessorData;
     dissasembly?: IProgramData;
     brain?: IProcessorExtraData;
     isShowDebugger: boolean;
+    isCarry: boolean;
+    isZero: boolean;
+    isInterrupt: boolean;
+    isDecimal: boolean;
+    isBreak: boolean;
+    isConstant: boolean;
+    isOverflow: boolean;
+    isSign: boolean;
+    isBaseStack: boolean;
 }
 export var NewProcessorManagerData: IProcessorManagerData = {
+    debugOnlyMyCode: true,
+    stackPointerAddress: 0,
     data6502: NewProcessorData,
     stack: NewStackData,
     dissasembly: NewProgramData,
     brain: NewProcessorExtraData,
     isShowDebugger: false,
+    isCarry: false,
+    isZero: false,
+    isInterrupt: false,
+    isDecimal: false,
+    isBreak: false,
+    isConstant: false,
+    isOverflow: false,
+    isSign: false,
+    isBaseStack: false,
 };

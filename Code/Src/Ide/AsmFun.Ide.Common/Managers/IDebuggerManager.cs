@@ -28,5 +28,6 @@ namespace AsmFun.Computer.Common.Managers
         MemoryBlock GetMemory(int startAddress, int count);
         void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
         void WriteMemoryBlock(int startAddress, byte[] data, int count);
+        bool Break();
     }
 }

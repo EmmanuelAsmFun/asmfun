@@ -162,7 +162,7 @@ export class BreakPointsManager {
         this.SetBreakpoint(uiBreakPoint, true);
     }
 
-    private SetByAddress(breakpointAddress: string | null, state: boolean): void {
+    public SetByAddress(breakpointAddress: string | null, state: boolean): void {
         if (breakpointAddress == null) return;
         var address = parseInt(breakpointAddress, 16);
         var uiBreakPoint: IBreakpointUIData = this.CreateUiBreakpoint(address, breakpointAddress, this.data.list.length);

@@ -40,6 +40,20 @@ export class ProcessorDebuggerRunCommand extends BaseCommand {
         this.nameSpace = "Processor";
     }
 }
+export class ProcessorDbgBreakCommand extends BaseCommand {
+    public constructor() {
+        super();
+        this.commandName = "DebuggerBreak";
+        this.nameSpace = "Processor";
+    }
+}
+export class ProcessorDbgSwapOnlyMyCodeCommand extends BaseCommand {
+    public constructor() {
+        super();
+        this.commandName = "DebuggerSwapOnlyMyCode";
+        this.nameSpace = "Processor";
+    }
+}
 export class ProcessorReloadValuesCommand extends BaseCommand {
     public constructor() {
         super();

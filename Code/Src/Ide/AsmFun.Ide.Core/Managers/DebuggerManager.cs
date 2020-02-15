@@ -61,6 +61,15 @@ namespace AsmFun.Ide.Core.Managers
             var debg = computerManager.GetComputer()?.GetDebugger();
             if (debg == null) return false;
             return debg.Run();
+        }   
+        public bool Break()
+        {
+            var comp = computerManager.GetComputer();
+            if (comp == null) return false;
+            var debg = comp.GetDebugger();
+            if (debg == null) return false;
+            debg.BreakFromProgram((ushort)comp.GetProcessorData().ProgramCounter);
+            return true;
         }
         public ProcessorDataModel ResetPc()
         {

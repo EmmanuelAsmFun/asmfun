@@ -27,21 +27,26 @@ export class DebuggerService extends ApiService {
         this.callApi("GetDisassembly?start=" + start + "&length=" + length, doneMethod);
     }
 
-    public NextStep(doneMethod) {
-        this.callApi("NextStep", doneMethod);
+    public NextStep(onlyMyCode: boolean, doneMethod) {
+        this.callApi("NextStep?onlyMyCode=" + onlyMyCode, doneMethod);
     }
 
-    public ChangeLabelValue(name:string,newValue:number,doneMethod) {
-        this.callApi("ChangeLabelValue?name=" + encodeURI(name)+"&newValue=" + newValue, doneMethod);
-    }
-
-    public StepOver(doneMethod) {
-        this.callApi("StepOver", doneMethod);
+    
+    public StepOver(onlyMyCode: boolean, doneMethod) {
+        this.callApi("StepOver?onlyMyCode=" + onlyMyCode, doneMethod);
     }
 
     public Run(doneMethod) {
         this.callApi("Run", doneMethod);
     }
+    public Break(doneMethod) {
+        this.callApi("Break", doneMethod);
+    }
+
+    public ChangeLabelValue(name: string, newValue: number, doneMethod) {
+        this.callApi("ChangeLabelValue?name=" + encodeURI(name) + "&newValue=" + newValue, doneMethod);
+    }
+
 
     public SetBreakpoint(index: number,address: number, state: boolean, isEnabled:boolean, doneMethod) {
         this.callApi("SetBreakpoint?index=" + index + "&address=" + address + "&state=" + state + "&isEnabled=" + isEnabled, () => {

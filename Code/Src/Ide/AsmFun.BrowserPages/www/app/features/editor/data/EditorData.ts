@@ -380,6 +380,7 @@ export interface IEditorManagerData {
     selectedFile?: IEditorFile;
 }
 export var NewEditorManagerData: IEditorManagerData = {
+    
     scfiles: [],
     labels: [],
     variables: [],

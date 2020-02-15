@@ -44,6 +44,12 @@ namespace AsmFun.WebServer.Controllers
         {
             var data = debugger.Run();
             return new { isValid= data};
+        } 
+        [HttpGet]
+        public object Break()
+        {
+            var data = debugger.Break();
+            return new { isValid= data};
         }
         [HttpGet]
         public ProcessorDataModel ResetPc()

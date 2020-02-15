@@ -7,7 +7,9 @@
 import {
     ProcessorOpenDebuggerCommand, ProcessorNextStepCommand, ProcessorStepOverCommand, ProcessorDebuggerRunCommand, ProcessorReloadValuesCommand,
     ProcessorDebuggerSetBreakpointCommand,
-    ProcessorBreakPointsChanged
+    ProcessorBreakPointsChanged,
+    ProcessorDbgSwapOnlyMyCodeCommand,
+    ProcessorDbgBreakCommand
 } from "./commands/ProcessorCommands.js";
 import { IProcessorData, IStackData, IStackItemData, IProcessorManagerData } from "./data/ProcessorData.js";
 import { ComputerService } from "../computer/services/ComputerService.js";
@@ -25,6 +27,18 @@ import { UIDataNameProcessor } from "./ProcessorFactory.js";
 import { UIDataNameEditor } from "../editor/EditorFactory.js";
 import { BreakPointsManager } from "./BreakPointsManager.js";
 
+
+class P6502Flags {
+    public static FLAG_CARRY: number = 0x01;
+    public static FLAG_ZERO: number = 0x02;
+    public static FLAG_INTERRUPT: number = 0x04;
+    public static FLAG_DECIMAL: number = 0x08;
+    public static FLAG_BREAK: number = 0x10;
+    public static FLAG_CONSTANT: number = 0x20;
+    public static FLAG_OVERFLOW: number = 0x40;
+    public static FLAG_SIGN: number = 0x80;
+    public static BASE_STACK: number = 0x100;
+}
 
 export class ProcessorManager {
    
@@ -51,6 +65,8 @@ export class ProcessorManager {
         this.mainData.commandManager.Subscribe2(new ProcessorNextStepCommand(), this, () => this.NextStep());
         this.mainData.commandManager.Subscribe2(new ProcessorStepOverCommand(), this, () => this.StepOver());
         this.mainData.commandManager.Subscribe2(new ProcessorDebuggerRunCommand(), this, () => this.Run());
+        this.mainData.commandManager.Subscribe2(new ProcessorDbgBreakCommand(), this, () => this.DbgBreak());
+        this.mainData.commandManager.Subscribe2(new ProcessorDbgSwapOnlyMyCodeCommand(), this, () => this.DbgSwapOnlyMyCode());
         this.mainData.commandManager.Subscribe2(new ProcessorReloadValuesCommand(), this, () => this.LoadLabelValues());
         this.mainData.commandManager.Subscribe2(new ProcessorDebuggerSetBreakpointCommand(null, null), this, (c) => this.SetBreakpointCurrentLine(c.file, c.line));
         // Subscribe to events
@@ -105,19 +121,31 @@ export class ProcessorManager {
             };
             if (thiss.data.stack.datas == undefined) return;
             var newDatas = r.datas;
+            var numberOzeros = 0;
             var addBlock = false;
             // remove repeating zeros
             for (var i = 0; i < newDatas.length; i++) {
                 var item = newDatas[i];
-                if (item.data1 != 0) {
+                if (item.data1 == 0)
+                    numberOzeros++;
+                else {
+                    numberOzeros = 0;
                     addBlock = true;
                 }
+                
                 blocks.push(item);
-                if (i % 8) {
-                    if (addBlock) {
-                        for (var j = 0; j < blocks.length; j++) {
-                            thiss.data.stack.datas.push(blocks[j]);
-                        }
+                if (numberOzeros == 8) {
+                    addBlock = false;
+                    numberOzeros = 0;
+                    blocks = [];
+                    blocks.push({
+                        address: 0,
+                        data1: 0,
+                    });
+                }
+                if (addBlock) {
+                    for (var j = 0; j < blocks.length; j++) {
+                        thiss.data.stack.datas.push(blocks[j]);
                     }
                     blocks = [];
                     addBlock = false;
@@ -136,6 +164,18 @@ export class ProcessorManager {
     public parseData6502(data: IProcessorData | null) {
         if (data == null) return;
         this.data.data6502 = data;
+        this.data.isCarry = (data.status & P6502Flags.FLAG_CARRY) == P6502Flags.FLAG_CARRY;
+        this.data.isZero = (data.status & P6502Flags.FLAG_ZERO) == P6502Flags.FLAG_ZERO;
+        this.data.isInterrupt = (data.status & P6502Flags.FLAG_INTERRUPT) == P6502Flags.FLAG_INTERRUPT;
+        this.data.isDecimal = (data.status & P6502Flags.FLAG_DECIMAL) == P6502Flags.FLAG_DECIMAL;
+        this.data.isBreak = (data.status & P6502Flags.FLAG_BREAK) == P6502Flags.FLAG_BREAK;
+        this.data.isConstant = (data.status & P6502Flags.FLAG_CONSTANT) == P6502Flags.FLAG_CONSTANT;
+        this.data.isOverflow = (data.status & P6502Flags.FLAG_OVERFLOW) == P6502Flags.FLAG_OVERFLOW;
+        this.data.isSign = (data.status & P6502Flags.FLAG_SIGN) == P6502Flags.FLAG_SIGN;
+        this.data.isBaseStack = (data.status & P6502Flags.BASE_STACK) == P6502Flags.BASE_STACK;
+        if (data.stackPointer != null)
+            this.data.stackPointerAddress = data.stackPointer +256;
+
         if (this.data.dissasembly != null && this.data.dissasembly.datas != null) {
             var found = this.data.dissasembly.datas.find(x => x.address == data.programCounter);
             if (found != null) {
@@ -165,12 +205,15 @@ export class ProcessorManager {
                         foundL.selected = true;
                         this.mainData.previousSelectedLine = foundL;
                         this.currentLine = this.mainData.previousSelectedLine;
-                        
+                        if (this.currentLine != null)
+                            this.editorData.currentOpcode = this.currentLine.opcode != null && this.currentLine.opcode !== undefined ?
+                                                               this.currentLine.opcode : { asmFunCode: '', code: '' };
                     }
                     break;
                 }
             }
         }
+       
     }
 
     public LoadLabelValues() {
@@ -261,7 +304,7 @@ export class ProcessorManager {
 
     public NextStep() {
         var thiss = this;
-        this.debuggerService.NextStep((r0) => {
+        this.debuggerService.NextStep(this.data.debugOnlyMyCode, (r0) => {
             thiss.updateAll();
             setTimeout(() => thiss.ScrollToDebuggerLine(), 500);
         })
@@ -269,7 +312,7 @@ export class ProcessorManager {
 
     public StepOver() {
         var thiss = this;
-        this.debuggerService.StepOver((r0) => {
+        this.debuggerService.StepOver(this.data.debugOnlyMyCode, (r0) => {
             thiss.updateAll();
             setTimeout(() => thiss.ScrollToDebuggerLine(), 500);
         })
@@ -278,7 +321,17 @@ export class ProcessorManager {
         if (this.currentLine == null) return;
         AsmTools.scrollIntoViewIfOutOfView("line" + (this.currentLine.data.lineNumber),true);
     }
-  
+    private DbgSwapOnlyMyCode(): void {
+        this.data.debugOnlyMyCode = !this.data.debugOnlyMyCode;
+    }
+    private DbgBreak(): void {
+        var thiss = this;
+        this.debuggerService.Break(() => {
+            thiss.updateAll();
+            setTimeout(() => thiss.ScrollToDebuggerLine(), 500);
+        });
+    }
+
  
     public ChangeLabelValue(label: IEditorLabel, newValue:number) {
         var thiss = this;

@@ -212,11 +212,32 @@
                 </div>
             </div>
             <div>
-                <div class="Accumulator" v-bind:class="{'isActifOpcode':editor.currentOpcode !== null && editor.currentOpcode.hasRegisterA }" title="Accumulator" alt="Accumulator">A {{ processor.data6502.registerA | toHex1 }}</div>
+                <div class="Accumulator"
+                     title="Accumulator" alt="Accumulator">
+                    <span title="Carry" v-bind:class="{'isActifOpcode':processor.isCarry }">C</span>
+                    <span title="Is Sign" v-bind:class="{'isActifOpcode':processor.isSign }">S</span>
+                    &nbsp; &nbsp; &nbsp;
+                    <span v-bind:class="{'isActifOpcode':editor.currentOpcode !== null && editor.currentOpcode.hasRegisterA }"> A {{ processor.data6502.registerA | toHex1 }}</span>
+                </div>
                 <div class="RegisterX" v-bind:class="{'isActifOpcode':editor.currentOpcode !== null && editor.currentOpcode.hasRegisterX }" title="RegisterX" alt="RegisterX">X {{ processor.data6502.registerX | toHex1}}</div>
                 <div class="RegisterY" v-bind:class="{'isActifOpcode':editor.currentOpcode !== null && editor.currentOpcode.hasRegisterY }" title="RegisterY" alt="RegisterY">Y {{ processor.data6502.registerY | toHex1}}</div>
-                <div class="StackPointer" title="StackPointer">SP {{ processor.data6502.stackPointer | toHex1}}</div>
-                <div class="StatusRegister">SR {{ processor.data6502.statusRegister | toHex1}}</div>
+                <div class="StackPointer" title="StackPointer">
+                    <span>SP {{ processor.data6502.stackPointer | toHex1}}</span>
+                </div>
+                <div class="debug-data">
+                    <a v-on:click="DbgBreak()">Break</a>
+                    <a v-on:click="DbgBreakSwapOnlyMyCode()" title="Debug only all code" v-if="!processor.debugOnlyMyCode">AllCode</a>
+                    <a v-on:click="DbgBreakSwapOnlyMyCode()" title="Debug only my code" v-if="processor.debugOnlyMyCode">MyCode</a>
+                </div>
+                <div class="StatusRegister">
+                    <span title="Is Zero" v-bind:class="{'isActifOpcode':processor.isZero }">Z</span>
+                    <span title="Is Interrupt" v-bind:class="{'isActifOpcode':processor.isInterrupt }">I</span>
+                    <span title="Is Decimal" v-bind:class="{'isActifOpcode':processor.isDecimal }">D</span>
+                    <span title="Is Break" v-bind:class="{'isActifOpcode':processor.isBreak }">B</span>
+                    <span title="Is Constant" v-bind:class="{'isActifOpcode':processor.isConstant }">CT</span>
+                    <span title="Is Overflow" v-bind:class="{'isActifOpcode':processor.isOverflow }">O</span>
+                    <span title="Is BaseStack" v-bind:class="{'isActifOpcode':processor.isBaseStack }">BS</span>
+                </div>
                 <br />
 
             </div>
@@ -230,7 +251,7 @@
             </div>
 
             <div v-for="stackItem in processor.stack.datas">
-                <div>
+                <div v-bind:class="{ 'isActifOpcode': processor.stackPointerAddress == stackItem.address}">
                     {{ stackItem.address | toHex2 }}
                     {{ stackItem.data1 | toHex1 }}
                     {{ stackItem.data1 | toStr }}
