@@ -55,6 +55,7 @@ Now I only used:
 - cc65 compiler : Partially working, error in addressing
 - Tile and Map painter
 - Labels in memory viewer
+- more instant doc information
 - and more.... 
 
 You have ideas or missing features? Tell me.
