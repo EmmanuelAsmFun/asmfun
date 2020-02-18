@@ -46,33 +46,23 @@ Now I only used:
 ##### Front-end:
 - Vue
 ##### Back-end:
-- Windows: None :-) jihaa!
-- Linux/Max: SDL 
+- SDL 
 
 
-# Front-End info
-All the code can be found in the folder:
-```sh
-/Code/Src/Ide/AsmFun.BrowserPages/www
-````
-You can use whathever webserver you want. It's written with Typescript and Vue.
+# Features coming
+- Find and replace
+- Label links
+- cc65 compiler : Partially working, error in addressing
+- Tile and Map painter
+- Labels in memory viewer
+- more instant doc information
+- and more.... 
 
-The most important folders with all the core logic are:
-```sh
- /Code/Src/Ide/AsmFun.BrowserPages/www/app/core/             // All the core classes
- /Code/Src/Ide/AsmFun.BrowserPages/www/app/interpreters/     // ACME compiler, or later others
- /Code/Src/Ide/AsmFun.BrowserPages/www/app/ui/               // userinterface stuff
-```
+You have ideas or missing features? Tell me.
 
-
-# Back-end info
-Need to clean up first, will come later...
-
-
-
-All help is welcome :-)
-
-
+### known bugs
+- when reling a breakpoint, the other stops working, setting one again and it works back
+- cc65: Bad addressing
 
 # Install on linux
 
