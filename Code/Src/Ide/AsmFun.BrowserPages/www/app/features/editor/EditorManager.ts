@@ -62,6 +62,7 @@ export class EditorManager implements IEditorContext {
         var thiss = this;
         this.mainData = mainData;
         this.data = mainData.GetUIData(UIDataNameEditor);
+       
         this.mainData.popupManager.SubscribeLayer(0, () => this.APopupIsOpen(), () => this.APopupIsClosed())
         this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(this.mainData);
         this.projectManager = mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName) ?? new ProjectManager(this.mainData);
@@ -77,6 +78,27 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorSwapOutputCommand(null), this, (c) => thiss.SwapOutputWindow(c.state));
         mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLine2(c.line); } });
         mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
+
+        this.InitFilters();
+    }
+
+    private InitFilters() {
+        this.data.zoneSearchChange = () => {
+            var search = this.CleanSearch(this.data.zoneSearch);
+            this.data.zonesFiltered = this.data.zones.filter(x => this.CompareInsensitive(x.name, search));
+        }
+        this.data.labelSearchChange = () => {
+            var search = this.CleanSearch(this.data.labelSearch);
+            this.data.labelsFiltered = this.data.labels.filter(x => this.CompareInsensitive(x.data.name, search));
+        }
+        this.data.variableSearchChange = () => {
+            var search = this.CleanSearch(this.data.variableSearch);
+            this.data.variablesFiltered = this.data.variables.filter(x => this.CompareInsensitive(x.data.name, search));
+        }
+        this.data.macroSearchChange = () => {
+            var search = this.CleanSearch(this.data.macroSearch);
+            this.data.macrosFiltered = this.data.macros.filter(x => this.CompareInsensitive(x.name, search));
+        }
     }
    
     public SelectFile(file: IEditorFile | null) {
@@ -184,7 +206,7 @@ export class EditorManager implements IEditorContext {
         return this.codeAssistPopupManager.GetVisibility();
     }
     private KeyPressed(keyCommand: KeyboardKeyCommand, evt: ICommandEvent) {
-        if (!this.isEnabled) {
+        if (!this.isEnabled || !this.data.isTextEditorInFocus) {
             keyCommand.allowContinueEmit = true;
             return;
         }
@@ -344,7 +366,12 @@ export class EditorManager implements IEditorContext {
         this.ChangeEnabledState(true);
     }
 
-
+    private CleanSearch(str1: string) {
+        return str1.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+    private CompareInsensitive(str2: string, str1: string) {
+        return new RegExp(str1, "gi").test(str2);
+    }
 
     public static ServiceName: ServiceName = { Name: "EditorManager" };
 }

@@ -148,9 +148,10 @@ document.onkeyup = function (e) {
 document.onkeydown = function (e) {
     // z = 90       e = 69      r = 82      t = 84      d = 68  b = 66
     // e.altKey e.ctrlKey
-     console.log(e.which);
+    console.log(e.which);
     
-        var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
+    var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
+
     if (svc != null && svc.data.isVisible) {
         var keyy: IKeyboardKey = {
             key: e.key, which: e.which, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey
@@ -200,7 +201,7 @@ document.onkeydown = function (e) {
             void domObj.offsetWidth;
             domObj.classList.add("myCursorA");
         }
-        if (e.key === "v") {
+        if (e.key === "v" && e.ctrlKey) {
             paste(null);
             return;
         }

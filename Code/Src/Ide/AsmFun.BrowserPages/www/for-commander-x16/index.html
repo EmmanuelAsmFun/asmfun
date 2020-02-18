@@ -269,20 +269,33 @@
             </div>
             <div class="listing">
                 <div class="zones" v-if="ide.showZones">
-                    <table>
-                        <tr v-for="labelData in editor.zones" v-on:click="EditorScrollToLine(labelData.line)">
-                            <td>
-                                {{ (labelData.line != null && labelData.line.data != null? labelData.line.data.lineNumber: '&nbsp;')}}
-                            </td>
-                            <td>
-                                {{ labelData.name }}
-                            </td>
-                        </tr>
-                    </table>
+                    <span class="search-field">
+                        <input type="text" v-model="editor.zoneSearch" @keyup="editor.zoneSearchChange" placeholder="Filter"
+                               v-on:keyup.esc="editor.zoneSearch = '';editor.zoneSearchChange();" />
+                        <a v-on:click="editor.zoneSearch = '';editor.zoneSearchChange();">X</a>
+                    </span> 
+                    <div class="listing-table">
+                        <table>
+                            <tr v-for="labelData in editor.zonesFiltered" v-on:click="EditorScrollToLine(labelData.line)">
+                                <td>
+                                    {{ (labelData.line != null && labelData.line.data != null? labelData.line.data.lineNumber: '&nbsp;')}}
+                                </td>
+                                <td>
+                                    {{ labelData.name }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <div class="macros" v-if="ide.showMacros">
+                    <span class="search-field">
+                        <input type="text" v-model="editor.macroSearch" @keyup="editor.macroSearchChange" placeholder="Filter" 
+                               v-on:keyup.esc="editor.macroSearch = '';editor.macroSearchChange();" />
+                        <a v-on:click="editor.macroSearch = '';editor.macroSearchChange();">X</a>
+                    </span>
+                    <div class="listing-table">
                     <table>
-                        <tr v-for="labelData in editor.macros" v-on:click="EditorScrollToLine(labelData.lines[0])">
+                        <tr v-for="labelData in editor.macrosFiltered" v-on:click="EditorScrollToLine(labelData.lines[0])">
                             <td>
                                 {{ (labelData.lines.length >0 && labelData.lines[0].data != null? labelData.lines[0].data.lineNumber: '&nbsp;')}}
                             </td>
@@ -292,20 +305,28 @@
                         </tr>
                     </table>
                 </div>
+                </div>
                 <div class="variables" v-if="ide.showVariables">
-                    <table>
-                        <tr v-for="labelData in editor.variables" v-bind:class="{ 'hilite' : labelData.hilite }" v-bind:id="'lblview'+labelData.data.name">
-                            <td>
-                                <span class="ad" v-bind:class="{ 'hilite' : labelData.hilite }">{{ labelData.labelhexAddress }}</span>
-                            </td>
-                            <td width="70" v-bind:class="{ 'hilite' : labelData.hilite }">
-                                {{ labelData.data.name }}
-                            </td>
-                            <td v-bind:class="{ 'hilite' : labelData.hilite }">
-                                {{ labelData.labelhexValue }}
-                            </td>
-                        </tr>
-                    </table>
+                    <span class="search-field">
+                        <input type="text" v-model="editor.variableSearch" @keyup="editor.variableSearchChange" placeholder="Filter"
+                               v-on:keyup.esc="editor.variableSearch = '';editor.variableSearchChange();" />
+                        <a v-on:click="editor.variableSearch = '';editor.variableSearchChange();">X</a>
+                    </span>
+                    <div class="listing-table">
+                        <table>
+                            <tr v-for="labelData in editor.variablesFiltered" v-bind:class="{ 'hilite' : labelData.hilite }" v-bind:id="'lblview'+labelData.data.name">
+                                <td>
+                                    <span class="ad" v-bind:class="{ 'hilite' : labelData.hilite }">{{ labelData.labelhexAddress }}</span>
+                                </td>
+                                <td width="70" v-bind:class="{ 'hilite' : labelData.hilite }">
+                                    {{ labelData.data.name }}
+                                </td>
+                                <td v-bind:class="{ 'hilite' : labelData.hilite }">
+                                    {{ labelData.labelhexValue }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -329,7 +350,7 @@ programItem.address  | toHex2
         </div>
 
 
-        <div id="sourceCode" class="sourceCode">
+        <div id="sourceCode" class="sourceCode" >
             <div id="sc-inner" class="inner">
                 <div id="MyCursor" class="myCursor myCursorA">|</div>
 
@@ -375,7 +396,7 @@ programItem.address  | toHex2
                             </span>
                         </div>
                     </div>
-                    <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)">
+                    <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)" tabindex="0" @focus="editor.isTextEditorInFocus = true" @blur="editor.isTextEditorInFocus = false">
                         <span class="ln" v-for="sourceCodeLine in editor.selectedFile.lines"
                               v-bind:class="{  'isSelected' : sourceCodeLine.selected, 'hasError' : sourceCodeLine.hasError , 'hilite' : sourceCodeLine.hilite }">
                             <span class="scline" v-html="sourceCodeLine.sourceCodeHtml"> </span>
@@ -451,7 +472,7 @@ programItem.address  | toHex2
                         <div>
                             <p v-show="ide.serverNotConnected">
                                 To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
-                                You can download it here.<br /><br />
+                                You can download it here after accepting the terms.<br /><br />
                             </p>
                             <div class="confirmLicense">
                                 <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions </a></label>

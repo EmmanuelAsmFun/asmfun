@@ -124,9 +124,13 @@ export class SourceCodeManager {
             labels: [],
         });
         this.data.variables = [];
+        this.data.variablesFiltered = [];
         this.data.labels = [];
+        this.data.labelsFiltered = [];
         this.data.macros = [];
+        this.data.macrosFiltered = [];
         this.data.zones = [];
+        this.data.zonesFiltered = [];
         this.data.scfiles = [];
         this.data.selectedFile = undefined;
         this.data.currentOpcode = null;
@@ -248,9 +252,13 @@ export class SourceCodeManager {
         var editorBundle: IEditorBundle = CreateNewBundle(s);
         var variables: IEditorLabel[] = [];
         this.data.variables = [];
+        this.data.variablesFiltered = [];
         this.data.labels = [];
+        this.data.labelsFiltered = [];
         this.data.macros = [];
+        this.data.macrosFiltered = [];
         this.data.zones = [];
+        this.data.zonesFiltered = [];
 
         // Create root context
         var rootContext: ICodeBlockContext = new CodeBlockContext(this.data, editorBundle);

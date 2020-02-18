@@ -87,6 +87,19 @@ a:hover {
         }
     }
     //
+.search-field {
+    input {
+        font-size:10px;
+        background:transparent;
+        border:none;
+        border-bottom: 1px solid #666666;
+        padding-left:5px;
+        color: #aaaaaa;
+        display:inline-block;
+        width:170px;
+    }
+    a{cursor:pointer; vertical-align:middle;}
+}
 .labels {
     position: fixed;
     right: 110px;
@@ -124,14 +137,21 @@ a:hover {
 
     .listing {
         clear: both;
-        height: 100%;
-        overflow-y: scroll;
-        overflow-x: hidden;
         line-height: 12px;
         width: 200px;
         border: 1px solid #313126;
+        position:relative;
+        height:100%;
     }
 
+    .listing-table {
+        width:100%;
+        position:absolute;
+        top:20px;
+        bottom:20px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
 
 
     .ad {

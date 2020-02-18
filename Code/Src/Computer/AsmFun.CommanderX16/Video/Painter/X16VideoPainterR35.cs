@@ -108,6 +108,7 @@ namespace AsmFun.CommanderX16.Video.Painter
         {
             thread2Are.Set();
             var layer1 = LayerAccess.GetLayer(0);
+            var layer2 = LayerAccess.GetLayer(1);
             // Layer1
             if (layer1.TileMode)
             {
@@ -129,6 +130,10 @@ namespace AsmFun.CommanderX16.Video.Painter
                 Thread.Sleep(0);
             }
 
+            if (!layer1.IsEnabled && !layer2.IsEnabled)
+            {
+                Thread.Sleep(5);
+            }
             // Layer2
             //var layer2 = LayerAccess.GetLayer(1);
             //if (layer2.TileMode)

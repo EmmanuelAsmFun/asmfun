@@ -112,11 +112,12 @@ namespace AsmFun.UI.Consolee
         }
         private void LaunchIde()
         {
-#if DEBUG
             OpenUrl("http://localhost:5001");
-#else
+            Redraw();
+        } 
+        private void LaunchOnlineIde()
+        {
             OpenUrl("http://asmfun.com");
-#endif
             Redraw();
         }
 
@@ -153,10 +154,11 @@ namespace AsmFun.UI.Consolee
                 mainMenu.Title = "Menu";
                 mainMenu.AddRangeOnce(new List<Data.ConsoleMenuItemData> {
                 new Data.ConsoleMenuItemData{Id="0", Title= "Redraw",Action= () => Redraw()},
-                new Data.ConsoleMenuItemData{Id="1", Title= "Launch IDE",Action= () => LaunchIde()},
-                new Data.ConsoleMenuItemData{Id="2", Title= "Start CommanderX16",Action= () => LaunchComputer()},
-                new Data.ConsoleMenuItemData{Id="3", Title= "Load Current Program",Action= () => LoadProgram()},
-                new Data.ConsoleMenuItemData{Id="4", Title= "Quit",Action= () => Quit()},
+                new Data.ConsoleMenuItemData{Id="1", Title= "Launch local IDE with SourceCode",Action= () => LaunchIde()},
+                new Data.ConsoleMenuItemData{Id="2", Title= "Launch Online IDE",Action= () => LaunchOnlineIde()},
+                new Data.ConsoleMenuItemData{Id="3", Title= "Start CommanderX16",Action= () => LaunchComputer()},
+                new Data.ConsoleMenuItemData{Id="4", Title= "Load Current Program",Action= () => LoadProgram()},
+                new Data.ConsoleMenuItemData{Id="5", Title= "Quit",Action= () => Quit()},
             });
                 page = new PageControl();
                 page.Create();

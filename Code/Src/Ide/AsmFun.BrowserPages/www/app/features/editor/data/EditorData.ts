@@ -370,25 +370,50 @@ export interface IEditorManagerData {
     //sourceCode?: IEditorBundle;
     breakPoints: string[];
     showASMFunCode: boolean;
+    variableSearch: string,
+    variableSearchChange: (search: string) => void,
     variables: IEditorLabel[];
+    variablesFiltered: IEditorLabel[];
+    labelSearch: string;
+    labelSearchChange: (search:string) => void,
     labels: IEditorLabel[];
+    labelsFiltered: IEditorLabel[];
     zones: IEditorZone[];
+    zonesFiltered: IEditorZone[];
+    zoneSearch: string;
+    zoneSearchChange: (search: string) => void,
     macros: ICodeBlockContext[];
+    macrosFiltered: ICodeBlockContext[];
+    macroSearch: string;
+    macroSearchChange: (search: string) => void,
     errorsForStatusBar: IErrorForStatusBar[];
     currentOpcode: IOpcodeData | null;
     //codeAssistPopupData: ICodeAssistPopupData;
     selectedFile?: IEditorFile;
+    isTextEditorInFocus: boolean;
 }
 export var NewEditorManagerData: IEditorManagerData = {
-    
     scfiles: [],
     labels: [],
+    labelSearch: "",
+    labelSearchChange: () => { },
+    labelsFiltered: [],
     variables: [],
+    variableSearch: "",
+    variableSearchChange: () => { },
+    variablesFiltered: [],
     macros: [],
+    macroSearch: "",
+    macroSearchChange: () => { },
+    macrosFiltered: [],
     zones: [],
+    zoneSearch: "",
+    zoneSearchChange: () => { },
+    zonesFiltered: [],
     breakPoints: [],
     errorsForStatusBar: [],
     showASMFunCode: true,
     currentOpcode: { code: '', asmFunCode: '', },
     selectedFile: NewEmptyFile(),
+    isTextEditorInFocus: false,
 };

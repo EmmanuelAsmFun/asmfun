@@ -71,7 +71,8 @@ export class CodeBlockContext implements ICodeBlockContext {
         }
         if (context.isMacro) {
             var macroIndex = this.editorData.macros.indexOf(context);
-            if (macroIndex > -1) this.editorData.macros.splice(macroIndex,1);
+            if (macroIndex > -1) this.editorData.macros.splice(macroIndex, 1);
+            this.editorData.macrosFiltered = [... this.editorData.macros];
         }
     }
 
@@ -99,6 +100,7 @@ export class CodeBlockContext implements ICodeBlockContext {
                 zone.isAnonymousZone = true;
             }
             this.editorData.zones.push(zone);
+            this.editorData.zonesFiltered.push(zone);
             // create label
             var label = this.CreateNewLabel(line.file, line, cleanName, true);
             label.isZone = true;
@@ -174,6 +176,7 @@ export class CodeBlockContext implements ICodeBlockContext {
             macroContext.nameDirty = nameDirty;
             macroContext.isMacro = true;
             this.editorData.macros.push(macroContext);
+            this.editorData.macrosFiltered.push(macroContext);
             console.log("Add macro:" + cleanName);
         }
         else {
@@ -224,6 +227,7 @@ export class CodeBlockContext implements ICodeBlockContext {
             label.showValueInCode = true;
             this.variables.push(line);
             this.editorData.variables.push(label);
+            this.editorData.variablesFiltered.push(label);
             this.setters.push(line);
             console.log("Add address setter:" + name + " \t" + hexValue + " (" + address + ")");
         } else {
@@ -251,6 +255,7 @@ export class CodeBlockContext implements ICodeBlockContext {
             
             this.setters.push(line);
             this.editorData.variables.push(label);
+            this.editorData.variablesFiltered.push(label);
             console.log("Add setter:" + property.name + " = " + hexValue);
         } else {
             console.log("Update setter:" + property.name + " = " + hexValue);
@@ -300,6 +305,7 @@ export class CodeBlockContext implements ICodeBlockContext {
         if (line.isZone && line.zone !== null) {
             var zoneIndex = this.editorData.zones.indexOf(line.zone);
             if (zoneIndex > -1) this.editorData.zones.splice(zoneIndex, 1);
+            this.editorData.zonesFiltered = [...this.editorData.zones];
             line.zone = null;
         }
         // remove in label
@@ -307,7 +313,10 @@ export class CodeBlockContext implements ICodeBlockContext {
             lineIndex = line.label.lines.indexOf(line);
             if (lineIndex > -1) line.label.lines.splice(lineIndex, 1);
             lineIndex = this.editorData.variables.indexOf(line.label);
-            if (lineIndex > -1) this.editorData.variables.splice(lineIndex, 1);
+            if (lineIndex > -1) {
+                this.editorData.variables.splice(lineIndex, 1);
+                this.editorData.variablesFiltered = [...this.editorData.variables];
+            }
         }
 
         // remove in macro
@@ -389,10 +398,13 @@ export class CodeBlockContext implements ICodeBlockContext {
         const label = CreateNewEditorLabel({ name: name, address: 0, value: 0, variableLength: 1 }, file, line);
         label.isZone = isZone;
         this.editorData.labels.push(label);
+        this.editorData.labelsFiltered.push(label);
         if (this.editorData.labels != null && !isZone) {
             var exists = this.editorData.labels.find(x => x.data.name === name);
-            if (exists == null )
+            if (exists == null) {
                 this.editorData.labels.push(label);
+                this.editorData.labelsFiltered.push(label);
+            }
         }
         return label;
     }
