@@ -33,6 +33,7 @@ export interface IAsmFunIdeData extends IPopupWindowData {
     showZones: boolean,
     showMacros: boolean,
     showVariables: boolean,
+    showMoreDownloads: boolean,
 }
 
 

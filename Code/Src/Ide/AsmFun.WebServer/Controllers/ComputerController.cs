@@ -4,12 +4,12 @@
 //
 #endregion
 
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Ide;
 using AsmFun.Ide.Common.Data.Dissasembly;
+using AsmFun.Ide.Common.Data.Programm;
 using AsmFun.Ide.Common.Managers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -120,13 +120,13 @@ namespace AsmFun.WebServer.Controllers
             return data;
         }
         [HttpGet]
-        public List<SourceCodeLabel> GetLabels()
+        public List<AddressDataLabel> GetLabels()
         {
             // Return the ordered list by name.
             return processorManager.GetLabels();
         }
         [HttpPost]
-        public List<SourceCodeLabel> GetLabelValues([FromBody] List<PropertyData> properties)
+        public List<AddressDataLabel> GetLabelValues([FromBody] List<PropertyData> properties)
         {
             // Return the ordered list by name.
             return processorManager.GetLabelValues(properties);

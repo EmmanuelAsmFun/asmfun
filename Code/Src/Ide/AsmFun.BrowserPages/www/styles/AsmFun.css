@@ -52,7 +52,8 @@ input {
   cursor: pointer;
 }
 input[type=button],
-button {
+button,
+.btn-default {
   background: #c7c76b;
   border: none;
   cursor: pointer;
@@ -60,11 +61,13 @@ button {
   padding: 3px;
 }
 input[type=button] .fa,
-button .fa {
+button .fa,
+.btn-default .fa {
   padding-right: 5px;
 }
 input[type=button]:hover,
-button:hover {
+button:hover,
+.btn-default:hover {
   background: #a3a375;
 }
 select {
@@ -1430,6 +1433,7 @@ body {
 }
 .asmPlayerManager a {
   font-size: 12px;
+  cursor: pointer;
 }
 .asmPlayerManager h2 {
   font-weight: 100;
@@ -1525,6 +1529,17 @@ body {
 .asmPlayerManager .downloadBlock .downloadheader {
   display: inline-block;
   margin-right: 10px;
+}
+.asmPlayerManager .download-large {
+  margin-top: 20px;
+  margin-bottom: 40px;
+  margin-left: 300px;
+}
+.asmPlayerManager .download-large a.btn-default {
+  font-size: 20px;
+  color: black;
+  padding: 2px 25px 2px 25px;
+  border-radius: 5px;
 }
 .asmPlayerManager input {
   cursor: pointer;

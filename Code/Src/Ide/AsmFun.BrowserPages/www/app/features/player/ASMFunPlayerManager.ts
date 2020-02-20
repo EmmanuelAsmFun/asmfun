@@ -195,6 +195,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
             showMacros: false,
             showVariables: false,
             showZones: true,
+            showMoreDownloads: false,
             selectVarTab: n => { },
         };
     }

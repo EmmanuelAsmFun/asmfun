@@ -5,16 +5,16 @@
 #endregion
 
 using System.Collections.Generic;
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Ide.Common.Data.Dissasembly;
+using AsmFun.Ide.Common.Data.Programm;
 
 namespace AsmFun.Ide.Common.DataAccess
 {
     public interface ILifeMemoryAccess
     {
-        List<SourceCodeLabel> GetLabels();
-        SourceCodeLabel GetLabel(string name);
-        SourceCodeLabel ChangeLabelValue(string name, int newValue);
-        List<SourceCodeLabel> GetLabelValues(List<PropertyData> properties);
+        List<AddressDataLabel> GetLabels();
+        AddressDataLabel GetLabel(string name);
+        AddressDataLabel ChangeLabelValue(string name, int newValue);
+        List<AddressDataLabel> GetLabelValues(List<PropertyData> properties);
     }
 }

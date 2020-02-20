@@ -26,7 +26,27 @@ export interface ISourceCodeBundle {
     name: string;
     files?: ArrayEx<ISourceCodeFile> | ISourceCodeFile[];
     labels?: ArrayEx<ISourceCodeLabel> | ISourceCodeLabel[];
-    
+}
+export interface IAddressDataBundle {
+    sourceFileName: string;
+    name: string;
+    files: IAddressDataFile[];
+    labels: IAddressDataLabel[];
+}
+export interface IAddressDataFile {
+    folder: string;
+    fileName: string;
+    lines: IAddressDataLine[];
+}
+export interface IAddressDataLine {
+    line: number;
+    address: string;
+}
+export interface IAddressDataLabel {
+    address: number;
+    name: string;
+    value: number;
+    length:number
 }
 
 

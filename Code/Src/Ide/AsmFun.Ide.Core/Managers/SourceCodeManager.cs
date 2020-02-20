@@ -21,6 +21,7 @@ namespace AsmFun.Ide.Core.Managers
         private readonly ICompilerManager compilerManager;
 
         public SourceCodeBundle CurrentSourceCode { get; set; }
+        public AddressDataBundle CurrentAddressDataBundle { get; set; }
 
         public SourceCodeManager(IProjectManager projectManager, IComputerManager computerManager, ICompilerManager compilerManager)
         {
@@ -43,23 +44,23 @@ namespace AsmFun.Ide.Core.Managers
             return CurrentSourceCode;
         }
 
-        public SourceCodeBundle GetSourceWithCompiledAddresses()
+        public AddressDataBundle ReloadSourceAddressData()
         {
             var projectSettings = projectManager.GetCurrentProjectSettings();
-            CurrentSourceCode = compilerManager.GetSourceCodeDA().ParseCompiledLabels(projectSettings);
-            return CurrentSourceCode;
+            CurrentAddressDataBundle = compilerManager.GetSourceCodeDA().ParseCompiledLabels(projectSettings);
+            return CurrentAddressDataBundle;
         }
 
 
         public void ParseCodeToDebugger(IComputer computer)
         {
-            GetSourceWithCompiledAddresses();
-            if (CurrentSourceCode == null  || computer == null) return;
+            ReloadSourceAddressData();
+            if (CurrentAddressDataBundle == null  || computer == null) return;
             var allAddresses = new List<ushort>();
-            foreach (var file in CurrentSourceCode.Files)
+            foreach (var file in CurrentAddressDataBundle.Files)
                 allAddresses.AddRange(file.Lines
-                    .Where(x => !string.IsNullOrWhiteSpace(x.ResultMemoryAddress))
-                    .Select(x => ushort.Parse(x.ResultMemoryAddress, NumberStyles.HexNumber)));
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Address))
+                    .Select(x => ushort.Parse(x.Address, NumberStyles.HexNumber)));
             if (allAddresses.Any())
                 computer.GetDebugger()?.ParseSourceCodeAddresses(allAddresses);
         }
@@ -68,6 +69,13 @@ namespace AsmFun.Ide.Core.Managers
         {
             if (projectManager.GetCurrentProjectSettings().IsProgramOnly) return;
             compilerManager.GetSourceCodeDA().Save(bundle);
+        }
+
+        public AddressDataBundle GetCurrentAddressData()
+        {
+            if (CurrentAddressDataBundle == null)
+                ReloadSourceAddressData();
+            return CurrentAddressDataBundle;
         }
     }
 }

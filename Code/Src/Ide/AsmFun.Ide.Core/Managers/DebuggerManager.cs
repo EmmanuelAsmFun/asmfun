@@ -6,12 +6,12 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Computer.Common.Computer.Data;
 using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Ide.Common.Data.Dissasembly;
+using AsmFun.Ide.Common.Data.Programm;
 using AsmFun.Ide.Common.DataAccess;
 using AsmFun.Ide.Common.Managers;
 using AsmFun.Ide.Compilation;
@@ -91,7 +91,7 @@ namespace AsmFun.Ide.Core.Managers
             return debg.GetBreakPoints();
         }
 
-        public List<SourceCodeLabel> GetLabels()
+        public List<AddressDataLabel> GetLabels()
         {
             return lifeMemoryAccess.GetLabels();
         }
@@ -109,7 +109,7 @@ namespace AsmFun.Ide.Core.Managers
             return data;
         }
 
-        public SourceCodeLabel ChangeLabelValue(string name, int newValue)
+        public AddressDataLabel ChangeLabelValue(string name, int newValue)
         {
             var comp = computerManager.GetComputer();
             if (comp == null) return null;

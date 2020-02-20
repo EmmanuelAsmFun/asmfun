@@ -223,11 +223,13 @@ export class ProcessorManager {
         //});
         if (this.editorData.variables == null) return;
         var variables: IPropertyData[] = [];
+
         for (var i = 0; i < this.editorData.variables.length; i++) {
             var label = this.editorData.variables[i];
             if (!label.isVariable || label.property == null) continue;
             variables.push(label.property)
         }
+        if (variables.length == 0) return;
         this.computerService.getLabelValues(variables,(l) => {
             thiss.parseLabels(l);
         });

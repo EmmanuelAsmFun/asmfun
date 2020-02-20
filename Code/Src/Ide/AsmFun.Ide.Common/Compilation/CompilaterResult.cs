@@ -12,7 +12,7 @@ namespace AsmFun.Ide.Common.Compilation
     {
         public string ErrorText { get; set; }
         public string RawText { get; set; }
-        public SourceCodeBundle SourceCodeBundle { get; set; }
+        public AddressDataBundle SourceCodeBundle { get; set; }
         public bool HasErrors { get; set; }
     }
 }

@@ -4,10 +4,10 @@
 //
 #endregion
 
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Ide.Common.Data.Dissasembly;
+using AsmFun.Ide.Common.Data.Programm;
 using AsmFun.Ide.Common.DataAccess;
 using AsmFun.Ide.Common.Managers;
 using System;
@@ -39,12 +39,12 @@ namespace AsmFun.Ide.Core.Managers
             if (comp == null) return new ProcessorStackModel();
             return comp.GetStack();
         }
-        public List<SourceCodeLabel> GetLabels()
+        public List<AddressDataLabel> GetLabels()
         {
             return lifeMemoryAccess.GetLabels();
         }
 
-        public List<SourceCodeLabel> GetLabelValues(List<PropertyData> properties)
+        public List<AddressDataLabel> GetLabelValues(List<PropertyData> properties)
         {
             return lifeMemoryAccess.GetLabelValues(properties);
         }

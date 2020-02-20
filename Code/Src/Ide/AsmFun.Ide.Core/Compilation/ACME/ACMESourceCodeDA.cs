@@ -4,7 +4,6 @@
 //
 #endregion
 
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Ide.Common.Compilation.ACME;
 using AsmFun.Ide.Common.Data;
 using AsmFun.Ide.Common.Data.Programm;
@@ -62,7 +61,6 @@ namespace AsmFun.Ide.Core.Compilation.ACME
                 var line = new SourceCodeLine
                 {
                     LineNumber = lineNumber,
-                    RawContent = txtLine,
                     SourceCode = txtLine,
                 };
                 sfile.Lines.Add(line);
@@ -77,24 +75,36 @@ namespace AsmFun.Ide.Core.Compilation.ACME
             }
         }
 
-        protected override SourceCodeBundle LoadSourceByCompiled(ProjectSettings projectSettings,string prgrm)
+        protected override AddressDataBundle LoadAddressData(ProjectSettings projectSettings,string prgrm)
         {
             var txtLines = File.ReadAllLines(prgrm);
-            var sourceCodeBundle = new SourceCodeBundle
+            var sourceCodeBundle = new AddressDataBundle
             {
                 SourceFileName = prgrm,
                 Name = Path.GetFileNameWithoutExtension(prgrm)
             };
-            SourceCodeFile sfile = null;
+            AddressDataFile sfile = null;
             foreach (var txtLine in txtLines)
             {
                 if (string.IsNullOrWhiteSpace(txtLine)) continue;
 
-                // ; ******** Source: matriculate.asm
+                // ; ******** Source: xxxxxxx.asm
                 if (txtLine.Contains("** Source:"))
                 {
                     var fileName = txtLine.Replace("; ******** Source: ", "").Trim();
-                    sfile = GetFile(sourceCodeBundle, projectSettings, fileName);
+                    var fileNameOnly = Path.GetFileName(fileName);
+                    var folder = fileName.Replace(fileNameOnly, "").Replace(projectSettings.Folder, "");
+                    if (folder == "\\" || folder == "/") folder = "";
+                    sfile = sourceCodeBundle.Files.FirstOrDefault(item => item.FileName == fileName);
+                    if (sfile == null)
+                    {
+                        sfile = new AddressDataFile
+                        {
+                            FileName = fileNameOnly,
+                            Folder = folder,
+                        };
+                        sourceCodeBundle.Files.Add(sfile);
+                    }
                     continue;
                 }
                 if (txtLine.Length < 6) continue;
@@ -104,36 +114,26 @@ namespace AsmFun.Ide.Core.Compilation.ACME
                 // 6 chars for the resulting memory address
                 if (txtLine.Length < 6 + 7) continue;
                 var resultMemoryAddress = txtLine.Substring(6, 6).ToUpper().Trim();
+                if (resultMemoryAddress.Length == 0) continue;
                 // 19 chars the byte value(s)
                 if (txtLine.Length < 6 + 6 + 19) continue;
                 var byteValue = txtLine.Substring(6 + 6, 20).ToUpper().Trim();
-                var line = new SourceCodeLine
+                var line = new AddressDataLine
                 {
-                    LineNumber = lineNumber,
-                    RawContent = "", //txtLine,
-                    ResultMemoryAddress = resultMemoryAddress,
-                    ByteValues = byteValue
+                    Line = lineNumber,
+                    Address = resultMemoryAddress,
+                    //ByteValues = byteValue
                 };
                 // Rest is original sourcecode text
                 //if (txtLine.Length > 6 + 6 + 19)
                 //    line.SourceCode = txtLine.Substring(6 + 6 + 20, txtLine.Length - (6 + 6 + 20));
                 sfile.Lines.Add(line);
             }
-            sfile.HasBeenRead = true;
-            var toRemove = new List<SourceCodeFile>();
-            foreach (var file in sourceCodeBundle.Files)
-            {
-                file.Lines = file.Lines.OrderBy(x => x.LineNumber).ToList();
-                if (file.Lines.Count < 1)
-                    toRemove.Add(file);
-            }
-            foreach (var sfile1 in toRemove)
-                sourceCodeBundle.Files.Remove(sfile1);
             LoadLabels(projectSettings, sourceCodeBundle);
             return sourceCodeBundle;
         }
 
-        protected override void LoadLabels(ProjectSettings projectSettings, SourceCodeBundle bundle)
+        protected override void LoadLabels(ProjectSettings projectSettings, AddressDataBundle bundle)
         {
             var buildConfiguration = projectManager.GetBuildConfiguration(projectSettings);
             if (buildConfiguration == null) return;
@@ -152,25 +152,12 @@ namespace AsmFun.Ide.Core.Compilation.ACME
                             val = "0" + val;
                         var valnum = int.Parse(val, System.Globalization.NumberStyles.HexNumber);
 
-                        var label = new SourceCodeLabel
+                        var label = new AddressDataLabel
                         {
                             Address = valnum,
                             Name = labeld[0].Trim(),
                         };
-                        label.VariableLength = 1;
-                        // Check if its a zone
-                        foreach (var file in bundle.Files)
-                        {
-                            foreach (var line in file.Lines)
-                            {
-                                if (line.RawContent.Contains(label.Name + ":"))
-                                    label.IsZone = true;
-                                else
-                                {
-
-                                }
-                            }
-                        }
+                        label.Length = 1;
                         bundle.Labels.Add(label);
                     }
                     catch (Exception ex)

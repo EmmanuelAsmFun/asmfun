@@ -126,7 +126,6 @@ export interface IEditorLine {
     file: IEditorFile;
     data: ISourceCodeLine;
     context: ICodeBlockContext;
-    rawContent: string;
     byteValues: string;
     comment: string;
     preCode: string;
@@ -263,7 +262,6 @@ export function CreateNewEditorLine(context: ICodeBlockContext, line: ISourceCod
         isAddressSetter: false,
         isVariable: false,
         isZone: false,
-        rawContent: "",
         linkToVar: false,
         hasError: false,
         label: null,

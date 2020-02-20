@@ -12,8 +12,8 @@ namespace AsmFun.Ide.Common.Managers
     public interface ISourceCodeManager
     {
         SourceCodeBundle GetSourceCode();
-        SourceCodeBundle GetCurrent();
-        SourceCodeBundle GetSourceWithCompiledAddresses();
+        AddressDataBundle GetCurrentAddressData();
+        AddressDataBundle ReloadSourceAddressData();
         void ParseCodeToDebugger(IComputer computer);
         void Save(SourceCodeBundle bundle);
     }

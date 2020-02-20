@@ -281,7 +281,12 @@
                                     {{ (labelData.line != null && labelData.line.data != null? labelData.line.data.lineNumber: '&nbsp;')}}
                                 </td>
                                 <td>
+                                    <!-- labelData.line.file.data.fileName.substring(0,2) -->
                                     {{ labelData.name }}
+                                    <!--<span v-for="lblLine in labelData.lines">
+                                        l
+                                        {{lblLine.data.sourceCode}}
+                                    </span>-->
                                 </td>
                             </tr>
                         </table>
@@ -493,26 +498,33 @@ programItem.address  | toHex2
 
 
                                 <div v-show="ide.hasConfirmedLicense" class="v-fade">
-
-                                    <div class="downloadBlock">
-                                        <span class="downloadText">
-                                            <b>Light</b><br /><small> .Net core 3.0 is already installed</small>
-                                        </span>
-                                        <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> 340Kb (916kb)</span>
-                                        <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
-                                        <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                    <div class="download-large">
+                                        <span v-if="ide.isWindows"><a class="btn-default" href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a></span>
+                                        <span v-if="ide.isMac"><a class="btn-default" href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
+                                        <span v-if="ide.isLinux"><a class="btn-default" href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
                                     </div>
-                                    <div class="downloadBlock">
-                                        <span class="downloadText">
-                                            <b>Complete</b><br />
-                                            <small>
-                                                with .net core 3.0 framework<br />
-                                                Microsoft is hungry in Mb, fiuuw!
-                                            </small>
-                                        </span>
-                                        <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
-                                        <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
-                                        <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                    <a v-on:click="ide.showMoreDownloads = !ide.showMoreDownloads" v-if="!ide.showMoreDownloads">Other compiled versions</a>
+                                    <div v-if="ide.showMoreDownloads">
+                                        <div class="downloadBlock">
+                                            <span class="downloadText">
+                                                <b>Light</b><br /><small> .Net core 3.0 is already installed</small>
+                                            </span>
+                                            <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a>  &nbsp;1.4Mb (3.7Mb)</span>
+                                            <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                            <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                        </div>
+                                        <div class="downloadBlock">
+                                            <span class="downloadText">
+                                                <b>Complete</b><br />
+                                                <small>
+                                                    with .net core 3.0 framework<br />
+                                                    Microsoft is hungry in Mb, fiuuw!
+                                                </small>
+                                            </span>
+                                            <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
+                                            <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                            <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <br /><br />

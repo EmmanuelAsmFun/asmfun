@@ -4,10 +4,10 @@
 //
 #endregion
 
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Managers;
 using AsmFun.Ide.Common.Data.Dissasembly;
+using AsmFun.Ide.Common.Data.Programm;
 using AsmFun.Ide.Common.DataAccess;
 using AsmFun.Ide.Common.Managers;
 using System.Collections.Generic;
@@ -26,9 +26,9 @@ namespace AsmFun.Ide.Managers
             this.computerManager = computerManager;
         }
 
-        public SourceCodeLabel ChangeLabelValue(string name, int newValue)
+        public AddressDataLabel ChangeLabelValue(string name, int newValue)
         {
-            var sc = sourceCodeManager.GetCurrent();
+            var sc = sourceCodeManager.GetCurrentAddressData();
             if (sc == null) return null;
             var label = sc.Labels.FirstOrDefault(item => item.Name == name);
             if (label == null) return label;
@@ -38,9 +38,9 @@ namespace AsmFun.Ide.Managers
             return label;
         } 
       
-        public SourceCodeLabel GetLabel(string name)
+        public AddressDataLabel GetLabel(string name)
         {
-            var sc = sourceCodeManager.GetCurrent();
+            var sc = sourceCodeManager.GetCurrentAddressData();
             if (sc == null) return null;
             var label = sc.Labels.FirstOrDefault(item => item.Name == name);
             if (label == null) return label;
@@ -50,10 +50,10 @@ namespace AsmFun.Ide.Managers
         }
        
 
-        public List<SourceCodeLabel> GetLabels()
+        public List<AddressDataLabel> GetLabels()
         {
-            var sc = sourceCodeManager.GetCurrent();
-            if (sc == null) return new List<SourceCodeLabel>();
+            var sc = sourceCodeManager.GetCurrentAddressData();
+            if (sc == null) return new List<AddressDataLabel>();
             // We order the labels by address locally to be able to faster retrieve values from memory.
             var labels = sc.Labels.OrderBy(x => x.Address).ToList();
             IComputerMemoryAccess memory = computerManager.GetComputer()?.GetMemory();
@@ -61,27 +61,27 @@ namespace AsmFun.Ide.Managers
                 ParseLabelsValue(memory, labels);
             return labels;
         }
-        public List<SourceCodeLabel> GetLabelValues(List<PropertyData> properties)
+        public List<AddressDataLabel> GetLabelValues(List<PropertyData> properties)
         {
-            var sc = sourceCodeManager.GetCurrent();
-            if (sc == null || properties == null) return new List<SourceCodeLabel>();
+            var sc = sourceCodeManager.GetCurrentAddressData();
+            if (sc == null || properties == null) return new List<AddressDataLabel>();
             foreach (var property in properties)
             {
                 var label = sc.Labels.FirstOrDefault(item => item.Name == property.Name);
                 if (label == null) continue;
-                label.VariableLength = property.DataLength;
+                label.Length = property.DataLength;
             }
             return GetLabels();
         }
 
 
-        internal void ParseLabelsValue(IComputerMemoryAccess memory, List<SourceCodeLabel> labelsOrderedByAddress)
+        internal void ParseLabelsValue(IComputerMemoryAccess memory, List<AddressDataLabel> labelsOrderedByAddress)
         {
             if (labelsOrderedByAddress == null || labelsOrderedByAddress.Count == 0) return;
 
             var lengthToRead = 1;
             var previousLabel = labelsOrderedByAddress[0];
-            var labelsToParse = new List<SourceCodeLabel>();
+            var labelsToParse = new List<AddressDataLabel>();
             // try to read in blocks
             for (int i = 1; i < labelsOrderedByAddress.Count; i++)
             {
@@ -99,11 +99,11 @@ namespace AsmFun.Ide.Managers
                         if (j >= bufferR.Length) break;
                         var lab = labelsToParse[j];
                         int theValue = bufferR[j];
-                        if (lab.VariableLength == 2)
+                        if (lab.Length == 2)
                             theValue = System.BitConverter.ToUInt16(new byte[] { bufferR[j], bufferR[j+1] }, 0);
-                        if (lab.VariableLength == 3)
+                        if (lab.Length == 3)
                             theValue = System.BitConverter.ToInt32(bufferR, j);
-                        if (lab.VariableLength == 4)
+                        if (lab.Length == 4)
                             theValue = System.BitConverter.ToInt32(bufferR, j);
                         if (lab.Value != theValue)
                             lab.Value = theValue;
@@ -112,7 +112,7 @@ namespace AsmFun.Ide.Managers
                     lengthToRead = 1;
                 }
                 previousLabel = label;
-                lengthToRead += label.VariableLength;
+                lengthToRead += label.Length;
             }
         }
 

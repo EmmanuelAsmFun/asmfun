@@ -110,7 +110,7 @@ namespace AsmFun.WebServer.Controllers
         public CompilaterResult LoadCompiled()
         {
             CompilaterResult response = compilerManager.Compile();
-            response.SourceCodeBundle = sourceCodeManager.GetSourceWithCompiledAddresses();
+            response.SourceCodeBundle = sourceCodeManager.ReloadSourceAddressData();
             projectManager.LoadProgramInPC();
             return response;
         }

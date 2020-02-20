@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings, ProjectCompilerTypes } from '../project/data/ProjectData.js'
+import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings, ProjectCompilerTypes, IAddressDataBundle } from '../project/data/ProjectData.js'
 import { OpcodeManager } from './OpcodeManager.js';
 import { CodeBlockContext } from './CodeBlockContext.js';
 import { HtmlSourceCode } from './HtmlSourceCode.js';
@@ -151,12 +151,9 @@ export class SourceCodeManager {
     }
 
     private LoadCompiled(doneMethod: () => void) {
-        var thiss = this;
         this.projectService.LoadCompiled(s => {
-            thiss.ParseCompilerResult(s);
-             var bundle = this.MergeCompile(s.sourceCodeBundle);
-             //thiss.interpretSourceCode(bundle.data);
-            //thiss.redrawErrorsBar(thiss.data.selectedFile);
+            this.ParseCompilerResult(s);
+            this.MergeCompile(s.sourceCodeBundle);
             if (doneMethod != null)
                 doneMethod();
         });
@@ -206,13 +203,12 @@ export class SourceCodeManager {
         }
     }
 
-    private MergeCompile(s: ISourceCodeBundle) {
+    private MergeCompile(s: IAddressDataBundle) {
         var bundle = this.mainData.sourceCode;
         if (bundle == null || bundle.files ==null) {
-            this.mainData.sourceCode = this.InterpretSourceCode(s);
             return this.mainData.sourceCode;
         }
-
+        
         if (s.files == null) return bundle;
         
         for (var i = 0; i < s.files.length; i++) {
@@ -223,16 +219,14 @@ export class SourceCodeManager {
                 if (file.lines != null && fileCompiled.lines != null) {
                     for (var j = 0; j < fileCompiled.lines.length; j++) {
                         var lineCompiled = fileCompiled.lines[j];
-                        var line = file.lines.find(x => x.data.lineNumber == lineCompiled.lineNumber);
+                        var line = file.lines.find(x => x.data.lineNumber == lineCompiled.line);
                         if (line != null && line.data != null && lineCompiled != null) {
-                            line.data.resultMemoryAddress = lineCompiled.resultMemoryAddress;
+                            line.data.resultMemoryAddress = lineCompiled.address;
                             line.canSetBreakPoint = line.data.resultMemoryAddress != null && line.data.resultMemoryAddress !== "";
                         }
                     }
                 }
             }
-            else 
-                bundle.files.push(CreateNewFile(fileCompiled));
         }
         var labels = this.data.labels;
         if (s.labels != null && bundle.labels != null) {

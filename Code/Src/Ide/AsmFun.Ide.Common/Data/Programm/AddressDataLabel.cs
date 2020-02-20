@@ -4,15 +4,14 @@
 //
 #endregion
 
-using System.Collections.Generic;
 
 namespace AsmFun.Ide.Common.Data.Programm
 {
-    public class SourceCodeBundle
+    public class AddressDataLabel
     {
-        public string SourceFileName { get; set; }
+        public int Address { get; set; }
         public string Name { get; set; }
-        public List<SourceCodeFile> Files { get; set; } = new List<SourceCodeFile>();
-
+        public int Value { get; set; }
+        public int Length { get; set; }
     }
 }

@@ -4,7 +4,6 @@
 //
 #endregion
 
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Ide.Common.Data;
 using AsmFun.Ide.Common.Data.Programm;
 using AsmFun.Ide.Common.DataAccess;
@@ -40,10 +39,9 @@ namespace AsmFun.Ide.DataAccess
             buildConfiguration.ProgramFileName = prgrm;
             if (!File.Exists(prgrm))
                 return bundle;
-            LoadLabels(projectSettings, bundle);
             return bundle;
         }
-        protected abstract void LoadLabels(ProjectSettings projectSettings, SourceCodeBundle bundle);
+        protected abstract void LoadLabels(ProjectSettings projectSettings, AddressDataBundle bundle);
 
 
 
@@ -78,19 +76,19 @@ namespace AsmFun.Ide.DataAccess
             return data.Replace("\\", "/");
         }
 
-        public SourceCodeBundle ParseCompiledLabels(ProjectSettings projectSettings)
+        public AddressDataBundle ParseCompiledLabels(ProjectSettings projectSettings)
         {
             if (string.IsNullOrWhiteSpace(projectSettings.ReportFileName)) return null;
             var buildConfiguration = projectManager.GetBuildConfiguration(projectSettings);
             if (buildConfiguration == null) return null;
-            var nullBundle = new SourceCodeBundle { Files = new List<SourceCodeFile>(), Name = "Unknown" };
+            var nullBundle = new AddressDataBundle { Name = "Unknown" };
             var outputFolder = buildConfiguration.OutputFolderName;
             var prgrm = Path.Combine(projectSettings.Folder, outputFolder, projectSettings.ReportFileName);
             if (string.IsNullOrWhiteSpace(prgrm) || !File.Exists(prgrm))
                 return nullBundle;
-            return LoadSourceByCompiled(projectSettings, prgrm);
+            return LoadAddressData(projectSettings, prgrm);
         }
-        protected abstract SourceCodeBundle LoadSourceByCompiled(ProjectSettings projectSettings, string prgrm);
+        protected abstract AddressDataBundle LoadAddressData(ProjectSettings projectSettings, string prgrm);
 
        
 

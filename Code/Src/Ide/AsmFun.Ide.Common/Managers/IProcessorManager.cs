@@ -5,17 +5,17 @@
 #endregion
 
 using System.Collections.Generic;
-using AsmFun.Common.Ide.Data.Programm;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Ide.Common.Data.Dissasembly;
+using AsmFun.Ide.Common.Data.Programm;
 
 namespace AsmFun.Ide.Common.Managers
 {
     public interface IProcessorManager
     {
         ProcessorDataModel GetData();
-        List<SourceCodeLabel> GetLabels();
+        List<AddressDataLabel> GetLabels();
         ProcessorStackModel GetStack();
-        List<SourceCodeLabel> GetLabelValues(List<PropertyData> properties);
+        List<AddressDataLabel> GetLabelValues(List<PropertyData> properties);
     }
 }

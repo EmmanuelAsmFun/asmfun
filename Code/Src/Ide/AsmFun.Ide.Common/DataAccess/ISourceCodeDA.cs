@@ -12,7 +12,7 @@ namespace AsmFun.Ide.Common.DataAccess
     public interface ISourceCodeDA
     {
         SourceCodeBundle LoadProgram(ProjectSettings projectSettings);
-        SourceCodeBundle ParseCompiledLabels(ProjectSettings projectSettings);
+        AddressDataBundle ParseCompiledLabels(ProjectSettings projectSettings);
         void Save(SourceCodeBundle bundle);
     }
 }

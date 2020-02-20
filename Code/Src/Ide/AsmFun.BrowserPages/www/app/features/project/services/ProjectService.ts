@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { ISourceCodeBundle, IUserSettings, IProjectSettings, IProjectDetail, IBuildConfiguration } from "../data/ProjectData.js";
+import { ISourceCodeBundle, IUserSettings, IProjectSettings, IProjectDetail, IBuildConfiguration, IAddressDataBundle } from "../data/ProjectData.js";
 import { IMainData } from "../../../framework/data/MainData.js";
 import { IEventManager } from "../../../framework/IAsmFunEventManager.js";
 import { ApiService } from "../../../framework/services/ApiService.js";
@@ -38,7 +38,7 @@ export class ProjectService extends ApiService {
         this.callApi("GetSourceCode", doneMethod);
     }
 
-    public LoadCompiled(doneMethod) {
+    public LoadCompiled(doneMethod: (bundle: any) => void) {
         this.callApi("LoadCompiled", doneMethod);
     }
 

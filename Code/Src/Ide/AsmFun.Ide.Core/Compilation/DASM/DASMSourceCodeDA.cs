@@ -23,12 +23,12 @@ namespace AsmFun.Ide.Core.Compilation.DASM
             throw new NotImplementedException();
         }
 
-        protected override void LoadLabels(ProjectSettings projectSettings, SourceCodeBundle bundle)
+        protected override void LoadLabels(ProjectSettings projectSettings, AddressDataBundle bundle)
         {
             throw new NotImplementedException();
         }
 
-        protected override SourceCodeBundle LoadSourceByCompiled(ProjectSettings projectSettings, string prgrm)
+        protected override AddressDataBundle LoadAddressData(ProjectSettings projectSettings, string prgrm)
         {
             throw new NotImplementedException();
         }

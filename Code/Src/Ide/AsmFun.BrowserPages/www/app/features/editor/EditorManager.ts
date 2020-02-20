@@ -157,7 +157,6 @@ export class EditorManager implements IEditorContext {
                 this.currentLine.opcode = opcode;
                 this.currentLine.indent = "";
                 this.currentLine.data.sourceCode = opcode.code;
-                this.currentLine.rawContent = this.currentLine.data.sourceCode;
                 this.currentLine.dataCode = "";
                 this.RedrawLine();
                 this.cursorLogic.MoveToMaxX(this);
