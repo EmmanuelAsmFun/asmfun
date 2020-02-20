@@ -82,7 +82,7 @@ namespace AsmFun.Ide.Core.Compilation.Cc65
                 if (!Directory.Exists(buildFolder)) Directory.CreateDirectory(buildFolder);
                 if (string.IsNullOrWhiteSpace(configuration.CompilerVariables)) configuration.CompilerVariables = "";
                 var commandLine = $" -v --cpu 65C02 {configuration.CompilerVariables} " +
-                    $"-l {buildFolder}/{projectSettings.ReportFileName} " +
+                    $"-l {buildFolder}/{projectSettings.ReportFileName} -g -d -T " +
                     $"-Ln {buildFolder}/{projectSettings.LabelsFileName} " +
                     $"-o {buildFolder}/{fileName}.prg " +
                     $"-m {buildFolder}/{fileName}.lst "; // Create an assembler listing file

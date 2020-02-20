@@ -115,6 +115,7 @@ namespace AsmFun.Ide.Core.Compilation.ACME
                 if (txtLine.Length < 6 + 7) continue;
                 var resultMemoryAddress = txtLine.Substring(6, 6).ToUpper().Trim();
                 if (resultMemoryAddress.Length == 0) continue;
+                resultMemoryAddress = "0" + resultMemoryAddress;
                 // 19 chars the byte value(s)
                 if (txtLine.Length < 6 + 6 + 19) continue;
                 var byteValue = txtLine.Substring(6 + 6, 20).ToUpper().Trim();

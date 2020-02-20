@@ -5,8 +5,11 @@
 #endregion
 
 
+using System.Diagnostics;
+
 namespace AsmFun.Ide.Common.Data.Programm
 {
+    [DebuggerDisplay("AddressDataLabel:{Address.ToString(\"X2\")}:{Name}={Value}:Length={Length}")]
     public class AddressDataLabel
     {
         public int Address { get; set; }

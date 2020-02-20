@@ -51,6 +51,7 @@ export class ProcessorManager {
     private mainData: IMainData;
     private data: IProcessorManagerData;
     private editorData: IEditorManagerData;
+    private editorManager: EditorManager;
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
@@ -59,6 +60,7 @@ export class ProcessorManager {
         this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName)?? new ComputerService(mainData);
         this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
         this.breakPointsManager = mainData.container.Resolve<BreakPointsManager>(BreakPointsManager.ServiceName) ?? new BreakPointsManager(mainData);
+        this.editorManager = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData);
         // Subscribe to commands
         this.mainData.commandManager.Subscribe2(new ComputerResetCommand(), this, () => this.ResetEmulator());
         this.mainData.commandManager.Subscribe2(new ProcessorOpenDebuggerCommand(null), this, x => this.OpenManager(x.state));
@@ -163,6 +165,7 @@ export class ProcessorManager {
 
     public parseData6502(data: IProcessorData | null) {
         if (data == null) return;
+
         this.data.data6502 = data;
         this.data.isCarry = (data.status & P6502Flags.FLAG_CARRY) == P6502Flags.FLAG_CARRY;
         this.data.isZero = (data.status & P6502Flags.FLAG_ZERO) == P6502Flags.FLAG_ZERO;
@@ -191,8 +194,8 @@ export class ProcessorManager {
             }
         }
         if (this.mainData.sourceCode != null && this.mainData.sourceCode.files != null) {
-            // make address 4 chars
-            var address = AsmTools.numToHex4(data.programCounter);
+            // make address 5 chars
+            var address = AsmTools.numToHex5(data.programCounter);
 
             for (var i = 0; i < this.mainData.sourceCode.files.length; i++) {
                 var file = this.mainData.sourceCode.files[i];
@@ -205,9 +208,12 @@ export class ProcessorManager {
                         foundL.selected = true;
                         this.mainData.previousSelectedLine = foundL;
                         this.currentLine = this.mainData.previousSelectedLine;
-                        if (this.currentLine != null)
+                        if (this.currentLine != null) {
                             this.editorData.currentOpcode = this.currentLine.opcode != null && this.currentLine.opcode !== undefined ?
-                                                               this.currentLine.opcode : { asmFunCode: '', code: '' };
+                                this.currentLine.opcode : { asmFunCode: '', code: '' };
+                            if (this.breakPointsManager.HasBreakpoints())
+                                this.editorManager.SelectFile(this.currentLine.file);
+                        }
                     }
                     break;
                 }

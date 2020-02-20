@@ -16,7 +16,7 @@ import { ComputerStarted } from "../computer/commands/ComputerCommands.js";
 import { ProcessorBreakpointSwapStateCommand, ProcessorBreakpointSetByAddressCommand } from "./commands/ProcessorCommands.js";
 
 export class BreakPointsManager {
-   
+    
    
     private lastFiles: IEditorFile[] | null = null;
 
@@ -122,7 +122,7 @@ export class BreakPointsManager {
         this.data.list = [];
         for (var i = 0; i < r.length; i++) {
             var bp = r[i];
-            var address = AsmTools.numToHex4(bp.address);
+            var address = AsmTools.numToHex5(bp.address);
             breakPointsHex.push(address);
             var uiBreakPoint = this.CreateUiBreakpoint(bp.address, address, bp.index);
             uiBreakPoint.IsEnabled = bp.isEnabled;
@@ -171,6 +171,9 @@ export class BreakPointsManager {
             uiBreakPoint.IsEnabled = false;
         }
         this.SetBreakpoint(uiBreakPoint, state);
+    }
+    public HasBreakpoints() {
+        return this.breakPoints.length > 0;
     }
 
 

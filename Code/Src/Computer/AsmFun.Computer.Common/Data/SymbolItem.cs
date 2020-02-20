@@ -2,7 +2,7 @@
 
 namespace AsmFun.Computer.Common.Data
 {
-    [DebuggerDisplay("SymbolItem:{Address.ToString(\"16\")}:{Name}:{Description}")]
+    [DebuggerDisplay("SymbolItem:{Address.ToString(\"X2\")}:{Name}:{Description}")]
     public class SymbolItem
     {
         public int Address { get; set; }

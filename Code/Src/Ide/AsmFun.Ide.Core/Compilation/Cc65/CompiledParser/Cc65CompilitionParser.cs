@@ -106,25 +106,26 @@ namespace AsmFun.Ide.Core.Compilation.Cc65.CompiledParser
             }
             //var resultProgram = "";
 
-            //foreach (var segment1 in config.Segments)
-            //{
-            //    var address = segment1.Memory.StartNum;
-            //    foreach (var line in segment1.Lines)
-            //    {
-            //        resultProgram += " "+line.DataChars;
-            //        var vall = 0;
-            //        var newAddress = address + vall;
-            //        var comp = newAddress - (segment1.Memory.StartNum + segment1.Memory.BytesWritten - 1);
-            //        if (comp != 0)
-            //        {
+            foreach (var segment1 in config.Segments)
+            {
+                var address = segment1.Memory.StartNum;
+                foreach (var line in segment1.Lines)
+                {
+                    //resultProgram += " " + line.DataChars;
+                    var vall = 0;
+                    var newAddress = address + vall;
+                    var newAddress1 = segment1.Memory.StartNum + segment1.Memory.BytesWritten - 1;
+                    var comp = newAddress - newAddress1;
+                    if (line.Address != newAddress1)
+                    {
 
-            //        }
-            //        var newAddress1 = segment1.Memory.StartNum + segment1.Memory.BytesWritten - 1;
-            //        line.Address = newAddress1;
-            //        line.AddressString = newAddress1.ToString("X5");
-            //        segment1.Memory.BytesWritten += line.DataLength;
-            //    }
-            //}
+                    }
+                    
+                    //line.Address = newAddress1;
+                    //line.AddressString = newAddress1.ToString("X5");
+                    segment1.Memory.BytesWritten += line.DataLength;
+                }
+            }
         }
 
         
@@ -133,14 +134,14 @@ namespace AsmFun.Ide.Core.Compilation.Cc65.CompiledParser
         {
             var context = new CC65ParseLineContext
             {
-                AddressString = txtLine.Substring(1, 7).Trim(),
+                AddressString = txtLine.Substring(1, 5).Replace("r", "").Trim(),
                 FileDepth = int.Parse(txtLine.Substring(8, 2).Trim()),
                 DataChars = txtLine.Substring(11, 12).ToUpper().Trim(),
                 CodeChars = txtLine.Substring(24, txtLine.Length - 24),
                 Segment = currentSegment
             };
             context.DataLength = context.DataChars != ""? context.DataChars.Split(' ').Length: 0;
-            context.Address = int.Parse(context.AddressString.Replace("r", ""), System.Globalization.NumberStyles.HexNumber, null);
+            context.Address = int.Parse(context.AddressString, System.Globalization.NumberStyles.HexNumber, null);
             return context;
         }
 
