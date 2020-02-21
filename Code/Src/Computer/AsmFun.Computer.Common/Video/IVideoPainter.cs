@@ -5,7 +5,7 @@
 #endregion
 
 using System;
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
 
 namespace AsmFun.Computer.Common.Video
 {

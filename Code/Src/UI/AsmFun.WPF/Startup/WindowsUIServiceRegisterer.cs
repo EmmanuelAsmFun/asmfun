@@ -6,7 +6,7 @@
 
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Common.UI;
+using AsmFun.Ide.Core.Features.Files;
 using AsmFun.NetCore.Startup;
 using AsmFun.WPF.EnvTools;
 

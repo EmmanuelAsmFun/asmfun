@@ -4,9 +4,10 @@
 //
 #endregion
 
-using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.IO;
+using AsmFun.Computer.Common.IO.Data;
+using AsmFun.Computer.Common.Memory;
 using AsmFun.Computer.Common.Processors;
 using System;
 using System.Collections.Generic;

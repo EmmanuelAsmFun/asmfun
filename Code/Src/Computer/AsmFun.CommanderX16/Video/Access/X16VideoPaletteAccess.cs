@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Computer.Common.Video.Enums;

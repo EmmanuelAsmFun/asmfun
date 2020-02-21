@@ -1,6 +1,6 @@
 ﻿using AsmFun.Computer.Common.Computer.Data;
-using AsmFun.Computer.Common.Data;
-using AsmFun.Computer.Core.DataAccess;
+using AsmFun.Computer.Common.Memory;
+using AsmFun.Computer.Core.Memory;
 
 namespace AsmFun.CommanderX16.Computer
 {

@@ -5,7 +5,8 @@
 #endregion
 
 using System.Collections.Generic;
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
+using AsmFun.Computer.Common.Memory;
 
 namespace AsmFun.Computer.Common.Video
 {

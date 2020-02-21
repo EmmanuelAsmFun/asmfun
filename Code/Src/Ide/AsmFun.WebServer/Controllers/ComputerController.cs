@@ -4,13 +4,15 @@
 //
 #endregion
 
-using AsmFun.Computer.Common.Data;
-using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Computer;
+using AsmFun.Computer.Common.IO.Data;
+using AsmFun.Computer.Common.Memory;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Ide;
-using AsmFun.Ide.Common.Data.Dissasembly;
-using AsmFun.Ide.Common.Data.Programm;
-using AsmFun.Ide.Common.Managers;
+using AsmFun.Ide.Common.Features.Compilation.Data;
+using AsmFun.Ide.Common.Features.Debugger.Data;
+using AsmFun.Ide.Common.Features.Processor;
+using AsmFun.Ide.Common.Features.Projects;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.IO;

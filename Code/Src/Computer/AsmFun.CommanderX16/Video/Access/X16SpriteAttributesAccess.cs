@@ -5,7 +5,7 @@
 #endregion
 
 using AsmFun.CommanderX16.Video.Data;
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using System;

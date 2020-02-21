@@ -5,7 +5,7 @@
 #endregion
 
 using System;
-using AsmFun.Common.UI;
+using AsmFun.Ide.Core.Features.Files;
 using AsmFun.WPF.TheWPF;
 using Microsoft.Win32;
 

@@ -7,21 +7,27 @@
 using System;
 using AsmFun.Common;
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Core.DataAccess;
-using AsmFun.Computer.Common.Managers;
-using AsmFun.Ide.Common.Compilation.ACME;
-using AsmFun.Ide.Common.DataAccess;
-using AsmFun.Ide.Common.Managers;
-using AsmFun.Ide.Compilation;
-using AsmFun.Ide.Core.Managers;
-using AsmFun.Ide.Managers;
-using AsmFun.Ide.Common.Compilation.VASM;
-using AsmFun.Ide.Core.Compilation.VASM;
-using AsmFun.Ide.Core.Compilation.Cc65;
-using AsmFun.Ide.Common.Compilation.Cc65;
-using AsmFun.Ide.Core.Compilation.ACME;
-using AsmFun.Ide.Core.Compilation.DASM;
-using AsmFun.Ide.Common.Compilation.DASM;
+using AsmFun.Computer.Common.Debugger;
+using AsmFun.Ide.Common.Features.Compilation;
+using AsmFun.Ide.Common.Features.Compilation.ACME;
+using AsmFun.Ide.Common.Features.Compilation.Cc65;
+using AsmFun.Ide.Common.Features.Compilation.DASM;
+using AsmFun.Ide.Common.Features.Compilation.VASM;
+using AsmFun.Ide.Common.Features.Debugger;
+using AsmFun.Ide.Common.Features.Files;
+using AsmFun.Ide.Common.Features.Processor;
+using AsmFun.Ide.Common.Features.Projects;
+using AsmFun.Ide.Common.Features.SourceCode;
+using AsmFun.Ide.Core.Features.Compilation;
+using AsmFun.Ide.Core.Features.Compilation.ACME;
+using AsmFun.Ide.Core.Features.Compilation.Cc65;
+using AsmFun.Ide.Core.Features.Compilation.DASM;
+using AsmFun.Ide.Core.Features.Compilation.VASM;
+using AsmFun.Ide.Core.Features.Debugger;
+using AsmFun.Ide.Core.Features.Files;
+using AsmFun.Ide.Core.Features.Processor;
+using AsmFun.Ide.Core.Features.Projects;
+using AsmFun.Ide.Core.Features.SourceCode;
 
 namespace AsmFun.Ide.Startup
 {
@@ -42,6 +48,7 @@ namespace AsmFun.Ide.Startup
             container.Add<IDisassembler, Disassembler>().WithLifestyle(EmServiceLifestyle.Singleton);
             container.Add<ICompilerManager, CompilerManager>().WithLifestyle(EmServiceLifestyle.Singleton);
             container.Add<IFileManager, FileManager>().WithLifestyle(EmServiceLifestyle.Singleton);
+            container.Add<IBreakpointsDA, BreakpointsDA>().WithLifestyle(EmServiceLifestyle.Singleton);
             // Transient
             // ACME
             container.Add<IACMECompiler, ACMECompiler>().WithLifestyle(EmServiceLifestyle.Transient);

@@ -4,7 +4,7 @@
 //
 #endregion
 
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Computer.Common.Video.Enums;
 

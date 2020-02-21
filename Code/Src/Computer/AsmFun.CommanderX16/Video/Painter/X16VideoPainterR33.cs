@@ -1,6 +1,6 @@
 ﻿// Heavely inspired from https://github.com/commanderx16/x16-emulator
 
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Computer.Common.Video.Enums;

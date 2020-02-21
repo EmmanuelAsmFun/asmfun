@@ -12,15 +12,17 @@ using AsmFun.Common.ServiceLoc;
 using AsmFun.Core.DataAccess;
 using AsmFun.Core.ServiceLoc;
 using AsmFun.Core.Startup;
-using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Startup;
 using AsmFun.Ide;
 using AsmFun.Ide.Startup;
 using AsmFun.UI.Consolee;
-using AsmFun.Ide.Common.DataAccess;
-using AsmFun.Computer.Common.Data;
 using AsmFun.CommanderX16.Computer.Factories;
-using AsmFun.Ide.Common.Data;
+using AsmFun.Ide.Common.Features.Ide;
+using AsmFun.Ide.Common.Features.Projects;
+using AsmFun.Ide.Common.Features.Ide.Data;
+using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Computer.Common.Computer;
+using AsmFun.Computer.Common.Computer.EventArgss;
 
 namespace AsmFun.UI.Startup
 {
@@ -63,7 +65,7 @@ namespace AsmFun.UI.Startup
             console.Start();
         }
 
-        private void StartupUI_OnComputerLoaded(object sender, Computer.Common.Data.EventArgss.ComputerEventArgs e)
+        private void StartupUI_OnComputerLoaded(object sender, ComputerEventArgs e)
         {
             // Task.Run(() =>
             // {

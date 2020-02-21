@@ -5,7 +5,7 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.WPF.TheWPF;
 using System;
 using System.Runtime.InteropServices;

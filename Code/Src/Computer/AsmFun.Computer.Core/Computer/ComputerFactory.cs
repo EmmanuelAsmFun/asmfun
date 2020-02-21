@@ -5,9 +5,8 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
-using AsmFun.Computer.Common.Data;
 using System;
 using System.Collections.Generic;
 

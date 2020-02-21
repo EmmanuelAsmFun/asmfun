@@ -5,9 +5,10 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Ide;
-using AsmFun.Ide.Common.DataAccess;
+using AsmFun.Ide.Common.Features.Ide;
+using AsmFun.Ide.Common.Features.Projects;
 using AsmFun.UI.Consolee.Controls;
 using AsmFun.UI.Consolee.UI;
 using System;

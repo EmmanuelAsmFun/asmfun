@@ -5,12 +5,12 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Ide;
-using AsmFun.Ide.Common.Compilation;
-using AsmFun.Ide.Common.Data;
-using AsmFun.Ide.Common.Data.Programm;
-using AsmFun.Ide.Common.DataAccess;
-using AsmFun.Ide.Common.Managers;
+using AsmFun.Ide.Common.Features.Compilation;
+using AsmFun.Ide.Common.Features.Ide;
+using AsmFun.Ide.Common.Features.Ide.Data;
+using AsmFun.Ide.Common.Features.Projects;
+using AsmFun.Ide.Common.Features.SourceCode;
+using AsmFun.Ide.Common.Features.SourceCode.Data;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

@@ -5,20 +5,18 @@
 #endregion
 
 using AsmFun.Common.DataAccess;
-using AsmFun.Computer.Common.Data;
-using AsmFun.Ide.Common.Data;
+using AsmFun.Computer.Common.Computer.Data;
+using AsmFun.Ide.Common.Features.Compilation.ACME;
+using AsmFun.Ide.Common.Features.Compilation.Cc65;
+using AsmFun.Ide.Common.Features.Compilation.DASM;
+using AsmFun.Ide.Common.Features.Compilation.VASM;
+using AsmFun.Ide.Common.Features.Ide;
+using AsmFun.Ide.Common.Features.Ide.Data;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using AsmFun.Ide.Common.Compilation;
-using AsmFun.Ide.Common.Compilation.ACME;
-using System.Collections.Generic;
-using AsmFun.Ide.Common.Compilation.VASM;
-using AsmFun.Ide.Common.Compilation.DASM;
-using AsmFun.Ide.Common.Compilation.Cc65;
-using AsmFun.Ide.Common.DataAccess;
 
 namespace AsmFun.Core.DataAccess
 {

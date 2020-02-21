@@ -1,6 +1,6 @@
 ﻿using AsmFun.Common.ServiceLoc;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.IO;
-using AsmFun.Computer.Common.Managers;
 using AsmFun.Core.Tools;
 using System;
 using System.Threading;

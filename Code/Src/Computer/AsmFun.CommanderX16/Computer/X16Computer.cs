@@ -19,10 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using AsmFun.Computer.Common.Data;
 using AsmFun.Computer.Core.Computer;
 using AsmFun.Computer.Common.IO;
-
+using AsmFun.Computer.Common.IO.Data;
+using AsmFun.Computer.Common.Memory;
 
 namespace AsmFun.CommanderX16.Computer
 {

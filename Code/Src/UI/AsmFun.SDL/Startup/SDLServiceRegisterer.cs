@@ -5,8 +5,8 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Common.UI;
 using AsmFun.EnvTools;
+using AsmFun.Ide.Core.Features.Files;
 using AsmFun.NetCore.Startup;
 
 namespace AsmFun.Startup

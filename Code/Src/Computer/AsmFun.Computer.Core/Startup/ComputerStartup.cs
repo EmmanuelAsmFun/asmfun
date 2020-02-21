@@ -5,10 +5,10 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common.DataAccess;
-using AsmFun.Computer.Common.Managers;
-using AsmFun.Computer.Core.DataAccess;
-using AsmFun.Computer.Core.Managers;
+using AsmFun.Computer.Common.Computer;
+using AsmFun.Computer.Common.Memory;
+using AsmFun.Computer.Core.Computer;
+using AsmFun.Computer.Core.Memory;
 using System;
 
 namespace AsmFun.Computer.Startup

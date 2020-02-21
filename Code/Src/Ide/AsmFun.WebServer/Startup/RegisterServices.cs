@@ -5,11 +5,16 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Ide;
-using AsmFun.Ide.Common.Managers;
+using AsmFun.Ide.Common.Features.Compilation;
+using AsmFun.Ide.Common.Features.Debugger;
+using AsmFun.Ide.Common.Features.Files;
+using AsmFun.Ide.Common.Features.Ide;
+using AsmFun.Ide.Common.Features.Processor;
+using AsmFun.Ide.Common.Features.Projects;
+using AsmFun.Ide.Common.Features.SourceCode;
 using Microsoft.Extensions.DependencyInjection;
-using AsmFun.Ide.Common.DataAccess;
 
 namespace AsmFun.WebServer.Startup
 {

@@ -5,7 +5,7 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Computer;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;

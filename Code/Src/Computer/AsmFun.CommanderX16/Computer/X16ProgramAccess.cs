@@ -1,8 +1,7 @@
 ﻿using AsmFun.Common.Processors;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
-using AsmFun.Computer.Common.Data;
-using AsmFun.Computer.Common.DataAccess;
+using AsmFun.Computer.Common.Memory;
 using AsmFun.Computer.Common.Processors;
 using AsmFun.Computer.Common.Video;
 using System;
@@ -12,8 +11,8 @@ using System.Linq;
 
 namespace AsmFun.CommanderX16.Computer
 {
-	
-	public class X16ProgramAccess : IProgramAccess
+
+    public class X16ProgramAccess : IProgramAccess
 	{
 		internal ushort FA = 0x000280;
 		internal ushort FNLEN = 0x00027D;

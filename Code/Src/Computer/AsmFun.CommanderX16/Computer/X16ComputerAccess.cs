@@ -6,7 +6,7 @@
 
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.Data;
-using AsmFun.Computer.Common.DataAccess;
+using AsmFun.Computer.Common.Memory;
 using AsmFun.Computer.Core.DataAccess.Computer;
 using System.IO;
 

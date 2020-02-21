@@ -5,9 +5,8 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
-using AsmFun.Computer.Common.Data;
+using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.IO;
-using AsmFun.Computer.Common.Managers;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using AsmFun.Startup;
