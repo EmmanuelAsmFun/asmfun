@@ -104,6 +104,9 @@ export class CursorUI implements ICursorUI{
                 endOffset = (<any>selection).focusOffset;
             
             if (startLineNode != null) {
+                var tagOffset = startLineNode.parentNode.getAttribute("data-o");
+                if (tagOffset != null && tagOffset != undefined)
+                    startOffset += parseInt(tagOffset);
                 if (startLineNode.parentNode != undefined) {
                     var attr = startLineNode.parentNode.attributes["data-ln"];
                     if (attr != null && attr.value != null)
@@ -140,6 +143,11 @@ export class CursorUI implements ICursorUI{
             if (endLineNode != null && endLineNode.nodeType === 3) // 3 = #text
             {
                 if (endLineNode.parentNode != undefined) {
+                    if ((<any>endLineNode.parentNode).getAttribute) {
+                        var tagOffset = (<any>endLineNode.parentNode).getAttribute("data-o");
+                        if (tagOffset != null && tagOffset != undefined)
+                            endOffset += parseInt(tagOffset);
+                    }
                     endLineNumber = (<any>endLineNode.parentNode).getAttribute("data-ln");
                     if (endLineNumber == null)
                         if (endLineNode.parentNode.parentNode != undefined) {

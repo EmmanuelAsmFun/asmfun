@@ -132,6 +132,11 @@ export class AsmTools {
             console.error('Failed to copy: ', err);
         }
     }
+
+    public static async CopyToClipBoardSelected() {
+        if (document == null) return;
+        document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+    }
    
 }
 

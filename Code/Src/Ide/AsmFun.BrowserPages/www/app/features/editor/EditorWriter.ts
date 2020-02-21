@@ -7,6 +7,7 @@
 import { EditorData, IEditorFile, IEditorLine, IEditorBundle, CreateNewEditorLine, IEditorLabel, IEditorSelection, IUndoData } from "./data/EditorData.js";
 import { KeyboardKeyCommand, } from "./commands/EditorCommands.js";
 import { IEditorContext } from "./EditorManager.js";
+import { AsmTools } from "../../Tools.js";
 
 
 export class EditorWriter  {
@@ -26,6 +27,11 @@ export class EditorWriter  {
             case 8: allowContinueEmit = this.Backspace(context); break;    // Backspace
             case 46: allowContinueEmit = this.DeleteKey(context); break;   // DeleteKey
             case 9: theKey = "\t"; isTab = true; break;                                  // Tab
+        }
+        if (keyCommand.ctrlKey) {
+            if (keyCommand.key === "x") {
+                return !this.CutText(context);
+            }
         }
 
         // Check if we are typing
@@ -47,6 +53,16 @@ export class EditorWriter  {
                 this.InterpretKey(context, text[i]);
         }
         this.RequireSave(context);
+    }
+
+    public CutText(context: IEditorContext): boolean {
+        this.Copy(context);
+        this.DeleteKey(context);
+        return true;
+    }
+    public Copy(context: IEditorContext) {
+        AsmTools.CopyToClipBoardSelected();
+        return true;
     }
 
     public InterpretKey(context:IEditorContext, theKey: string) {
@@ -119,7 +135,7 @@ export class EditorWriter  {
     }
 
     public Backspace(context: IEditorContext): boolean {
-
+        
         if (context.currentLine == null || context.sourceCode == null || context.currentFile == null) return false;
         var line = context.currentLine.data.sourceCode;
         if (this.DeleteSelection(context)) return false;
@@ -197,7 +213,9 @@ export class EditorWriter  {
         var line = context.currentFile.lines[selection.startLine - 1];
         if (line == null) return false;
         this.AddUndoSameLine(line, context.editorData.cursorX, context.editorData.cursorY);
-        line.data.sourceCode = line.data.sourceCode.substring(0, selection.startOffset) + line.data.sourceCode.substring(selection.endOffset);
+        var beginPart = line.data.sourceCode.substring(0, selection.startOffset);
+        var endPart = line.data.sourceCode.substring(selection.endOffset);
+        line.data.sourceCode = beginPart + endPart;
         context.RedrawLine2(line);
         context.cursorLogic.Deselect();
         context.cursorLogic.MoveLeft(context,false,false);
