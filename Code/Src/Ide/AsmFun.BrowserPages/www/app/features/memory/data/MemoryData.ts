@@ -1,4 +1,6 @@
-import { IEditorLine, IEditorLabel } from "../../editor/data/EditorData";
+import { IEditorLine, IEditorLabel } from "../../editor/data/EditorData.js";
+import { IUILabel } from "../../editor/data/ILabelsData.js";
+import { IUIProperty } from "../../editor/data/IPropertiesData.js";
 
 // #region license
 // ASM Fun
@@ -23,7 +25,7 @@ export interface IMemoryBlockItem {
     isVariable: boolean;
     isZone: boolean;
     isStart: boolean;
-    label?:IEditorLabel;
+    label?: IUILabel | IUIProperty;
     isSc: boolean; // is sourcecode
     isLabel : boolean;
     code:string;

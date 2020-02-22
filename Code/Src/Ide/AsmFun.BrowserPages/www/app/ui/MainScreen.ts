@@ -105,7 +105,7 @@ var scStartPosY = 0;
     (<any>window).moveTheCursor(htmlObj, evt);
     editorManager.NavigateToZone(labelName.substring(2));
     setTimeout(() => {
-        AsmTools.scrollIntoViewIfOutOfView(labelName);
+        AsmTools.scrollIntoViewWithParent(labelName, "sourceCode");
     }, 50);
 
 };
@@ -121,7 +121,7 @@ var scStartPosY = 0;
     if (!myMainData.ctrlKeyIsDown && !ignoreCTRLkey) return;
     console.log("jumpToVar:" + labelName + ":ctrlDown=" + myMainData.ctrlKeyIsDown);
     setTimeout(() => {
-        AsmTools.scrollIntoViewIfOutOfView(labelName);
+        AsmTools.scrollIntoViewWithParent(labelName, "sourceCode");
     }, 50);
 };
 
@@ -148,7 +148,8 @@ document.onkeyup = function (e) {
 document.onkeydown = function (e) {
     // z = 90       e = 69      r = 82      t = 84      d = 68  b = 66
     // e.altKey e.ctrlKey
-    console.log(e.which);
+
+    //console.log(e.which);
     
     var svc = reg.myMainData.container.Resolve<VideoManager>(VideoManager.ServiceName);
 
@@ -173,10 +174,9 @@ document.onkeydown = function (e) {
         if (e.which === 83) {
             console.log("save project");
             // CTRL + S
-            if (myMainData.sourceCode != null) {
-                sendCommand(new ProjectSaveCommand(myMainData.sourceCode));
-                handled = true;
-            }
+            sendCommand(new ProjectSaveCommand());
+            handled = true;
+            
         }
     }
     switch (e.which) {

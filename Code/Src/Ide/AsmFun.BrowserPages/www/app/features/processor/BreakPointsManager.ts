@@ -55,13 +55,13 @@ export class BreakPointsManager {
         this.lastFiles = files;
         if (file == null || line == null) return;
         // Check if the line has an address, otherwise search first next line with address
-        if (!line.canSetBreakPoint) {
+        if (!line.Ui.CanSetBreakPoint) {
             var found = false;
             if (file.lines == null) return;
             var lineIndex = file.lines.indexOf(line);
             for (var i = 0; i < 100; i++) {
                 line = file.lines[i + lineIndex];
-                if (line.canSetBreakPoint) {
+                if (line.Ui.CanSetBreakPoint) {
                     found = true;
                     break;
                 }
@@ -75,11 +75,11 @@ export class BreakPointsManager {
             }
         }
         var ln = line.data.lineNumber;
-        var address = parseInt(line.data.resultMemoryAddress, 16);
+        var address = parseInt(line.Ui.Address, 16);
         var uiBreakPoint = this.data.list.find(x => x.Address == address);
         var state = false;
         if (uiBreakPoint == null) {
-            uiBreakPoint = this.CreateUiBreakpoint(address, line.data.resultMemoryAddress, this.data.list.length);
+            uiBreakPoint = this.CreateUiBreakpoint(address, line.Ui.Address, this.data.list.length);
             uiBreakPoint.LineNumber = ln;
             state = true;
         }
@@ -88,7 +88,7 @@ export class BreakPointsManager {
             uiBreakPoint.IsEnabled = false;
             state = false;
         }
-        line.hasBreakPoint = state;
+        line.Ui.HasBreakPoint = state;
         
         var inArrayIndex = this.usedBreakPoints.findIndex(x => x.data.lineNumber === ln);
         if (inArrayIndex > -1)
@@ -116,7 +116,7 @@ export class BreakPointsManager {
 
     private ParseBreakpoints(r: IDebuggerBreakpoint[], files: IEditorFile[] | null) {
         // unselect all previous used breakpoints lines
-        this.usedBreakPoints.forEach(x => { x.hasBreakPoint = false; });
+        this.usedBreakPoints.forEach(x => { x.Ui.HasBreakPoint = false; });
         this.breakPoints = r;
         var breakPointsHex: string[] = [];
         this.data.list = [];
@@ -138,8 +138,8 @@ export class BreakPointsManager {
                 var line = file.lines[j];
                 for (var k = 0; k < breakPointsHex.length; k++) {
                     var breakpoint = breakPointsHex[k];
-                    if (line.data.resultMemoryAddress == breakpoint) {
-                        line.hasBreakPoint = true;
+                    if (line.Ui.Address == breakpoint) {
+                        line.Ui.HasBreakPoint = true;
                         var uiLine = this.data.list[k];
                         uiLine.File = file;
                         uiLine.Line = line;

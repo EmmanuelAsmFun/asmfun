@@ -104,17 +104,58 @@ export class AsmTools {
                 ell.scrollIntoView({ behavior: "smooth", block: "start", });
                 setTimeout(() => {
                     if (ell == null) return;
-                    ell.scrollIntoView({ behavior: "auto", block: "nearest", })
+                    ell.scrollIntoView({ behavior: "auto", block: "nearest", });
                 }, 300);
             }
         } ,10);
-    //var element = $(el);
-    //var topp = $(window).scrollTop();
-    //var offset = element.offset().top - 50;
-    //if (topp > offset || offset > topp + 1000) {
-    //    $('html, body').animate({ scrollTop: offset }, { duration: 400 });
-    //}
     }
+    public static scrollIntoViewWithParent(elementId, parentElementId:string, directScroll: boolean = false) {
+        setTimeout(() => {
+            var ell = document.getElementById(elementId);
+            if (ell == null) return;
+            if (directScroll)
+                ell.scrollIntoView({ behavior: "auto", block: "nearest", });
+            else {
+                ell.scrollIntoView({ behavior: "smooth", block: "start", });
+                setTimeout(() => {
+                    if (ell == null) return;
+                    ell.scrollIntoView({ behavior: "auto", block: "nearest", });
+                    var sc = document.getElementById(parentElementId);
+                    if (sc == null) return;
+                    var bounds = ell.getBoundingClientRect();
+                    var top = bounds.top;
+                    if (top < 80 && top >= 0)
+                        sc?.scrollBy(0, -80);
+                    else if (top > 800)
+                        sc?.scrollBy(0, 80);
+                }, 300);
+            }
+        } ,10);
+    }
+
+    public static GetAbsPosition = function (el) {
+        var el2 = el;
+        var curtop = 0;
+        var curleft = 0;
+        if (document.getElementById || document.all) {
+            do {
+                curleft += el.offsetLeft - el.scrollLeft;
+                curtop += el.offsetTop - el.scrollTop;
+                el = el.offsetParent;
+                el2 = el2.parentNode;
+                while (el2 != el) {
+                    curleft -= el2.scrollLeft;
+                    curtop -= el2.scrollTop;
+                    el2 = el2.parentNode;
+                }
+            } while (el.offsetParent);
+
+        } else if ((<any>document).layers) {
+            curtop += el.y;
+            curleft += el.x;
+        }
+        return [curtop, curleft];
+    };
 
     public static EnumToArray(enumType) {
         return Object.keys(enumType)
@@ -137,7 +178,18 @@ export class AsmTools {
         if (document == null) return;
         document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
     }
+
    
+}
+
+export class AsmString {
+    public static  CompareInsensitive(str2: string, str1: string) {
+        return new RegExp(str1, "gi").test(str2);
+    }
+
+    public static CleanSearch(str1: string) {
+        return str1.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
 }
 
 export class ASMStorage {

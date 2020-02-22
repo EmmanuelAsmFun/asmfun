@@ -19,11 +19,14 @@ import { ProjectSaveCommand } from "../project/commands/ProjectsCommands.js";
 import { ICommandEvent } from "../../framework/ICommandManager.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameEditor } from "./EditorFactory.js";
+import { IUILine } from "./ui/IUILine.js";
 
 export interface IEditorContext {
+    RenumberLines(fileIndex: number, startIndex: number, length: number);
+    CreateNewLine(fileIndex: number, lineNumber: number): IEditorLine;
+    RemoveLine(fileIndex: number, lineNumber: number, doRenumbering:boolean);
     editorData: EditorData;
     cursorLogic: CursorLogic;
-    sourceCode?: IEditorBundle;
     currentLine?: IEditorLine;
     currentFile?: IEditorFile | null;
     requireSave: boolean;
@@ -37,6 +40,7 @@ export interface IEditorContext {
 
 export class EditorManager implements IEditorContext {
    
+   
 
     private LocalStorageName: string = ".EditorData";
    
@@ -46,7 +50,7 @@ export class EditorManager implements IEditorContext {
     public data: IEditorManagerData;
     
    
-    public sourceCode?: IEditorBundle;
+    //public sourceCode?: IEditorBundle;
     public currentFile?: IEditorFile | null ;
     public currentLine?: IEditorLine;
     private mainData: IMainData;
@@ -79,33 +83,20 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLine2(c.line); } });
         mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
 
-        this.InitFilters();
     }
 
-    private InitFilters() {
-        this.data.zoneSearchChange = () => {
-            var search = this.CleanSearch(this.data.zoneSearch);
-            this.data.zonesFiltered = this.data.zones.filter(x => this.CompareInsensitive(x.name, search));
-        }
-        this.data.labelSearchChange = () => {
-            var search = this.CleanSearch(this.data.labelSearch);
-            this.data.labelsFiltered = this.data.labels.filter(x => this.CompareInsensitive(x.data.name, search));
-        }
-        this.data.variableSearchChange = () => {
-            var search = this.CleanSearch(this.data.variableSearch);
-            this.data.variablesFiltered = this.data.variables.filter(x => this.CompareInsensitive(x.data.name, search));
-        }
-        this.data.macroSearchChange = () => {
-            var search = this.CleanSearch(this.data.macroSearch);
-            this.data.macrosFiltered = this.data.macros.filter(x => this.CompareInsensitive(x.name, search));
-        }
-    }
    
+   
+    public SelectFileByIndex(fileIndex: number) {
+        if (this.data.scfiles == null) return;
+        var file = this.data.scfiles[fileIndex];
+        this.SelectFile(file);
+    }
     public SelectFile(file: IEditorFile | null) {
         if (file == null) return;
         if (this.currentFile === file) return;
-        this.sourceCode = this.mainData.sourceCode;
-
+        var sourceCode = this.sourceCodeManager.GetEditorBundle();
+        if (sourceCode == null) return;
         // Store last cursor coordinates
         if (this.currentFile != null) {
             this.projectManager.ProjectSetProp(this.currentFile.data.fileName + this.LocalStorageName, { x: this.editorData.cursorX, y: this.editorData.cursorY });
@@ -114,8 +105,8 @@ export class EditorManager implements IEditorContext {
             this.currentFile.isSelected = false;
         }
         if (file == null) {
-            if (this.sourceCode == null || this.sourceCode.files == null || this.sourceCode.files.length === 0) return;
-            file = this.sourceCode.files[0];
+            if (sourceCode.files == null || sourceCode.files.length === 0) return;
+            file = sourceCode.files[0];
         }
         this.sourceCodeManager.SelectFile(file);
        
@@ -138,11 +129,11 @@ export class EditorManager implements IEditorContext {
         this.cursorLogic.UpdateCursor(this, false);
     }
 
-    public LoadFirstFile(force:boolean = false) {
-        this.sourceCode = this.mainData.sourceCode;
-        if (this.sourceCode != null && this.sourceCode.files != null && this.sourceCode.files.length > 0) {
+    public LoadFirstFile(force: boolean = false) {
+        var sourceCode = this.sourceCodeManager.GetEditorBundle();
+        if (sourceCode != null && sourceCode.files != null && sourceCode.files.length > 0) {
             if (force || this.currentFile == null)
-                this.SelectFile(this.sourceCode.files[0]);
+                this.SelectFile(sourceCode.files[0]);
         }
     }
 
@@ -155,7 +146,6 @@ export class EditorManager implements IEditorContext {
             var opcode = this.sourceCodeManager.TryGetOpcode(trimmed.trim());
             if (opcode != null && opcode != undefined) {
                 this.currentLine.opcode = opcode;
-                this.currentLine.indent = "";
                 this.currentLine.data.sourceCode = opcode.code;
                 this.currentLine.dataCode = "";
                 this.RedrawLine();
@@ -176,7 +166,7 @@ export class EditorManager implements IEditorContext {
         }
 
         // Label search popup
-        if (this.currentLine.opcode != null && this.mainData.sourceCode != null && this.currentLine.data != null) {
+        if (this.currentLine.opcode != null && this.currentLine.data != null) {
             console.log("Open label code assist");
             this.codeAssistIsOpen = true;
             var cursorPos = this.cursorLogic.GetRealPosition();
@@ -187,7 +177,7 @@ export class EditorManager implements IEditorContext {
         }
 
         // Open opcode popup
-        if (this.mainData.sourceCode != null && this.currentLine.data != null) {
+        if (this.currentLine.data != null) {
             console.log("Open opcode assist");
             this.codeAssistIsOpen = true;
             var cursorPos = this.cursorLogic.GetRealPosition();
@@ -243,6 +233,9 @@ export class EditorManager implements IEditorContext {
         // Check if we are typing
         allowContinueEmit = this.editorWriter.KeyPessed(this, allowContinueEmit, keyCommand);
         keyCommand.allowContinueEmit = allowContinueEmit;
+
+        if (this.currentLine != null)
+            console.log(this.currentLine.data.sourceCode);
     }
 
     public RedrawLine() {
@@ -251,27 +244,40 @@ export class EditorManager implements IEditorContext {
     }
     
     public RedrawLine2(line: IEditorLine) {
-        if (this.sourceCode == null) return;
-        ResetLineProperties(line);
-        this.sourceCodeManager.ReInterpretLine(line.context, line);
-        this.sourceCodeManager.UpdateLineHtml(line, this.data.labels);
-        this.sourceCodeManager.RedrawErrorBar(<any>this.currentFile, line);
+        this.sourceCodeManager.RedrawLine(line);
+        //ResetLineProperties(line);
+        //this.sourceCodeManager.ReInterpretLine(line.context, line);
+        //this.sourceCodeManager.UpdateLineHtml(line, this.data.labels);
+        //this.sourceCodeManager.RedrawErrorBar(<any>this.currentFile, line);
         
         if (this.currentLine == line) {
             this.cursorLogic.UpdateMaxX(this);
-            this.UpdateOpcode();
+            //this.UpdateOpcode();
         }
         // console.log("HTML:"+this.currentLine.sourceCodeHtml);
     }
     public RedrawLineNumber(line: IEditorLine) {
-        if (this.sourceCode == null) return;
-        this.sourceCodeManager.UpdateLineHtml(line, this.data.labels);
+        this.sourceCodeManager.RedrawLineNumber(line);
+    }
+
+    public CreateNewLine(fileIndex: number, lineNumber: number): IEditorLine {
+        if (this.sourceCodeManager == null) return <any>null;
+        return this.sourceCodeManager.CreateNewLine(fileIndex, lineNumber);
+    }
+    public RemoveLine(fileIndex: number, lineNumber: number, doRenumbering: boolean) {
+        if (this.sourceCodeManager == null) return;
+        return this.sourceCodeManager.RemoveLine(fileIndex, lineNumber, doRenumbering);
+    }
+    public RenumberLines(fileIndex: number, startIndex: number, length: number) {
+        if (this.sourceCodeManager == null) return;
+        return this.sourceCodeManager.RenumberLines(fileIndex, startIndex, length);
     }
 
     public UpdateOpcode() {
-        if (this.currentLine == null) return;
-        this.data.currentOpcode = this.currentLine.opcode != null && this.currentLine.opcode !== undefined ?
-            this.currentLine.opcode : { asmFunCode: '', code: '' };
+        // still needed?
+        //if (this.currentLine == null) return;
+        //this.data.currentOpcode = this.currentLine.opcode != null && this.currentLine.opcode !== undefined ?
+        //    this.currentLine.opcode : { asmFunCode: '', code: '' };
     }
 
     public MoveCursor(x, y, smoothScolling:boolean) {
@@ -308,23 +314,26 @@ export class EditorManager implements IEditorContext {
     }
 
     public NavigateToMacro(name: string) {
-        if (this.mainData.sourceCode == null) return;
-        var macro = this.data.macros.find(x => x.name === name);
+        if (this.sourceCodeManager.Bundle == null) return;
+        var macro = this.sourceCodeManager.Bundle.GetMacro(name);
         if (macro == null) return;
-        this.SelectFile(macro.file);
+        this.SelectFileByIndex(macro.Ui.FileIndex);
         var thiss = this;
         setTimeout(() => {
             if (macro == null) return;
-            this.MoveCursor(thiss.editorData.cursorX, macro.lines[0].data.lineNumber-1,true);
+            this.MoveCursor(thiss.editorData.cursorX, macro.Line.LineNumber - 1, true);
         }, 10);
     }
 
     public NavigateToZone(name: string) {
-        if (this.mainData.sourceCode == null) return;
-        var label = this.data.labels.find(x => x.data.name === name);
-        if (label == null || label.file == null) return;
-        this.SelectFile(label.file);
-        // this.MoveCursor(this.editorData.cursorX, label..lines[0].data.lineNumber);
+        if (this.sourceCodeManager.Bundle == null) return;
+        var label = this.sourceCodeManager.Bundle.GetLabel(name);
+        if (label == null || label.Line == null) return;
+        this.SelectFileByIndex(label.Ui.FileIndex);
+        //setTimeout(() => {
+        //    if (label == null) return;
+        //    this.MoveCursor(this.editorData.cursorX, label.Line.LineNumber - 1, true);
+        //}, 10);
     }
 
     private SwapOutputWindow(state: boolean | null) {
@@ -346,8 +355,16 @@ export class EditorManager implements IEditorContext {
     }
 
 
-    public EditorScrollToLine(line: IEditorLine | null) {
-        if (line == null || line.data == null) return;
+    public EditorScrollToLine(lineO: IEditorLine | IUILine | null) {
+        if (lineO == null) return;
+        if ((<any>lineO).LineNumber != undefined) {
+            var lineI = <IUILine>lineO;
+            this.SelectFileByIndex(lineI.FileIndex);
+            this.MoveCursor(0, lineI.LineNumber - 1, true);
+            return;
+        }
+        var line = <IEditorLine>lineO;
+        if (line.data == null) return;
         this.SelectFile(line.file);
         this.MoveCursor(0, line.data.lineNumber - 1,true);
     }

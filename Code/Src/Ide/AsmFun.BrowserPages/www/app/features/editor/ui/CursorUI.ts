@@ -39,7 +39,7 @@ export class CursorUI implements ICursorUI{
         this.cursorElement.style.left = pxPosX + "px";
         this.cursorElement.style.top = pxPosY + "px";
         if (withSmoothScoll) {
-            AsmTools.scrollIntoViewIfOutOfView(this.cursorElement.id, false);
+            AsmTools.scrollIntoViewWithParent(this.cursorElement.id, "sourceCode", false);
         }
         else
             this.cursorElement.scrollIntoView({ behavior: "auto", block: "nearest", });

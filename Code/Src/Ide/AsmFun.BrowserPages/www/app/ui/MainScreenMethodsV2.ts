@@ -12,6 +12,8 @@ import { MainScreenMethods } from "./MainScreenMethods.js";
 import { IEditorLine, IEditorLabel } from "../features/editor/data/EditorData.js";
 import { ProcessorManager } from "../features/processor/ProcessorManager.js";
 import { ASMFunPlayerManager } from "../features/player/ASMFunPlayerManager.js";
+import { IUILine } from "../features/editor/ui/IUILine.js";
+import { IUIProperty } from "../features/editor/data/IPropertiesData.js";
 
 
     // Todo: Clean this mess up
@@ -28,35 +30,35 @@ import { ASMFunPlayerManager } from "../features/player/ASMFunPlayerManager.js";
     }
 
     // Todo : clean this up with commands
-    export function SwapChangeLabelValue(line: IEditorLine) {
-        if (line.label == null || line.label === undefined) return;
-        var label: IEditorLabel = line.label;
-        if (MainScreenMethods.S.lastEditedLabel != null && MainScreenMethods.S.lastEditedLabel.isInEditMode === true) {
-            MainScreenMethods.S.lastEditedLabel.isInEditMode = false;
+export function SwapChangeLabelValue(prop: IUIProperty) {
+    
+        if (prop == null) return;
+        if (MainScreenMethods.S.lastEditedLabel != null &&
+            MainScreenMethods.S.lastEditedLabel.IsInEditMode === true) {
+            MainScreenMethods.S.lastEditedLabel.IsInEditMode = false;
         }
-        console.log("SwapChangeLabelValue:" + label.data.name);
-        label.isInEditMode = !label.isInEditMode;
-        if (label.isInEditMode) {
-            label.newValue = label.labelhexValue;
+        prop.IsInEditMode = !prop.IsInEditMode;
+        if (prop.IsInEditMode) {
+            prop.NewValue = prop.Value;
         }
-        MainScreenMethods.S.SetEditorEnable(!label.isInEditMode);
-        MainScreenMethods.S.lastEditedLabel = label;
+    MainScreenMethods.S.lastEditedLabel = prop;
         setTimeout(() => {
-            var el = document.getElementById('labelEdit' + line.data.lineNumber);
+            var el = document.getElementById('labelEdit' + prop.LineNumber);
             if (el != null)
                 el.focus();
         }, 50);
     }
-    export function ChangeLabelValue(e: KeyboardEvent, label: IEditorLabel) {
-
+export function ChangeLabelValue(e: KeyboardEvent, prop: IUIProperty) {
+        if (prop == null) return;
+        var label = prop;
         if (e.keyCode === 13) {
-            console.log("ChangeLabelValue:" + label.data.name + " = " + label.newValue);
-            if (label.newValue == null || label.newValue === "") return;
-            var newValue = AsmTools.hexToNum(label.newValue);
-            if (newValue == label.data.value) return;
-            MainScreenMethods.S.mainData.container.Resolve<ProcessorManager>(ProcessorManager.ServiceName)?.ChangeLabelValue(label, newValue);
-            label.isInEditMode = false;
-            MainScreenMethods.S.SetEditorEnable(true);
+            //console.log("ChangeLabelValue:" + label.data.name + " = " + label.newValue);
+            if (label.NewValue == null || label.NewValue === "") return;
+            var newValue = AsmTools.hexToNum(label.NewValue);
+            var oldValue = AsmTools.hexToNum(label.Value);
+            if (newValue == oldValue) return;
+            MainScreenMethods.S.mainData.container.Resolve<ProcessorManager>(ProcessorManager.ServiceName)?.ChangeLabelValue(prop, newValue);
+            label.IsInEditMode = false;
             e.stopPropagation();
             e.preventDefault();
             e.returnValue = false;
@@ -64,8 +66,7 @@ import { ASMFunPlayerManager } from "../features/player/ASMFunPlayerManager.js";
             return false;
         }
         else if (e.keyCode === 27) {
-            label.isInEditMode = false;
-            MainScreenMethods.S.SetEditorEnable(true);
+            label.IsInEditMode = false;
             e.stopPropagation();
             e.preventDefault();
             e.returnValue = false;
@@ -76,12 +77,4 @@ import { ASMFunPlayerManager } from "../features/player/ASMFunPlayerManager.js";
     }
 
 
- 
- 
-
-//var MainScreenMethods = 
-
-//    static ExecuteCommand(command: IBaseCommand) {
-//        MainScreenMethods.S.mainData.commandManager.InvokeCommand(command);
-//    }
 

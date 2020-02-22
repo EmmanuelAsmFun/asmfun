@@ -12,6 +12,7 @@ import { ICommandEvent } from "../../framework/ICommandManager.js";
 import { IEditorLine, IEditorManagerData } from "./data/EditorData.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameCodeAssist, UIDataNameEditor } from "./EditorFactory.js";
+import { SourceCodeManager } from "./SourceCodeManager.js";
 
 export class CodeAssistPopupManager {
    
@@ -23,6 +24,7 @@ export class CodeAssistPopupManager {
     private isMacroSearch: boolean = false;
     private isOpcodeSearch: boolean = false;
     private opcodeManager: OpcodeManager;
+    private sourceCodeManager: SourceCodeManager;
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
@@ -30,6 +32,7 @@ export class CodeAssistPopupManager {
         this.editorData = mainData.GetUIData(UIDataNameEditor);
         mainData.commandManager.Subscribe2(new KeyboardKeyCommand(), this,(k,e) => this.keyPressed(k,e));
         this.opcodeManager = mainData.container.Resolve<OpcodeManager>(OpcodeManager.ServiceName) ?? new OpcodeManager();
+        this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(mainData);
     }
 
     private keyPressed(keyCommand: KeyboardKeyCommand, evt: ICommandEvent) {
@@ -93,15 +96,18 @@ export class CodeAssistPopupManager {
     }
 
     private UpdateLabels(search: string) {
+        if (this.sourceCodeManager.Bundle == null) return;
         var thiss = this;
-        if (this.mainData.sourceCode == null || this.editorData.labels == null) return;
+        var labelsSrc = this.sourceCodeManager.Bundle.LabelManager.GetAll();
+        var varsSrc = this.sourceCodeManager.Bundle.PropertyManager.GetAll();
+        var allLabelsSrc = [...labelsSrc, ...varsSrc];
         var labels: ICodeAssistPopupDataItem[] = [];
-        for (var i = 0; i < this.editorData.labels.length; i++) {
-            var label = this.editorData.labels[i];
-            if (search != "" && label.data.name.search(new RegExp(search, "i")) === -1) continue;
+        for (var i = 0; i < allLabelsSrc.length; i++) {
+            var label = allLabelsSrc[i];
+            if (search != "" && label.Ui.Name.search(new RegExp(search, "i")) === -1) continue;
             var el: ICodeAssistPopupDataItem = {
-                data: label,
-                name: label.data.name,
+                data: label.Ui,
+                name: label.Ui.Name,
                 hint: "",
                 isSelected: false,
                 select: (el) => { thiss.Select(el, true); },
@@ -134,14 +140,15 @@ export class CodeAssistPopupManager {
 
     private UpdateMacros(search: string) {
         var thiss = this;
-        if (this.mainData.sourceCode == null || this.editorData.macros == null) return;
+        if (this.sourceCodeManager.Bundle == null) return;
+        var macrosSrc = this.sourceCodeManager.Bundle.MacroManager.GetAll();
         var macros: ICodeAssistPopupDataItem[] = [];
-        for (var i = 0; i < this.editorData.macros.length; i++) {
-            var macro = this.editorData.macros[i];
-            if (search != "" && macro.name.search(new RegExp(search, "i")) === -1) continue;
+        for (var i = 0; i < macrosSrc.length; i++) {
+            var macro = macrosSrc[i];
+            if (search != "" && macro.Ui.Name.search(new RegExp(search, "i")) === -1) continue;
             var el: ICodeAssistPopupDataItem = {
-                data: macro,
-                name: macro.name,
+                data: macro.Ui,
+                name: macro.Ui.Name,
                 hint:"",
                 isSelected: false,
                 select: (el) => { thiss.Select(el, true); },

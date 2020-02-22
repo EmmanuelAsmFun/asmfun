@@ -1,4 +1,4 @@
-﻿
+﻿@import "colors";
 @editorLineHeight: 18px;
 
 .myCursor {
@@ -240,22 +240,20 @@
         color: darkred;
     }
 
-    .sourceCode .zone, .sourceCode .zonejp {
-        color: #39b6ff;
-    }
+.sourceCode .zone, .sourceCode .zonejp {
+    color: #7096ac;
+}
+.sourceCode .label, .sourceCode .labeljp {
+    color: #39b6ff;
+}
 
-    .sourceCode .macrojp {
-        color: #39f9ff;
-    }
+.sourceCode .macrojp, .sourceCode .macro {
+    color: #39f9ff;
+}
 
-    .sourceCode .var {
-        color: #f1b767;
-    }
 
-    .sourceCode .varjp {
-        color: #04be9c;
-    }
 
+ 
     .sourceCode .opcode {
         color: #c077f8;
     }
@@ -264,9 +262,20 @@
         color: #a0e937;
     }
 
-    .sourceCode .lbl {
-        color: #f0f167;
-    }
+.sourceCode .varjp {
+    color: #04be9c;
+}
+.sourceCode .ptrjp, .sourceCode .ptrvar { /* Pointer*/
+    color: @color-lbl-memory;
+}
+
+.sourceCode .var {
+    color: #f1b767;
+}
+
+.sourceCode .set, .sourceCode .prop {
+    color: #00ad8d;
+}
 
     .sourceCode .instr {
         color: #3965e1;

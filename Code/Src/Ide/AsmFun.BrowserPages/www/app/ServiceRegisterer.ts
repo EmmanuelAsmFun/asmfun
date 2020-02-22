@@ -71,7 +71,6 @@ export class ServiceRegisterer {
             eventManager: new AsmFunEventManager(),
             controlManager: new ControlManager(),
             popupManager: new PopupManager(),
-            sourceCode: SourceCodeManager.NewBundle(),
             container: this.container,
             GetUIData: (featureName: string) => this.GetUIData(featureName),
         };

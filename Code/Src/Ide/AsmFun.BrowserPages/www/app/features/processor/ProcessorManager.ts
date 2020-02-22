@@ -26,6 +26,9 @@ import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameProcessor } from "./ProcessorFactory.js";
 import { UIDataNameEditor } from "../editor/EditorFactory.js";
 import { BreakPointsManager } from "./BreakPointsManager.js";
+import { SourceCodeManager } from "../editor/SourceCodeManager.js";
+import { IUILine } from "../editor/ui/IUILine.js";
+import { IUIProperty } from "../editor/data/IPropertiesData.js";
 
 
 class P6502Flags {
@@ -52,6 +55,7 @@ export class ProcessorManager {
     private data: IProcessorManagerData;
     private editorData: IEditorManagerData;
     private editorManager: EditorManager;
+    private sourceCodeManager: SourceCodeManager;
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
@@ -61,6 +65,7 @@ export class ProcessorManager {
         this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
         this.breakPointsManager = mainData.container.Resolve<BreakPointsManager>(BreakPointsManager.ServiceName) ?? new BreakPointsManager(mainData);
         this.editorManager = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData);
+        this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(mainData);
         // Subscribe to commands
         this.mainData.commandManager.Subscribe2(new ComputerResetCommand(), this, () => this.ResetEmulator());
         this.mainData.commandManager.Subscribe2(new ProcessorOpenDebuggerCommand(null), this, x => this.OpenManager(x.state));
@@ -89,8 +94,9 @@ export class ProcessorManager {
 
     private Open() {
         this.data.isShowDebugger = true;
-        if (this.mainData.sourceCode != null) 
-            this.breakPointsManager.LoadBreakPoints(this.mainData.sourceCode.files);
+        var sourceCode = this.sourceCodeManager.GetEditorBundle();
+        if (sourceCode != null) 
+            this.breakPointsManager.LoadBreakPoints(sourceCode.files);
     }
 
     private Close() {
@@ -193,19 +199,20 @@ export class ProcessorManager {
                 this.reloaddissasembly();
             }
         }
-        if (this.mainData.sourceCode != null && this.mainData.sourceCode.files != null) {
+        var sourceCode = this.sourceCodeManager.GetEditorBundle();
+        if (sourceCode != null && sourceCode.files != null) {
             // make address 5 chars
             var address = AsmTools.numToHex5(data.programCounter);
 
-            for (var i = 0; i < this.mainData.sourceCode.files.length; i++) {
-                var file = this.mainData.sourceCode.files[i];
+            for (var i = 0; i < sourceCode.files.length; i++) {
+                var file = sourceCode.files[i];
                 if (file.lines == null) break;
-                var foundL = (<any>file.lines).find(x => x.data.resultMemoryAddress === address);
+                var foundL: IEditorLine = (<any>file.lines).find(x => x.data.resultMemoryAddress === address);
                 if (foundL != null) {
-                    if (!foundL.selected) {
+                    if (!foundL.Ui.Selected) {
                         if (this.mainData.previousSelectedLine != null)
-                            this.mainData.previousSelectedLine.selected = false;
-                        foundL.selected = true;
+                            this.mainData.previousSelectedLine.Ui.Selected = false;
+                        foundL.Ui.Selected = true;
                         this.mainData.previousSelectedLine = foundL;
                         this.currentLine = this.mainData.previousSelectedLine;
                         if (this.currentLine != null) {
@@ -223,43 +230,24 @@ export class ProcessorManager {
     }
 
     public LoadLabelValues() {
-        var thiss = this;
-        //   this.processorService.getLabels((l) => {
-        //    thiss.parseLabels(l);
-        //});
-        if (this.editorData.variables == null) return;
-        var variables: IPropertyData[] = [];
-
-        for (var i = 0; i < this.editorData.variables.length; i++) {
-            var label = this.editorData.variables[i];
-            if (!label.isVariable || label.property == null) continue;
-            variables.push(label.property)
-        }
+        if (this.sourceCodeManager.Bundle == null) return;
+        var vars = this.sourceCodeManager.Bundle.PropertyManager.GetAll();
+        var variables: IPropertyData[] = <any>vars.filter(x => x.Data != null).map(x => x.Data);
         if (variables.length == 0) return;
-        this.computerService.getLabelValues(variables,(l) => {
-            thiss.parseLabels(l);
+        this.computerService.getLabelValues(variables, (l) => {
+            if (this.sourceCodeManager.Bundle == null) return;
+            this.sourceCodeManager.Bundle.PropertyManager.ParseValueDatas(l)
         });
     }
 
-    private parseLabels(l: ISourceCodeLabel[]) {
-        if (this.mainData.sourceCode == null) return;
-        for (var i = 0; i < l.length; i++) {
-            var label = l[i];
-            var editorLabel: IEditorLabel | null | undefined = this.editorData.labels.find(x => x.data.name === label.name);
-            if (editorLabel == null || editorLabel == undefined)
-                continue;
-            editorLabel.data.value = label.value;
-            editorLabel.labelhexValue = AsmTools.numToHex2(label.value);
-            editorLabel.labelhexAddress = AsmTools.numToHex4(label.address);
-            editorLabel.data.variableLength = editorLabel.labelhexValue.replace("$","").length / 2;
-        }
-    }
+  
 
 
     //#region Breakpoints
     public SetBreakpointCurrentLine(file: IEditorFile | null, line: IEditorLine | null) {
-        if (this.mainData.sourceCode == null) return;
-        this.breakPointsManager.SetBreakpointCurrentLine(this.mainData.sourceCode?.files, file, line);
+        var soureCode = this.sourceCodeManager.GetEditorBundle();
+        if (soureCode == null) return;
+        this.breakPointsManager.SetBreakpointCurrentLine(soureCode.files, file, line);
     }
 
     private BreakPointsChanged(r: IDebuggerBreakpoint[] | null) {
@@ -327,7 +315,7 @@ export class ProcessorManager {
     }
     private ScrollToDebuggerLine() {
         if (this.currentLine == null) return;
-        AsmTools.scrollIntoViewIfOutOfView("line" + (this.currentLine.data.lineNumber),true);
+        AsmTools.scrollIntoViewWithParent("line" + (this.currentLine.data.lineNumber),"sourceCode", true);
     }
     private DbgSwapOnlyMyCode(): void {
         this.data.debugOnlyMyCode = !this.data.debugOnlyMyCode;
@@ -341,10 +329,10 @@ export class ProcessorManager {
     }
 
  
-    public ChangeLabelValue(label: IEditorLabel, newValue:number) {
+    public ChangeLabelValue(prop: IUIProperty, newValue: number) {
         var thiss = this;
-       
-        this.debuggerService.ChangeLabelValue(label.data.name, newValue, (r0) => {
+        if (prop == null) return;
+        this.debuggerService.ChangeLabelValue(prop.Name, newValue, (r0) => {
             thiss.LoadLabelValues();
         })
         return false;

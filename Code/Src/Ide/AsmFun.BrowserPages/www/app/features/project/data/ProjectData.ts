@@ -71,6 +71,7 @@ export interface ISourceCodeLabel {
 
 
 export interface ISourceCodeLine {
+    
     resultMemoryAddress: string
     sourceCode: string;
     lineNumber: number;

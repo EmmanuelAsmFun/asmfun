@@ -4,11 +4,17 @@
 //
 // #endregion
 
-import { ICodeBlockContext, IEditorLine } from "../data/EditorData.js";
+import { IEditorLine, IPropertyData } from "../data/EditorData.js";
 import { ICompilationError, ICompilationResult } from "../data/CompilationDatas.js";
+import { IInterpretLine } from "../data/InterpreterData.js";
+import { InterpreterBlock } from "../interpreters/InterpreterBlock.js";
+import { InterpreterLine } from "./InterpreterLine.js";
+import { InterpreterBundle } from "./InterpreterBundle.js";
 
 export interface IInterpreter {
     GetCompilerName(): string;
     GetCompilerResultErrors(c: ICompilationResult): ICompilationError[];
-    InterpretLine(context: ICodeBlockContext, line: IEditorLine, fullParse: boolean): ICodeBlockContext;
+    InterpretLineParts(bundle: InterpreterBundle,interpretLine: InterpreterLine);
+
+    ConvertToProperty(name: string, propType: string, data: string): IPropertyData;
 }

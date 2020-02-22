@@ -618,7 +618,7 @@ body {
   color: #c68af5;
 }
 .memoryViewer .lbbl {
-  color: green;
+  color: #20c25a;
 }
 .memoryViewer .scd.isStart {
   color: #eacfff;
@@ -906,16 +906,15 @@ body {
 }
 .sourceCode .zone,
 .sourceCode .zonejp {
+  color: #7096ac;
+}
+.sourceCode .label,
+.sourceCode .labeljp {
   color: #39b6ff;
 }
-.sourceCode .macrojp {
+.sourceCode .macrojp,
+.sourceCode .macro {
   color: #39f9ff;
-}
-.sourceCode .var {
-  color: #f1b767;
-}
-.sourceCode .varjp {
-  color: #04be9c;
 }
 .sourceCode .opcode {
   color: #c077f8;
@@ -923,8 +922,20 @@ body {
 .sourceCode .comm {
   color: #a0e937;
 }
-.sourceCode .lbl {
-  color: #f0f167;
+.sourceCode .varjp {
+  color: #04be9c;
+}
+.sourceCode .ptrjp,
+.sourceCode .ptrvar {
+  /* Pointer*/
+  color: #20c25a;
+}
+.sourceCode .var {
+  color: #f1b767;
+}
+.sourceCode .set,
+.sourceCode .prop {
+  color: #00ad8d;
 }
 .sourceCode .instr {
   color: #3965e1;
@@ -2292,7 +2303,7 @@ button.btn {
   padding-right: 10px;
 }
 .labels .hilite {
-  background: green;
+  background: #20c25a;
   color: black;
 }
 .labels table,
@@ -2308,7 +2319,7 @@ button.btn {
 .labels .variables table,
 .labels .variables tr,
 .labels .variables td {
-  color: #11b011;
+  color: #20c25a;
 }
 .labels .zones tr,
 .labels .macros tr {

@@ -66,6 +66,7 @@ namespace AsmFun.Ide.Core.Features.Processor
             if (sc == null || properties == null) return new List<AddressDataLabel>();
             foreach (var property in properties)
             {
+                if (property == null) continue;
                 var label = sc.Labels.FirstOrDefault(item => item.Name == property.Name);
                 if (label == null) continue;
                 label.Length = property.DataLength;

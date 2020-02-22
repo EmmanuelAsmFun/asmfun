@@ -29,8 +29,5 @@ export function ProjectOpenProjectWebsite(detail: IProjectDetail | null) { commm
 
 // Todo: remove this!!!
 export function SaveProject() {
-    var mainData = MainScreenMethods.S.mainData;
-    if (mainData.sourceCode == null || mainData.sourceCode.files == null || mainData.sourceCode.files.length === 0)
-        return;
-    MainScreenMethods.ExecuteCommand(new ProjectSaveCommand(mainData.sourceCode));
+    MainScreenMethods.ExecuteCommand(new ProjectSaveCommand());
 }

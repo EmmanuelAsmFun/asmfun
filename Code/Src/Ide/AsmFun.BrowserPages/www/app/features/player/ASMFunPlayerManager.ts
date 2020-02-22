@@ -161,17 +161,17 @@ export class ASMFunPlayerManager implements IPopupWindow {
         switch (tabName) {
             case "Variables":
                 this.data.showVariables = true;
-                this.data.showZones = false;
+                this.data.showLabels = false;
                 this.data.showMacros = false;
                 break;
-            case "Zones":
+            case "Labels":
                 this.data.showVariables = false;
-                this.data.showZones = true;
+                this.data.showLabels = true;
                 this.data.showMacros = false;
                 break;
             case "Macros":
                 this.data.showVariables = false;
-                this.data.showZones = false;
+                this.data.showLabels = false;
                 this.data.showMacros = true;
                 break;
         }
@@ -194,7 +194,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
 
             showMacros: false,
             showVariables: false,
-            showZones: true,
+            showLabels: true,
             showMoreDownloads: false,
             selectVarTab: n => { },
         };

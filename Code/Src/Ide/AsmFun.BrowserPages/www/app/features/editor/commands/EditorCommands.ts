@@ -1,5 +1,6 @@
 ﻿import { BaseCommand } from "../../../framework/commands/CommandsCommon.js";
 import { IEditorFile, IEditorLine } from "../data/EditorData.js";
+import { IUILine } from "../ui/IUILine.js";
 
 // #region license
 // ASM Fun
@@ -100,8 +101,8 @@ export class EditorReloadLineCommand extends BaseCommand {
     }
 }
 export class EditorScrollToLineCommand extends BaseCommand {
-    public line: IEditorLine | null;
-    public constructor(line: IEditorLine | null) {
+    public line: IEditorLine | IUILine | null;
+    public constructor(line: IEditorLine | IUILine | null) {
         super();
         this.line = line;
         this.commandName = "ScrollToLine";

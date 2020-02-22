@@ -6,11 +6,9 @@
 
 import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings, ProjectCompilerTypes, IAddressDataBundle } from '../project/data/ProjectData.js'
 import { OpcodeManager } from './OpcodeManager.js';
-import { CodeBlockContext } from './CodeBlockContext.js';
 import { HtmlSourceCode } from './HtmlSourceCode.js';
 import {
-    IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorLine, IEditorLabel, CreateNewFile, CreateNewBundle, CreateNewEditorLabel,
-    ICodeBlockContext,
+    IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorLine, IEditorLabel, CreateNewFile, CreateNewEditorBundle, CreateNewEditorLabel,
     IEditorManagerData
 } 
         from './data/EditorData.js';
@@ -25,10 +23,12 @@ import { IMainData } from '../../framework/data/MainData.js';
 import { ProjectSaveCommand, ProjectSettingsLoaded } from '../project/commands/ProjectsCommands.js';
 import { ServiceName } from '../../framework/serviceLoc/ServiceName.js';
 import { UIDataNameEditor } from './EditorFactory.js';
+import { IInterpretLine } from './data/InterpreterData.js';
+import { InterpreterBundle } from './interpreters/InterpreterBundle.js';
 
 export class SourceCodeManager {
   
-
+    private editorBundle: IEditorBundle | null = null;
     private projectService: ProjectService;
     private opcodeManager: OpcodeManager;
     private htmlSourceCode: HtmlSourceCode;
@@ -36,6 +36,8 @@ export class SourceCodeManager {
     public data: IEditorManagerData;
     private interpreter?: IInterpreter;
     private lastProjectSettings?: IProjectSettings;
+
+    public Bundle: InterpreterBundle | null = null;
 
 
     constructor(mainData: IMainData) {
@@ -46,7 +48,7 @@ export class SourceCodeManager {
         this.projectService = mainData.container.Resolve<ProjectService>(ProjectService.ServiceName) ?? new ProjectService(mainData);
         this.mainData = mainData;
         
-        this.mainData.commandManager.Subscribe2(new ProjectSaveCommand(), this, x => thiss.SaveSourceCode(x.bundle));
+        this.mainData.commandManager.Subscribe2(new ProjectSaveCommand(), this, x => thiss.SaveSourceCode());
         this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => thiss.ParseProjectSettings(x.projectSettings));
 
     }
@@ -80,8 +82,9 @@ export class SourceCodeManager {
         }
     }
 
-    public SaveSourceCode(bundle?: IEditorBundle) {
+    public SaveSourceCode() {
         var thiss = this;
+        var bundle = this.editorBundle;
         if (bundle == null) return;
         var scBundle = bundle.data;
         if (scBundle.files == null) return;
@@ -106,7 +109,7 @@ export class SourceCodeManager {
         
         return true;
     }
-
+ 
     private ParseProjectSettings(projectSettings: IProjectSettings | null) {
         if (projectSettings == null) return;
         this.lastProjectSettings = projectSettings;
@@ -117,20 +120,12 @@ export class SourceCodeManager {
         this.LoadSourceCode();
     }
     private RemoveAllSourceCode() {
-        this.mainData.sourceCode = CreateNewBundle({
+        this.editorBundle = CreateNewEditorBundle({
             name: "prg",
             sourceFileName: "prg",
             files: [],
             labels: [],
         });
-        this.data.variables = [];
-        this.data.variablesFiltered = [];
-        this.data.labels = [];
-        this.data.labelsFiltered = [];
-        this.data.macros = [];
-        this.data.macrosFiltered = [];
-        this.data.zones = [];
-        this.data.zonesFiltered = [];
         this.data.scfiles = [];
         this.data.selectedFile = undefined;
         this.data.currentOpcode = null;
@@ -175,18 +170,18 @@ export class SourceCodeManager {
             if (errors != null) {
                 for (var i = 0; i < errors.length; i++) {
                     var error = errors[i];
-                    var file = this.mainData.sourceCode?.files.find(x => x.data.fileName == error.fileName);
+                    var file = this.editorBundle?.files.find(x => x.data.fileName == error.fileName);
                     if (file == null) {
                         if (this.lastProjectSettings != null && error.filePath != null)
                             error.filePath = error.filePath.replace(this.lastProjectSettings.folder, "").replace("..\\", "").replace("../", "");
                         var fileWithPath = error.filePath + error.fileName;
-                        file = this.mainData.sourceCode?.files.find(x => x.data.fileName == fileWithPath);
+                        file = this.editorBundle?.files.find(x => x.data.fileName == fileWithPath);
                     }
                     if (file != null) {
                         var line = file.lines.find(x => x.data.lineNumber == error.lineNumber);
                         if (line != null) {
-                            line.hasError = true;
-                            line.error = {
+                            line.Ui.HasError = true;
+                            line.Ui.Error = {
                                 line: line,
                                 message: error.error + " " + error.description,
                                 isFromCompiler: true,
@@ -204,122 +199,52 @@ export class SourceCodeManager {
     }
 
     private MergeCompile(s: IAddressDataBundle) {
-        var bundle = this.mainData.sourceCode;
-        if (bundle == null || bundle.files ==null) {
-            return this.mainData.sourceCode;
-        }
-        
-        if (s.files == null) return bundle;
-        
-        for (var i = 0; i < s.files.length; i++) {
-            var fileCompiled = s.files[i];
-            if (fileCompiled.lines == null) continue;
-            var file = bundle.files.find(x => x.data.fileName == fileCompiled.fileName);
-            if (file != null) {
-                if (file.lines != null && fileCompiled.lines != null) {
-                    for (var j = 0; j < fileCompiled.lines.length; j++) {
-                        var lineCompiled = fileCompiled.lines[j];
-                        var line = file.lines.find(x => x.data.lineNumber == lineCompiled.line);
-                        if (line != null && line.data != null && lineCompiled != null) {
-                            line.data.resultMemoryAddress = lineCompiled.address;
-                            line.canSetBreakPoint = line.data.resultMemoryAddress != null && line.data.resultMemoryAddress !== "";
-                        }
-                    }
-                }
-            }
-        }
-        var labels = this.data.labels;
-        if (s.labels != null && bundle.labels != null) {
-            for (var i = 0; i < s.labels.length; i++) {
-                var lblCompiled = s.labels[i];
-                var lbl = labels.find(x => x.data.name == lblCompiled.name);
-                if (lbl != null)
-                    lbl.data.address = lblCompiled.address;
-            }
-        }
-        return bundle;
+        if (s.files == null) return;
+        if (this.Bundle == null) return;
+        this.Bundle.ParseAddressData(s);
     }
   
 
     private InterpretSourceCode(s: ISourceCodeBundle): IEditorBundle
     {
-        var editorBundle: IEditorBundle = CreateNewBundle(s);
-        var variables: IEditorLabel[] = [];
-        this.data.variables = [];
-        this.data.variablesFiltered = [];
-        this.data.labels = [];
-        this.data.labelsFiltered = [];
-        this.data.macros = [];
-        this.data.macrosFiltered = [];
-        this.data.zones = [];
-        this.data.zonesFiltered = [];
-
-        // Create root context
-        var rootContext: ICodeBlockContext = new CodeBlockContext(this.data, editorBundle);
-         rootContext.name = "root";
-         rootContext.isRoot = true;
-         editorBundle.allContext.push(rootContext);
-         if (s.files != null) {
-
-            // Parse all lines
-            for (var i = 0; i < s.files.length; i++) {
-                var file = s.files[i];
-                var editorFile: IEditorFile = CreateNewFile(file);
-                editorBundle.files.push(editorFile);
-                var context: ICodeBlockContext = rootContext.CreateChild(editorFile);
-                context.isFile = true;
-                context.name = editorFile.data.fileName;
-                if (file.lines != null) {
-                    for (var j = 0; j < file.lines.length; j++) {
-                        var line = file.lines[j];
-                        var editorLine: IEditorLine = CreateNewEditorLine(context, line, editorFile);
-                        editorFile.lines.push(editorLine);
-                        editorLine.hasError = false;
-                        context = this.InterpretLine(context, editorLine, true);
-                        context.AddLine(editorLine);
-                        if (editorLine.isEndOfBlock && context.parent != null) {
-                            context = context.parent;
-                        }
-                    }
-                }
-            }
-
-            // Parse all link to the labels, variables and macros
-            for (var i = 0; i < editorBundle.allContext.length; i++) {
-                var context = editorBundle.allContext[i];
-                context.ParseLinksBetweenLines();
-             }
-
-             // Parse all labels that are not zones
-             var labels = this.data.labels;
-             for (var i = 0; i < labels.length; i++) {
-                 var lbl = labels[i];
-                 if (!lbl.isZone)
-                     variables.push(lbl);
-             }
-
-             
-            // Convert to html
-            for (var i = 0; i < editorBundle.files.length; i++) {
-                var editorFile = editorBundle.files[i];
-                //var rootHtml = this.htmlSourceCode.CreateSpanRoot();
-                //editorFile.fileHtml = rootHtml;
-                for (var j = 0; j < editorFile.lines.length; j++) {
-                    var editorLine = editorFile.lines[j];
-                    this.UpdateLineHtml(editorLine, labels);
-                    //if (editorLine.codeHtml != null && editorLine.codeHtml.root !== undefined)
-                    //    rootHtml.appendChild(editorLine.codeHtml.root);
-                }
-            }
-        }
+        if (this.interpreter == null) this.interpreter = this.PrepareInterpreter();
+        this.data.Bundle.Labels = { List: [], Search: "", SearchChanged: () => { } };
+        this.data.Bundle.Macros = { List: [], Search: "", SearchChanged: () => { } };
+        this.data.Bundle.Properties = { List: [], Search: "", SearchChanged: () => { } };
+        this.data.Bundle.Zones = { List: [], Search: "", SearchChanged: () => { } }
+        this.Bundle = InterpreterBundle.NewBundle( this.interpreter, this.htmlSourceCode, this.data.Bundle);
+        this.editorBundle = this.Bundle.Interpret(s);
 
         // Parse all to the UI
-       // this.data.variables = variables;
-        this.mainData.sourceCode = editorBundle;
-        this.data.scfiles = this.mainData.sourceCode.files;
-        return editorBundle;
+        this.data.scfiles = this.editorBundle.files;
+        return this.editorBundle;
     }
 
+    public GetEditorBundle(): IEditorBundle | null {
+        return this.editorBundle;
+    }
+
+
+    public RedrawLine(line: IEditorLine) {
+        if (this.Bundle == null) return;
+        this.Bundle.ReInterpret(line.file.Index, line.data.lineNumber, true);
+    }
+    public RedrawLineNumber(line: IEditorLine) {
+        if (this.Bundle == null) return;
+        this.Bundle.RedrawLineNumber(line.file.Index, line.data.lineNumber);
+    }
+    public CreateNewLine(fileIndex: number, lineNumber: number): IEditorLine {
+        if (this.Bundle == null) return <any>null;
+        return this.Bundle.CreateNewLine(fileIndex, lineNumber);
+    }
+    public RemoveLine(fileIndex: number, lineNumber: number, doRenumbering: boolean) {
+        if (this.Bundle == null) return;
+        return this.Bundle.RemoveLine(fileIndex, lineNumber, doRenumbering);
+    }
+    public RenumberLines(fileIndex: number, startIndex: number, length: number) {
+        if (this.Bundle == null) return;
+        return this.Bundle.RenumberLines(fileIndex, startIndex, length);
+    }
 
     public RedrawErrorsBar(file?: IEditorFile) {
         var errors: IErrorForStatusBar[] = [];
@@ -327,7 +252,7 @@ export class SourceCodeManager {
         if (file.lines != null) {
             for (var j = 0; j < file.lines.length; j++) {
                 var line = file.lines[j];
-                if (line.hasError)
+                if (line.Ui.HasError)
                     errors.push({
                         lineNumber: line.data.lineNumber,
                         className: 'error',
@@ -342,7 +267,7 @@ export class SourceCodeManager {
         if (file.lines == null) return;
         var errors: IErrorForStatusBar[] = this.data.errorsForStatusBar;
         var found = errors.findIndex(x => x.lineNumber == line.data.lineNumber);
-        if (line.hasError && found < 0)
+        if (line.Ui.HasError && found < 0)
             errors.push({
                 lineNumber: line.data.lineNumber,
                 className: 'error',
@@ -356,38 +281,16 @@ export class SourceCodeManager {
     }
 
     public UpdateLineHtml(line: IEditorLine, sLabels?: IEditorLabel[]) {
-        
-        var sc = this.htmlSourceCode.convertLineLogicToHtml(line);
-        sc = this.htmlSourceCode.composeLineFinalizeHtml(line, sc);
-        // parse the final line at the end to not make vue update on every change.
-        line.sourceCodeHtml = sc.outerHTML;
-        //if (line.codeHtml == null) {
-        //    line.codeHtml = {
-        //        code : sc
-        //    }
-        //} else 
-        //    line.codeHtml.code = sc;
-        //this.htmlSourceCode.CreateFullLine(line);
-       
-        
+        if (this.Bundle == null) return;
+        this.Bundle.RenderLineByLineNumber(line.file.Index, line.data.lineNumber);
     }
    
-    public ReInterpretLine(context: ICodeBlockContext, currentLine: IEditorLine) {
-        this.InterpretLine(context, currentLine, false);
-        context.ParseLinksBetweenLines();
-    }
-
-    public InterpretLine(context: ICodeBlockContext, line: IEditorLine, fullParse: boolean = true): ICodeBlockContext {
-        if (this.interpreter == null) this.interpreter = this.PrepareInterpreter();
-        return this.interpreter.InterpretLine(context, line, fullParse);
-    }
-
     public TryGetOpcode(data: string) {
         return this.opcodeManager.tryGetOpcode(data);
     }
 
     public static NewBundle(): IEditorBundle {
-        return CreateNewBundle({ files: [], labels: [], name: "", sourceFileName: "" });
+        return CreateNewEditorBundle({ files: [], labels: [], name: "", sourceFileName: "" });
     }
 
     public static ServiceName: ServiceName = { Name: "SourceCodeManager" };

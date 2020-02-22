@@ -16,14 +16,13 @@ import { IEditorLine, IEditorBundle } from "../../features/editor/data/EditorDat
 
 export interface IMainData {
     appData: IAsmFunAppData;
-    ctrlKeyIsDown: boolean;
+    ctrlKeyIsDown: boolean; // Todo: Remove
     commandManager: ICommandManager;
     eventManager: IEventManager;
     controlManager: IControlManager;
     popupManager: IPopupManager;
-    previousSelectedPC?: IInstructionItemData;
-    previousSelectedLine?: IEditorLine;
-    sourceCode?: IEditorBundle;
+    previousSelectedPC?: IInstructionItemData; // Todo: Remove
+    previousSelectedLine?: IEditorLine; // Todo: Remove
     container: IServiceResolverFactory;
     GetUIData(featureName: string): any;
 }

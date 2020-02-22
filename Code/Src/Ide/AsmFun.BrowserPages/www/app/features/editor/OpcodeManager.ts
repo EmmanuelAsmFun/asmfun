@@ -6,9 +6,11 @@
 
 import { IOpcodeData } from './data/IOpcodeData.js'
 import { IEditorLine } from './data/EditorData.js';
+import { IOpcodeManager } from './data/IOpcodeManager.js';
 import { ServiceName } from '../../framework/serviceLoc/ServiceName.js';
+import { InterpreterLine } from './interpreters/InterpreterLine.js';
 
-export class OpcodeManager {
+export class OpcodeManager implements IOpcodeManager{
     
     // Make HTML 
     private asmFunCodeStack = "<span class=\"fa fa-sort-amount-asc\"></span>";
@@ -44,13 +46,14 @@ export class OpcodeManager {
         }
     }
 
-    public InterpretOpcode(line: IEditorLine) {
-        if (line.isAddressSetter || line.isSetRawData || line.isVariable) return;
+    public ParseOpcodeInLine(lineI: InterpreterLine) {
+        if (lineI.Opcode == null) return;
         // Get the asmFunCode
-        var asmFunCode = this.getAsmFunCodeString(line);
+        var asmFunCode = this.GetAsmFunCodeString(lineI);
         if (asmFunCode === "") return;
         asmFunCode = this.ToHtml(asmFunCode);
-        line.asmFunCode = "<span class=\"asmFunCode\" >" + asmFunCode + "</span>";
+        lineI.Ui.AsmFunCode = "<span class=\"asmFunCode\" >" + asmFunCode + "</span>";
+        lineI.EditorLine.Ui.AsmFunCode = lineI.Ui.AsmFunCode;
     }
 
     public ToHtml(asmFunCode:string):string {
@@ -87,18 +90,17 @@ export class OpcodeManager {
         return asmFunCode;
     }
 
-    public getValidOpcode(opcodeString: string) {
+    public GetValidOpcode(opcodeString: string): IOpcodeData | null {
         var opcode = this.opcodes.find(x => x.code == opcodeString);
-        return opcode;
+        return opcode != undefined ? opcode : null;
     }
 
-    private getAsmFunCodeString(line: IEditorLine) {
+    private GetAsmFunCodeString(line: InterpreterLine) {
         var asmFunCode = "";
         var dataSp = "";
-        if (line.opcode == null) return "";
-        if (line.data != null && line.dataCode.length > 0)
-            dataSp = line.dataCode.replace("#", "");
-        var opcode = this.opcodes.find(x => x.code == (<any>line.opcode).code);
+        if (line.Opcode == null || line.OpcodePart == null || line.DataCode == "") return "";
+        dataSp = line.DataCode.replace("#", "");
+        var opcode = this.opcodes.find(x => x.code == (<any>line.Opcode).code);
         if (opcode != null) {
             asmFunCode = opcode.asmFunCode.replace("[dataSp]", dataSp);
         }

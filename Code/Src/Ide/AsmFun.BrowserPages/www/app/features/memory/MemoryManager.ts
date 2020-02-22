@@ -18,6 +18,13 @@ import { DebuggerService } from "../processor/services/DebuggerService.js";
 import { AsmTools } from "../../Tools.js";
 import { UIDataNameMemory } from "./MemoryFactory.js";
 import { UIDataNameEditor } from "../editor/EditorFactory.js";
+import { SourceCodeManager } from "../editor/SourceCodeManager.js";
+import { ILabelManager } from "../editor/data/ILabelManager.js";
+import { LabelManager } from "../editor/LabelManager.js";
+import { PropertyManager } from "../editor/PropertyManager.js";
+import { IPropertyManager } from "../editor/data/IPropertyManager.js";
+import { ZoneManager } from "../editor/ZoneManager.js";
+import { IZoneManager } from "../editor/data/IZoneManager.js";
 
 
 export class MemoryManager {
@@ -26,8 +33,8 @@ export class MemoryManager {
     private memData: string = "";
     private debuggerService: DebuggerService;
     private editorManager: EditorManager;
+    private sourceCodeManager: SourceCodeManager;
     private mainData: IMainData;
-    private editorData: IEditorManagerData;
     private data: IMemoryViewerData;
     private pageSize: number = 512;
     private addressStart: number = 0;
@@ -51,9 +58,9 @@ export class MemoryManager {
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.data = mainData.GetUIData(UIDataNameMemory);
-        this.editorData = mainData.GetUIData(UIDataNameEditor);
         this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
         this.editorManager = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData);
+        this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(mainData);
         this.mainData.commandManager.Subscribe2(new MemoryOpenManagerCommand(null), this, x => this.OpenManager(x.state));
         this.mainData.commandManager.Subscribe2(new MemoryScrollCommand(0), this, x => this.Scroll(x.deltaY));
         this.mainData.commandManager.Subscribe2(new MemoryNextPageCommand(0), this, x => this.NextPage(x.factor));
@@ -151,9 +158,13 @@ export class MemoryManager {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
         this.debuggerService.getMemoryBlock(startAddress,count,(memBlock:IMemoryBlock) => {
             if (memBlock == null || memBlock.data == null) return;
-            if (this.mainData.sourceCode == null) return;
+            var sourceCode = this.sourceCodeManager.GetEditorBundle();
+            if (sourceCode == null) return;
             this.addressStart = startAddress;
-            var labels = this.editorData.labels;
+            var lblManager: ILabelManager = this.sourceCodeManager.Bundle != null ? this.sourceCodeManager.Bundle.LabelManager : new LabelManager();
+            var varManager: IPropertyManager = this.sourceCodeManager.Bundle != null ? this.sourceCodeManager.Bundle.PropertyManager : new PropertyManager();
+            var zoneManager: IZoneManager = this.sourceCodeManager.Bundle != null ? this.sourceCodeManager.Bundle.ZoneManager : new ZoneManager();
+            //var labels = this.editorData.labels;
             var startText = "<span class=\"addr\" onclick=\"MemoryEdit(" + (startAddress) +",this)\">"+AsmTools.numToHex4(startAddress)+"</span>&nbsp;";
             var lineString = "";
             memBlock.datas = [];
@@ -164,12 +175,12 @@ export class MemoryManager {
             
             // make a smaller sourcode list, with only used addresses
             var sourceCodeLinesCache: IEditorLine[] = []
-            if (this.mainData.sourceCode != null){
-                for (let i = 0; i < this.mainData.sourceCode.files.length; i++) {
-                    const file = this.mainData.sourceCode.files[i];
+            if (sourceCode != null){
+                for (let i = 0; i < sourceCode.files.length; i++) {
+                    const file = sourceCode.files[i];
                     for (let j = 0; j < file.lines.length; j++) {
                         var line = file.lines[j];
-                        var add = line.data.resultMemoryAddress;
+                        var add = line.Ui.Address;
                         if (line.data == null || add == null || add === "") continue;
                         var addressNum = AsmTools.hexToNum(add);
                         if (addressNum>= startAddress && addressNum <= startAddress + count) {  
@@ -180,8 +191,8 @@ export class MemoryManager {
                     }
                 }
             }
-           
-            
+
+
             for (let index = 0; index < memBlock.count; index++) {
                 const element = binary_string.charCodeAt(index);
                 const addr=index + startAddress;
@@ -230,17 +241,25 @@ export class MemoryManager {
                 
                 memBlock.datas.push(item);
                 // Check if it's a label
-                if (this.editorData.variables != null) {
-                    var found = labels.find(x => x.labelhexAddress === hexAddress);
-                    if (found != null){
-                        groupp = [];
-                        item.isLabel = true;
-                        item.label = found;
-                        item.isZone = found.isZone;
-                        item.isVariable = found.isVariable;
-                        totalAddress = 0;
-                        continue;
-                    }
+                var found = lblManager.FindByHexAddress(hexAddress);
+                if (found != null){
+                    groupp = [];
+                    item.isLabel = true;
+                    item.label = found.Ui;
+                    item.isZone = true;
+                    item.isVariable = false;
+                    totalAddress = 0;
+                    continue;
+                }
+                var foundVar = varManager.FindByHexAddress(hexAddress);
+                if (foundVar != null){
+                    groupp = [];
+                    item.isLabel = true;
+                    item.label = foundVar.Ui;
+                    item.isZone = false;
+                    item.isVariable = true;
+                    totalAddress = 0;
+                    continue;
                 }
                 
                 // check if it isn't from a sourcecode group
@@ -259,32 +278,30 @@ export class MemoryManager {
                 groupp = [];
                 item.group = groupp;
                  // Try to find the address in sourceCode
-                if (this.mainData.sourceCode != null) {
-                    var foundSc = sourceCodeLinesCache.find(x => x.data.resultMemoryAddress === hexAddress);
-                    if (foundSc != null) {
-                        // Found
-                        groupp.push(item);
-                        item.sourceCodeLine = foundSc;
-                        item.isSc = true;
-                        item.isStart = true;
-                        // Remove all previous addresses because they cannot be used anymore
-                        var indexLine = sourceCodeLinesCache.indexOf(foundSc);
-                        //sourceCodeLinesCache = sourceCodeLinesCache.splice(0,indexLine);
-                        // Found address, get number of bytes
-                        totalAddress = 1;
-                        if(indexLine +1 < sourceCodeLinesCache.length) {
-                            var currentAdd = AsmTools.hexToNum(foundSc.data.resultMemoryAddress);
-                            for (let k = 1; k < 50; k++) {
-                                var nextLineAddress = sourceCodeLinesCache[indexLine+k].data.resultMemoryAddress;
-                                if (nextLineAddress != null &&  nextLineAddress !== "") {
-                                    totalAddress = AsmTools.hexToNum(nextLineAddress) -  currentAdd;
-                                    break;
-                                }
+                var foundSc = sourceCodeLinesCache.find(x => x.Ui.Address === hexAddress);
+                if (foundSc != null) {
+                    // Found
+                    groupp.push(item);
+                    item.sourceCodeLine = foundSc;
+                    item.isSc = true;
+                    item.isStart = true;
+                    // Remove all previous addresses because they cannot be used anymore
+                    var indexLine = sourceCodeLinesCache.indexOf(foundSc);
+                    //sourceCodeLinesCache = sourceCodeLinesCache.splice(0,indexLine);
+                    // Found address, get number of bytes
+                    totalAddress = 1;
+                    if(indexLine +1 < sourceCodeLinesCache.length) {
+                        var currentAdd = AsmTools.hexToNum(foundSc.Ui.Address);
+                        for (let k = 1; k < 50; k++) {
+                            var nextLineAddress = sourceCodeLinesCache[indexLine + k].Ui.Address;
+                            if (nextLineAddress != null &&  nextLineAddress !== "") {
+                                totalAddress = AsmTools.hexToNum(nextLineAddress) -  currentAdd;
+                                break;
                             }
                         }
-                        
                     }
                 }
+
                 startText = "";
             }
             memBlock.startAddressHex = "0x"+AsmTools.numToHex4(startAddress);
@@ -305,7 +322,7 @@ export class MemoryManager {
         if (this.previousHiliteLabel != null) {
             this.previousHiliteLabel.hilite = false;
             if (this.previousHiliteLabel.label != null)
-                this.previousHiliteLabel.label.hilite = false;
+                this.previousHiliteLabel.label.Hilite = false;
         }
     }
     private ScollToElement(el: HTMLElement | null) {
@@ -326,21 +343,18 @@ export class MemoryManager {
         var hexAddress = AsmTools.numToHex4(address);
         // Try to find in labels
         if (item.isLabel && item.label != null) {
-            if (item.label.file != null) {
-                this.editorManager.SelectFile(item.label.file);
-            }
+            this.editorManager.SelectFileByIndex(item.label.FileIndex);
             item.hilite = true;
-            item.label.hilite = true;
+            item.label.Hilite = true;
             this.previousHiliteLabel = item;
-            var el = document.getElementById('lblview'+item.label.data.name);
+            var el = document.getElementById('lblview'+item.label.Name);
             this.ScollToElement(el);
             
             return;
         }
 
-       
-
-        if (this.mainData.sourceCode != null) {
+        var sourceCode = this.sourceCodeManager.GetEditorBundle();
+        if (sourceCode != null) {
            
             if (item.group.length > 0){
                 for (let i = 0; i < item.group.length; i++) {
