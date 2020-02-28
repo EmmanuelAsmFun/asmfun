@@ -4,7 +4,6 @@
 //
 // #endregion
 
-import { IEditorLabel } from './EditorData.js'
 import { IOpcodeData } from './IOpcodeData.js'
 import { IUILabel } from './ILabelsData.js'
 import { IUIMacro } from './IMacrosData.js'
@@ -12,7 +11,7 @@ import { IUIProperty } from './IPropertiesData.js'
 
 export interface ICodeAssistPopupDataItem {
     isSelected: boolean;
-    data: IEditorLabel | IOpcodeData | IUILabel | IUIMacro | IUIProperty;
+    data: IOpcodeData | IUILabel | IUIMacro | IUIProperty;
     name: string;
     hint: string;
     select: (s:ICodeAssistPopupDataItem) => void;

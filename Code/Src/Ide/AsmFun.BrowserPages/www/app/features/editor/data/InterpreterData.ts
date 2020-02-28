@@ -1,9 +1,11 @@
-﻿import { IEditorLine, IEditorFile } from "./EditorData.js";
+﻿import { IEditorLine, IEditorFile, IPropertyType } from "./EditorData.js";
 import { IUILine } from "../ui/IUILine.js";
-import { IUIZonesData } from "./IZonesData.js";
+import { IUIZonesData, IZoneData } from "./IZonesData.js";
 import { IUIPropertiesData, IInterpretPropertyData } from "./IPropertiesData.js";
 import { IUIMacrosData, IMacroData } from "./IMacrosData.js";
 import { ILabelData, IUILabelsData } from "./ILabelsData.js";
+import { IOpcodeData } from "./IOpcodeData.js";
+import { IUIFile } from "../ui/IUIFile.js";
 
 export enum LinePartType {
     Unknown,
@@ -16,7 +18,7 @@ export enum LinePartType {
     CloseBlock,
     VarSetOperator,
     VarSet,
-    VarValue,
+    VarAddress,
     Constant,
     Macro,
     MacroRef,
@@ -38,14 +40,26 @@ export enum LineType {
 }
 
 export interface IInterpretLine {
+    AddressNum: number;
     Text: string;
     Parts: IInterpretLinePart[];
     NoSpaceParts: IInterpretLinePart[];
     EditorLine: IEditorLine;
-    ZoneFound: boolean;
-    OpcodeFound: boolean;
     LineNumber: number;
     Ui: IUILine;
+    Zone: IZoneData | null ;
+    ZoneFound: boolean;
+    Opcode: IOpcodeData | null ;
+    OpcodePart: IInterpretLinePart | null ;
+    OpcodeFound: boolean;
+    Property: IInterpretPropertyData | null ;
+    PropertyFound: boolean;
+    Constant: IPropertyType | null ;
+    ConstantFound: boolean;
+    Macro: IMacroData | null ;
+    MacroFound: boolean;
+    Label: ILabelData | null ;
+    LabelFound: boolean;
 }
 
 export interface IInterpretLinePart {
@@ -72,6 +86,8 @@ export interface IInterpreterBlockData {
     Lines: IInterpretLine[];
 }
 export interface IUIInterpreterBundleData {
+    Files: IUIFile[];
+    Lines: IUILine[];
     Zones: IUIZonesData;
     Labels: IUILabelsData;
     Properties: IUIPropertiesData;
@@ -83,6 +99,7 @@ export function NewUIInterpreterBundleData(): IUIInterpreterBundleData {
         Zones: { List: [], Search: "", SearchChanged: () => { } },
         Macros: { List: [], Search: "", SearchChanged: () => { } },
         Labels: { List: [], Search: "", SearchChanged: () => { } },
-
+        Lines: [],
+        Files:[],
     };
 }

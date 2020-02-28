@@ -1,7 +1,7 @@
 ﻿import { IInterpretLine, IUIInterpreterBundleData, IInterpretLinePart, LinePartType, LineType } from "../data/InterpreterData.js";
 import { InterpreterBlock } from "./InterpreterBlock.js";
 import { InterpreterLine } from "./InterpreterLine.js";
-import { IEditorBundle, IEditorFile, CreateNewFile, IEditorManagerData, CreateNewEditorLine, IEditorLine, CreateNewEditorBundle } from "../data/EditorData.js";
+import { IEditorBundle, IEditorFile, CreateNewFile, IEditorManagerData, CreateNewEditorLine, IEditorLine, CreateNewEditorBundle, NewEmptyFile } from "../data/EditorData.js";
 import { IZoneManager } from "../data/IZoneManager.js";
 import { IMacroManager } from "../data/IMacroManager.js";
 import { IOpcodeManager } from "../data/IOpcodeManager.js";
@@ -14,12 +14,12 @@ import { ZoneManager } from "../ZoneManager.js";
 import { LabelManager } from "../LabelManager.js";
 import { MacroManager } from "../MacroManager.js";
 import { HtmlSourceCode } from "../HtmlSourceCode.js";
-import { ISourceCodeLine, IAddressDataBundle, ISourceCodeBundle } from "../../project/data/ProjectData.js";
+import { ISourceCodeLine, IAddressDataBundle, ISourceCodeBundle, IAddressDataLabel } from "../../project/data/ProjectData.js";
 
 export class InterpreterBundle {
    
     
-   
+    private rootBlock: InterpreterBlock | null = null;
     private editorBundle: IEditorBundle;
     private potentialRefsLines: InterpreterLine[] = [];
     private potentialRefsPart: IInterpretLinePart[] = [];
@@ -63,29 +63,32 @@ export class InterpreterBundle {
         this.editorBundle = CreateNewEditorBundle(s);
 
         // Create root context
-        var rootBlock: InterpreterBlock | null = null;
+        this.rootBlock = null;
+        var rootFile: IEditorFile = NewEmptyFile();
+        rootFile.Index = 0;
+        this.rootBlock = this.CreateBlock(rootFile);
+        this.rootBlock.Data.Name = "root";
+        this.rootBlock.Data.IsRoot = true;
         this.Files = [];
+        this.Ui.Files = [];
         var lines : InterpreterLine[] = []
         var s = this.editorBundle.data;
         if (s.files != null) {
 
-            // Parse all lines
+            // Parse all files
             for (var i = 0; i < s.files.length; i++) {
                 var file = s.files[i];
                 var editorFile: IEditorFile = CreateNewFile(file);
                 editorFile.Index = i;
-                this.editorBundle.files.push(editorFile);
-                if (rootBlock == null) {
-                    rootBlock = this.CreateBlock(editorFile);
-                    rootBlock.Data.Name = "root";
-                    rootBlock.Data.IsRoot = true;
-                }
-
-                var fileBlock = rootBlock.CreateChild(editorFile);
+                editorFile.Ui.Index = i;
+                var fileBlock = this.rootBlock.CreateChild(editorFile);
                 fileBlock.Data.IsFile = true;
                 fileBlock.Data.Name = editorFile.data.fileName;
+                this.editorBundle.files.push(editorFile);
                 this.Files.push(fileBlock);
+                this.Ui.Files.push(editorFile.Ui);
                 var lastComments: InterpreterLine[] = [];
+                // Parse lines
                 if (file.lines != null) {
                     for (var j = 0; j < file.lines.length; j++) {
                         var line = file.lines[j];
@@ -113,7 +116,14 @@ export class InterpreterBundle {
                 this.RenderLine(lines[i]);
             }
         }
+        
         return this.editorBundle;
+    }
+    public SelectFile(file: IEditorFile | null) {
+        if (file == null) return
+        var fileI = this.AllBlocks.find(x => x.Data.File == file);
+        if (fileI == null) return;
+        this.Ui.Lines = fileI.UiLines;
     }
 
     private ParseLinks() {
@@ -127,7 +137,7 @@ export class InterpreterBundle {
     private ParseLink(lineI: InterpreterLine, part: IInterpretLinePart):boolean {
         var name = part.Text;
         var isPointer = false;
-        if (name[0] == "#")
+        if (name[0] === "#" || name[0] === "+")
             name = name.substr(1);
 
         //if (name == "CopyTilesLoop") {
@@ -163,9 +173,9 @@ export class InterpreterBundle {
 
     public RenderLine(lineI: InterpreterLine) {
         var html = this.htmlSourceCode.ConvertLinePartsToHtml(lineI);
-        var outerHtml = html.outerHTML;
-        lineI.EditorLine.sourceCodeHtml = outerHtml;
-        lineI.Ui.Html = outerHtml;
+        var innerHTML = html.innerHTML;
+        lineI.EditorLine.sourceCodeHtml = innerHTML;
+        lineI.Ui.Html = innerHTML;
         this.OpcodeManager.ParseOpcodeInLine(lineI);
     }
     public RenderLineByLineNumber(fileIndex: number, lineNumber: number) {
@@ -197,7 +207,7 @@ export class InterpreterBundle {
         for (var i = startIndex; i < length; i++) {
             var line = file.Lines[i];
             line.RenumberTo(i + 1);
-            this.RenderLine(line);
+            //this.RenderLine(line);
         }
     }
     public CreateNewLine(fileIndex: number, lineNumber: number): IEditorLine {
@@ -241,6 +251,7 @@ export class InterpreterBundle {
     }
 
     public ParseAddressData(s: IAddressDataBundle) {
+        // Parse line addresses
         for (var i = 0; i < s.files.length; i++) {
             var fileCompiled = s.files[i];
             if (fileCompiled.lines == null) continue;
@@ -256,10 +267,22 @@ export class InterpreterBundle {
                 }
             }
         }
+        // Parse property addresses
+        this.ParseLabelAndPropAddresses(s.labels);
+    }
+
+    public ParseLabelAndPropAddresses(labels: IAddressDataLabel[]) {
+        if (labels == null) return;
+        for (var i = 0; i < labels.length; i++) {
+            var lbl = labels[i];
+            this.LabelManager.ParseAddress(lbl.name, lbl.address);
+            this.PropertyManager.ParseAddress(lbl.name, lbl.address);
+        }
     }
 
     private ParseHexAddress(line: InterpreterLine, hexAddress: string) {
         var numAddress = parseInt(hexAddress, 16);
+        line.AddressNum = numAddress;
         line.Ui.Address = hexAddress;
         line.Ui.CanSetBreakPoint = line.Ui.Address != null && line.Ui.Address !== "";
         if (line.Property != null) {
@@ -279,6 +302,8 @@ export class InterpreterBundle {
 
     public InsertLine(index: number, block: InterpreterBlock, editorFile: IEditorFile, line: ISourceCodeLine): InterpreterLine {
         var editorLine: IEditorLine = CreateNewEditorLine(line, editorFile);
+        // Replace tabs
+        editorLine.data.sourceCode = editorLine.data.sourceCode.replace(/\t/g, "  ");
         editorLine.Ui.HasError = false;
         var lineInterpreter = block.CreateLine(index, editorLine);
         editorLine.Ui = lineInterpreter.Ui;

@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { IEditorLine, IPropertyData, PropertyNumType }
+import { IEditorLine, IPropertyType, PropertyNumType }
     from '../data/EditorData.js';
 import { IInterpretLine, IInterpretLinePart, LinePartType }
     from '../data/InterpreterData.js';
@@ -104,16 +104,16 @@ export class CommonInterpreter  {
 
 
 
-    public ConvertToProperty(name: string, propType: string, data: string): IPropertyData {
-        var returnData: IPropertyData = {
+    public ConvertToPropertyType(propType: string, data: string): IPropertyType {
+        var returnData: IPropertyType = {
+            dataItemLength: 0,
             dataLength: 0,
             dataNumType: PropertyNumType.Unknown,
             dataType: propType,
             defaultNumValue: 0,
             isBigEndian: false,
-            name: name.replace(":", ""),
-            nameDirty: name,
-            dataString:data
+            dataString: data,
+            isNumericLight:false,
         };
         switch (propType) {
             case this.cpChar+"8":
@@ -121,68 +121,75 @@ export class CommonInterpreter  {
             case this.cpChar+"by":
             case this.cpChar+"byte":
                 // 8bit number
-                returnData.dataLength = 1;
+                returnData.dataItemLength = 1;
                 returnData.isBigEndian = false;
                 returnData.dataNumType = PropertyNumType.Byte;
                 returnData.dataType = this.cpChar+"8";
-                returnData.defaultNumValue = AsmTools.ConvertToNumber(data, false);
+                returnData.defaultNumValue = AsmTools.ConvertToNumber(data, true);
+                returnData.isNumericLight = true;
                 break;
             case this.cpChar+"16":
             case this.cpChar+"wo":
             case this.cpChar+"word":
             case this.cpChar+"le16":
                 // 16bit number little-endian
-                returnData.dataLength = 2;
+                returnData.dataItemLength = 2;
                 returnData.isBigEndian = false;
                 returnData.dataNumType = PropertyNumType.Int16;
                 returnData.dataType = this.cpChar+"le16";
                 returnData.defaultNumValue = AsmTools.ConvertToNumber(data, false);
+                returnData.isNumericLight = true;
             case this.cpChar+"be16":
                 // 16bit number big-endian
-                returnData.dataLength = 2;
+                returnData.dataItemLength = 2;
                 returnData.isBigEndian = true;
                 returnData.dataNumType = PropertyNumType.Int16;
                 returnData.dataType = this.cpChar+"be16";
                 returnData.defaultNumValue = AsmTools.ConvertToNumber(data, true);
+                returnData.isNumericLight = true;
                 break;
             case this.cpChar+"24":
             case this.cpChar+"le24":
                 // 24bit number little-endian
-                returnData.dataLength = 3;
+                returnData.dataItemLength = 3;
                 returnData.isBigEndian = false;
                 returnData.dataNumType = PropertyNumType.Int24;
                 returnData.dataType = this.cpChar+"le24";
                 returnData.defaultNumValue = AsmTools.ConvertToNumber(data, false);
+                returnData.isNumericLight = true;
                 break;
             case this.cpChar+"be24":
                 // 24bit number big-endian
-                returnData.dataLength = 3;
+                returnData.dataItemLength = 3;
                 returnData.isBigEndian = true;
                 returnData.dataNumType = PropertyNumType.Int24;
                 returnData.dataType = this.cpChar+"be24";
                 returnData.defaultNumValue = AsmTools.ConvertToNumber(data, true);
+                returnData.isNumericLight = true;
                 break;
             case this.cpChar+"le32":
                 // 32bit number little-endian
-                returnData.dataLength = 4;
+                returnData.dataItemLength = 4;
                 returnData.isBigEndian = false;
                 returnData.dataNumType = PropertyNumType.Int32;
                 returnData.dataType = this.cpChar+"le32";
                 returnData.defaultNumValue = AsmTools.ConvertToNumber(data, false);
+                returnData.isNumericLight = true;
                 break;
             case this.cpChar+"be32":
                 // 32bit number big-endian
-                returnData.dataLength = 4;
+                returnData.dataItemLength = 4;
                 returnData.isBigEndian = true;
                 returnData.dataNumType = PropertyNumType.Int32;
                 returnData.dataType = this.cpChar+"be32";
                 returnData.defaultNumValue = AsmTools.ConvertToNumber(data, true);
+                returnData.isNumericLight = true;
                 break;
             case this.cpChar+"hex":
             case this.cpChar+"h":
                 // hex values : !hex PAIRS_OF_HEX_DIGITS
                 data = data.replace(/ /g, "");
-                returnData.dataLength = data.length / 2;
+                returnData.dataItemLength = data.length / 2;
                 returnData.dataType = this.cpChar+"hex";
                 break;
             case this.cpChar+"fill":
@@ -191,7 +198,7 @@ export class CommonInterpreter  {
                 // !fill AMOUNT [, VALUE]
                 try {
                     var number = parseInt(data.split(" ")[0]);
-                    returnData.dataLength = number;
+                    returnData.dataItemLength = number;
                 } catch (e) {
                     console.error("asm: could not parse " + data);
                 }
@@ -210,45 +217,43 @@ export class CommonInterpreter  {
 
                 break;
             case "":
-                var plusIndex = name.indexOf('+');
-                if (plusIndex > -1) {
-                    returnData.dataLength = Number(name.substr(plusIndex + 1));
-                    returnData.name = name.substr(0, plusIndex);
-                }
-                else {
-                    if (data.length > 1) {
-                        if (data[0] === "$") {
-                            // Hex value
-                            var cleanData = data.replace("$", "");
-                            if (cleanData.length === 1 || cleanData.length === 3 || cleanData.length === 5)
-                                cleanData = "0" + cleanData;
-                            returnData.dataLength = cleanData.length / 2;
-                            returnData.defaultNumValue = AsmTools.ConvertToNumber("0x" + cleanData, true);
-                        } else if (data[0] === "%") {
-                            // Binary value
-                            var cleanData = data.replace("%", "");
-                            returnData.dataLength = cleanData.length / 8;
-                            returnData.defaultNumValue = parseInt(cleanData, 2);
-                        } else if (data[0] === "&") {
-                            // Octal value
-                            returnData.dataLength = data.replace("&", "").length;
-                            returnData.defaultNumValue = parseInt(data);
-                        }
-                        else {
-                            // Int Value
-                            var length = data.length;
-                            if (length == 1 || length === 3 || length == 5)
-                                length++;
-                            returnData.dataLength = length / 2;
-                            returnData.defaultNumValue = parseInt(data);
-                        }
+                if (data.length > 1) {
+                    if (data[0] === "$") {
+                        // Hex value
+                        var cleanData = data.replace("$", "");
+                        if (cleanData.length === 1 || cleanData.length === 3 || cleanData.length === 5)
+                            cleanData = "0" + cleanData;
+                        returnData.dataItemLength = cleanData.length / 2;
+                        returnData.defaultNumValue = AsmTools.ConvertToNumber("0x" + cleanData, true);
+                        returnData.isNumericLight = true;
+                    } else if (data[0] === "%") {
+                        // Binary value
+                        var cleanData = data.replace("%", "");
+                        returnData.dataItemLength = cleanData.length / 8;
+                        returnData.defaultNumValue = parseInt(cleanData, 2);
+                        returnData.isNumericLight = true;
+                    } else if (data[0] === "&") {
+                        // Octal value
+                        returnData.dataItemLength = data.replace("&", "").length;
+                        returnData.defaultNumValue = parseInt(data);
+                        returnData.isNumericLight = true;
                     }
-                    returnData.dataNumType =
-                        returnData.dataLength === 1 ? PropertyNumType.Byte :
-                            returnData.dataLength === 2 ? PropertyNumType.Int16 :
-                                returnData.dataLength === 3 ? PropertyNumType.Int24 :
-                                    returnData.dataLength === 4 ? PropertyNumType.Int32 : PropertyNumType.Unknown;
+                    else {
+                        // Int Value
+                        var length = data.length;
+                        if (length == 1 || length === 3 || length == 5)
+                            length++;
+                        returnData.dataItemLength = length / 2;
+                        returnData.defaultNumValue = parseInt(data);
+                        returnData.isNumericLight = true;
+                    }
                 }
+                returnData.dataNumType =
+                    returnData.dataItemLength === 1 ? PropertyNumType.Byte :
+                        returnData.dataItemLength === 2 ? PropertyNumType.Int16 :
+                            returnData.dataItemLength === 3 ? PropertyNumType.Int24 :
+                                returnData.dataItemLength === 4 ? PropertyNumType.Int32 : PropertyNumType.Unknown;
+                
         }
         return returnData;
     }

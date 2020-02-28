@@ -202,8 +202,11 @@ document.onkeydown = function (e) {
             domObj.classList.add("myCursorA");
         }
         if (e.key === "v" && e.ctrlKey) {
-            paste(null);
-            return;
+            var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
+            if (editorManager != null && editorManager.data.isTextEditorInFocus) {
+                paste(null);
+                return;
+            }
         }
         // myRootV.$forceUpdate()
         handled = !keyCommand.allowContinueEmit;

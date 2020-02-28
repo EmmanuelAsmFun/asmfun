@@ -12,9 +12,10 @@ namespace AsmFun.Ide.Common.Features.Processor
 {
     public interface ILifeMemoryAccess
     {
-        List<AddressDataLabel> GetLabels();
+        List<AddressDataLabel> GetLabelValues();
         AddressDataLabel GetLabel(string name);
         AddressDataLabel ChangeLabelValue(string name, int newValue);
         List<AddressDataLabel> GetLabelValues(List<PropertyData> properties);
+        void ParseLabelValues(List<AddressDataLabel> properties);
     }
 }

@@ -21,8 +21,6 @@ export interface IMainData {
     eventManager: IEventManager;
     controlManager: IControlManager;
     popupManager: IPopupManager;
-    previousSelectedPC?: IInstructionItemData; // Todo: Remove
-    previousSelectedLine?: IEditorLine; // Todo: Remove
     container: IServiceResolverFactory;
     GetUIData(featureName: string): any;
 }

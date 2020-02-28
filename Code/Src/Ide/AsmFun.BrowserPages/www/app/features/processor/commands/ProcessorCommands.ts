@@ -1,7 +1,8 @@
 ﻿import { BaseCommand } from "../../../framework/commands/CommandsCommon.js";
-import { IEditorLine, IEditorFile } from "../../editor/data/EditorData.js";
 import { BaseEvent } from "../../../framework/data/EventsCommon.js";
 import { IDebuggerBreakpoint, IBreakpointUIData } from "../data/BreakPointsData.js";
+import { IUILine } from "../../editor/ui/IUILine.js";
+import { IUIFile } from "../../editor/ui/IUIFile.js";
 
 // #region license
 // ASM Fun
@@ -62,9 +63,9 @@ export class ProcessorReloadValuesCommand extends BaseCommand {
     }
 }
 export class ProcessorDebuggerSetBreakpointCommand extends BaseCommand {
-    public file: IEditorFile | null;
-    public line: IEditorLine | null;
-    public constructor(file: IEditorFile | null, line: IEditorLine | null) {
+    public file: IUIFile | null;
+    public line: IUILine | null;
+    public constructor(file: IUIFile | null, line: IUILine | null) {
         super();
         this.file = file;
         this.line = line;

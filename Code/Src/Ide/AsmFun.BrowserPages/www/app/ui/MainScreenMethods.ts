@@ -10,8 +10,6 @@ import { EditorEnableCommand } from "../features/editor/commands/EditorCommands.
 import { ProjectSaveCommand } from "../features/project/commands/ProjectsCommands.js";
 import { IBaseCommand } from "../framework/commands/CommandsCommon.js";
 import { IMainData } from "../framework/data/MainData.js";
-import { IEditorLabel } from "../features/editor/data/EditorData.js";
-import { IUILine } from "../features/editor/ui/IUILine.js";
 import { IUIProperty } from "../features/editor/data/IPropertiesData.js";
 
 

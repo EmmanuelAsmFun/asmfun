@@ -25,3 +25,12 @@ export class ASMFunPlayerSelectOSCommand extends BaseCommand {
         this.nameSpace = "ASMFunPlayer";
     }
 }
+export class IdeSelectCodeNavTabCommand extends BaseCommand {
+    public tabName: string;
+    public constructor(tabName: string) {
+        super();
+        this.tabName = tabName;
+        this.commandName = "SelectCodeNavTab";
+        this.nameSpace = "Ide";
+    }
+}

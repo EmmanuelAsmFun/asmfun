@@ -1,6 +1,7 @@
 ﻿import { IInterpretLine } from "./InterpreterData.js";
 
 export interface IMacroData {
+    ParameterNames: string[];
     DirtyName: string;
     Ui: IUIMacro,
     AddressNum: number;
@@ -8,6 +9,7 @@ export interface IMacroData {
 }
 
 export interface IUIMacro {
+    ParametersNames: string;
     Name: string;
     Address: string;
     LineNumber: number;

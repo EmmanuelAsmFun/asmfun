@@ -123,15 +123,20 @@ export class CursorUI implements ICursorUI{
                     }
                 }
                 if (startLineNumber == null || startLineNumber == "") {
-                    if (startLineNode.firstChild != undefined) {
-                        var attr = startLineNode.firstChild.attributes["data-ln"];
-                        if (attr != null && attr.value != null)
-                            startLineNumber = attr.value;
-                        else {
-                            if (startLineNode.firstChild?.firstChild != undefined) {
-                                attr = startLineNode.firstChild.firstChild.attributes["data-ln"];
-                                if (attr != null && attr.value != null)
-                                    startLineNumber = attr.value;
+                    var attr = startLineNode.attributes["data-ln"];
+                    if (attr != null && attr.value != null)
+                        startLineNumber = attr.value;
+                    else {
+                        if (startLineNode.firstChild != undefined) {
+                            attr = startLineNode.firstChild.attributes["data-ln"];
+                            if (attr != null && attr.value != null)
+                                startLineNumber = attr.value;
+                            else {
+                                if (startLineNode.firstChild?.firstChild != undefined) {
+                                    attr = startLineNode.firstChild.firstChild.attributes["data-ln"];
+                                    if (attr != null && attr.value != null)
+                                        startLineNumber = attr.value;
+                                }
                             }
                         }
                     }
@@ -156,15 +161,20 @@ export class CursorUI implements ICursorUI{
                 }
             }
             if ((endLineNumber == null || endLineNumber == "") && endLineNode != null) {
-                if (endLineNode.firstChild != undefined) {
-                    var attr = (<any>endLineNode.firstChild).attributes["data-ln"];
-                    if (attr != null && attr.value != null)
-                        endLineNumber = attr.value;
-                    else {
-                        if (endLineNode.firstChild?.firstChild != undefined && (<any>endLineNode.firstChild.firstChild).attributes != null) {
-                            attr = (<any>endLineNode.firstChild.firstChild).attributes["data-ln"];
-                            if (attr != null && attr.value != null)
-                                endLineNumber = attr.value;
+                var attr = (<any>endLineNode).getAttribute("data-ln");
+                if (attr != null && attr.value != null)
+                    endLineNumber = attr.value;
+                else {
+                    if (endLineNode.firstChild != undefined) {
+                        var attr = (<any>endLineNode.firstChild).attributes["data-ln"];
+                        if (attr != null && attr.value != null)
+                            endLineNumber = attr.value;
+                        else {
+                            if (endLineNode.firstChild?.firstChild != undefined && (<any>endLineNode.firstChild.firstChild).attributes != null) {
+                                attr = (<any>endLineNode.firstChild.firstChild).attributes["data-ln"];
+                                if (attr != null && attr.value != null)
+                                    endLineNumber = attr.value;
+                            }
                         }
                     }
                 }

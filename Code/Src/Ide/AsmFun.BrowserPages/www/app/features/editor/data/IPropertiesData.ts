@@ -1,17 +1,17 @@
 ﻿import { IInterpretLine } from "./InterpreterData";
-import { IPropertyData } from "./EditorData";
+import { IPropertyType } from "./EditorData";
 import { IUILine } from "../ui/IUILine";
 
 export interface IInterpretPropertyData {
+    Values: Uint8Array | null;
     UsedByLines: number[];
-    
     IsPointer: boolean;
     DirtyValue: string;
     Ui: IUIProperty,
     AddressNum: number;
     ValueNum: number;
     Line: IInterpretLine;
-    Data: IPropertyData | null;
+    PType: IPropertyType | null;
 }
 
 
@@ -24,6 +24,9 @@ export interface IUIProperty {
     FileIndex: number;
     IsInEditMode: boolean,
     NewValue: string, 
+    IsMultiValue: boolean,
+    FullValue:string,
+    MouseHover: (p: IUIProperty) => void,
 }
 
 export interface IUIPropertiesData {

@@ -15,6 +15,7 @@
 @import "videomanager";
 @import "filemanager";
 @import "paintermanager";
+@import "breakpoints";
 
 @font-face {
     font-family: 'robot';
@@ -100,7 +101,7 @@ a:hover {
     }
     a{cursor:pointer; vertical-align:middle;}
 }
-.labels {
+.code-nav {
     position: fixed;
     right: 110px;
     top: 150px;
@@ -110,7 +111,7 @@ a:hover {
     bottom: @footerHeight+2;
     z-index: 51;
 
-    .labels-top {
+    .code-nav-top {
         font-size: 12px;
         -webkit-touch-callout: none; /* iOS Safari */
         -webkit-user-select: none; /* Safari */
@@ -158,10 +159,7 @@ a:hover {
         padding-right: 10px;
     }
 
-    .hilite {
-        background: @color-lbl-memory;
-        color: black;
-    }
+
 
     table, tr, td {
         font-size: 10px;
@@ -176,10 +174,43 @@ a:hover {
     .variables {
         table, tr, td {
             color: @color-lbl-memory;
+
+            &.hilite {
+                background: @color-lbl-memory;
+                color: black;
+            }
+        }
+
+        .p-name{
+            display:inline-block;
+            width:100px;
+            overflow-x:hidden;
         }
     }
 
-    .zones, .macros {
+    .labels {
+        table, tr, td {
+            color: @color-label;
+
+            &.hilite {
+                background: @color-label;
+                color: black;
+            }
+        }
+    }
+
+    .macros {
+        table, tr, td {
+            color: @color-macro;
+
+            .parameters {
+                color: #777777;
+                font-size: 9px;
+            }
+        }
+    }
+
+    .labels, .macros {
         tr {
             cursor: pointer;
 
@@ -192,32 +223,33 @@ a:hover {
 
 
 
-.stack {
-    position: fixed;
-    right: 25px;
-    top: 35px;
-    bottom: 30px;
-    color: #11b011;
-    width: 70px;
-    font-size: 10px;
-    padding: 5px;
-    z-index: 50;
-    overflow-y: scroll;
+    .stack {
+        position: fixed;
+        right: 25px;
+        top: 35px;
+        bottom: 30px;
+        color: #11b011;
+        width: 70px;
+        font-size: 10px;
+        padding: 5px;
+        z-index: 50;
+        overflow-y: scroll;
 
-    .title {
-        margin-bottom: 8px;
+        .title {
+            margin-bottom: 8px;
+        }
+
+        .isActifOpcode {
+            color: #f0f167;
+            -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+            -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+            animation: actifOpcode 0.5s ease-in-out infinite alternate;
+        }
     }
 
-    .isActifOpcode {
-        color: #f0f167;
-        -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
-        -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
-        animation: actifOpcode 0.5s ease-in-out infinite alternate;
+    .stack::-webkit-scrollbar {
+        display: none;
     }
-}
-.stack::-webkit-scrollbar {
-    display: none;
-}
 
 
 
@@ -230,207 +262,105 @@ a:hover {
     }
 
 
-.statusRBar {
-    width: 7px;
-    font-size: 1px;
-    position: fixed;
-    top: 34px;
-    bottom: @footerHeight;
-    right: 0px;
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-    pointer-events:none;
-    .error {
-        position: absolute;
-        background: #9b0000;
-        height: 5px;
+    .statusRBar {
         width: 7px;
+        font-size: 1px;
+        position: fixed;
+        top: 34px;
+        bottom: @footerHeight;
+        right: 0px;
         -webkit-touch-callout: none; /* iOS Safari */
         -webkit-user-select: none; /* Safari */
         -khtml-user-select: none; /* Konqueror HTML */
         -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
         user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-    }
-}
+        pointer-events: none;
 
-
-.Compilation {
-    position: absolute;
-    left: 150px;
-    bottom: 4px;
-    z-index: 1200;
-    text-align: left;
-
-    .c-link-btn {
-        .fa {
-            font-size: 14px;
-        }
-
-        a, a:link, a:visited, a:active {
-            color: #76765a;
-            background: transparent;
-            text-decoration: none;
-            font-size: 12px;
-            padding-right: 3px;
-        }
-
-        a:hover {
-            color: #bdbd92;
-            text-decoration: none;
-        }
-    }
-
-    .close-btn {
-        position: absolute;
-        right: 3px;
-        top: 3px;
-        cursor: pointer;
-        font-size: 18px;
-        z-index: 10;
-    }
-
-    .OutputWindow {
-        position: absolute;
-        left: 0px;
-        bottom: 21px;
-        border: 1px solid #333333;
-        padding: 5px;
-        font-size: 11px;
-        background: black;
-        -webkit-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-        -moz-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-        box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-        z-index: 90;
-        word-wrap: break-word;
-
-        .CompilationResult {
-            min-width: 300px;
-            max-width: 600px;
-            max-height: 110px;
-            overflow-y: scroll;
-            padding-bottom: 20px;
-            .hasErrors{
-                color:#9b0000;
-            }
-        }
-
-
-
-        h3 {
-            font-size: 14px;
-            font-weight: 100;
-            padding: 0;
-            margin: 0;
-            padding-bottom: 5px;
-        }
-    }
-}
-
-.Breakpoints {
-    position: absolute;
-    left: 250px;
-    bottom: 4px;
-    z-index: 1200;
-    text-align: left;
-
-    .c-link-btn {
-        .fa {
-            font-size: 14px;
-        }
-
-        a, a:link, a:visited, a:active {
-            color: #76765a;
-            background: transparent;
-            text-decoration: none;
-            font-size: 12px;
-            padding-right: 3px;
-        }
-
-        a:hover {
-            color: #bdbd92;
-            text-decoration: none;
-        }
-    }
-
-    .close-btn {
-        position: absolute;
-        right: 5px;
-        top: 3px;
-        cursor: pointer;
-        font-size: 18px;
-        z-index: 10;
-    }
-
-    .OutputWindow {
-        position: absolute;
-        left: 0px;
-        bottom: 21px;
-        border: 1px solid #333333;
-        padding: 5px;
-        font-size: 11px;
-        background: black;
-        -webkit-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-        -moz-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-        box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-        z-index: 90;
-        word-wrap: break-word;
-        min-width: 300px;
-
-        .list {
-            border-top: 1px solid #333333;
-            padding-top: 10px;
-            padding-bottom: 20px;
-            max-height: 150px;
-            overflow-y: scroll;
-        }
-
-        .breakpoint-ln {
-            min-width: 300px;
-            max-width: 600px;
-            white-space: nowrap;
-            overflow-x: hidden;
-
-            .fa {
-                cursor: pointer;
-            }
-
-            .fa-circle {
-                color: darkred;
-            }
-        }
-
-        .ln-add {
-            cursor: pointer;
-        }
-
-        .sc-line {
-        }
-
-
-        h3 {
-            font-size: 14px;
-            font-weight: 100;
-            padding: 0;
-            margin: 0;
-            padding-bottom: 5px;
-        }
-
-        .add-breakpoint{
-            a {
-                cursor: pointer;
-            }
+        .error {
             position: absolute;
-            left: 150px;
-            top: 5px;
-            input {
-                 font-size:11px;
-                 width:40px;
+            background: #9b0000;
+            height: 5px;
+            width: 7px;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        }
+    }
+
+
+    .Compilation {
+        position: absolute;
+        left: 150px;
+        bottom: 4px;
+        z-index: 1200;
+        text-align: left;
+
+        .c-link-btn {
+            .fa {
+                font-size: 14px;
+            }
+
+            a, a:link, a:visited, a:active {
+                color: #76765a;
+                background: transparent;
+                text-decoration: none;
+                font-size: 12px;
+                padding-right: 3px;
+            }
+
+            a:hover {
+                color: #bdbd92;
+                text-decoration: none;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 3px;
+            top: 3px;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        .OutputWindow {
+            position: absolute;
+            left: 0px;
+            bottom: 21px;
+            border: 1px solid #333333;
+            padding: 5px;
+            font-size: 11px;
+            background: black;
+            -webkit-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+            -moz-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+            box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+            z-index: 90;
+            word-wrap: break-word;
+
+            .CompilationResult {
+                min-width: 300px;
+                max-width: 600px;
+                max-height: 110px;
+                overflow-y: scroll;
+                padding-bottom: 20px;
+
+                .hasErrors {
+                    color: #9b0000;
+                }
+            }
+
+
+
+            h3 {
+                font-size: 14px;
+                font-weight: 100;
+                padding: 0;
+                margin: 0;
+                padding-bottom: 5px;
             }
         }
     }
-}

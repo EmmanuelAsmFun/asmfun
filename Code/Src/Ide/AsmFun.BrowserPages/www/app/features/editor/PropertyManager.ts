@@ -1,9 +1,11 @@
 ﻿import { IPropertyManager } from "./data/IPropertyManager.js";
-import { IUIPropertiesData, NewUIPropertiesData, IInterpretPropertyData } from "./data/IPropertiesData.js";
+import { IUIPropertiesData, NewUIPropertiesData, IInterpretPropertyData, IUIProperty } from "./data/IPropertiesData.js";
 import { AsmTools, AsmString } from "../../Tools.js";
 import { IInterpretLine } from "./data/InterpreterData.js";
-import { ISourceCodeLabel } from "../project/data/ProjectData.js";
+import { ISourceCodeLabel, IAddressDataLabel, IAddressDataLabelResponse } from "../project/data/ProjectData.js";
 import { InterpreterLine } from "./interpreters/InterpreterLine.js";
+import { PropertyNumType, IPropertyType } from "./data/EditorData.js";
+import { InterpreterValue } from "./interpreters/InterpreterValue.js";
 
 export class PropertyManager implements IPropertyManager {
 
@@ -27,7 +29,10 @@ export class PropertyManager implements IPropertyManager {
         this.Ui.List = [];
     }
 
-    public AddProperty(line: IInterpretLine, name: string, value: string): IInterpretPropertyData {
+    public AddProperty(line: IInterpretLine, name: string, value: string, propType: IPropertyType): IInterpretPropertyData {
+        //if (name === "@start" || name === "start") {
+        //    debugger;
+        //}
         // Check if it already exists
         var property = this.properties.find(x => x.Ui.Name == name);
         if (property != null) {
@@ -37,13 +42,15 @@ export class PropertyManager implements IPropertyManager {
             return property;
         }
         // New Property
-        property = this.CreateProperty(name, line);
+        property = this.CreateProperty(name, line, propType);
+        property.Ui.IsMultiValue = propType.dataLength > 1;
         property.DirtyValue = value;
+        property.Ui.MouseHover = (p) => this.PropMouseHover(p);
         return property;
     }
 
-    public CreateProperty(name: string, line: IInterpretLine): IInterpretPropertyData {
-        var property = this.NewProperty(name, line);
+    private CreateProperty(name: string, line: IInterpretLine, propType: IPropertyType): IInterpretPropertyData {
+        var property = this.NewProperty(name, line,propType);
         this.properties.push(property);
         this.Ui.List.push(property.Ui);
         return property;
@@ -52,14 +59,14 @@ export class PropertyManager implements IPropertyManager {
     public ParseAddress(name: string, addressNum: number) {
         var propertyIndex = this.properties.findIndex(x => x.Ui.Name === name);
         if (propertyIndex < 0) return;
-        var Property = this.properties[propertyIndex];
-        Property.AddressNum = addressNum;
-        Property.Ui.Address = AsmTools.numToHex5(addressNum);
+        var property = this.properties[propertyIndex];
+        property.AddressNum = addressNum;
+        property.Ui.Address = AsmTools.numToHex5(addressNum);
     }
 
-    public ParseValueDatas(labels: ISourceCodeLabel[]) {
-        for (var i = 0; i < labels.length; i++) {
-            var label = labels[i];
+    public ParseValueDatas(newLblValues: IAddressDataLabelResponse[]) {
+        for (var i = 0; i < newLblValues.length; i++) {
+            var label = newLblValues[i];
             var property = this.Find(label.name);
             if (property == null || property == undefined)
                 continue;
@@ -67,10 +74,70 @@ export class PropertyManager implements IPropertyManager {
             property.AddressNum = label.address;
             property.Ui.Value = AsmTools.numToHex2(label.value);
             property.Ui.Address = AsmTools.numToHex5(label.address);
-            
-            //if (editorLabel.Data != null) editorLabel.Data.dataLength = editorLabel.labelhexValue.replace("$", "").length / 2;
+            if (property.PType == null) continue;
+            var strValues = (PropertyNumType[property.PType.dataNumType]) + ": ";
+            if (property.Ui.IsMultiValue && label.values != null) {
+                var values = AsmTools.Base64Decode(label.values);
+                property.Values = values;
+                strValues += this.PropsToString(property.PType, values);
+            }
+            else {
+                strValues += "$"+property.Ui.Value;
+            }
+            property.Ui.FullValue = strValues;
         }
     }
+
+    private PropsToString(pType: IPropertyType, values: Uint8Array): string {
+        var strValues = "";
+        switch (pType.dataNumType) {
+            case PropertyNumType.Int16:
+                if (values.length % 2 != 0) return strValues;
+                if (pType.isBigEndian) {
+                    for (var j = 0; j < values.length / 2; j = j + 2)
+                        strValues += ((values[j + 1] << 8) | values[j]).toString() + " ";
+                } else
+                    for (var j = 0; j < values.length / 2; j = j + 2)
+                        strValues += ((values[j] << 8) | values[j + 1]).toString() + " ";
+                break;
+            case PropertyNumType.Int24:
+                debugger;
+                if (values.length % 3 != 0) return strValues;
+                if (pType.isBigEndian) {
+                    for (var j = 0; j < values.length / 3; j = j + 3)
+                        strValues += ((values[j + 2] << 16) | (values[j + 1] << 8) | values[j]).toString() + " ";
+                } else for (var j = 0; j < values.length / 3; j = j + 3)
+                    strValues += ((values[j] << 16) | (values[j + 1] << 8) | values[j + 2]).toString() + " ";
+                break;
+            case PropertyNumType.Int32:
+                debugger;
+                if (values.length % 4 != 0) return strValues;
+                if (pType.isBigEndian) {
+                    for (var j = 0; j < values.length / 4; j = j + 4)
+                        strValues += ((values[j + 3] << 32) | (values[j + 2] << 16) | (values[j + 1] << 8) | values[j]).toString() + " ";
+                } else for (var j = 0; j < values.length / 4; j = j + 4)
+                    strValues += ((values[j] << 32) | (values[j + 1] << 16) | (values[j + 2] << 8) | values[j + 3]).toString() + " ";
+                break;
+            case PropertyNumType.Byte:
+            default:
+                for (var j = 0; j < values.length; j++)
+                    strValues += "$"+ AsmTools.numToHex2(values[j]) + " ";
+                break;
+        }
+        return strValues;
+    }
+
+    private PropMouseHover(uiProp: IUIProperty) {
+        //var prop = this.Find(uiProp.Name);
+        //if (prop == null) return;
+        //if (uiProp.IsMultiValue && ) {
+        //    var result = "";
+
+        //    InterpreterValue.GetNumericValue(this.bundle.PropertyManager, propAddressPart.Text);
+        //}
+    }
+
+
     public AddUsedBy(property: IInterpretPropertyData, lineI: InterpreterLine) {
         property.UsedByLines.push(lineI.LineNumber);
     }
@@ -106,15 +173,16 @@ export class PropertyManager implements IPropertyManager {
         return this.properties;
     }
 
-    private NewProperty(name: string, line: IInterpretLine): IInterpretPropertyData {
+    private NewProperty(name: string, line: IInterpretLine,propType: IPropertyType): IInterpretPropertyData {
         return {
             AddressNum: 0,
             Line: line,
             DirtyValue: "",
-            Data: null,
+            PType: propType,
             IsPointer: false,
             ValueNum: 0,
-            UsedByLines:[],
+            UsedByLines: [],
+            Values:null,
             Ui: {
                 Name: name,
                 Address: "",
@@ -123,9 +191,25 @@ export class PropertyManager implements IPropertyManager {
                 Hilite: false,
                 FileIndex: line.Ui.FileIndex,
                 IsInEditMode: false,
-                NewValue:"",
+                NewValue: "",
+                IsMultiValue: false,
+                FullValue:"",
+                MouseHover: (i) => { },
             }
         };
+    }
+   
+    public static NewPropType(): IPropertyType{
+        return {
+            dataItemLength: 1,
+            dataLength: 1,
+            dataNumType: PropertyNumType.Byte,
+            dataType: "",
+            dataString: "",
+            defaultNumValue: 0,
+            isBigEndian: false,
+            isNumericLight: false,
+        }
     }
 
 

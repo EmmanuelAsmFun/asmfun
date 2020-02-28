@@ -1,14 +1,16 @@
 ﻿import { IInterpretLine, IUIInterpreterBundleData, IInterpretLinePart, LinePartType, LineType } from "../data/InterpreterData.js";
 import { IUILine, NewUiLine } from "../ui/IUILine.js";
-import { IEditorLine, IPropertyData } from "../data/EditorData.js";
+import { IEditorLine, IPropertyType } from "../data/EditorData.js";
 import { AsmTools } from "../../../Tools.js";
 import { InterpreterBundle } from "./InterpreterBundle.js";
 import { IZoneData } from "../data/IZonesData.js";
 import { IOpcodeData } from "../data/IOpcodeData.js";
 import { InterpreterBlock } from "./InterpreterBlock.js";
-import { IInterpretPropertyData } from "../data/IPropertiesData.js";
+import { InterpreterValue } from "./InterpreterValue.js";
+import { IInterpretPropertyData, IUIProperty } from "../data/IPropertiesData.js";
 import { IMacroData } from "../data/IMacrosData.js";
 import { ILabelData } from "../data/ILabelsData.js";
+import { PropertyManager } from "../PropertyManager.js";
 
 export class InterpreterLine implements IInterpretLine{
    
@@ -27,7 +29,7 @@ export class InterpreterLine implements IInterpretLine{
     public OpcodeFound: boolean = false;
     public Property: IInterpretPropertyData | null = null;
     public PropertyFound: boolean = false;
-    public Constant: IPropertyData | null = null;
+    public Constant: IPropertyType | null = null;
     public ConstantFound: boolean = false;
     public Macro: IMacroData | null = null;
     public MacroFound: boolean = false;
@@ -40,6 +42,7 @@ export class InterpreterLine implements IInterpretLine{
     public Comments: InterpreterLine[] = [];
     public DataCode: string = "";
     public LineNumber: number = 0;
+    public AddressNum: number = 0;
     
 
     constructor(line: IEditorLine, bundle: InterpreterBundle, block: InterpreterBlock) {
@@ -51,6 +54,7 @@ export class InterpreterLine implements IInterpretLine{
         this.Ui.LineNumber = line.data.lineNumber;
         this.LineNumber = line.data.lineNumber;
         this.Reset();
+        
     }
 
     public Reset() {
@@ -85,7 +89,7 @@ export class InterpreterLine implements IInterpretLine{
 
    
     public GetLineParts() {
-        //if (this.LineNumber == 117) {
+        //if (this.LineNumber == 5) {
         //    debugger;
         //}
         if (this.Text.length === 0) {
@@ -163,7 +167,7 @@ export class InterpreterLine implements IInterpretLine{
                 return -1;
             partIndex++;
             part = this.NoSpaceParts[partIndex];
-            opcodeObj = this.bundle.OpcodeManager.GetValidOpcode(part.Text);
+            opcodeObj = this.bundle.OpcodeManager.GetValidOpcode(part.Text.toLocaleLowerCase());
             if (opcodeObj == null)
                 return -1;
         }
@@ -213,30 +217,49 @@ export class InterpreterLine implements IInterpretLine{
             console.log("Add Zone:\t\t" + this.LineNumber+"\t"+ this.Zone.Ui.Name);
     }
 
+    // var1 := 454
+    public TryParseLabelSetter(): boolean {
+        if (this.NoSpaceParts.length !== 3 || this.NoSpaceParts[1].Text != ":=") return false;
+        this.NoSpaceParts[1].Type = LinePartType.VarSetOperator;
+        return this.TryParseSetter();
+    }
     public TryParseSetter(): boolean {
+        // Example:         r10H = r10+1
         if (this.NoSpaceParts.length !== 3 || this.NoSpaceParts[1].Type !== LinePartType.VarSetOperator) return false;
         // Setter
         var propNamePart = this.NoSpaceParts[0];
-        var propValuePart = this.NoSpaceParts[2];
-        this.Property = this.bundle.PropertyManager.AddProperty(this, propNamePart.Text, propValuePart.Text);
+        var propAddressPart = this.NoSpaceParts[2];
+        //if (propNamePart.Text == "r0H") {
+        //    debugger;
+        //}
+        var propType: IPropertyType = PropertyManager.NewPropType();
+        this.Property = this.bundle.PropertyManager.AddProperty(this, propNamePart.Text, "", propType);
+        this.Property.AddressNum = InterpreterValue.GetNumericAddressValue(this.bundle.PropertyManager, propAddressPart.Text);
+        this.Property.Ui.Address = AsmTools.numToHex5(this.Property.AddressNum);
         this.PropertyFound = true;
         propNamePart.Type = LinePartType.VarSet;
-        propValuePart.Type = LinePartType.VarValue;
+        propAddressPart.Type = LinePartType.VarAddress;
         propNamePart.HasBeenParsed = true;
-        propValuePart.HasBeenParsed = true;
+        propAddressPart.HasBeenParsed = true;
         this.NoSpaceParts[1].HasBeenParsed = true;
         this.Type = LineType.Setter;
         
         if (this.Log)
-            console.log("Add Setter:\t\t" + this.LineNumber + "\t" + propNamePart.Text + "=" + propValuePart.Text);
+            console.log("Add Setter:\t\t" + this.LineNumber + "\t" + propNamePart.Text + "=" + propAddressPart.Text);
         return true;
     }
 
-    public ParseProperty(propertyNameIndex:number){
+
+    public ParseProperty(propertyNameIndex: number) {
+        
         // Variable
         var propNamePart = this.NoSpaceParts[propertyNameIndex];
-        var propValuePart = this.NoSpaceParts[propertyNameIndex+1];
-        this.Property = this.bundle.PropertyManager.AddProperty(this, propNamePart.Text, propValuePart.Text);
+        var propValuePart = this.NoSpaceParts[propertyNameIndex + 1];
+        //if (propNamePart.Text == "enemy_map") {
+        //    debugger;
+        //}
+        var propType: IPropertyType = PropertyManager.NewPropType();
+        this.Property = this.bundle.PropertyManager.AddProperty(this, propNamePart.Text, propValuePart.Text, propType);
         this.PropertyFound = true;
         this.NoSpaceParts[propertyNameIndex].HasBeenParsed = true;
         this.NoSpaceParts[propertyNameIndex + 1].HasBeenParsed = true;
@@ -248,6 +271,32 @@ export class InterpreterLine implements IInterpretLine{
         return true;
     }
 
+    public ParsePropertyWithType(propertyNameIndex: number) {
+        // Example:         enemy_map: .byte 0,0,0,1,2,3
+        // Variable
+        var propNamePart = this.NoSpaceParts[propertyNameIndex];
+        var propTypePart = this.NoSpaceParts[propertyNameIndex + 1];
+        //if (propNamePart.Text == "enemy_map:") {
+        //    debugger;
+        //}
+        var values = this.ExtractCommaSplittedRest(propertyNameIndex + 3);
+        var propType = this.bundle.Interpreter.ConvertToPropertyType(propTypePart.Text, values[0]);
+        propType.dataLength = propType.dataItemLength * values.length;
+        this.Property = this.bundle.PropertyManager.AddProperty(this, propNamePart.Text, values[0], propType);
+        this.Property.PType = propType;
+        this.PropertyFound = true;
+        this.NoSpaceParts[propertyNameIndex].HasBeenParsed = true;
+        this.NoSpaceParts[propertyNameIndex + 1].HasBeenParsed = true;
+        propNamePart.Type = LinePartType.Property;
+        this.Type = LineType.Property;
+        
+        if (this.Log)
+            console.log("Add Property:\t" + this.LineNumber + "\t" + propNamePart.Text + "=", values);
+        return true;
+    }
+
+  
+
     public TryConstantValue(zonePartIndex: number): number {
         var part = this.NoSpaceParts[zonePartIndex];
         var txt = part.Text;
@@ -257,7 +306,7 @@ export class InterpreterLine implements IInterpretLine{
             // Link to potential var
             return 2;
         }
-        this.Constant = this.bundle.Interpreter.ConvertToProperty("", "", txt.substring(1));
+        this.Constant = this.bundle.Interpreter.ConvertToPropertyType( "", txt.substring(1));
         this.ConstantFound = true;
         part.Type = LinePartType.Constant;
         part.HasBeenParsed = true;
@@ -267,6 +316,7 @@ export class InterpreterLine implements IInterpretLine{
         return 1;
     }
 
+    
 
     public ParseMacro(macroPartIndex: number) {
         var linePart = this.NoSpaceParts[macroPartIndex];
@@ -276,6 +326,8 @@ export class InterpreterLine implements IInterpretLine{
         this.MacroFound = true;
         this.Macro = this.bundle.MacroManager.AddMacro(this, linePart.Text);
         this.Type = LineType.Macro;
+        this.Macro.ParameterNames = this.ExtractCommaSplittedRest(3);
+        this.Macro.Ui.ParametersNames = this.Macro.ParameterNames.join(",");
         if (this.Log)
             console.log("Add Macro:\t" + this.LineNumber + "\t" +this.Macro.Ui.Name);
     }
@@ -288,6 +340,19 @@ export class InterpreterLine implements IInterpretLine{
         if (this.Property != null) this.Property.Ui.LineNumber = lineNumber;
         if (this.Macro != null) this.Macro.Ui.LineNumber = lineNumber;
         if (this.Zone != null) this.Zone.Ui.LineNumber = lineNumber;
+    }
+
+    private ExtractCommaSplittedRest(startPart: number): string[] {
+        if (this.NoSpaceParts.length < startPart) return [];
+        // Remove comments and take rest text part.
+        var restText = this.Text.split(';')[0].trim().replace("{","").substring(this.NoSpaceParts[startPart-1].Index);
+        var paramsDirty = restText.split(",");
+        var params: string[] = [];
+        for (var i = 0; i < paramsDirty.length; i++) 
+            params.push(paramsDirty[i].trim());
+        
+        return params;
+        
     }
    
 }

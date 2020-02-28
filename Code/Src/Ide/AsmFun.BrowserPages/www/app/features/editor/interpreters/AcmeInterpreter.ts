@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import {IEditorLine, IPropertyData, PropertyNumType }
+import {IEditorLine, IPropertyType, PropertyNumType }
     from '../data/EditorData.js';
 import { IInterpreter } from './IInterpreter.js';
 import { ICompilationResult, ICompilationError } from "../data/CompilationDatas.js";
@@ -41,7 +41,7 @@ export class AcmeInterpreter implements IInterpreter{
         interpretLine.GetLineParts();
         var numParts = interpretLine.NoSpaceParts.length;
         if (numParts === 0) return;
-        //if (interpretLine.Ui.LineNumber == 1273) {
+        //if (interpretLine.Ui.LineNumber == 154) {
         //    debugger;
         //}
         var partIndex = interpretLine.TryFindOpcode();
@@ -84,8 +84,12 @@ export class AcmeInterpreter implements IInterpreter{
                     //interpretLine.ParseLabel(0);
                     return;
                 }
+                if (part1.Text[0] === "}") {
+                    // Close block;
+                    return;
+                }
                 if (part1.Text[0] === "!") {
-                    var prop = this.commonInterpreter.ConvertToProperty("", part1.Text, interpretLine.Text.substr(part2.Index));
+                    var prop = this.commonInterpreter.ConvertToPropertyType( part1.Text, interpretLine.Text.substr(part2.Index));
                     //interpretLine.ParseProperty(0);
                     //if (interpretLine.Property != null)
                     //    interpretLine.Property.Data = prop;
@@ -96,8 +100,15 @@ export class AcmeInterpreter implements IInterpreter{
                     if (part2.Text[0] === "!") {
                         interpretLine.ParseProperty(0);
                         if (interpretLine.Property != null)
-                            interpretLine.Property.Data = this.commonInterpreter.ConvertToProperty("", part2.Text, interpretLine.Text.substr(part3.Index))
+                            interpretLine.Property.PType = this.commonInterpreter.ConvertToPropertyType( part2.Text, interpretLine.Text.substr(part3.Index))
                         return;
+                    }
+                    interpretLine.Ui.HasError = true;
+                    interpretLine.Ui.Error = {
+                        compilerName: "Emmanuel",
+                        isFromCompiler: false,
+                        line: interpretLine.EditorLine.Ui,
+                        message:"Don't know what you mean or haven't implemented it yet."
                     }
                 }
             }
@@ -129,8 +140,8 @@ export class AcmeInterpreter implements IInterpreter{
 
   
 
-    public ConvertToProperty(name: string, propType: string, data: string): IPropertyData {
-        return this.commonInterpreter.ConvertToProperty(name, propType, data);
+    public ConvertToPropertyType( propType: string, data: string): IPropertyType {
+        return this.commonInterpreter.ConvertToPropertyType(propType, data);
     }
 
 

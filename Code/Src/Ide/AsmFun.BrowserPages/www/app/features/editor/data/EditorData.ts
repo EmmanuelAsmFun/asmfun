@@ -4,12 +4,11 @@
 //
 // #endregion
 
-import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLine, ISourceCodeLabel } from "../../project/data/ProjectData.js";
+import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLine } from "../../project/data/ProjectData.js";
 import { IOpcodeData } from "./IOpcodeData.js";
-import { EditorManager } from "../EditorManager.js";
-import { IUIZone, IUIZonesData, NewUIZonesData } from "./IZonesData.js";
 import { IUIInterpreterBundleData, NewUIInterpreterBundleData } from "./InterpreterData.js";
 import { IUILine, NewUiLine } from "../ui/IUILine.js";
+import { IUIFile, NewUIFile } from "../ui/IUIFile.js";
 
 
 export class EditorData {
@@ -23,60 +22,9 @@ export class EditorData {
     public screenXOffset: number = -4;
     public screenYOffset: number = -1;
 }
-export interface ILineHtml {
-    root?: HTMLElement;
-    lineNumber?: HTMLElement;
-    code: HTMLElement;
-    codeParent?: HTMLElement;
-    asmFunCode?: HTMLElement;
-    valueElement?: HTMLElement;
-    address?: HTMLElement;
-    breakpoint?: HTMLElement;
-}
-//export interface ICodeBlockContext{
-//    isFor: boolean;
-//    parameters?: string[];
-//    isAddr: boolean;
-//    isIf: boolean;
-//    isElse: boolean;
-//    parent? :ICodeBlockContext;
-//    file: IEditorFile;
-//    children: ICodeBlockContext[];
-//    lines: IEditorLine[];
-//    isMacro: boolean;
-//    name: string;
-//    nameDirty?: string;
-//    isFile: boolean;
-//    isRoot: boolean;
-//    bundle: IEditorBundle;
-
-//    CreateChild(file?:IEditorFile): ICodeBlockContext;
-//    Remove(context: ICodeBlockContext);
-//    CreateZone(line: IEditorLine, name: string, isLocalZone:boolean): ICodeBlockContext;
-//    CreateIfCodeBlock(line: IEditorLine, compareData: string): ICodeBlockContext;
-//    CreateElseCodeBlock(line: IEditorLine): ICodeBlockContext;
-//    CreateAddrCodeBlock(line: IEditorLine, compareData: string): ICodeBlockContext;
-//    CreateCodeBlock(line: IEditorLine, name: string): ICodeBlockContext;
-//    CloseCurrentBlock(line: IEditorLine): ICodeBlockContext;
-//    CreateMacro(line: IEditorLine, name: string, parameters: string[]): ICodeBlockContext;
-//    CreateForBlock(line: IEditorLine, parameters: string[]): ICodeBlockContext;
-//    AddPotentialReference(line: IEditorLine, referenceName: string);
-//    AddLine(editorLine: IEditorLine);
-//    RemoveLine(line : IEditorLine);
-//    ParseLinksBetweenLines();
-//    AddSetter(line: IEditorLine, property: IPropertyData);
-//    AddAddressSetter(line: IEditorLine, name:string, address:number);
-//}
-export interface IEditorZone {
-    line: IEditorLine;
-    name: string;
-    nameDirty: string;
-    isAnonymousZone: boolean;
-    isLocalZone: boolean;
-}
 
 export interface ILineError {
-    line: IEditorLine;
+    line: IUILine;
     message: string,
     compilerName: string,
     isFromCompiler:boolean,
@@ -88,47 +36,25 @@ export interface IErrorForStatusBar {
 }
 
 export interface IEditorBundle {
-    labels: IEditorLabel[];
     files: IEditorFile[];
     //allContext: ICodeBlockContext[];
     data: ISourceCodeBundle;
 }
 
-export interface IEditorLabel {
-    property?: IPropertyData | null;
-    line: IEditorLine;
-    hilite: boolean;
-    isZone: boolean;
-    isVariable: boolean;
-    data: ISourceCodeLabel;
-    isInEditMode: boolean | null;
-    newValue: string | null;
-    showValueInCode: boolean;
-    addressHexValue: string;
-    labelhexValue: string;
-    labelhexAddress: string;
-    file: IEditorFile;
-    lines: IEditorLine[],
-}
 export interface IEditorFile {
     Index: number;
-    fileHtml: HTMLElement | null;
     lines: IEditorLine[]
     data: ISourceCodeFile;
-    isSelected: boolean;
     lastCursorY: number;
     lastCursorX: number;
-    
+    Ui: IUIFile;
 }
 export interface IEditorLine {
-
     Ui: IUILine;
-    
     file: IEditorFile;
     data: ISourceCodeLine;
     //context: ICodeBlockContext;
     dataCode: string;
-    
     sourceCodeHtml: string;
     //codeHtml: ILineHtml | null;
     
@@ -149,15 +75,15 @@ export enum PropertyNumType {
     Int24 = 3,
     Int32 = 4
 }
-export interface IPropertyData {
+export interface IPropertyType {
+    isNumericLight: boolean; // if its a simple type that can easely be parsed
     dataString: string;
+    dataItemLength: number,
     dataLength: number,
     dataNumType: PropertyNumType,
     dataType: string,
     defaultNumValue: number,
     isBigEndian: boolean,
-    name: string,
-    nameDirty: string,
 }
 export function ResetLineProperties(line: IEditorLine) {
     if (line == null) return;
@@ -169,7 +95,6 @@ export function ResetLineProperties(line: IEditorLine) {
 }
 
 
-//export function CreateNewEditorLine(context: ICodeBlockContext, line: ISourceCodeLine, editorFile: IEditorFile): IEditorLine  {
 export function CreateNewEditorLine(line: ISourceCodeLine, editorFile: IEditorFile): IEditorLine  {
     return {
         dataCode: "",
@@ -189,39 +114,31 @@ export function CreateNewEditorLine(line: ISourceCodeLine, editorFile: IEditorFi
 export function CreateNewFile(file: ISourceCodeFile): IEditorFile {
     return {
         data: file,
-        isSelected: false,
         lastCursorX:0,
         lastCursorY:0,
         lines: [],
-        fileHtml: null,
-        Index:0,
+        Index: 0,
+        Ui: {
+            Exists: file.exists,
+            FileName: file.fileName,
+            Folder: file.folder,
+            Index: 0,
+            IsBinary: file.isBinary,
+            IsCodeFile: file.isCodeFile,
+            IsIncludeFile: file.isIncludeFile,
+            IsSelected: false,
+            RequireSave: false,
+        }
     };
 }
 export function CreateNewEditorBundle(bundle: ISourceCodeBundle): IEditorBundle {
     return {
         data: bundle,
-        labels: [],
         files: [],
         //allContext: [],
     };
 }
-export function CreateNewEditorLabel(label: ISourceCodeLabel, file: IEditorFile, line: IEditorLine): IEditorLabel {
-    return {
-        data: label,
-        isInEditMode: false,
-        newValue: "",
-        showValueInCode: false,
-        isZone: false,
-        addressHexValue: "",
-        labelhexAddress: "",
-        labelhexValue: "",
-        isVariable: false,
-        hilite: false,
-        file: file,
-        line: line,
-        lines: [],
-    };
-}
+
 
 export interface IEditorSelection {
     reversed: boolean;
@@ -244,11 +161,11 @@ export interface IUndoData {
     addonLines: string[];
     x: number;
     y: number;
+    afterUndoX:number,
 }
 
 export function NewEmptyFile(): IEditorFile {
     return {
-        isSelected: false,
         lastCursorX: 0,
         lastCursorY: 0,
         lines: [],
@@ -260,34 +177,30 @@ export function NewEmptyFile(): IEditorFile {
             fileNameFull: "",
             exists: false,
             lines: [],
-            requireSave: false,
+            isIncludeFile:false,
         },
-        fileHtml: null,
-        Index:0,
+        Index: 0,
+        Ui: NewUIFile(),
     }
 }
 
 export interface IEditorManagerData{
-    scfiles?: IEditorFile[];
-    //previousSelectedPC?: IInstructionItemData;
-    //previousSelectedLine?: IEditorLine;
-    //sourceCode?: IEditorBundle;
+    Files: IUIFile[] | null;
     breakPoints: string[];
     showASMFunCode: boolean;
     errorsForStatusBar: IErrorForStatusBar[];
     currentOpcode: IOpcodeData | null;
-    //codeAssistPopupData: ICodeAssistPopupData;
-    selectedFile?: IEditorFile;
+    SelectedFile: IUIFile | null;
     isTextEditorInFocus: boolean;
     Bundle: IUIInterpreterBundleData;
 }
 export var NewEditorManagerData: IEditorManagerData = {
-    scfiles: [],
+    Files: [],
     breakPoints: [],
     errorsForStatusBar: [],
     showASMFunCode: true,
     currentOpcode: { code: '', asmFunCode: '', },
-    selectedFile: NewEmptyFile(),
+    SelectedFile: NewUIFile(),
     isTextEditorInFocus: false,
     Bundle: NewUIInterpreterBundleData(),
 };

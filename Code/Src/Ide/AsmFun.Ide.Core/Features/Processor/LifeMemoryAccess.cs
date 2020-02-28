@@ -9,6 +9,7 @@ using AsmFun.Ide.Common.Features.Compilation.Data;
 using AsmFun.Ide.Common.Features.Debugger.Data;
 using AsmFun.Ide.Common.Features.Processor;
 using AsmFun.Ide.Common.Features.SourceCode;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,17 +50,7 @@ namespace AsmFun.Ide.Core.Features.Processor
         }
        
 
-        public List<AddressDataLabel> GetLabels()
-        {
-            var sc = sourceCodeManager.GetCurrentAddressData();
-            if (sc == null) return new List<AddressDataLabel>();
-            // We order the labels by address locally to be able to faster retrieve values from memory.
-            var labels = sc.Labels.OrderBy(x => x.Address).ToList();
-            IComputerMemoryAccess memory = computerManager.GetComputer()?.GetMemory();
-            if (memory != null)
-                ParseLabelsValue(memory, labels);
-            return labels;
-        }
+       
         public List<AddressDataLabel> GetLabelValues(List<PropertyData> properties)
         {
             var sc = sourceCodeManager.GetCurrentAddressData();
@@ -71,7 +62,24 @@ namespace AsmFun.Ide.Core.Features.Processor
                 if (label == null) continue;
                 label.Length = property.DataLength;
             }
-            return GetLabels();
+            return GetLabelValues();
+        }
+
+        public List<AddressDataLabel> GetLabelValues()
+        {
+            var sc = sourceCodeManager.GetCurrentAddressData();
+            if (sc == null) return new List<AddressDataLabel>();
+            // We order the labels by address locally to be able to faster retrieve values from memory.
+            var labels = sc.Labels.OrderBy(x => x.Address).ToList();
+            ParseLabelValues(labels);
+            return labels;
+        }
+
+        public void ParseLabelValues(List<AddressDataLabel> labels)
+        {
+            IComputerMemoryAccess memory = computerManager.GetComputer()?.GetMemory();
+            if (memory == null) return;
+            ParseLabelsValue(memory, labels);
         }
 
 
@@ -86,27 +94,38 @@ namespace AsmFun.Ide.Core.Features.Processor
             for (int i = 1; i < labelsOrderedByAddress.Count; i++)
             {
                 var label = labelsOrderedByAddress[i];
+                if (label.Length == 0) continue;
                 labelsToParse.Add(label);
                 var addressesToRead = label.Address - previousLabel.Address;
                 if (addressesToRead > 10 || i >= labelsOrderedByAddress.Count-1)
                 {
                     // Read Label block
                     var startAddressToRead = labelsToParse[0].Address;
+                    lengthToRead += label.Length;
                     var bufferR = memory.ReadBlock(startAddressToRead, lengthToRead);
+                    var readOffset = 0;
                     for (int j = 0; j < labelsToParse.Count; j++)
                     {
-                        // todo: check this
-                        if (j >= bufferR.Length) break;
                         var lab = labelsToParse[j];
-                        int theValue = bufferR[j];
-                        if (lab.Length == 2)
-                            theValue = System.BitConverter.ToUInt16(new byte[] { bufferR[j], bufferR[j+1] }, 0);
-                        if (lab.Length == 3)
-                            theValue = System.BitConverter.ToInt32(bufferR, j);
-                        if (lab.Length == 4)
-                            theValue = System.BitConverter.ToInt32(bufferR, j);
+                        
+                        if (lab.Length > 1)
+                        {
+                            //if (lab.Length > 16)
+                            //{
+
+                            //}
+                            var res = new byte[lab.Length];
+                            Buffer.BlockCopy(bufferR, readOffset, res, 0, lab.Length);
+                            lab.Values = res;
+                            lab.Value = res[0];
+                            readOffset += lab.Length;
+                            continue;
+                        }
+                        
+                        int theValue = bufferR[readOffset];
                         if (lab.Value != theValue)
                             lab.Value = theValue;
+                        readOffset++;
                     }
                     labelsToParse.Clear();
                     lengthToRead = 1;

@@ -48,14 +48,21 @@ export interface IAddressDataLabel {
     value: number;
     length:number
 }
+export interface IAddressDataLabelResponse {
+    address: number;
+    name: string;
+    value: number;
+    values: string | null;// Base64 string
+    length: number
+}
 
 
 export interface ISourceCodeFile {
-    requireSave: boolean | null;
     folder: string;
     fileNameFull: string;
     fileName: string;
     isCodeFile: boolean;
+    isIncludeFile: boolean;
     isBinary: boolean;
     exists: boolean;
     lines?: ArrayEx<ISourceCodeLine> | ISourceCodeLine[];

@@ -182,19 +182,19 @@
 
         </div>
 
-        <div class="files" v-if="editor.scfiles">
-            <div v-for="file in editor.scfiles">
-                <div class="fileName" v-bind:class="{'isSelected': file.isSelected }">
-                    <span class="file" v-if="file.data.isCodeFile" v-on:click="SelectFile(file)">
-                        <span class="fa fa-cube"></span> {{file.data.fileName}}
-                        <span v-if="file.data.requireSave" title="File changed. Require save">*</span>
+        <div class="files" v-if="editor.Files">
+            <div v-for="file in editor.Files">
+                <div class="fileName" v-bind:class="{'isSelected': file.IsSelected }">
+                    <span class="file" v-if="file.IsCodeFile" v-on:click="SelectFile(file)">
+                        <span class="fa fa-cube"></span> {{file.FileName}}
+                        <span v-if="file.RequireSave" title="File changed. Require save">*</span>
                     </span>
-                    <span class="selectableFile" v-if="file.data.isIncludeFile" v-on:click="SelectFile(file)">
-                        <span class="fa fa-cubes"></span> {{file.data.fileName}}
-                        <span v-if="file.data.requireSave" title="File changed. Require save">*</span>
+                    <span class="selectableFile" v-if="file.IsIncludeFile" v-on:click="SelectFile(file)">
+                        <span class="fa fa-cubes"></span> {{file.FileName}}
+                        <span v-if="file.RequireSave" title="File changed. Require save">*</span>
                     </span>
-                    <span v-if="file.data.isBinary">
-                        <span class="fa fa-file-image-o"></span>    {{file.data.fileName}}
+                    <span v-if="file.IsBinary">
+                        <span class="fa fa-file-image-o"></span>    {{file.FileName}}
                     </span>
                 </div>
             </div>
@@ -261,64 +261,65 @@
         </div>
 
 
-        <div class="labels" v-on:click="DbgLoadLabelValues()">
-            <div class="labels-top">
-                <a class="label-tab" v-on:click="ide.selectVarTab('Labels');" v-bind:class="{ 'selected' : ide.showLabels }">Labels</a>
-                <a class="label-tab" v-on:click="ide.selectVarTab('Macros');" v-bind:class="{ 'selected' : ide.showMacros }">Macros</a>
-                <a class="label-tab" v-on:click="ide.selectVarTab('Variables');" v-bind:class="{ 'selected' : ide.showVariables }">Variables</a>
+        <div class="code-nav" v-on:click="DbgLoadLabelValues()">
+            <div class="code-nav-top">
+                <a class="code-nav-tab" v-on:click="ide.SelectCodeNavTab('Labels');" v-bind:class="{ 'selected' : ide.showLabels }">Labels</a>
+                <a class="code-nav-tab" v-on:click="ide.SelectCodeNavTab('Macros');" v-bind:class="{ 'selected' : ide.showMacros }">Macros</a>
+                <a class="code-nav-tab" v-on:click="ide.SelectCodeNavTab('Variables');" v-bind:class="{ 'selected' : ide.showVariables }">Variables</a>
             </div>
             <div class="listing">
-                <div class="zones" v-if="ide.showLabels">
+                <div class="labels" v-if="ide.showLabels">
                     <span class="search-field">
 
-                        <input type="text" v-model="editor.Bundle.Labels.Search" @keyup="editor.Bundle.Labels.SearchChanged" placeholder="Filter"
+                        <input type="text" v-model="editor.Bundle.Labels.Search" @keyup="editor.Bundle.Labels.SearchChanged" placeholder="Filter list"
                                v-on:keyup.esc="editor.Bundle.Labels.Search = '';editor.Bundle.Labels.SearchChanged();" />
-                        <a v-on:click="editor.Bundle.Labels.Search = '';editor.Bundle.Labels.SearchChanged();">X</a>
+                        <a v-on:click="editor.Bundle.Labels.Search = '';editor.Bundle.Labels.SearchChanged();" v-if="editor.Bundle.Labels.Search != ''">X</a>
                     </span> 
                     <div class="listing-table">
                         <table>
-                            <tr v-for="item in editor.Bundle.Labels.List" v-on:click="EditorScrollToLine(item)">
+                            <tr v-for="item in editor.Bundle.Labels.List" v-on:click="EditorScrollToLine(item)" v-bind:id="'lblview'+item.Name">
                                 <td> {{ item.LineNumber}} </td>
-                                <td> {{ item.Name }} </td>
+                                <td v-bind:class="{ 'hilite' : item.Hilite }"> {{ item.Name }} </td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="macros" v-if="ide.showMacros">
                     <span class="search-field">
-                        <input type="text" v-model="editor.Bundle.Macros.Search" @keyup="editor.Bundle.Macros.SearchChanged" placeholder="Filter" 
+                        <input type="text" v-model="editor.Bundle.Macros.Search" @keyup="editor.Bundle.Macros.SearchChanged" placeholder="Filter list" 
                                v-on:keyup.esc="editor.Bundle.Macros.Search = '';editor.Bundle.Macros.SearchChanged();" />
-                        <a v-on:click="editor.Bundle.Macros.Search = '';editor.Bundle.Macros.SearchChanged();">X</a>
+                        <a v-on:click="editor.Bundle.Macros.Search = '';editor.Bundle.Macros.SearchChanged();"  v-if="editor.Bundle.Macros.Search != ''">X</a>
                     </span>
                     <div class="listing-table">
                     <table>
                         <tr v-for="item in editor.Bundle.Macros.List" v-on:click="EditorScrollToLine(item)">
                             <td> {{ item.LineNumber}} </td>
-                            <td> {{ item.Name }} </td>
+                            <td> {{ item.Name }} <span class="parameters">{{item.ParametersNames}}</span></td>
                         </tr>
                     </table>
                 </div>
                 </div>
                 <div class="variables" v-if="ide.showVariables">
                     <span class="search-field">
-                        <input type="text" v-model="editor.Bundle.Properties.Search" @keyup="editor.Bundle.Properties.SearchChanged" placeholder="Filter"
+                        <input type="text" v-model="editor.Bundle.Properties.Search" @keyup="editor.Bundle.Properties.SearchChanged" placeholder="Filter list"
                                v-on:keyup.esc="editor.Bundle.Properties.Search = '';editor.Bundle.Properties.SearchChanged();" />
-                        <a v-on:click="editor.Bundle.Properties.Search = '';editor.Bundle.Properties.SearchChanged();">X</a>
+                        <a v-on:click="editor.Bundle.Properties.Search = '';editor.Bundle.Properties.SearchChanged();"  v-if="editor.Bundle.Properties.Search != ''">X</a>
                     </span>
                     <div class="listing-table">
                         <table>
-                            <tr v-for="item in editor.Bundle.Properties.List" v-bind:class="{ 'hilite' : item.Hilite }" v-bind:id="'lblview'+item.Hilite"  v-on:click="EditorScrollToLine(item)">
+                            <tr v-for="item in editor.Bundle.Properties.List" v-bind:class="{ 'hilite' : item.Hilite }" v-bind:id="'varview'+item.Name" >
                                 <td>
                                     <span class="ad" v-bind:class="{ 'hilite' : item.Hilite }">{{ item.Address }}</span>
                                 </td>
-                                <td width="70" v-bind:class="{ 'hilite' : item.Hilite }">
-                                    {{ item.Name  }}
-                                </td>
+                                <td v-bind:class="{ 'hilite' : item.Hilite }"  v-on:click="EditorScrollToLine(item)"><span class="p-name">{{ item.Name  }}</span></td>
                                 <td v-bind:class="{ 'hilite' : item.Hilite }">
                                     <input v-bind:id="'labelEdit'+item.LineNumber" v-if="item.IsInEditMode" style="width:30px;"
                                            type="text" v-model="item.NewValue" v-on:keydown="ChangeLabelValue(event,item)" />
                                     <span v-if="!item.IsInEditMode"
-                                          v-on:click="SwapChangeLabelValue(item)">{{ item.Value}}</span>
+                                          v-on:click="SwapChangeLabelValue(item)" @mouseover="item.MouseHover(item)" v-bind:title="item.FullValue">
+                                        {{ item.Value}}<span v-if="item.IsMultiValue">.</span><br />
+                                    </span>
+                                    
                                 </td>
                             </tr>
                         </table>
@@ -361,45 +362,46 @@ programItem.address  | toHex2
 
                 </div>
 
-                <div v-if="editor.selectedFile != null">
+                <div v-if="editor.SelectedFile != null">
                     <div class="PreScLines">
-                        <div class="ln" v-for="sourceCodeLine in editor.selectedFile.lines"
-                             v-bind:class="{  'isSelected' : sourceCodeLine.Ui.Selected, 'hasError' : sourceCodeLine.Ui.HasError , 'hilite' : sourceCodeLine.Ui.Hilite }">
+                        <div class="ln" v-for="line in editor.Bundle.Lines"
+                             v-bind:class="{  'hasError' : line.HasError , 'hilite' : line.Hilite }">
                             <span class="debugInfo">
                                 <span v-if="processor.isShowDebugger">
-                                    <span class="l-address">{{sourceCodeLine.Ui.Address}}</span>
-                                    <span class="breakPoint" v-if="sourceCodeLine.Ui.CanSetBreakPoint">
-                                        <a v-on:click="DbgSetBreakpointCurrentLine(editor.selectedFile,sourceCodeLine)"
+                                    <span class="l-address">{{line.Address}}</span>
+                                    <span class="breakPoint" v-if="line.CanSetBreakPoint">
+                                        <a v-on:click="DbgSetBreakpointCurrentLine(editor.SelectedFile,line)"
                                            class="debugable"
-                                           v-bind:class="{ 'isBpSelected' : sourceCodeLine.Ui.HasBreakPoint }">
+                                           v-bind:class="{ 'isBpSelected' : line.HasBreakPoint }">
                                             <span class="fa fa-circle"></span>
                                         </a>
                                     </span>
                                 </span>
                             </span>
-                            <span v-bind:id="'line'+sourceCodeLine.Ui.LineNumber" class="lnn"
-                                  v-on:click="EditorReloadLine(sourceCodeLine)"
-                                  v-bind:title="'Address: ' + sourceCodeLine.Ui.Address">
-                                {{sourceCodeLine.Ui.LineNumber}}
+                            <span v-bind:id="'line'+line.LineNumber" class="lnn"
+                                  v-on:click="EditorReloadLine(line)"
+                                  v-bind:title="'Address: ' + line.Address">
+                                {{line.LineNumber}}
 
                             </span>
-                            <span v-html="sourceCodeLine.Ui.AsmFunCode" v-if="editor.showASMFunCode"></span>
-                            <span class="sc-value" v-if="processor.isShowDebugger && sourceCodeLine.Ui.CanEditProp">
-                                <input v-bind:id="'labelEdit'+sourceCodeLine.Ui.LineNumber" v-if="sourceCodeLine.Ui.Prop != null && sourceCodeLine.Ui.Prop.IsInEditMode"
-                                       type="text" v-model="sourceCodeLine.Ui.Prop.NewValue" v-on:keydown="ChangeLabelValue(event,sourceCodeLine.Ui.Prop)" />
-                                <span v-if="sourceCodeLine.Ui.Prop != null && !sourceCodeLine.Ui.Prop.IsInEditMode"
-                                      v-on:click="SwapChangeLabelValue(sourceCodeLine.Ui.Prop)"> = {{ sourceCodeLine.Ui.Prop.Value}}</span>
+                            <span v-html="line.AsmFunCode" v-if="editor.showASMFunCode"></span>
+                            <span class="sc-value" v-if="processor.isShowDebugger && line.CanEditProp">
+                                <input v-bind:id="'labelEdit'+line.LineNumber" v-if="line.Prop != null && line.Prop.IsInEditMode"
+                                       type="text" v-model="line.Prop.NewValue" v-on:keydown="ChangeLabelValue(event,line.Prop)" />
+                                <span v-if="line.Prop != null && !line.Prop.IsInEditMode"
+                                      v-on:click="SwapChangeLabelValue(line.Prop)"> = {{ line.Prop.Value}}</span>
                             </span>
                         </div>
                     </div>
                     <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)" tabindex="0" @focus="editor.isTextEditorInFocus = true" @blur="editor.isTextEditorInFocus = false">
-                        <span class="ln" v-for="sourceCodeLine in editor.selectedFile.lines"
-                              v-bind:class="{  'isSelected' : sourceCodeLine.Ui.Selected, 'hasError' : sourceCodeLine.Ui.HasError , 'hilite' : sourceCodeLine.Ui.Hilite }">
-                            <span class="scline" v-html="sourceCodeLine.sourceCodeHtml"> </span>
+                        <span class="ln" v-for="line in editor.Bundle.Lines"
+                              v-bind:class="{  'isSelected' : line.Selected, 'hasError' : line.HasError , 'hilite' : line.Hilite }">
+                            <span class="scline"><span class="scline" v-bind:data-ln="line.LineNumber" v-bind:id="'lineCode'+line.LineNumber" v-html="line.Html"></span></span>
                             <br />
-                            <span class="errorDetail" v-if="sourceCodeLine.Ui.HasError && sourceCodeLine.Ui.Error != null">{{sourceCodeLine.Ui.Error.compilerName}}: {{sourceCodeLine.Ui.Error.message}}</span>
+                            <span class="errorDetail" v-if="line.HasError && line.Error != null">{{line.Error.compilerName}}: {{line.Error.message}}</span>
                         </span>
                     </div>
+                   
                 </div>
 
             </div>
@@ -449,7 +451,7 @@ programItem.address  | toHex2
                       v-bind:class="{ 'hilite' : data.hilite, 'scd': data.isSc, 'lbbl': data.isVariable, 'zone': data.isZone , 'isStart': data.isStart  }"></span>
             </div>
         </div>
-        <div class="memoryViewerSel" v-if="memoryViewer.isVisible">
+        <div class="memoryViewerSel" v-if="memoryViewer.isVisible && memoryViewer.HiliteSourceCode">
             <!-- The bar to hilite the select source code -->
         </div>
 

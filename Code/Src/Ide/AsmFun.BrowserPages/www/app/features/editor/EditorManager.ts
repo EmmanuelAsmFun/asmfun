@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { EditorData, IEditorFile, IEditorLine, IEditorBundle, CreateNewEditorLine, IEditorLabel, ResetLineProperties, IEditorManagerData } from "./data/EditorData.js";
+import { EditorData, IEditorFile, IEditorLine, IEditorManagerData } from "./data/EditorData.js";
 import {
     KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand,
     EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand
@@ -20,6 +20,7 @@ import { ICommandEvent } from "../../framework/ICommandManager.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameEditor } from "./EditorFactory.js";
 import { IUILine } from "./ui/IUILine.js";
+import { IUIFile } from "./ui/IUIFile.js";
 
 export interface IEditorContext {
     RenumberLines(fileIndex: number, startIndex: number, length: number);
@@ -51,7 +52,7 @@ export class EditorManager implements IEditorContext {
     
    
     //public sourceCode?: IEditorBundle;
-    public currentFile?: IEditorFile | null ;
+    public currentFile: IEditorFile | null = null;
     public currentLine?: IEditorLine;
     private mainData: IMainData;
     private sourceCodeManager: SourceCodeManager;
@@ -74,26 +75,30 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new KeyboardKeyCommand(), this, this.KeyPressed);
         mainData.commandManager.Subscribe2(new EditorCodeAssistCommand(), this, () => thiss.OpenCodeAssistent());
         mainData.commandManager.Subscribe2(new CloseEditorCodeAssistCommand(), this, () => thiss.CloseCodeAssistent());
-        mainData.commandManager.Subscribe2(new EditorPasteCommand(""), this, t => thiss.editorWriter.PasteText(thiss,t.text));
+        mainData.commandManager.Subscribe2(new EditorPasteCommand(""), this, t => thiss.PasteText(t.text));
         mainData.commandManager.Subscribe2(new EditorInsertTextCommand(), this, (c) => thiss.InsertTextFromCodeAssist(c.text, c.removeText));
         mainData.commandManager.Subscribe2(new ProjectSaveCommand(), this, () => { thiss.requireSave = false; });
         mainData.commandManager.Subscribe2(new EditorEnableCommand(null), this, (c) => thiss.SetEnableState(c.state));
-        mainData.commandManager.Subscribe2(new EditorSelectFileCommand(null), this, (c) => thiss.SelectFile(c.file));
+        mainData.commandManager.Subscribe2(new EditorSelectFileCommand(null), this, (c) => thiss.SelectFileByUi(c.file));
         mainData.commandManager.Subscribe2(new EditorSwapOutputCommand(null), this, (c) => thiss.SwapOutputWindow(c.state));
-        mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLine2(c.line); } });
+        mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLineFromUi(c.line); } });
         mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
 
     }
 
-   
-   
+
+    public SelectFileByUi(file: IUIFile | null) {
+        if (file == null) return;
+        this.SelectFileByIndex(file.Index);
+    }
     public SelectFileByIndex(fileIndex: number) {
-        if (this.data.scfiles == null) return;
-        var file = this.data.scfiles[fileIndex];
+        if (this.data.Files == null) return;
+        var sourceCode = this.sourceCodeManager.GetEditorBundle();
+        if (sourceCode == null) return;
+        var file = sourceCode.files[fileIndex];
         this.SelectFile(file);
     }
     public SelectFile(file: IEditorFile | null) {
-        if (file == null) return;
         if (this.currentFile === file) return;
         var sourceCode = this.sourceCodeManager.GetEditorBundle();
         if (sourceCode == null) return;
@@ -102,7 +107,7 @@ export class EditorManager implements IEditorContext {
             this.projectManager.ProjectSetProp(this.currentFile.data.fileName + this.LocalStorageName, { x: this.editorData.cursorX, y: this.editorData.cursorY });
             this.currentFile.lastCursorX = this.editorData.cursorX;
             this.currentFile.lastCursorY = this.editorData.cursorY;
-            this.currentFile.isSelected = false;
+            this.currentFile.Ui.IsSelected = false;
         }
         if (file == null) {
             if (sourceCode.files == null || sourceCode.files.length === 0) return;
@@ -113,7 +118,7 @@ export class EditorManager implements IEditorContext {
         this.currentFile = file;
         if (this.currentFile.lines != null)
             this.editorData.maxY = this.currentFile.lines.length;
-        this.data.selectedFile = file;
+        this.data.SelectedFile = file.Ui;
         
         if (this.currentFile.lastCursorX == 0 || this.currentFile.lastCursorX == null) this.currentFile.lastCursorX = 0;
         if (this.currentFile.lastCursorY == 0 || this.currentFile.lastCursorY == null) this.currentFile.lastCursorY = 0;
@@ -125,7 +130,7 @@ export class EditorManager implements IEditorContext {
             this.editorData.cursorX = this.currentFile.lastCursorX;
             this.editorData.cursorY = this.currentFile.lastCursorY;
         }
-        this.currentFile.isSelected = true;
+        this.currentFile.Ui.IsSelected = true;
         this.cursorLogic.UpdateCursor(this, false);
     }
 
@@ -194,6 +199,13 @@ export class EditorManager implements IEditorContext {
     private PopupIsOpen() {
         return this.codeAssistPopupManager.GetVisibility();
     }
+
+
+    private PasteText(text: string) {
+        if (!this.isEnabled) return;
+        this.editorWriter.PasteText(this, text);
+    }
+
     private KeyPressed(keyCommand: KeyboardKeyCommand, evt: ICommandEvent) {
         if (!this.isEnabled || !this.data.isTextEditorInFocus) {
             keyCommand.allowContinueEmit = true;
@@ -243,6 +255,10 @@ export class EditorManager implements IEditorContext {
         this.RedrawLine2(this.currentLine);
     }
     
+    public RedrawLineFromUi(line: IUILine) {
+        if (this.currentFile == null) return;
+        this.RedrawLine2(this.currentFile.lines[line.LineNumber - 1]);
+    }
     public RedrawLine2(line: IEditorLine) {
         this.sourceCodeManager.RedrawLine(line);
         //ResetLineProperties(line);
@@ -371,7 +387,7 @@ export class EditorManager implements IEditorContext {
 
 
     public HasFiles() {
-        return this.data.selectedFile != null && this.data.selectedFile.lines.length === 0
+        return this.currentFile != null && this.sourceCodeManager.Bundle != null && this.sourceCodeManager.Bundle.Files.length > 0;
     }
     
 

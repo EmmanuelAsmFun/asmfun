@@ -5,21 +5,28 @@
 // #endregion
 
 export class AsmTools {
+    public static Base64Decode(data: string) {
+        var numBytes = Uint8Array.from(atob(data), c => c.charCodeAt(0))
+        return numBytes;
+    }
 
+    /// if parse one byte , Use isBigEndian to true, it's more performant.
     public static ConvertToNumber(data: string, isBigEndian: boolean): number {
         data = data.trim();
         if (data.length < 2) return Number(data);
         switch (data[0]) {
             case "$":
                 var datas = data.substring(1);
+
                 // hexdecimal value
-                if (isBigEndian) {
+                if (isBigEndian)
                     return parseInt(datas, 16);
-                } else {
-                    var temp = (<any>datas.match(/../g));
+                else {
+                    var temp = datas.replace(" ","").match(/[0-9a-fA-F]{2}/g);
                     if (temp == null) return 0;
-                    return parseInt(temp.reverse().join(''));
+                    return parseInt(temp.reverse().join(''), 16);
                 }
+                
             case "%": // binary value
                 return parseInt(data.substring(1).replace(".","0").replace("#","1"), 2);
             case "&": // octal value
@@ -49,7 +56,7 @@ export class AsmTools {
         if (val === 62) return "&gt;";
         return String.fromCharCode(val);
     }
-    public static numToHex5(val): string {
+    public static numToHex5(val: number): string {
         var address = val.toString(16);
         if (address.length < 5)
             address = "0" + address;
@@ -61,7 +68,7 @@ export class AsmTools {
             address = "0" + address;
         return address.toUpperCase();;
     }
-    public static numToHex4(val): string {
+    public static numToHex4(val: number): string {
         var address = val.toString(16);
         if (address.length < 4)
             address = "0" + address;
@@ -71,7 +78,7 @@ export class AsmTools {
             address = "0" + address;
         return address.toUpperCase();;
     }
-    public static numToHex2(val):string {
+    public static numToHex2(val: number):string {
         var address = val.toString(16);
         if (address.length < 2)
             address = "0" + address;
@@ -113,8 +120,17 @@ export class AsmTools {
         setTimeout(() => {
             var ell = document.getElementById(elementId);
             if (ell == null) return;
-            if (directScroll)
+            if (directScroll) {
                 ell.scrollIntoView({ behavior: "auto", block: "nearest", });
+                var sc = document.getElementById(parentElementId);
+                if (sc == null) return;
+                var bounds = ell.getBoundingClientRect();
+                var top = bounds.top;
+                if (top < 80 && top >= 0)
+                    sc?.scrollBy(0, -80);
+                else if (top > 800)
+                    sc?.scrollBy(0, 80);
+            }
             else {
                 ell.scrollIntoView({ behavior: "smooth", block: "start", });
                 setTimeout(() => {

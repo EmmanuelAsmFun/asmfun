@@ -6,6 +6,8 @@ import {
     ProcessorNextStepCommand, ProcessorBreakpointSwapStateCommand, ProcessorBreakpointSetByAddressCommand, ProcessorDbgSwapOnlyMyCodeCommand, ProcessorDbgBreakCommand
 } from "./commands/ProcessorCommands.js";
 import { IBreakpointUIData } from "./data/BreakPointsData.js";
+import { IUILine } from "../editor/ui/IUILine.js";
+import { IUIFile } from "../editor/ui/IUIFile.js";
 
 var commmandManager: ICommandManager;
 export function SetCommandManager(commmandManager1: ICommandManager) {
@@ -24,7 +26,7 @@ export function DbgRun() { commmandManager.InvokeCommand(new ProcessorDebuggerRu
 export function DbgBreak() { commmandManager.InvokeCommand(new ProcessorDbgBreakCommand()); }
 export function DbgBreakSwapOnlyMyCode() { commmandManager.InvokeCommand(new ProcessorDbgSwapOnlyMyCodeCommand()); }
 export function DbgLoadLabelValues() { commmandManager.InvokeCommand(new ProcessorReloadValuesCommand()); }
-export function DbgSetBreakpointCurrentLine(file, line) { commmandManager.InvokeCommand(new ProcessorDebuggerSetBreakpointCommand(file, line)); }
+export function DbgSetBreakpointCurrentLine(file: IUIFile, line: IUILine) { commmandManager.InvokeCommand(new ProcessorDebuggerSetBreakpointCommand(file, line)); }
 export function DbgBreakpointSwapState(breakpoint: IBreakpointUIData) { commmandManager.InvokeCommand(new ProcessorBreakpointSwapStateCommand(breakpoint)); }
 export function DbgBreakpointSetByAddress(address: string, state: boolean) { commmandManager.InvokeCommand(new ProcessorBreakpointSetByAddressCommand(address,state)); }
 

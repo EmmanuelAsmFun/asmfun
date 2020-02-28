@@ -1,7 +1,7 @@
 ﻿import { ProjectService } from "../project/services/ProjectService.js";
 import { IMainData } from "../../framework/data/MainData.js";
 import { IAsmFunAppData, IAsmFunIdeData, BrowserTypes } from "./data/AsmFunAppData.js";
-import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand } from "./commands/ASMFunPlayerManagerCommands.js";
+import { ASMFunPlayerOpenManagerCommand, ASMFunPlayerSelectOSCommand, IdeSelectCodeNavTabCommand } from "./commands/ASMFunPlayerManagerCommands.js";
 import { ApiService } from "../../framework/services/ApiService.js";
 import { ConfirmIcon, NotifyIcon } from "../../common/Enums.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
@@ -51,13 +51,14 @@ export class ASMFunPlayerManager implements IPopupWindow {
         this.popupMe = this.mainData.popupManager.Subscribe(0, this);
         this.mainData.commandManager.Subscribe2(new ASMFunPlayerOpenManagerCommand(null), this, x => this.popupMe.SwitchState(x.state));
         this.mainData.commandManager.Subscribe2(new ASMFunPlayerSelectOSCommand(""), this, x => this.SelectOS(x.osName));
+        this.mainData.commandManager.Subscribe2(new IdeSelectCodeNavTabCommand(""), this, x => this.SelectCodeNavTab(x.tabName));
         
         thiss.data.serverNotConnected = true;
         this.data.onDone = () => {
             this.Save();
             this.Done();
         }
-        this.data.selectVarTab = (tabName) => this.SelectVarTab(tabName);
+        this.data.SelectCodeNavTab = (tabName) => this.SelectCodeNavTab(tabName);
     }
 
 
@@ -109,7 +110,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
     private Done() {
         var svc = this.mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName);
         var svcEditor = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
-        if (svc != null && svcEditor != null && svcEditor.HasFiles())
+        if (svc != null && svcEditor != null && !svcEditor.HasFiles())
             svc.LoadOne();
         
         this.popupMe.Close();
@@ -157,7 +158,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
         return BrowserTypes.Unknown;
     }
 
-    private SelectVarTab(tabName: string): void {
+    private SelectCodeNavTab(tabName: string): void {
         switch (tabName) {
             case "Variables":
                 this.data.showVariables = true;
@@ -196,7 +197,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
             showVariables: false,
             showLabels: true,
             showMoreDownloads: false,
-            selectVarTab: n => { },
+            SelectCodeNavTab: n => { },
         };
     }
 

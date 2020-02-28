@@ -618,7 +618,7 @@ body {
   color: #c68af5;
 }
 .memoryViewer .lbbl {
-  color: #20c25a;
+  color: #00ad5e;
 }
 .memoryViewer .scd.isStart {
   color: #eacfff;
@@ -762,7 +762,7 @@ body {
 }
 .ScLines .ln .scline {
   background: transparent;
-  margin-left: 5px;
+  margin-left: 3px;
   display: inline-block;
   -webkit-touch-callout: text;
   /* iOS Safari */
@@ -914,7 +914,7 @@ body {
 }
 .sourceCode .macrojp,
 .sourceCode .macro {
-  color: #39f9ff;
+  color: #32d9d4;
 }
 .sourceCode .opcode {
   color: #c077f8;
@@ -928,7 +928,7 @@ body {
 .sourceCode .ptrjp,
 .sourceCode .ptrvar {
   /* Pointer*/
-  color: #20c25a;
+  color: #00ad5e;
 }
 .sourceCode .var {
   color: #f1b767;
@@ -2162,6 +2162,94 @@ body {
 .painterManager .grid .activator.IsActive {
   border: 1px solid #a1a1a1;
 }
+.Breakpoints {
+  position: absolute;
+  left: 250px;
+  bottom: 4px;
+  z-index: 1200;
+  text-align: left;
+}
+.Breakpoints .c-link-btn .fa {
+  font-size: 14px;
+}
+.Breakpoints .c-link-btn a,
+.Breakpoints .c-link-btn a:link,
+.Breakpoints .c-link-btn a:visited,
+.Breakpoints .c-link-btn a:active {
+  color: #76765a;
+  background: transparent;
+  text-decoration: none;
+  font-size: 12px;
+  padding-right: 3px;
+}
+.Breakpoints .c-link-btn a:hover {
+  color: #bdbd92;
+  text-decoration: none;
+}
+.Breakpoints .close-btn {
+  position: absolute;
+  right: 5px;
+  top: 3px;
+  cursor: pointer;
+  font-size: 18px;
+  z-index: 10;
+}
+.Breakpoints .OutputWindow {
+  position: absolute;
+  left: 0px;
+  bottom: 21px;
+  border: 1px solid #333333;
+  padding: 5px;
+  font-size: 11px;
+  background: black;
+  -webkit-box-shadow: 0px 0px 26px 6px rgba(0, 0, 0, 0.9);
+  -moz-box-shadow: 0px 0px 26px 6px rgba(0, 0, 0, 0.9);
+  box-shadow: 0px 0px 26px 6px rgba(0, 0, 0, 0.9);
+  z-index: 90;
+  word-wrap: break-word;
+  min-width: 300px;
+}
+.Breakpoints .OutputWindow .list {
+  border-top: 1px solid #333333;
+  padding-top: 10px;
+  padding-bottom: 20px;
+  max-height: 150px;
+  overflow-y: scroll;
+}
+.Breakpoints .OutputWindow .breakpoint-ln {
+  min-width: 300px;
+  max-width: 600px;
+  white-space: nowrap;
+  overflow-x: hidden;
+}
+.Breakpoints .OutputWindow .breakpoint-ln .fa {
+  cursor: pointer;
+}
+.Breakpoints .OutputWindow .breakpoint-ln .fa-circle {
+  color: darkred;
+}
+.Breakpoints .OutputWindow .ln-add {
+  cursor: pointer;
+}
+.Breakpoints .OutputWindow h3 {
+  font-size: 14px;
+  font-weight: 100;
+  padding: 0;
+  margin: 0;
+  padding-bottom: 5px;
+}
+.Breakpoints .OutputWindow .add-breakpoint {
+  position: absolute;
+  left: 150px;
+  top: 5px;
+}
+.Breakpoints .OutputWindow .add-breakpoint a {
+  cursor: pointer;
+}
+.Breakpoints .OutputWindow .add-breakpoint input {
+  font-size: 11px;
+  width: 40px;
+}
 @font-face {
   font-family: 'robot';
   src: url('../fonts/roboto.ttf') format('truetype');
@@ -2238,7 +2326,7 @@ button.btn {
   cursor: pointer;
   vertical-align: middle;
 }
-.labels {
+.code-nav {
   position: fixed;
   right: 110px;
   top: 150px;
@@ -2248,7 +2336,7 @@ button.btn {
   bottom: 27px;
   z-index: 51;
 }
-.labels .labels-top {
+.code-nav .code-nav-top {
   font-size: 12px;
   -webkit-touch-callout: none;
   /* iOS Safari */
@@ -2263,10 +2351,10 @@ button.btn {
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome and Opera */
 }
-.labels .labels-top a,
-.labels .labels-top a:link,
-.labels .labels-top a:visited,
-.labels .labels-top a:hover {
+.code-nav .code-nav-top a,
+.code-nav .code-nav-top a:link,
+.code-nav .code-nav-top a:visited,
+.code-nav .code-nav-top a:hover {
   display: inline-block;
   background: #a1a17b;
   color: black;
@@ -2276,14 +2364,14 @@ button.btn {
   border-radius: 5px 5px 0 0;
   margin-right: 1px;
 }
-.labels .labels-top a.selected,
-.labels .labels-top a:link.selected,
-.labels .labels-top a:visited.selected,
-.labels .labels-top a:hover.selected {
+.code-nav .code-nav-top a.selected,
+.code-nav .code-nav-top a:link.selected,
+.code-nav .code-nav-top a:visited.selected,
+.code-nav .code-nav-top a:hover.selected {
   background: #222222;
   color: #a1a17b;
 }
-.labels .listing {
+.code-nav .listing {
   clear: both;
   line-height: 12px;
   width: 200px;
@@ -2291,7 +2379,7 @@ button.btn {
   position: relative;
   height: 100%;
 }
-.labels .listing-table {
+.code-nav .listing-table {
   width: 100%;
   position: absolute;
   top: 20px;
@@ -2299,34 +2387,63 @@ button.btn {
   overflow-y: scroll;
   overflow-x: hidden;
 }
-.labels .ad {
+.code-nav .ad {
   padding-right: 10px;
 }
-.labels .hilite {
-  background: #20c25a;
-  color: black;
-}
-.labels table,
-.labels tr,
-.labels td {
+.code-nav table,
+.code-nav tr,
+.code-nav td {
   font-size: 10px;
   margin: 0;
   padding: 0;
 }
-.labels td {
+.code-nav td {
   padding-right: 5px;
 }
-.labels .variables table,
-.labels .variables tr,
-.labels .variables td {
-  color: #20c25a;
+.code-nav .variables table,
+.code-nav .variables tr,
+.code-nav .variables td {
+  color: #00ad5e;
 }
-.labels .zones tr,
-.labels .macros tr {
+.code-nav .variables table.hilite,
+.code-nav .variables tr.hilite,
+.code-nav .variables td.hilite {
+  background: #00ad5e;
+  color: black;
+}
+.code-nav .variables .p-name {
+  display: inline-block;
+  width: 100px;
+  overflow-x: hidden;
+}
+.code-nav .labels table,
+.code-nav .labels tr,
+.code-nav .labels td {
+  color: #39b6ff;
+}
+.code-nav .labels table.hilite,
+.code-nav .labels tr.hilite,
+.code-nav .labels td.hilite {
+  background: #39b6ff;
+  color: black;
+}
+.code-nav .macros table,
+.code-nav .macros tr,
+.code-nav .macros td {
+  color: #32d9d4;
+}
+.code-nav .macros table .parameters,
+.code-nav .macros tr .parameters,
+.code-nav .macros td .parameters {
+  color: #777777;
+  font-size: 9px;
+}
+.code-nav .labels tr,
+.code-nav .macros tr {
   cursor: pointer;
 }
-.labels .zones tr:hover,
-.labels .macros tr:hover {
+.code-nav .labels tr:hover,
+.code-nav .macros tr:hover {
   background: #3d3d30;
 }
 .stack {
@@ -2457,92 +2574,4 @@ button.btn {
   padding: 0;
   margin: 0;
   padding-bottom: 5px;
-}
-.Breakpoints {
-  position: absolute;
-  left: 250px;
-  bottom: 4px;
-  z-index: 1200;
-  text-align: left;
-}
-.Breakpoints .c-link-btn .fa {
-  font-size: 14px;
-}
-.Breakpoints .c-link-btn a,
-.Breakpoints .c-link-btn a:link,
-.Breakpoints .c-link-btn a:visited,
-.Breakpoints .c-link-btn a:active {
-  color: #76765a;
-  background: transparent;
-  text-decoration: none;
-  font-size: 12px;
-  padding-right: 3px;
-}
-.Breakpoints .c-link-btn a:hover {
-  color: #bdbd92;
-  text-decoration: none;
-}
-.Breakpoints .close-btn {
-  position: absolute;
-  right: 5px;
-  top: 3px;
-  cursor: pointer;
-  font-size: 18px;
-  z-index: 10;
-}
-.Breakpoints .OutputWindow {
-  position: absolute;
-  left: 0px;
-  bottom: 21px;
-  border: 1px solid #333333;
-  padding: 5px;
-  font-size: 11px;
-  background: black;
-  -webkit-box-shadow: 0px 0px 26px 6px rgba(0, 0, 0, 0.9);
-  -moz-box-shadow: 0px 0px 26px 6px rgba(0, 0, 0, 0.9);
-  box-shadow: 0px 0px 26px 6px rgba(0, 0, 0, 0.9);
-  z-index: 90;
-  word-wrap: break-word;
-  min-width: 300px;
-}
-.Breakpoints .OutputWindow .list {
-  border-top: 1px solid #333333;
-  padding-top: 10px;
-  padding-bottom: 20px;
-  max-height: 150px;
-  overflow-y: scroll;
-}
-.Breakpoints .OutputWindow .breakpoint-ln {
-  min-width: 300px;
-  max-width: 600px;
-  white-space: nowrap;
-  overflow-x: hidden;
-}
-.Breakpoints .OutputWindow .breakpoint-ln .fa {
-  cursor: pointer;
-}
-.Breakpoints .OutputWindow .breakpoint-ln .fa-circle {
-  color: darkred;
-}
-.Breakpoints .OutputWindow .ln-add {
-  cursor: pointer;
-}
-.Breakpoints .OutputWindow h3 {
-  font-size: 14px;
-  font-weight: 100;
-  padding: 0;
-  margin: 0;
-  padding-bottom: 5px;
-}
-.Breakpoints .OutputWindow .add-breakpoint {
-  position: absolute;
-  left: 150px;
-  top: 5px;
-}
-.Breakpoints .OutputWindow .add-breakpoint a {
-  cursor: pointer;
-}
-.Breakpoints .OutputWindow .add-breakpoint input {
-  font-size: 11px;
-  width: 40px;
 }

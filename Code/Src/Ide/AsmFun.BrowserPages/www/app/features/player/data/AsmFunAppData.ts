@@ -29,7 +29,7 @@ export interface IAsmFunIdeData extends IPopupWindowData {
     latestVersion: string;
     onDone: () => void,
 
-    selectVarTab: (tab:string) => void,
+    SelectCodeNavTab: (tab:string) => void,
     showLabels: boolean,
     showMacros: boolean,
     showVariables: boolean,

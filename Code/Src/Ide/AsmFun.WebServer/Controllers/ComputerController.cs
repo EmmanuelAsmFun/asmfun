@@ -128,10 +128,10 @@ namespace AsmFun.WebServer.Controllers
             return processorManager.GetLabels();
         }
         [HttpPost]
-        public List<AddressDataLabel> GetLabelValues([FromBody] List<PropertyData> properties)
+        public List<AddressDataLabel> GetLabelValues([FromBody] List<AddressDataLabel> properties)
         {
-            // Return the ordered list by name.
-            return processorManager.GetLabelValues(properties);
+            processorManager.ParseLabelValues(properties);
+            return properties;
         }
         
     }

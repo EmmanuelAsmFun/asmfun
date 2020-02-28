@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { EditorData, IEditorFile, IEditorLine, IEditorBundle, CreateNewEditorLine, IEditorLabel, IEditorSelection, IUndoData } from "./data/EditorData.js";
+import { IEditorLine, IEditorSelection, IUndoData } from "./data/EditorData.js";
 import { KeyboardKeyCommand, } from "./commands/EditorCommands.js";
 import { IEditorContext } from "./EditorManager.js";
 import { AsmTools } from "../../Tools.js";
@@ -89,12 +89,12 @@ export class EditorWriter  {
     private RequireSave(context: IEditorContext) {
         context.requireSave = true;
         if (context.currentFile != null)
-            context.currentFile.data.requireSave = true;
+            context.currentFile.Ui.RequireSave = true;
     }
     
 
 
-    public EnterKey(context: IEditorContext, isPaste: boolean = false): boolean {
+    public EnterKey(context: IEditorContext, isPaste: boolean = false, allowIndent: boolean = true): boolean {
         if (context.currentLine == null || context.currentFile == null || context.currentFile.lines == null) return false;
         this.DeleteSelection(context);
         var lineIndex = context.currentLine.data.lineNumber;
@@ -115,7 +115,7 @@ export class EditorWriter  {
         // when not pasting, insert the same amount of spaces as the currentline.
         var currentLineStartSpaces = "";
         var xNewPos = 0;
-        if (!isPaste) {
+        if (!isPaste && allowIndent) {
             for (var i = 0; i < context.currentLine.data.sourceCode.length; i++) {
                 if (context.currentLine.data.sourceCode[i] === " ") {
                     currentLineStartSpaces += " ";
@@ -147,10 +147,11 @@ export class EditorWriter  {
         if (this.DeleteSelection(context)) return false;
         if (context.editorData.cursorX === 0) {
             if (context.editorData.cursorY > 1) {
-                this.AddUndoBackspaceLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
+                
                 // Remove line
                 var currentFile = (<any>context.currentFile);
                 var previousLine: IEditorLine = currentFile.lines[context.currentLine.data.lineNumber - 2];
+                this.AddUndoBackspaceLine(context.currentLine, previousLine.data.sourceCode.length, context.editorData.cursorY -1);
                 context.editorData.cursorY--;
                 context.editorData.cursorX = previousLine.data.sourceCode.length;
                 previousLine.data.sourceCode += context.currentLine.data.sourceCode;
@@ -164,7 +165,7 @@ export class EditorWriter  {
             }
         }
         else {
-            this.AddUndoSameLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
+            this.AddUndoSameLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY, context.editorData.cursorX);
             context.currentLine.data.sourceCode = line.substring(0, context.editorData.cursorX - 1) + line.substring(context.editorData.cursorX);
             context.RedrawLine();
             context.cursorLogic.MoveLeft(context,false,false);
@@ -176,21 +177,26 @@ export class EditorWriter  {
 
     public DeleteKey(context: IEditorContext): boolean {
         if (this.DeleteSelection(context)) return false;
-        if (context.editorData.maxX > 0 && context.editorData.cursorX > context.editorData.maxX - 1) return false;
-        if (context.currentLine == null) return false;
+        if (context.currentLine == null || context.currentFile == null) return false;
        
         var line = context.currentLine.data.sourceCode;
-        if (context.currentLine.data.sourceCode.length === 0) {
+        var lengthEnd = context.currentLine.data.sourceCode.length - context.editorData.cursorX;
+        if (lengthEnd === 0 && context.editorData.cursorY < context.currentFile.lines.length-1) {
             var currentFile = (<any>context.currentFile);
             this.AddUndoDeleteKey(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
+            var nextLine: IEditorLine = currentFile.lines[context.currentLine.data.lineNumber];
+            var textNextLine = nextLine.data.sourceCode;
+            var lastY = context.editorData.cursorY;
             // Delete next line, line numbers are index + 1
-            context.RemoveLine(currentFile.Index, context.currentLine.data.lineNumber,true);
+            context.RemoveLine(currentFile.Index, context.currentLine.data.lineNumber+1,true);
             //context.currentLine.context.RemoveLine(currentFile.lines[context.currentLine.data.lineNumber]);
             //(<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
             //this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
-            context.currentLine = currentFile.lines[context.currentLine.data.lineNumber - 1];
-            if (context.currentLine != null && (<any>context.currentLine).sourceCode != null)
-                context.editorData.maxX = (<any>context.currentLine).sourceCode.length;
+            context.currentLine = currentFile.lines[lastY];
+            if (context.currentLine != null && context.currentLine.data.sourceCode != null) {
+                context.currentLine.data.sourceCode += textNextLine;
+                context.editorData.maxX = context.currentLine.data.sourceCode.length;
+            }
         }
         else {
             this.AddUndoSameLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
@@ -308,13 +314,15 @@ export class EditorWriter  {
                 if (undo.isChars || undo.isSameLine) {
                     context.currentFile.lines[undo.y].data.sourceCode = undo.lineText;
                     context.RedrawLine();
+                    if (undo.afterUndoX > -1)
+                        context.cursorLogic.MoveCursor(context, undo.afterUndoX, undo.y);
                 } else if (undo.isEnter) {
                     this.Backspace(context);
                 } else if (undo.isBackspaceLine) {
-                    this.EnterKey(context);
+                    this.EnterKey(context,false,false);
                     context.cursorLogic.MoveCursor(context, undo.x, undo.y);
                 } if (undo.isDeleteKey) {
-                    this.EnterKey(context);
+                    this.EnterKey(context, false,false);
                     context.cursorLogic.MoveCursor(context, undo.x, undo.y);
                 } if (undo.isMultiLine) {
                     console.log("UndoFirstLine", undo.lineText);
@@ -323,7 +331,7 @@ export class EditorWriter  {
                     context.cursorLogic.MoveEnd(context, false);
                     console.log("UndoOtherLines", undo.addonLines);
                     for (var i = 0; i < undo.addonLines.length; i++) {
-                        this.EnterKey(context);
+                        this.EnterKey(context, false, false);
                         if (context.currentLine != null) {
                             context.currentLine.data.sourceCode = undo.addonLines[i];
                             context.RedrawLine();
@@ -359,9 +367,9 @@ export class EditorWriter  {
         if (this.currentUndo == null) return;
         this.currentUndo.isDeleteKey = true;
     }
-    private AddUndoSameLine(line: IEditorLine, x: number, y: number) {
+    private AddUndoSameLine(line: IEditorLine, x: number, y: number, afterUndoX: number = -1) {
         if (this.runningUndo) return;
-        this.AddUndo(line, x, y);
+        this.AddUndo(line, x, y, afterUndoX);
         if (this.currentUndo == null) return;
         this.currentUndo.isSameLine = true;
     }
@@ -386,7 +394,7 @@ export class EditorWriter  {
             this.currentUndo.toInsertChars += char;
         }
     }
-    private AddUndo(line: IEditorLine, x: number, y: number) {
+    private AddUndo(line: IEditorLine, x: number, y: number, afterUndoX:number = -1) {
         this.currentUndo = {
             lineText: line.data.sourceCode,
             toInsertChars: "",
@@ -399,6 +407,7 @@ export class EditorWriter  {
             addonLines:[],
             x: x,
             y: y,
+            afterUndoX: afterUndoX,
         };
         this.undos.push(this.currentUndo);
         if (this.undos.length > 200)

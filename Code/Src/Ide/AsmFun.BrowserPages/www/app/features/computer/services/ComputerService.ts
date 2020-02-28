@@ -9,8 +9,9 @@ import { IEventManager } from "../../../framework/IAsmFunEventManager.js";
 import { ApiService } from "../../../framework/services/ApiService.js";
 import { IMainData } from "../../../framework/data/MainData.js";
 import { ComputerProcessorDataChanged, ComputerStarted } from "../commands/ComputerCommands.js";
-import { IPropertyData } from "../../editor/data/EditorData.js";
+import { IPropertyType } from "../../editor/data/EditorData.js";
 import { ServiceName } from "../../../framework/serviceLoc/ServiceName.js";
+import { IAddressDataLabel, IAddressDataLabelResponse } from "../../project/data/ProjectData.js";
 
 
 
@@ -64,7 +65,7 @@ export class ComputerService extends ApiService {
         this.callApi("getLabels", doneMethod);
     }
 
-    public getLabelValues(properties: IPropertyData[], doneMethod) {
+    public getLabelValues(properties: IAddressDataLabel[], doneMethod: (r: IAddressDataLabelResponse[]) => void) {
         this.post("getLabelValues", properties, doneMethod);
     }
 

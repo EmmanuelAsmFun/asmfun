@@ -5,7 +5,6 @@
 // #endregion
 
 import { IOpcodeData } from './data/IOpcodeData.js'
-import { IEditorLine } from './data/EditorData.js';
 import { IOpcodeManager } from './data/IOpcodeManager.js';
 import { ServiceName } from '../../framework/serviceLoc/ServiceName.js';
 import { InterpreterLine } from './interpreters/InterpreterLine.js';
@@ -148,6 +147,7 @@ export class OpcodeManager implements IOpcodeManager{
         this.opcodes.push({ code: "bcc", asmFunCode: 'is c == 0 [BBranch] [dataSp]' });  //  Branch if Carry is Clear    
         this.opcodes.push({ code: "bvs", asmFunCode: 'is f == 1 [BBranch] [dataSp]' });  //  Branch if Overflow Set    
         this.opcodes.push({ code: "bvc", asmFunCode: 'is f == 0 [BBranch] [dataSp]' });  //  Branch if Overflow Clear   
+        this.opcodes.push({ code: "bra", asmFunCode: 'always [BBranch] [dataSp]' });  //  Branch always   
 
         // Flags
         this.opcodes.push({ code: "sec", asmFunCode: 'c = 1' });                //  Set Carry Flag

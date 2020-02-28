@@ -1,6 +1,6 @@
-import { IEditorLine, IEditorLabel } from "../../editor/data/EditorData.js";
 import { IUILabel } from "../../editor/data/ILabelsData.js";
 import { IUIProperty } from "../../editor/data/IPropertiesData.js";
+import { IUILine } from "../../editor/ui/IUILine.js";
 
 // #region license
 // ASM Fun
@@ -31,10 +31,11 @@ export interface IMemoryBlockItem {
     code:string;
     hilite:boolean;
     group:IMemoryBlockItem[];
-    sourceCodeLine?:IEditorLine;
+    sourceCodeLine?:IUILine;
 }
 
 export interface IMemoryViewerData {
+    HiliteSourceCode: boolean;
     isVisible: boolean;
     memoryBlock: IMemoryBlock;
     addressNames: IMemoryAddressInfo[];

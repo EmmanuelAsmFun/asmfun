@@ -15,6 +15,7 @@ namespace AsmFun.Ide.Common.Features.Compilation.Data
         public int Address { get; set; }
         public string Name { get; set; }
         public int Value { get; set; }
+        public byte[] Values { get; set; }
         public int Length { get; set; }
     }
 }

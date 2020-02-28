@@ -5,7 +5,6 @@
 // #endregion
 
 import { IMemoryBlock, IMemoryBlockItem, IMemoryViewerData } from "./data/MemoryData.js";
-import { IEditorLine, IEditorLabel, IEditorManagerData } from "../editor/data/EditorData.js";
 import {
     MemoryOpenManagerCommand, MemoryScrollCommand, MemoryNextPageCommand, MemoryPreviousPageCommand, MemoryItemHoverCommand, MemorySelectPageCommand,
     MemoryEditCommand
@@ -17,7 +16,6 @@ import { IMainData } from "../../framework/data/MainData.js";
 import { DebuggerService } from "../processor/services/DebuggerService.js";
 import { AsmTools } from "../../Tools.js";
 import { UIDataNameMemory } from "./MemoryFactory.js";
-import { UIDataNameEditor } from "../editor/EditorFactory.js";
 import { SourceCodeManager } from "../editor/SourceCodeManager.js";
 import { ILabelManager } from "../editor/data/ILabelManager.js";
 import { LabelManager } from "../editor/LabelManager.js";
@@ -25,6 +23,8 @@ import { PropertyManager } from "../editor/PropertyManager.js";
 import { IPropertyManager } from "../editor/data/IPropertyManager.js";
 import { ZoneManager } from "../editor/ZoneManager.js";
 import { IZoneManager } from "../editor/data/IZoneManager.js";
+import { IInterpretLine } from "../editor/data/InterpreterData.js";
+import { IdeSelectCodeNavTabCommand } from "../player/commands/ASMFunPlayerManagerCommands.js";
 
 
 export class MemoryManager {
@@ -158,8 +158,6 @@ export class MemoryManager {
         this.mainData.commandManager.InvokeCommand(new EditorEnableCommand(true));
         this.debuggerService.getMemoryBlock(startAddress,count,(memBlock:IMemoryBlock) => {
             if (memBlock == null || memBlock.data == null) return;
-            var sourceCode = this.sourceCodeManager.GetEditorBundle();
-            if (sourceCode == null) return;
             this.addressStart = startAddress;
             var lblManager: ILabelManager = this.sourceCodeManager.Bundle != null ? this.sourceCodeManager.Bundle.LabelManager : new LabelManager();
             var varManager: IPropertyManager = this.sourceCodeManager.Bundle != null ? this.sourceCodeManager.Bundle.PropertyManager : new PropertyManager();
@@ -174,17 +172,17 @@ export class MemoryManager {
             var groupp:IMemoryBlockItem[] = [];
             
             // make a smaller sourcode list, with only used addresses
-            var sourceCodeLinesCache: IEditorLine[] = []
-            if (sourceCode != null){
-                for (let i = 0; i < sourceCode.files.length; i++) {
-                    const file = sourceCode.files[i];
-                    for (let j = 0; j < file.lines.length; j++) {
-                        var line = file.lines[j];
-                        var add = line.Ui.Address;
-                        if (line.data == null || add == null || add === "") continue;
-                        var addressNum = AsmTools.hexToNum(add);
+            var sourceCodeLinesCache: IInterpretLine[] = []
+            if (this.sourceCodeManager.Bundle != null) {
+                var files = this.sourceCodeManager.Bundle.Files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    for (let j = 0; j < file.Lines.length; j++) {
+                        var line = file.Lines[j];
+                        var addressNum = line.AddressNum;
+                        if (addressNum ===0) continue;
                         if (addressNum>= startAddress && addressNum <= startAddress + count) {  
-                            sourceCodeLinesCache.push(file.lines[j]);
+                            sourceCodeLinesCache.push(file.Lines[j]);
                              if (addressNum > startAddress + count)
                                  break;
                           }
@@ -192,11 +190,9 @@ export class MemoryManager {
                 }
             }
 
-
             for (let index = 0; index < memBlock.count; index++) {
                 const element = binary_string.charCodeAt(index);
                 const addr=index + startAddress;
-                const hexAddress = AsmTools.numToHex4(addr)
                 lineString += AsmTools.numToStringChar(element);
                 var addressTitle = "";
                 var addressTitleInner = "<br />";
@@ -241,7 +237,7 @@ export class MemoryManager {
                 
                 memBlock.datas.push(item);
                 // Check if it's a label
-                var found = lblManager.FindByHexAddress(hexAddress);
+                var found = lblManager.FindByAddress(addr);
                 if (found != null){
                     groupp = [];
                     item.isLabel = true;
@@ -251,7 +247,7 @@ export class MemoryManager {
                     totalAddress = 0;
                     continue;
                 }
-                var foundVar = varManager.FindByHexAddress(hexAddress);
+                var foundVar = varManager.FindByAddress(addr);
                 if (foundVar != null){
                     groupp = [];
                     item.isLabel = true;
@@ -269,7 +265,7 @@ export class MemoryManager {
                         totalAddress --;
                         groupp.push(item);
                         // Parse the sourcecode from the first item in the group.
-                        item.sourceCodeLine = groupp[0].sourceCodeLine;
+                        item.sourceCodeLine =  groupp[0].sourceCodeLine;
                         item.isSc = true;
                         // we don't need to continue, because we know it's a sourcecode.
                         continue;
@@ -278,11 +274,11 @@ export class MemoryManager {
                 groupp = [];
                 item.group = groupp;
                  // Try to find the address in sourceCode
-                var foundSc = sourceCodeLinesCache.find(x => x.Ui.Address === hexAddress);
+                var foundSc = sourceCodeLinesCache.find(x => x.AddressNum === addr);
                 if (foundSc != null) {
                     // Found
                     groupp.push(item);
-                    item.sourceCodeLine = foundSc;
+                    item.sourceCodeLine = foundSc.EditorLine.Ui;
                     item.isSc = true;
                     item.isStart = true;
                     // Remove all previous addresses because they cannot be used anymore
@@ -327,10 +323,11 @@ export class MemoryManager {
     }
     private ScollToElement(el: HTMLElement | null) {
         if (el == null) return;
-        el.scrollIntoView({ behavior: "smooth", block: "nearest", });
+        //console.log("scroll to " + el.id);
+        el.scrollIntoView({ behavior: "smooth", block: "start", });
         setTimeout(() => {
             if (el != null)
-                el.scrollIntoView({ behavior: "auto", block: "nearest", });
+                el.scrollIntoView({ behavior: "auto", block: "start", });
         }, 300);
     }
 
@@ -338,24 +335,33 @@ export class MemoryManager {
     {
         // Deselect previous
         this.DeselectPrevious();
-
-        var item =  this.data.memoryBlock.datas[index];
-        var hexAddress = AsmTools.numToHex4(address);
+        const item =  this.data.memoryBlock.datas[index];
         // Try to find in labels
         if (item.isLabel && item.label != null) {
+            this.data.HiliteSourceCode = true;
             this.editorManager.SelectFileByIndex(item.label.FileIndex);
             item.hilite = true;
             item.label.Hilite = true;
             this.previousHiliteLabel = item;
-            var el = document.getElementById('lblview'+item.label.Name);
-            this.ScollToElement(el);
-            
+            this.mainData.commandManager.InvokeCommand(new IdeSelectCodeNavTabCommand(item.isVariable ? "Variables" : "Labels"));
+            setTimeout(() => {
+                if (item.label == null) return;
+                var elVar = item.isVariable ?
+                    document.getElementById('varview' + item.label.Name) :
+                    document.getElementById('lblview' + item.label.Name);
+                if (elVar != null)
+                    elVar.scrollIntoView();
+            }, 100);
+            if (item.label.LineNumber > 0) {
+                var el = document.getElementById('line' + (item.label.LineNumber - 3));
+                this.ScollToElement(el);
+            }
             return;
         }
 
         var sourceCode = this.sourceCodeManager.GetEditorBundle();
         if (sourceCode != null) {
-           
+            this.data.HiliteSourceCode = true;
             if (item.group.length > 0){
                 for (let i = 0; i < item.group.length; i++) {
                     const element = item.group[i];
@@ -367,16 +373,17 @@ export class MemoryManager {
                 this.previousCodeGroup = [item];
                
             }
-            if (item.sourceCodeLine != null)
-            {
-                //if (item.sourceCodeLine.file != null) {
-                //    this.editorManager.SelectFile(item.sourceCodeLine.file);
-                //}
-                var el = document.getElementById('line'+(item.sourceCodeLine.data.lineNumber-3));
+            if (item.sourceCodeLine != null) {
+                this.editorManager.SelectFileByIndex(item.sourceCodeLine.FileIndex);
+                var el = document.getElementById('line' + (item.sourceCodeLine.LineNumber - 3));
                 this.ScollToElement(el);
+            }
+            else {
+                this.data.HiliteSourceCode = false;
             }
             return;
         }
+        this.data.HiliteSourceCode = false;
     }
 
     private MemoryEdit(address: number, element?: HTMLElement) {
@@ -411,6 +418,7 @@ export class MemoryManager {
             memoryEditYOffset:0,
             memoryEditKeyUp: () => { },
             isMemoryEditing: false,
+            HiliteSourceCode:false,
         };
     }
 

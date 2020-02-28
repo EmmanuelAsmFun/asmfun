@@ -85,7 +85,6 @@ namespace AsmFun.Ide.Core.Features.Compilation.Cc65
             }
         }
 
-        
         protected override AddressDataBundle LoadAddressData(ProjectSettings projectSettings, string prgrm)
         {
             var txtLines = File.ReadAllLines(prgrm);

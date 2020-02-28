@@ -12,13 +12,10 @@ import { BaseEvent } from '../../../framework/data/EventsCommon.js';
 
 export class ProjectSaveCommand extends BaseCommand{
 
-    public bundle?: IEditorBundle;
-
-    public constructor(bundle?: IEditorBundle) {
+    public constructor() {
         super();
         this.commandName = "Save";
         this.nameSpace = "Project";
-        this.bundle = bundle;
     }
 }
 export class ProjectLoadCommand extends BaseCommand{

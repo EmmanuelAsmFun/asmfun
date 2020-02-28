@@ -9,7 +9,6 @@
 import { AsmTools } from "../Tools.js"
 
 import { MainScreenMethods } from "./MainScreenMethods.js";
-import { IEditorLine, IEditorLabel } from "../features/editor/data/EditorData.js";
 import { ProcessorManager } from "../features/processor/ProcessorManager.js";
 import { ASMFunPlayerManager } from "../features/player/ASMFunPlayerManager.js";
 import { IUILine } from "../features/editor/ui/IUILine.js";

@@ -4,11 +4,11 @@
 //
 // #endregion
 
-import { ISourceCodeBundle, ISourceCodeFile, ISourceCodeLabel, ISourceCodeLine, IProjectSettings, ProjectCompilerTypes, IAddressDataBundle } from '../project/data/ProjectData.js'
+import { ISourceCodeBundle, IProjectSettings, ProjectCompilerTypes, IAddressDataBundle } from '../project/data/ProjectData.js'
 import { OpcodeManager } from './OpcodeManager.js';
 import { HtmlSourceCode } from './HtmlSourceCode.js';
 import {
-    IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorLine, IEditorLabel, CreateNewFile, CreateNewEditorBundle, CreateNewEditorLabel,
+    IErrorForStatusBar, IEditorBundle, IEditorFile, IEditorLine, CreateNewEditorBundle,
     IEditorManagerData
 } 
         from './data/EditorData.js';
@@ -53,18 +53,10 @@ export class SourceCodeManager {
 
     }
 
-    public SelectFile(file?: IEditorFile) {
+    public SelectFile(file: IEditorFile | null) {
         this.RedrawErrorsBar(file);
-        if (file != null && file.fileHtml != null) {
-            var cont = document.getElementById("selectedFileContent");
-            if (cont != null && cont.hasChildNodes()) {
-                for (var child of (<any>cont).childNodes) 
-                    child.remove();
-
-                cont.appendChild(file.fileHtml);
-            }
-        }
-       
+        if (this.Bundle == null) return;
+        this.Bundle.SelectFile(file);
     }
 
     private PrepareInterpreter() {
@@ -126,8 +118,8 @@ export class SourceCodeManager {
             files: [],
             labels: [],
         });
-        this.data.scfiles = [];
-        this.data.selectedFile = undefined;
+        this.data.Files = [];
+        this.data.SelectedFile = null;
         this.data.currentOpcode = null;
         this.data.breakPoints = [];
     }
@@ -140,7 +132,10 @@ export class SourceCodeManager {
             var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName)
             if (svc != null)
                 svc.LoadFirstFile(true);
-            thiss.RedrawErrorsBar(thiss.data.selectedFile);
+            if (thiss.data.SelectedFile != null && this.Bundle != null) {
+                var editorFile = this.Bundle.Files[thiss.data.SelectedFile.Index].Data.File;
+                thiss.RedrawErrorsBar(editorFile);
+            }
             thiss.LoadCompiled(() => { });
         });
     }
@@ -182,7 +177,7 @@ export class SourceCodeManager {
                         if (line != null) {
                             line.Ui.HasError = true;
                             line.Ui.Error = {
-                                line: line,
+                                line: line.Ui,
                                 message: error.error + " " + error.description,
                                 isFromCompiler: true,
                                 compilerName: this.interpreter.GetCompilerName()
@@ -216,7 +211,7 @@ export class SourceCodeManager {
         this.editorBundle = this.Bundle.Interpret(s);
 
         // Parse all to the UI
-        this.data.scfiles = this.editorBundle.files;
+        this.data.Files = this.Bundle.Ui.Files;
         return this.editorBundle;
     }
 
@@ -246,7 +241,7 @@ export class SourceCodeManager {
         return this.Bundle.RenumberLines(fileIndex, startIndex, length);
     }
 
-    public RedrawErrorsBar(file?: IEditorFile) {
+    public RedrawErrorsBar(file: IEditorFile | null) {
         var errors: IErrorForStatusBar[] = [];
         if (file == null) return;
         if (file.lines != null) {
@@ -280,17 +275,8 @@ export class SourceCodeManager {
         this.data.errorsForStatusBar = errors;
     }
 
-    public UpdateLineHtml(line: IEditorLine, sLabels?: IEditorLabel[]) {
-        if (this.Bundle == null) return;
-        this.Bundle.RenderLineByLineNumber(line.file.Index, line.data.lineNumber);
-    }
-   
     public TryGetOpcode(data: string) {
         return this.opcodeManager.tryGetOpcode(data);
-    }
-
-    public static NewBundle(): IEditorBundle {
-        return CreateNewEditorBundle({ files: [], labels: [], name: "", sourceFileName: "" });
     }
 
     public static ServiceName: ServiceName = { Name: "SourceCodeManager" };

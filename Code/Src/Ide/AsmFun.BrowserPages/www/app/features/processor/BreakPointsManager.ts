@@ -14,13 +14,15 @@ import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { IBreakPointsManagerData, UIDataNameBreakPoints, IDebuggerBreakpoint, IBreakpointUIData } from "./data/BreakPointsData.js";
 import { ComputerStarted } from "../computer/commands/ComputerCommands.js";
 import { ProcessorBreakpointSwapStateCommand, ProcessorBreakpointSetByAddressCommand } from "./commands/ProcessorCommands.js";
+import { IUILine } from "../editor/ui/IUILine.js";
+import { IUIFile } from "../editor/ui/IUIFile.js";
 
 export class BreakPointsManager {
     
    
     private lastFiles: IEditorFile[] | null = null;
 
-    private usedBreakPoints: IEditorLine[] = [];
+    private usedBreakPoints: IUILine[] = [];
     private breakPoints: IDebuggerBreakpoint[] = [];
     private debuggerService: DebuggerService;
     private editorManger: EditorManager;
@@ -51,35 +53,35 @@ export class BreakPointsManager {
         };
     }
 
-    public SetBreakpointCurrentLine(files: IEditorFile[], file: IEditorFile | null, line: IEditorLine | null) {
+    public SetBreakpointCurrentLine(files: IEditorFile[], fileUI: IUIFile | null, line: IUILine | null) {
         this.lastFiles = files;
-        if (file == null || line == null) return;
+        if (fileUI == null || line == null) return;
+        var file = files[fileUI.Index];
         // Check if the line has an address, otherwise search first next line with address
-        if (!line.Ui.CanSetBreakPoint) {
+        if (!line.CanSetBreakPoint) {
             var found = false;
             if (file.lines == null) return;
-            var lineIndex = file.lines.indexOf(line);
+            var lineIndex = line.LineNumber -1;
             for (var i = 0; i < 100; i++) {
-                line = file.lines[i + lineIndex];
-                if (line.Ui.CanSetBreakPoint) {
+                line = file.lines[i + lineIndex].Ui;
+                if (line.CanSetBreakPoint) {
                     found = true;
                     break;
                 }
-               
                 lineIndex++;
+                if (i + lineIndex > file.lines.length) break;
             }
             if (!found) {
-
                 console.log("No address found to set a breakpoint");
                 return;
             }
         }
-        var ln = line.data.lineNumber;
-        var address = parseInt(line.Ui.Address, 16);
+        var ln = line.LineNumber;
+        var address = parseInt(line.Address, 16);
         var uiBreakPoint = this.data.list.find(x => x.Address == address);
         var state = false;
         if (uiBreakPoint == null) {
-            uiBreakPoint = this.CreateUiBreakpoint(address, line.Ui.Address, this.data.list.length);
+            uiBreakPoint = this.CreateUiBreakpoint(address, line.Address, this.data.list.length);
             uiBreakPoint.LineNumber = ln;
             state = true;
         }
@@ -88,9 +90,9 @@ export class BreakPointsManager {
             uiBreakPoint.IsEnabled = false;
             state = false;
         }
-        line.Ui.HasBreakPoint = state;
+        line.HasBreakPoint = state;
         
-        var inArrayIndex = this.usedBreakPoints.findIndex(x => x.data.lineNumber === ln);
+        var inArrayIndex = this.usedBreakPoints.findIndex(x => x.LineNumber === ln);
         if (inArrayIndex > -1)
             this.usedBreakPoints[inArrayIndex] = line;
         else
@@ -116,7 +118,7 @@ export class BreakPointsManager {
 
     private ParseBreakpoints(r: IDebuggerBreakpoint[], files: IEditorFile[] | null) {
         // unselect all previous used breakpoints lines
-        this.usedBreakPoints.forEach(x => { x.Ui.HasBreakPoint = false; });
+        this.usedBreakPoints.forEach(x => { x.HasBreakPoint = false; });
         this.breakPoints = r;
         var breakPointsHex: string[] = [];
         this.data.list = [];
@@ -141,8 +143,8 @@ export class BreakPointsManager {
                     if (line.Ui.Address == breakpoint) {
                         line.Ui.HasBreakPoint = true;
                         var uiLine = this.data.list[k];
-                        uiLine.File = file;
-                        uiLine.Line = line;
+                        uiLine.File = file.Ui;
+                        uiLine.Line = line.Ui;
                         uiLine.LineNumber = line.data.lineNumber;
                         uiLine.LineText = line.data.sourceCode.replace(/ /g, '&nbsp;');
                     }

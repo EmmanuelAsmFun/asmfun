@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { IEditorLine, IPropertyData, PropertyNumType }
+import { IEditorLine, IPropertyType, PropertyNumType }
     from '../data/EditorData.js';
 import { IInterpreter } from './IInterpreter.js';
 import { ICompilationResult, ICompilationError } from "../data/CompilationDatas.js";
@@ -37,52 +37,99 @@ export class Cc65Interpreter implements IInterpreter {
     }
 
    
-    public InterpretLineParts(bundle: InterpreterBundle,interpreterLine: InterpreterLine) {
-        interpreterLine.GetLineParts();
-    }
-
-    public ConvertToProperty(name: string, propType: string, data: string): IPropertyData {
-        return this.commonInterpreter.ConvertToProperty(name, propType, data);
+    public ConvertToPropertyType(propType: string, data: string): IPropertyType {
+        return this.commonInterpreter.ConvertToPropertyType(propType, data);
     }
 
     
        
-    //private InterpretCompilerLine(lineWithoutComment: string, lineWithoutCommentNotrim: string, line: IEditorLine): ICodeBlockContext {
-    //    line.dataCode = lineWithoutCommentNotrim;
-    //    line.isCompilerData = true;
-    //    var parts = lineWithoutComment.split(' ');
-    //    if (parts.length == 0) return line.context;
-    //    var wordDef = parts[0];
-    //    var secondWord = parts.length > 1 ? parts[1].trim() : "";
-    //    //if (line.data.sourceCode.indexOf("LOAD_LEVEL_PARAM") > -1) {
-    //    //    var test = name;
-    //    //    debugger;
-    //    //}
-    //    //if (line.file.data.fileName == "levels.asm" && line.data.lineNumber == 1183) {
-    //    //    debugger;
-    //    //}
-    //    switch (wordDef) {
-    //        case ".macro":
-    //            parts.shift();
-    //            parts.shift();
-    //            var restText = parts.join(' ');
-    //            var parameters: string[] = this.commonInterpreter.GetParameters(name, restText);
-    //            return line.context.CreateMacro(line, secondWord, parameters);
-    //        case ".endmacro": return line.context.CloseCurrentBlock(line);
-    //        case ".proc":
-    //            line.preCode = ".proc ";
-    //            line.dataCode = ""; //line.dataCode.replace(".proc ","");
-    //            line.context.CreateZone(line, secondWord, false);
-    //        case ".endproc": return line.context.CloseCurrentBlock(line);
-    //        case ".if": return line.context.CreateIfCodeBlock(line, lineWithoutComment.substring(3, lineWithoutComment.length - 3));
-    //        case ".endif": return line.context.CloseCurrentBlock(line);
-    //        case ".segment": 
-    //        case ".debuginfo": 
-    //        case ".listbytes":
-    //        case ".error":
-    //        case ".res":
-    //            return line.context;
-    //    }
+    public InterpretLineParts(bundle: InterpreterBundle, interpretLine: InterpreterLine) {
+        interpretLine.GetLineParts();
+        var numParts = interpretLine.NoSpaceParts.length;
+        if (numParts === 0) return;
+        //if (interpretLine.Text.indexOf("COLPORT") > -1) 
+        //    debugger;
+        // if (line.file.data.fileName == "levels.asm" && line.data.lineNumber == 1183) 
+        //    debugger;
+        var partIndex = interpretLine.TryFindOpcode();
+        if (partIndex == 1)
+            interpretLine.ParseLabel(0);         // Part 0 is a label
+        if (!interpretLine.OpcodeFound) {
+            // If only one part, it's a label.
+           
+            var wordDef = interpretLine.NoSpaceParts[0].Text;
+            switch (wordDef) {
+                case ".macro":
+                    interpretLine.ParseMacro(1);
+                    return;
+                case ".endmacro": this.CloseCurrentBlock(interpretLine); return;
+                case ".proc":
+                    return;
+                case ".endproc": this.CloseCurrentBlock(interpretLine); return;
+                case ".if":
+                    return;
+                case ".endif": this.CloseCurrentBlock(interpretLine); return;
+                case ".segment":
+                case ".debuginfo":
+                case ".listbytes":
+                case ".error":
+                case ".res":
+                case ".include": // include file
+                    return;
+            }
+            if (numParts == 1 && interpretLine.NoSpaceParts[0].Text[0] !== "+") {
+                interpretLine.ParseLabel(0);
+                return;
+            }
+            // Is setter ?
+            if (interpretLine.TryParseSetter()) return;
+            
+
+            if (numParts > 1) {
+                var part2 = interpretLine.NoSpaceParts[1];
+                if (interpretLine.TryParseLabelSetter()) return;
+
+                if (wordDef[0] === ".") {
+                    //interpretLine.ParseProperty(0);
+                    //if (interpretLine.Property != null)
+                    //    interpretLine.Property.Data = prop;
+                    return;
+                }
+                if (numParts > 2) {
+                    var part3 = interpretLine.NoSpaceParts[2];
+                    if (part2.Text[0] === ".") {
+                        interpretLine.ParsePropertyWithType(0);
+                        //if (interpretLine.Property != null)
+                        //    interpretLine.Property.Data = this.commonInterpreter.ConvertToProperty("", part2.Text, interpretLine.Text.split(';')[0].trim().substr(part3.Index))
+                        return;
+                    }
+                }
+            }
+        } else {
+            // opcode found
+            if (interpretLine.NoSpaceParts.length == 2) {
+                // Try get constant
+                var constType = interpretLine.TryConstantValue(1);
+                if (constType === 1) return;
+                if (constType === 2) {
+                    // potential reference to variable or zone
+                    bundle.AddPotentialReference(interpretLine, interpretLine.NoSpaceParts[1]);
+                    return;
+                }
+
+                var txt = interpretLine.NoSpaceParts[1].Text;
+                var char1 = txt[0];
+                if (char1 == "$" || char1 == "(" || char1 == "-" || char1 == "+") {
+
+                }
+                else {
+                    // potential reference to variable or zone
+                    bundle.AddPotentialReference(interpretLine, interpretLine.NoSpaceParts[1]);
+                }
+                return;
+            }
+            
+        }
     //    //var codeIndex = lineWithoutComment.indexOf('{');
     //    //if (codeIndex > -1) {
     //    //    // Check if test
@@ -128,10 +175,15 @@ export class Cc65Interpreter implements IInterpreter {
     //        }
     //    }
     //    return line.context;
-    //}
+    }
 
+    private CloseCurrentBlock(interpretLine: InterpreterLine) {
 
+    }
 
+    public StringToNumber(data: string) {
+
+    }
 
     //public postInterpretLineMethod(lineWithoutCommentNotrim: string, lineWithoutComment: string, line: IEditorLine): ICodeBlockContext | null {
     //    //if (line.data.lineNumber == 21) {

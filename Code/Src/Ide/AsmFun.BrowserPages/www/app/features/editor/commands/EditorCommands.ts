@@ -1,6 +1,7 @@
 ﻿import { BaseCommand } from "../../../framework/commands/CommandsCommon.js";
 import { IEditorFile, IEditorLine } from "../data/EditorData.js";
 import { IUILine } from "../ui/IUILine.js";
+import { IUIFile } from "../ui/IUIFile.js";
 
 // #region license
 // ASM Fun
@@ -73,8 +74,8 @@ export class EditorEnableCommand extends BaseCommand {
     }
 }
 export class EditorSelectFileCommand extends BaseCommand {
-    public file: IEditorFile | null;
-    public constructor(file: IEditorFile | null) {
+    public file: IUIFile | null;
+    public constructor(file: IUIFile | null) {
         super();
         this.file = file;
         this.commandName = "SelectFile";
@@ -92,8 +93,8 @@ export class EditorSwapOutputCommand extends BaseCommand {
     }
 }
 export class EditorReloadLineCommand extends BaseCommand {
-    public line: IEditorLine | null;
-    public constructor(line: IEditorLine | null) {
+    public line: IUILine | null;
+    public constructor(line: IUILine | null) {
         super();
         this.line = line;
         this.commandName = "ReloadLine";
@@ -101,8 +102,8 @@ export class EditorReloadLineCommand extends BaseCommand {
     }
 }
 export class EditorScrollToLineCommand extends BaseCommand {
-    public line: IEditorLine | IUILine | null;
-    public constructor(line: IEditorLine | IUILine | null) {
+    public line: IUILine | null;
+    public constructor(line: IUILine | null) {
         super();
         this.line = line;
         this.commandName = "ScrollToLine";

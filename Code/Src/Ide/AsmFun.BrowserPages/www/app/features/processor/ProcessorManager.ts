@@ -11,16 +11,16 @@ import {
     ProcessorDbgSwapOnlyMyCodeCommand,
     ProcessorDbgBreakCommand
 } from "./commands/ProcessorCommands.js";
-import { IProcessorData, IStackData, IStackItemData, IProcessorManagerData } from "./data/ProcessorData.js";
+import { IProcessorData, IStackData, IStackItemData, IProcessorManagerData, IInstructionItemData } from "./data/ProcessorData.js";
 import { ComputerService } from "../computer/services/ComputerService.js";
 import { DebuggerService } from "../processor/services/DebuggerService.js";
 import { IAsmFunAppData } from "../player/data/AsmFunAppData.js";
 import { IMainData } from "../../framework/data/MainData.js";
 import { ComputerResetCommand, ComputerProcessorDataChanged } from "../computer/commands/ComputerCommands.js";
-import { IEditorLine, IPropertyData, IEditorLabel, IEditorFile, IEditorManagerData } from "../editor/data/EditorData.js";
+import { IEditorManagerData } from "../editor/data/EditorData.js";
 import { IDebuggerBreakpoint } from "./data/BreakPointsData.js";
 import { AsmTools } from "../../Tools.js";
-import { ISourceCodeLabel } from "../project/data/ProjectData.js";
+import { IAddressDataLabel } from "../project/data/ProjectData.js";
 import { EditorManager } from "../editor/EditorManager.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameProcessor } from "./ProcessorFactory.js";
@@ -29,6 +29,8 @@ import { BreakPointsManager } from "./BreakPointsManager.js";
 import { SourceCodeManager } from "../editor/SourceCodeManager.js";
 import { IUILine } from "../editor/ui/IUILine.js";
 import { IUIProperty } from "../editor/data/IPropertiesData.js";
+import { IInterpretLine } from "../editor/data/InterpreterData.js";
+import { IUIFile } from "../editor/ui/IUIFile.js";
 
 
 class P6502Flags {
@@ -46,7 +48,7 @@ class P6502Flags {
 export class ProcessorManager {
    
     
-    private currentLine?: IEditorLine;
+    private currentLine?: IInterpretLine;
 
     private computerService: ComputerService;
     private debuggerService: DebuggerService;
@@ -56,6 +58,9 @@ export class ProcessorManager {
     private editorData: IEditorManagerData;
     private editorManager: EditorManager;
     private sourceCodeManager: SourceCodeManager;
+    private previousSelectedLine: IInterpretLine | null = null;
+    private previousSelectedPC: IInstructionItemData | null = null
+
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
@@ -188,10 +193,10 @@ export class ProcessorManager {
         if (this.data.dissasembly != null && this.data.dissasembly.datas != null) {
             var found = this.data.dissasembly.datas.find(x => x.address == data.programCounter);
             if (found != null) {
-                if (this.mainData.previousSelectedPC != null)
-                    this.mainData.previousSelectedPC.selected = false;
+                if (this.previousSelectedPC != null)
+                    this.previousSelectedPC.selected = false;
                 found.selected = true;
-                this.mainData.previousSelectedPC = found;
+                this.previousSelectedPC = found;
                 
             }
             else {
@@ -199,27 +204,26 @@ export class ProcessorManager {
                 this.reloaddissasembly();
             }
         }
-        var sourceCode = this.sourceCodeManager.GetEditorBundle();
-        if (sourceCode != null && sourceCode.files != null) {
+        var sourceCode = this.sourceCodeManager.Bundle;
+        if (sourceCode != null && sourceCode.Files != null) {
             // make address 5 chars
-            var address = AsmTools.numToHex5(data.programCounter);
-
-            for (var i = 0; i < sourceCode.files.length; i++) {
-                var file = sourceCode.files[i];
-                if (file.lines == null) break;
-                var foundL: IEditorLine = (<any>file.lines).find(x => x.data.resultMemoryAddress === address);
-                if (foundL != null) {
+            var address = data.programCounter;
+            for (var i = 0; i < sourceCode.Files.length; i++) {
+                var file = sourceCode.Files[i];
+                if (file.Lines == null) break;
+                var foundL: IInterpretLine | undefined= file.Lines.find(x => x.AddressNum === address);
+                if (foundL != undefined) {
                     if (!foundL.Ui.Selected) {
-                        if (this.mainData.previousSelectedLine != null)
-                            this.mainData.previousSelectedLine.Ui.Selected = false;
+                        if (this.previousSelectedLine != null)
+                            this.previousSelectedLine.Ui.Selected = false;
                         foundL.Ui.Selected = true;
-                        this.mainData.previousSelectedLine = foundL;
-                        this.currentLine = this.mainData.previousSelectedLine;
+                        this.previousSelectedLine = foundL;
+                        this.currentLine = this.previousSelectedLine;
                         if (this.currentLine != null) {
-                            this.editorData.currentOpcode = this.currentLine.opcode != null && this.currentLine.opcode !== undefined ?
-                                this.currentLine.opcode : { asmFunCode: '', code: '' };
+                            this.editorData.currentOpcode = this.currentLine.Opcode != null && this.currentLine.Opcode ?
+                                this.currentLine.Opcode : { asmFunCode: '', code: '' };
                             if (this.breakPointsManager.HasBreakpoints())
-                                this.editorManager.SelectFile(this.currentLine.file);
+                                this.editorManager.SelectFile(this.currentLine.EditorLine.file);
                         }
                     }
                     break;
@@ -232,7 +236,14 @@ export class ProcessorManager {
     public LoadLabelValues() {
         if (this.sourceCodeManager.Bundle == null) return;
         var vars = this.sourceCodeManager.Bundle.PropertyManager.GetAll();
-        var variables: IPropertyData[] = <any>vars.filter(x => x.Data != null).map(x => x.Data);
+        var variables: IAddressDataLabel[] = <any>vars.filter(x => x.Ui.Name !== "" && x.AddressNum > 0)
+            .map(x => {
+                return <IAddressDataLabel>{
+                    name: x.Ui.Name,
+                    address: x.AddressNum,
+                    length: x.PType != null ? x.PType.dataLength : 1,
+                }
+            });
         if (variables.length == 0) return;
         this.computerService.getLabelValues(variables, (l) => {
             if (this.sourceCodeManager.Bundle == null) return;
@@ -244,7 +255,7 @@ export class ProcessorManager {
 
 
     //#region Breakpoints
-    public SetBreakpointCurrentLine(file: IEditorFile | null, line: IEditorLine | null) {
+    public SetBreakpointCurrentLine(file: IUIFile | null, line: IUILine | null) {
         var soureCode = this.sourceCodeManager.GetEditorBundle();
         if (soureCode == null) return;
         this.breakPointsManager.SetBreakpointCurrentLine(soureCode.files, file, line);
@@ -315,7 +326,7 @@ export class ProcessorManager {
     }
     private ScrollToDebuggerLine() {
         if (this.currentLine == null) return;
-        AsmTools.scrollIntoViewWithParent("line" + (this.currentLine.data.lineNumber),"sourceCode", true);
+        AsmTools.scrollIntoViewWithParent("line" + (this.currentLine.LineNumber),"sourceCode", true);
     }
     private DbgSwapOnlyMyCode(): void {
         this.data.debugOnlyMyCode = !this.data.debugOnlyMyCode;

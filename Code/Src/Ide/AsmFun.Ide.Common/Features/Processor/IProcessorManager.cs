@@ -16,6 +16,6 @@ namespace AsmFun.Ide.Common.Features.Processor
         ProcessorDataModel GetData();
         List<AddressDataLabel> GetLabels();
         ProcessorStackModel GetStack();
-        List<AddressDataLabel> GetLabelValues(List<PropertyData> properties);
+        void ParseLabelValues(List<AddressDataLabel> properties);
     }
 }

@@ -2,11 +2,13 @@
 import { IEditorFile, IEditorLine } from "../data/EditorData.js";
 import { InterpreterBundle } from "./InterpreterBundle.js";
 import { InterpreterLine } from "./InterpreterLine.js";
+import { IUILine } from "../ui/IUILine.js";
 
 export class InterpreterBlock {
    
     private bundle: InterpreterBundle;
     public Lines: InterpreterLine[] = [];
+    public UiLines: IUILine[] = [];
     public Data: IInterpreterBlockData;
     public Parent: InterpreterBlock | null;
     public Children: InterpreterBlock[] = [];
@@ -46,16 +48,23 @@ export class InterpreterBlock {
 
     public CreateLine(index: number, line: IEditorLine): InterpreterLine {
         var lineInterpreter = new InterpreterLine(line, this.bundle, this);
-        if (index == -1)
+        if (index == -1) {
             this.Lines.push(lineInterpreter);
-        else
+            this.UiLines.push(lineInterpreter.Ui);
+        }
+        else {
             this.Lines.splice(index, 0, lineInterpreter);
+            this.UiLines.splice(index, 0, lineInterpreter.Ui);
+        }
         return lineInterpreter;
     }
 
     public RemoveLine(line: InterpreterLine) {
         var index = this.Lines.indexOf(line);
-        if (index > -1) this.Lines.splice(index, 1);
+        if (index > -1) {
+            this.Lines.splice(index, 1);
+            this.UiLines.splice(index, 1);
+        }
     }
 
 

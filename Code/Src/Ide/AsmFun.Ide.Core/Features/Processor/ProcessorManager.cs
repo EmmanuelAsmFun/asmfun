@@ -41,12 +41,12 @@ namespace AsmFun.Ide.Core.Features.Processor
         }
         public List<AddressDataLabel> GetLabels()
         {
-            return lifeMemoryAccess.GetLabels();
+            return lifeMemoryAccess.GetLabelValues();
         }
 
-        public List<AddressDataLabel> GetLabelValues(List<PropertyData> properties)
+        public void ParseLabelValues(List<AddressDataLabel> properties)
         {
-            return lifeMemoryAccess.GetLabelValues(properties);
+            lifeMemoryAccess.ParseLabelValues(properties);
         }
 
         private ProcessorDataModel GetCurrentProcessorData()

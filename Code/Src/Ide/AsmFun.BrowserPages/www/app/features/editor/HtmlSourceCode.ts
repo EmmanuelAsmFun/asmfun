@@ -6,9 +6,8 @@
 
 import { OpcodeManager } from './OpcodeManager.js';
 import { IMainData } from '../../framework/data/MainData.js';
-import { IEditorLine } from './data/EditorData.js';
 import { ServiceName } from '../../framework/serviceLoc/ServiceName.js';
-import { IInterpretLine, LinePartType, IInterpretLinePart, LineType } from './data/InterpreterData.js';
+import { LinePartType, IInterpretLinePart, LineType } from './data/InterpreterData.js';
 import { InterpreterLine } from './interpreters/InterpreterLine.js';
 
 
@@ -27,8 +26,6 @@ export class HtmlSourceCode {
         //    debugger;
         
         var lineRoot = this.CreateSpanRoot();
-        lineRoot.setAttribute("data-ln", lineI.LineNumber.toString());
-        lineRoot.setAttribute("id", "lineCode"+lineI.LineNumber.toString());
         if (lineI.Type == LineType.Empty) {
             // An empty line needs at least one char
             this.CreateSpan(lineRoot, "&nbsp;", 0); 

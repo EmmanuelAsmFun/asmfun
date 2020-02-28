@@ -83,11 +83,13 @@ export class MacroManager implements IMacroManager {
             AddressNum: 0,
             DirtyName: name,
             Line: line,
+            ParameterNames: [],
             Ui: {
                 Name: name,
                 Address: "",
                 LineNumber: line.LineNumber,
                 FileIndex: line.Ui.FileIndex,
+                ParametersNames:"",
             }
         };
     }

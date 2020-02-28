@@ -1,4 +1,5 @@
-﻿import { IEditorLine, IEditorFile } from "../../editor/data/EditorData";
+﻿import { IUIFile } from "../../editor/ui/IUIFile";
+import { IUILine } from "../../editor/ui/IUILine";
 
 // #region license
 // ASM Fun
@@ -38,8 +39,8 @@ export interface IBreakpointUIData {
     Address: number,
     AddressHex: string,
     LineText: string,
-    File: IEditorFile | null,
-    Line: IEditorLine | null,
+    File: IUIFile | null,
+    Line: IUILine | null,
 }
 
 export var UIDataNameBreakPoints = "breakpoints"
