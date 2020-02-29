@@ -256,7 +256,8 @@ export class Cc65Interpreter implements IInterpreter {
                             Description: compilerName+": "+description,
                             FileName: fileName,
                             FilePath: folder,
-                            FileIndex:0
+                            FileIndex: 0,
+                            Line:null,
                         };
                         results.push(error);
                     }

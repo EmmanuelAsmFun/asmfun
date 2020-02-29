@@ -12,6 +12,7 @@ import {
 import { SourceCodeManager } from "./SourceCodeManager.js";
 import { CursorLogic } from "./CursorLogic.js";
 import { EditorWriter } from "./EditorWriter.js";
+import { FindReplaceManager } from "./FindReplaceManager.js";
 import { CodeAssistPopupManager } from "./CodeAssistPopupManager.js";
 import { IMainData } from "../../framework/data/MainData.js";
 import { ProjectManager } from "../project/ProjectManager.js";
@@ -22,6 +23,7 @@ import { UIDataNameEditor } from "./EditorFactory.js";
 import { IUILine } from "./ui/IUILine.js";
 import { IUIFile } from "./ui/IUIFile.js";
 import { IInterpretLine } from "./data/InterpreterData.js";
+import { FindReplaceOpenManagerCommand, FindReplaceSearchNextCommand } from "./commands/FindReplaceCommands.js";
 
 export interface IEditorContext {
     SetCurrentLine(previousLine: IEditorLine);
@@ -59,6 +61,7 @@ export class EditorManager implements IEditorContext {
     private sourceCodeManager: SourceCodeManager;
     private projectManager: ProjectManager;
     private codeAssistPopupManager: CodeAssistPopupManager;
+    private findReplaceManager: FindReplaceManager;
     
     private isEnabled = true;
     private codeAssistIsOpen = false;
@@ -73,6 +76,7 @@ export class EditorManager implements IEditorContext {
         this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(this.mainData);
         this.projectManager = mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName) ?? new ProjectManager(this.mainData);
         this.codeAssistPopupManager = mainData.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName) ?? new CodeAssistPopupManager(this.mainData);
+        this.findReplaceManager = mainData.container.Resolve<FindReplaceManager>(FindReplaceManager.ServiceName) ?? new FindReplaceManager(this.mainData);
         mainData.commandManager.Subscribe2(new KeyboardKeyCommand(), this, this.KeyPressed);
         mainData.commandManager.Subscribe2(new EditorCodeAssistCommand(), this, () => thiss.OpenCodeAssistent());
         mainData.commandManager.Subscribe2(new CloseEditorCodeAssistCommand(), this, () => thiss.CloseCodeAssistent());
@@ -116,7 +120,8 @@ export class EditorManager implements IEditorContext {
             file = sourceCode.files[0];
         }
         this.sourceCodeManager.SelectFile(file);
-       
+        this.findReplaceManager.SelectAndHiliteInFile(file.Index);
+
         this.currentFile = file;
         if (this.currentFile.lines != null)
             this.editorData.maxY = this.currentFile.lines.length;
@@ -231,11 +236,20 @@ export class EditorManager implements IEditorContext {
                  // Text edit
                 case 13: allowContinueEmit = this.editorWriter.EnterKey(this); break;   // EnterKey
             }
-        }
-        if (keyCommand.ctrlKey) {
-            if (keyCommand.key === "z") {// undo
-                keyCommand.allowContinueEmit = this.editorWriter.Undo(this);
-                return;
+            //switch (keyCommand.key) {
+            //    case "F3":
+            //        this.mainData.commandManager.InvokeCommand(new FindReplaceOpenManagerCommand(true));
+            //        keyCommand.allowContinueEmit = false;
+            //        break;
+            //}
+            if (keyCommand.ctrlKey) {
+                switch (keyCommand.key) {
+                    // undo
+                    case "z":
+                        keyCommand.allowContinueEmit = this.editorWriter.Undo(this);
+                        return;
+                   
+                }
             }
         }
 

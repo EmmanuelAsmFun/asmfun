@@ -82,6 +82,7 @@ export class InterpreterBlock {
             IsIf: false,
             IsLocalZone: false,
             IsMacro: false,
+            Index:0,
         };
     }
 }

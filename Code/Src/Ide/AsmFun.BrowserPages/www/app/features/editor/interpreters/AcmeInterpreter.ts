@@ -176,7 +176,8 @@ export class AcmeInterpreter implements IInterpreter{
                             Description: errorDescription,
                             FileName: fileName,
                             FilePath: folder,
-                            FileIndex:0,
+                            FileIndex: 0,
+                            Line: null,
                         };
                         results.push(error);
                     }

@@ -1,0 +1,73 @@
+﻿.findreplace {
+    position: fixed;
+    top: 30px;
+    right: 320px;
+    z-index: 70;
+    background: black;
+    border: 1px solid #bebe95;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    font-size: 10px;
+    padding: 2px 5px 2px 5px;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    a {
+        cursor: pointer;
+    }
+
+    .fa {
+        font-size: 16px;
+        margin-right: 4px;
+    }
+
+    label, input {
+        vertical-align: middle;
+    }
+
+    input {
+        font-size: 12px;
+    }
+
+    .find {
+    }
+
+    .replace {
+    }
+
+    .other {
+        margin-top: 3px;
+    }
+
+    .r-count {
+        position: absolute;
+        right: 8px;
+        bottom: 5px;
+    }
+}
+
+.FindSelect {
+    background: rgba(255, 250, 40, 0.3);
+    border-bottom: 1px solid #fff693;
+    position: absolute;
+    display: inline-block;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    margin-left: 113px;
+
+    &.Hilite {
+        background: rgba(255, 255, 255, 0.3);
+        border-bottom: 2px solid #fff693;
+        border-right: 2px solid #fff693;
+        border-left: 2px solid #fff693;
+        border-top: 2px solid #fff693;
+        animation: actifOpcode 0.5s ease-in-out infinite alternate;
+    }
+}

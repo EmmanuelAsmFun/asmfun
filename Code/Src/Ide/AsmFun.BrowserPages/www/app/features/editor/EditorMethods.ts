@@ -1,6 +1,7 @@
 ﻿
 import { ICommandManager } from "../../framework/ICommandManager.js";
 import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand } from "./commands/EditorCommands.js";
+import { FindReplaceOpenManagerCommand, FindReplaceSearchNextCommand, FindReplaceReplaceNextCommand } from "./commands/FindReplaceCommands.js";
 import { IUILine } from "./ui/IUILine.js";
 import { IUIFile } from "./ui/IUIFile.js";
 
@@ -18,3 +19,7 @@ export function SwapOutputWindow() { commmandManager.InvokeCommand(new EditorSwa
 export function EditorReloadLine(line: IUILine) { commmandManager.InvokeCommand(new EditorReloadLineCommand(line)); }
 export function EditorScrollToLine(line: IUILine | null) { commmandManager.InvokeCommand(new EditorScrollToLineCommand(line)); }
 
+// FindAndReplace
+export function FindReplaceOpenManager(state: boolean) { commmandManager.InvokeCommand(new FindReplaceOpenManagerCommand(state)); }
+export function FindReplaceSearch() { commmandManager.InvokeCommand(new FindReplaceSearchNextCommand()); }
+export function FindReplaceReplaceNext() { commmandManager.InvokeCommand(new FindReplaceReplaceNextCommand()); }

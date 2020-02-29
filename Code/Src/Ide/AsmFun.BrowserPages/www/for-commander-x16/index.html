@@ -20,7 +20,7 @@
 <body>
 
 
-    <div id="app">
+    <div id="app" style="display:none;" v-show="alertMessages != null">
 
 
 
@@ -140,7 +140,10 @@
                 &nbsp;
                 &nbsp;
                 <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
-                <a href="javascript:" v-on:click="SaveProject" title="Save project"><span class="fa fa-save"></span></a>
+                <a href="javascript:" v-on:click="SaveProject" title="Save project, CTRL-S"><span class="fa fa-save"></span></a>
+                <span v-if="!painterManager.isVisible">
+                    <a href="javascript:" v-on:click="FindReplaceOpenManager" title="Search in sourcecode, CTRL-F" ><span class="fa fa-search"></span></a>
+                </span>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
                 <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
                 <!--<a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-paint-brush"></span></a>-->
@@ -1229,6 +1232,28 @@ programItem.address  | toHex2
             </div>
         </div>
 
+        <div class="findreplace" v-if="findReplace.IsVisible">
+            <div class="content">
+                <div class="find">
+                    <input type="text" v-model="findReplace.SearchWord" placeholder="Find..."
+                           v-on:keyup.enter="FindReplaceSearch()" v-on:keyup.esc="FindReplaceOpenManager(false)"/>
+                    <a v-on:click="FindReplaceSearch()" title="Find Next"><span class="fa fa-arrow-right"></span></a>
+                    <a v-on:click="FindReplaceOpenManager(false)" title="Close find and replace"><span class="fa fa-close"></span></a>
+                </div>
+                <div class="replace">
+                    <input type="text" v-model="findReplace.ReplaceWord" placeholder="Replace..." 
+                           v-on:keyup.enter="FindReplaceReplaceNext()" v-on:keyup.esc="FindReplaceOpenManager(false)"/>
+                    <a v-on:click="FindReplaceReplaceNext()" title="Replace next"><span class="fa fa-edit"></span></a>
+                    
+                </div>
+                <div class="other">
+                    <label><input type="checkbox" v-model="findReplace.MatchCase" />Case</label>
+                    <label><input type="checkbox" v-model="findReplace.MatchWord" />Word</label>
+                    <label><input type="checkbox" v-model="findReplace.IsRegEx" />RegEx</label>
+                </div>
+                <div class="r-count">{{findReplace.ResultsCount}}</div>
+            </div>
+        </div>
 
         <div v-if="painterManager.isVisible">
             <div v-show="painterManager.isVisiblePopup" class="painterManager v-scaler">

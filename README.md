@@ -14,13 +14,36 @@ https://murray2.com/forums/commander-x16.9/
 ![Image of ASMFun](https://asmfun.com/images/screenshots/screenshot-commanderX16.jpg)
 
 # Nice Features
-- Debugger
-- Memory Inspector
+### IDE
+- Code Editor
+- Code Assist
 - Instant Opcode Translator
-- Memory Viewer
-- Embedded Amulator
-- Instant value change
-- Helper info about the current opcode
+- Label/Zone/Variable search
+- Compile On Save
+- Find And replace
+
+### Emulator
+- Embedded Emulator
+- Prg instant in memory on save
+- Backwads compatible Roms
+
+### Debugger
+- Memory inspector
+- Video Memory inspector
+- Instant Memory Edit
+- Multi breakpoint debugger
+- Variable inspector and instant editable
+- Basic dissasembly
+
+### Video
+- Vera inspector
+- Instant property edit end bytes preview
+- Drag layers and Sprites
+- Color palette inspector
+- Tile inspector
+
+
+
 
 ![Image of ASMFun](https://asmfun.com/images/info/CodeAssistHome.gif)
 
@@ -50,9 +73,10 @@ Now I only used:
 
 
 # Features coming
-- Find and replace
+- Variable renaming
+- Variable Links
 - Label links
-- cc65 compiler : Partially working, error in addressing
+- cc65 compiler : More features
 - Tile and Map painter
 - Labels in memory viewer
 - more instant doc information
@@ -60,9 +84,6 @@ Now I only used:
 
 You have ideas or missing features? Tell me.
 
-### known bugs
-- when reling a breakpoint, the other stops working, setting one again and it works back
-- cc65: Bad addressing
 
 # Install on linux
 

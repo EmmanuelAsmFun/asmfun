@@ -72,6 +72,7 @@ export interface IInterpretLinePart {
     HasBeenParsed: boolean;
 }
 export interface IInterpreterBlockData {
+    Index: number;
     IsMacro: boolean;
     IsFile: boolean;
     IsRoot: boolean;

@@ -15,9 +15,11 @@ import { SourceCodeManager } from "./SourceCodeManager.js";
 import { HtmlSourceCode } from "./HtmlSourceCode.js";
 import { OpcodeManager } from "./OpcodeManager.js";
 import { NewEditorManagerData } from "./data/EditorData.js";
+import { FindReplaceManager } from "./FindReplaceManager.js";
 
 export var UIDataNameEditor = "editor";
 export var UIDataNameCodeAssist = "codeAssistPopupData";
+export var UIDataNameFindReplace = "findReplace";
 
 export class EditorFactory implements IFeatureFactory{
    
@@ -27,6 +29,7 @@ export class EditorFactory implements IFeatureFactory{
 
     public GetUIData(data: any) {
         data[UIDataNameCodeAssist] = CodeAssistPopupManager.NewData();
+        data[UIDataNameFindReplace] = FindReplaceManager.NewData();
         return NewEditorManagerData;
     }
 
@@ -40,6 +43,7 @@ export class EditorFactory implements IFeatureFactory{
         this.container.AddWithConstructor<SourceCodeManager>(SourceCodeManager.ServiceName, () => new SourceCodeManager(mainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<HtmlSourceCode>(HtmlSourceCode.ServiceName, () => new HtmlSourceCode(mainData)).WithLifestyle(ServiceLifestyle.Singleton);
         this.container.AddWithConstructor<OpcodeManager>(OpcodeManager.ServiceName, () => new OpcodeManager()).WithLifestyle(ServiceLifestyle.Singleton);
+        this.container.AddWithConstructor<FindReplaceManager>(FindReplaceManager.ServiceName, () => new FindReplaceManager(mainData)).WithLifestyle(ServiceLifestyle.Singleton);
 
         // Interpreters
         this.container.AddWithConstructor<CommonInterpreter>(CommonInterpreter.ServiceName, () => new CommonInterpreter(mainData)).WithLifestyle(ServiceLifestyle.Transient);
@@ -56,6 +60,7 @@ export class EditorFactory implements IFeatureFactory{
         this.container.Resolve<EditorManager>(EditorManager.ServiceName);
         this.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName);
         this.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName);
+        this.container.Resolve<FindReplaceManager>(FindReplaceManager.ServiceName);
     }
 
     public Start() {

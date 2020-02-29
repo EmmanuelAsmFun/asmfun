@@ -85,6 +85,7 @@ export class InterpreterBundle {
                 var fileBlock = this.rootBlock.CreateChild(editorFile);
                 fileBlock.Data.IsFile = true;
                 fileBlock.Data.Name = editorFile.data.fileName;
+                fileBlock.Data.Index = i;
                 this.editorBundle.files.push(editorFile);
                 this.Files.push(fileBlock);
                 this.Ui.Files.push(editorFile.Ui);
