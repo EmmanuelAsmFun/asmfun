@@ -18,6 +18,7 @@ import { ISourceCodeLine, IAddressDataBundle, ISourceCodeBundle, IAddressDataLab
 
 export class InterpreterBundle {
    
+   
     
     private rootBlock: InterpreterBlock | null = null;
     private editorBundle: IEditorBundle;
@@ -174,7 +175,6 @@ export class InterpreterBundle {
     public RenderLine(lineI: InterpreterLine) {
         var html = this.htmlSourceCode.ConvertLinePartsToHtml(lineI);
         var innerHTML = html.innerHTML;
-        lineI.EditorLine.sourceCodeHtml = innerHTML;
         lineI.Ui.Html = innerHTML;
         this.OpcodeManager.ParseOpcodeInLine(lineI);
     }
@@ -189,6 +189,7 @@ export class InterpreterBundle {
         lineI.ResetSameLineOnly();
         this.Interpreter.InterpretLineParts(this, lineI);
         this.ParseLinks();
+        lineI.EditorLine.dataCode = lineI.DataCode;
         if (render)
             this.RenderLine(lineI);
         return lineI;
@@ -308,6 +309,7 @@ export class InterpreterBundle {
         var lineInterpreter = block.CreateLine(index, editorLine);
         editorLine.Ui = lineInterpreter.Ui;
         this.Interpreter.InterpretLineParts(this, lineInterpreter);
+        lineInterpreter.EditorLine.dataCode = lineInterpreter.DataCode;
         this.RenderLine(lineInterpreter);
         if (index === -1) {
             editorFile.lines.push(editorLine);
@@ -337,7 +339,9 @@ export class InterpreterBundle {
     public GetLabel(name: string) { return this.LabelManager.Find(name); }
     public GetProperty(name: string) { return this.PropertyManager.Find(name); }
 
-
+    public GetLine(line: IEditorLine): IInterpretLine | null {
+        return this.Files[line.file.Index].Lines[line.data.lineNumber - 1];
+    }
     public static NewBundle(interpreter: IInterpreter, htmlSourceCode: HtmlSourceCode, ui: IUIInterpreterBundleData): InterpreterBundle {
         var bundle = new InterpreterBundle(htmlSourceCode, ui,
             new ZoneManager(), new OpcodeManager(), new PropertyManager(), new MacroManager(), new LabelManager(),

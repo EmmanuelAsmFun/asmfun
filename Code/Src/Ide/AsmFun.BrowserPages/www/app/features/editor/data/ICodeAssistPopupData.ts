@@ -10,19 +10,25 @@ import { IUIMacro } from './IMacrosData.js'
 import { IUIProperty } from './IPropertiesData.js'
 
 export interface ICodeAssistPopupDataItem {
-    isSelected: boolean;
-    data: IOpcodeData | IUILabel | IUIMacro | IUIProperty;
-    name: string;
-    hint: string;
-    select: (s:ICodeAssistPopupDataItem) => void;
-    index: number;
+    IsSelected: boolean;
+    Data: IOpcodeData | IUILabel | IUIMacro | IUIProperty;
+    Name: string;
+    Hint: string;
+    Select: (s:ICodeAssistPopupDataItem) => void;
+    Index: number;
+    IsMacro: boolean,
+    IsLabel: boolean,
+    IsProperty: boolean,
 }
 export interface ICodeAssistPopupData {
-    items: ICodeAssistPopupDataItem[];
-    selected?: ICodeAssistPopupDataItem | null;
-    isVisible: boolean;
-    posX: string;
-    posY: string;
-    selectedIndex: number;
+    Items: ICodeAssistPopupDataItem[];
+    Selected?: ICodeAssistPopupDataItem | null;
+    IsVisible: boolean;
+    PosX: string;
+    PosY: string;
+    SelectedIndex: number;
 }
 
+export interface ICodeAssistable {
+
+}

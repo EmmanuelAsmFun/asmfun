@@ -176,7 +176,8 @@
                 </span>
                 <span class="top-btns-block">
                     <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video data"><span class="fa fa-image fa-fw"></span></a>
-                    <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug fa-fw" v-bind:class="{  'isSelected' : processor.isShowDebugger}"></span></a>
+                    <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug fa-fw"
+                              v-bind:class="{  'isSelected' : processor.isShowDebugger}"></span></a>
                 </span>
             </div>
 
@@ -311,7 +312,7 @@
                                 <td>
                                     <span class="ad" v-bind:class="{ 'hilite' : item.Hilite }">{{ item.Address }}</span>
                                 </td>
-                                <td v-bind:class="{ 'hilite' : item.Hilite }"  v-on:click="EditorScrollToLine(item)"><span class="p-name">{{ item.Name  }}</span></td>
+                                <td v-bind:class="{ 'hilite' : item.Hilite }"  v-on:click="EditorScrollToLine(item)" v-bind:title="item.FullValue"><span class="p-name">{{ item.Name  }}</span></td>
                                 <td v-bind:class="{ 'hilite' : item.Hilite }">
                                     <input v-bind:id="'labelEdit'+item.LineNumber" v-if="item.IsInEditMode" style="width:30px;"
                                            type="text" v-model="item.NewValue" v-on:keydown="ChangeLabelValue(event,item)" />
@@ -351,12 +352,12 @@ programItem.address  | toHex2
             <div id="sc-inner" class="inner">
                 <div id="MyCursor" class="myCursor myCursorA">|</div>
 
-                <div v-show="codeAssistPopupData.isVisible" class="codeAssistPopup" v-bind:style="{ left: codeAssistPopupData.posX, top: codeAssistPopupData.posY }">
-                    <div v-for="item in codeAssistPopupData.items">
-                        <div v-bind:id="'codeAs'+item.index" v-on:click="item.select(item)"
-                             v-bind:class="{  'isSelected' : item.isSelected }">
-                            <span class="ca-name">{{item.name}}</span>
-                            <span class="ca-hint" v-html="item.hint"></span>
+                <div v-show="codeAssistPopupData.IsVisible" class="codeAssistPopup" v-bind:style="{ left: codeAssistPopupData.PosX, top: codeAssistPopupData.PosY }">
+                    <div v-for="item in codeAssistPopupData.Items">
+                        <div v-bind:id="'codeAs'+item.Index" v-on:click="item.Select(item)"
+                             v-bind:class="{  'isSelected' : item.IsSelected }">
+                            <span class="ca-name">{{item.Name}}</span>
+                            <span class="ca-hint" v-html="item.Hint"></span>
                         </div>
                     </div>
 
@@ -1102,123 +1103,125 @@ programItem.address  | toHex2
                 <div class="content">
                     <h3 v-if="projectManager.projectIsDownloading" style="float:right;">Downloading...</h3>
                     <p v-if="!projectManager.isNewProject" class="footernote">These are projects I found on GitHub. Hope you like it! If you have a nice project too, tell me, I'll will add it to the list.</p>
-                    <div class="project-form">
-                        <div v-if="!projectManager.isNewProject" class="start-form">
-                            <h2>Load or create</h2>
+                    <div v-if="!projectManager.projectIsDownloading">
+                        <div class="project-form">
+                            <div v-if="!projectManager.isNewProject" class="start-form">
+                                <h2>Load or create</h2>
 
-                            <div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Projects folder:</div>
-                                    <input type="text" v-model="projectManager.projectsFolder" style="width:400px" />
-                                    <button v-on:click="ProjectSaveFolder()"><span class="fa fa-level-down fa-rotate-180"></span> Update</button>
-                                </div>
-                            </div>
-                            <br />
-                            <br />
-                            <br />
-                            <div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Load Project: </div>
-                                    <button style="width:150px;" v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load project</button>
-                                    <small>(.asm | .a)</small>
+                                <div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Projects folder:</div>
+                                        <input type="text" v-model="projectManager.projectsFolder" style="width:400px" />
+                                        <button v-on:click="ProjectSaveFolder()"><span class="fa fa-level-down fa-rotate-180"></span> Update</button>
+                                    </div>
                                 </div>
                                 <br />
-                                <div class="form-item">
-                                    <div class="form-lbl">Load Program: </div>
-                                    <button style="width:150px;" v-on:click="ProjectRequestLoadProgram()"><span class="fa fa-folder-open"></span> Load program</button>
-                                    <small> (.prg)</small>
+                                <br />
+                                <br />
+                                <div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Load Project: </div>
+                                        <button style="width:150px;" v-on:click="ProjectLoadLocal(null)"><span class="fa fa-folder-open"></span> Load project</button>
+                                        <small>(.asm | .a)</small>
+                                    </div>
+                                    <br />
+                                    <div class="form-item">
+                                        <div class="form-lbl">Load Program: </div>
+                                        <button style="width:150px;" v-on:click="ProjectRequestLoadProgram()"><span class="fa fa-folder-open"></span> Load program</button>
+                                        <small> (.prg)</small>
+                                    </div>
+                                    <br />
+                                    <div class="form-item">
+                                        <div class="form-lbl">New Project: </div>
+                                        <button style="width:150px;" v-on:click="ProjectRequestCreateNew()"><span class="fa fa-plus-circle"></span> Create project</button>
+
+                                    </div>
                                 </div>
                                 <br />
-                                <div class="form-item">
-                                    <div class="form-lbl">New Project: </div>
-                                    <button style="width:150px;" v-on:click="ProjectRequestCreateNew()"><span class="fa fa-plus-circle"></span> Create project</button>
-
-                                </div>
+                                <br />
                             </div>
-                            <br />
-                            <br />
-                        </div>
 
 
-                        <div v-if="projectManager.isNewProject">
+                            <div v-if="projectManager.isNewProject">
 
-                            <h2>New Project</h2>
-                            <div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Project folder:</div>
-                                    <span>
-                                        <small>{{projectManager.projectsFolder}}{{projectManager.folderChar}}</small><input type="text" v-model="projectManager.newProjectFileName" style="width:140px"
-                                                                                                                            title="Set clean filename" placeholder="NewProjectName" />{{
+                                <h2>New Project</h2>
+                                <div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Project folder:</div>
+                                        <span>
+                                            <small>{{projectManager.projectsFolder}}{{projectManager.folderChar}}</small><input type="text" v-model="projectManager.newProjectFileName" style="width:140px"
+                                                                                                                                title="Set clean filename" placeholder="NewProjectName" />{{
     projectManager.folderChar
-                                        }}
-                                    </span>
+                                            }}
+                                        </span>
 
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl">Developer:</div>
-                                    <input type="text" v-model="projectManager.newProjectDeveloperName" style="width:200px" placeholder="Dave Lopper" />
-                                </div>
-                                <div class="form-item">
-                                    <span class="form-lbl">Compiler:</span>
-                                    <select v-model="projectManager.newProjectCompiler" style="width:200px">
-                                        <option disabled value="0">Select the compiler</option>
-                                        <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
-                                    </select>
-                                    <a v-if="projectManager.newProjectCompiler == 1" href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
-                                    <a v-if="projectManager.newProjectCompiler == 4" href="https://cc65.github.io/getting-started.html" target="_blank">Download and install</a>
-                                </div>
-                                <div class="form-item">
-                                    <span class="form-lbl">ROM version:</span>
-                                    <select v-model="projectManager.newProjectRomVersion" style="width:90px">
-                                        <option disabled value="">Select the ROM</option>
-                                        <option v-for="option in projectManager.romVersionNames" v-bind:value="option.value">{{ option.name }}</option>
-                                    </select>
-                                    <a href="https://github.com/commanderx16/x16-rom" target="_blank"><img src="/images/avatar/michael-steil/michael-steil.gif" height="25" /> from Michael Steil, Visit his website</a>
-                                </div>
-                                <div class="form-item">
-                                    <div class="form-lbl"> </div>
-                                    <button v-on:click="ProjectCreateNew();"><span class="fa fa-plus-circle"></span>Create</button>
+                                    </div>
+                                    <div class="form-item">
+                                        <div class="form-lbl">Developer:</div>
+                                        <input type="text" v-model="projectManager.newProjectDeveloperName" style="width:200px" placeholder="Dave Lopper" />
+                                    </div>
+                                    <div class="form-item">
+                                        <span class="form-lbl">Compiler:</span>
+                                        <select v-model="projectManager.newProjectCompiler" style="width:200px">
+                                            <option disabled value="0">Select the compiler</option>
+                                            <option v-for="option in projectManager.compilerNames" v-bind:value="option.value">{{ option.name }}</option>
+                                        </select>
+                                        <a v-if="projectManager.newProjectCompiler == 1" href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download and install</a>
+                                        <a v-if="projectManager.newProjectCompiler == 4" href="https://cc65.github.io/getting-started.html" target="_blank">Download and install</a>
+                                    </div>
+                                    <div class="form-item">
+                                        <span class="form-lbl">ROM version:</span>
+                                        <select v-model="projectManager.newProjectRomVersion" style="width:90px">
+                                            <option disabled value="">Select the ROM</option>
+                                            <option v-for="option in projectManager.romVersionNames" v-bind:value="option.value">{{ option.name }}</option>
+                                        </select>
+                                        <a href="https://github.com/commanderx16/x16-rom" target="_blank"><img src="/images/avatar/michael-steil/michael-steil.gif" height="25" /> from Michael Steil, Visit his website</a>
+                                    </div>
+                                    <div class="form-item">
+                                        <div class="form-lbl"> </div>
+                                        <button v-on:click="ProjectCreateNew();"><span class="fa fa-plus-circle"></span>Create</button>
 
+                                    </div>
+                                    <a v-on:click="ProjectRequestCreateNew()"><span class="fa fa-chevron-left"></span> Back</a>
                                 </div>
-                                <a v-on:click="ProjectRequestCreateNew()"><span class="fa fa-chevron-left"></span> Back</a>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="webProjects" v-if="!projectManager.isNewProject">
+                        <div class="webProjects" v-if="!projectManager.isNewProject">
 
 
-                        <h3>The best way to learn, is to look at existing projects from other devs and noobs.</h3>
+                            <h3>The best way to learn, is to look at existing projects from other devs and noobs.</h3>
 
-                        <div class="project" v-for="project in projectManager.webProjects">
-                            <div v-on:click="ProjectLoadWeb(project)">
-                                <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
-                                <img class="pr-dev" v-bind:src="project.devPicUrl" v-bind:title="project.developerName" v-bind:alt="project.developerName" />
-                                <div class="pr-name">{{project.developerName}}'s {{project.name}}</div>
+                            <div class="project" v-for="project in projectManager.webProjects">
+                                <div v-on:click="ProjectLoadWeb(project)">
+                                    <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
+                                    <img class="pr-dev" v-bind:src="project.devPicUrl" v-bind:title="project.developerName" v-bind:alt="project.developerName" />
+                                    <div class="pr-name">{{project.developerName}}'s {{project.name}}</div>
 
-                                <div class="pr-description">
-                                    <a href="javascript:">Load</a> |
-                                    <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a><br />
-                                    <p>
-                                        <span v-if="project.underConstruction">Under Construction.<br /></span>
-                                        {{project.description}}
-                                    </p>
+                                    <div class="pr-description">
+                                        <a href="javascript:">Load</a> |
+                                        <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a><br />
+                                        <p>
+                                            <span v-if="project.underConstruction">Under Construction.<br /></span>
+                                            {{project.description}}
+                                        </p>
+                                    </div>
+
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-                    <div class="localProjects" v-if="!projectManager.isNewProject">
-                        <div v-for="project in projectManager.localProjects">
-                            <div class="project" v-on:click="ProjectLoadLocal(project)">
-                                <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
-                                <img class="pr-dev" v-bind:src="project.devPicUrl" v-bind:title="project.developerName" v-bind:alt="project.developerName" />
-                                <div class="pr-name">{{project.developerName}}'s {{project.name}}</div>
-                                <a href="javascript:">Load</a>
-                                |
-                                <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a>
-                                <div class="pr-description">{{project.description}}</div>
+                        <div class="localProjects" v-if="!projectManager.isNewProject">
+                            <div v-for="project in projectManager.localProjects">
+                                <div class="project" v-on:click="ProjectLoadLocal(project)">
+                                    <img class="pr-scr" v-bind:src="project.imageUrl" v-bind:title="project.name" v-bind:alt="project.name" />
+                                    <img class="pr-dev" v-bind:src="project.devPicUrl" v-bind:title="project.developerName" v-bind:alt="project.developerName" />
+                                    <div class="pr-name">{{project.developerName}}'s {{project.name}}</div>
+                                    <a href="javascript:">Load</a>
+                                    |
+                                    <a href="javascript:" v-on:click="ProjectOpenProjectWebsite(project)" onclick="return false;">Project site</a>
+                                    <div class="pr-description">{{project.description}}</div>
 
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1425,7 +1428,7 @@ programItem.address  | toHex2
             </div>
         </div>
 
-        <div class="Breakpoints" v-if="processor.isShowDebugger">
+        <div class="Breakpoints" v-show="processor.isShowDebugger">
             <div class="c-link-btn">
                 <a href="javascript:" v-on:click="breakpoints.isVisible = !breakpoints.isVisible"><span class="fa fa-circle"></span> Breakpoints</a>
             </div>

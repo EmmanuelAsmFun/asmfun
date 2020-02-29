@@ -12,13 +12,15 @@ import { CommonInterpreter } from './CommonInterpreter.js';
 import { IMainData } from '../../../framework/data/MainData.js';
 import { OpcodeManager } from '../OpcodeManager.js';
 import { ServiceName } from '../../../framework/serviceLoc/ServiceName.js';
-import { IInterpretLine, LinePartType } from '../data/InterpreterData.js';
-import { AsmTools } from '../../../Tools.js';
 import { InterpreterLine } from './InterpreterLine.js';
 import { InterpreterBundle } from './InterpreterBundle.js';
+import { EditorInsertTextCommand } from '../commands/EditorCommands.js';
+import { ICodeAssistPopupDataItem } from '../data/ICodeAssistPopupData.js';
 
 
 export class AcmeInterpreter implements IInterpreter{
+
+   
 
     private commonInterpreter: CommonInterpreter;
     private opcodeManager: OpcodeManager;
@@ -41,9 +43,8 @@ export class AcmeInterpreter implements IInterpreter{
         interpretLine.GetLineParts();
         var numParts = interpretLine.NoSpaceParts.length;
         if (numParts === 0) return;
-        //if (interpretLine.Ui.LineNumber == 154) {
+        //if (interpretLine.Ui.LineNumber == 1412) 
         //    debugger;
-        //}
         var partIndex = interpretLine.TryFindOpcode();
         if (partIndex == 1)
             interpretLine.ParseLabel(0);         // Part 0 is a label
@@ -98,9 +99,8 @@ export class AcmeInterpreter implements IInterpreter{
                 if (numParts > 2) {
                     var part3 = interpretLine.NoSpaceParts[2];
                     if (part2.Text[0] === "!") {
-                        interpretLine.ParseProperty(0);
-                        if (interpretLine.Property != null)
-                            interpretLine.Property.PType = this.commonInterpreter.ConvertToPropertyType( part2.Text, interpretLine.Text.substr(part3.Index))
+                        interpretLine.ParsePropertyWithType(0);
+                       
                         return;
                     }
                     interpretLine.Ui.HasError = true;
@@ -185,6 +185,17 @@ export class AcmeInterpreter implements IInterpreter{
             }
         }
         return results;
+    }
+
+
+    public PreInsertFromCodeAssist(command: EditorInsertTextCommand) {
+        // The code assist wants to insert new text
+        var selectedItem = <ICodeAssistPopupDataItem>command.data;
+        // If it's a macro, we need to add '+' before
+        if (selectedItem.IsMacro) {
+            command.removeText = "+" + command.removeText;
+            command.text = "+" + command.text;
+        }
     }
 
     public static ServiceName: ServiceName = { Name: "AcmeInterpreter" };

@@ -13,30 +13,27 @@ import { IEditorLine, IEditorManagerData } from "./data/EditorData.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameCodeAssist, UIDataNameEditor } from "./EditorFactory.js";
 import { SourceCodeManager } from "./SourceCodeManager.js";
+import { IInterpretLine } from "./data/InterpreterData.js";
 
 export class CodeAssistPopupManager {
    
     private mainData: IMainData;
     private data: ICodeAssistPopupData;
-    private editorData: IEditorManagerData;
     private allowedChars = 'abcdefghijklmnopqrstuvwxyz';
     private search = "";
-    private isMacroSearch: boolean = false;
-    private isOpcodeSearch: boolean = false;
     private opcodeManager: OpcodeManager;
     private sourceCodeManager: SourceCodeManager;
 
     constructor(mainData: IMainData) {
         this.mainData = mainData;
         this.data = mainData.GetUIData(UIDataNameCodeAssist);
-        this.editorData = mainData.GetUIData(UIDataNameEditor);
         mainData.commandManager.Subscribe2(new KeyboardKeyCommand(), this,(k,e) => this.keyPressed(k,e));
         this.opcodeManager = mainData.container.Resolve<OpcodeManager>(OpcodeManager.ServiceName) ?? new OpcodeManager();
         this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(mainData);
     }
 
     private keyPressed(keyCommand: KeyboardKeyCommand, evt: ICommandEvent) {
-        if (!this.data.isVisible) {
+        if (!this.data.IsVisible) {
             keyCommand.allowContinueEmit = keyCommand.allowContinueEmit;
             return;
         }
@@ -61,125 +58,129 @@ export class CodeAssistPopupManager {
         keyCommand.allowContinueEmit = allowContinueEmit;
     }
  
-    public OpenLabelSearch(posX: number, posY: number, line: IEditorLine) {
-        this.isMacroSearch = false;
-        this.isOpcodeSearch = false;
-        this.Init(posX, posY,line);
-        this.UpdateLabels(this.search);
-        this.UpdateSelected();
-    }
-
-    public OpenOpcodeSearch(posX: number, posY: number, line: IEditorLine) {
-        this.isMacroSearch = false;
-        this.isOpcodeSearch = true;
-        this.Init(posX, posY,line);
-        this.UpdateOpcodes(this.search);
-        this.UpdateSelected();
-    }
-
-    public OpenMacroSearch(posX: number, posY: number, line: IEditorLine) {
-        this.isMacroSearch = true;
-        this.isOpcodeSearch = false;
-        this.Init(posX, posY,line);
-        this.UpdateMacros(this.search);
-        this.UpdateSelected();
-    }
-
-    public Init(posX: number, posY: number, line: IEditorLine) {
-        this.data.isVisible = true;
-        this.data.posX = (posX - 150) + "px";
-        this.data.posY = (posY - 15) + "px";
-        this.data.selectedIndex = 0;
-        var lineData = line.dataCode != null ? line.dataCode.trim() : "";
-        if (lineData.length > 0 && lineData[0] == "+") lineData = lineData.substring(1);
-        this.search = lineData.trim();
-    }
-
-    private UpdateLabels(search: string) {
+    public OpenLabelsAndProperties(posX: number, posY: number, line: IInterpretLine) {
         if (this.sourceCodeManager.Bundle == null) return;
-        var thiss = this;
-        var labelsSrc = this.sourceCodeManager.Bundle.LabelManager.GetAll();
-        var varsSrc = this.sourceCodeManager.Bundle.PropertyManager.GetAll();
-        var allLabelsSrc = [...labelsSrc, ...varsSrc];
+        this.InitPopup(posX, posY);
+        this.ExtractSearch(line);
         var labels: ICodeAssistPopupDataItem[] = [];
-        for (var i = 0; i < allLabelsSrc.length; i++) {
-            var label = allLabelsSrc[i];
+        this.CreateArray(labels, this.sourceCodeManager.Bundle.LabelManager.GetAll(), e => e.IsLabel = true);
+        this.CreateArray(labels, this.sourceCodeManager.Bundle.PropertyManager.GetAll(), e => e.IsProperty = true);
+        this.data.Items = labels;
+        this.UpdateSelected();
+    }
+
+    public OpenOpcodesAndMacros(posX: number, posY: number, line: IInterpretLine) {
+        if (this.sourceCodeManager.Bundle == null) return;
+        this.InitPopup(posX, posY);
+        this.ExtractSearch(line);
+        var labels: ICodeAssistPopupDataItem[] = [];
+        this.CreateOpcodesArray(labels);
+        this.CreateArray(labels, this.sourceCodeManager.Bundle.MacroManager.GetAll(), e => e.IsMacro = true);
+        this.data.Items = labels;
+        this.UpdateSelected();
+    }
+
+    public OpenOpcodeSearch(posX: number, posY: number, line: IInterpretLine) {
+        this.InitPopup(posX, posY);
+        this.ExtractSearch(line);
+        var labels: ICodeAssistPopupDataItem[] = [];
+        this.CreateOpcodesArray(labels);
+        this.data.Items = labels;
+        this.UpdateSelected();
+    }
+
+    private InitPopup(posX: number, posY: number,) {
+        this.data.IsVisible = true;
+        this.data.PosX = (posX - 150) + "px";
+        this.data.PosY = (posY - 15) + "px";
+        this.data.SelectedIndex = 0;
+    }
+
+    private ExtractSearch(line: IInterpretLine) {
+        if (line.Opcode == null) {
+            // Take the last line text part to search in.
+            this.search = line.Parts.length > 0 ? line.Parts[line.Parts.length - 1].Text : "";
+        }
+        else {
+            // Take the last line text part to search in.
+            this.search = line.Parts.length > 0 ? line.Parts[line.Parts.length - 1].Text : "";
+            this.search = this.search.trim();
+            if (this.search[0] == "+") this.search = this.search.substring(1);
+        }
+    }
+
+    private CreateArray(labels: ICodeAssistPopupDataItem[], newItems: any[], oncreated: (el: ICodeAssistPopupDataItem) => void) {
+        var search = this.search;
+        var indexOffset: number = labels.length;
+        for (var i = 0; i < newItems.length; i++) {
+            var label = newItems[i];
             if (search != "" && label.Ui.Name.search(new RegExp(search, "i")) === -1) continue;
-            var el: ICodeAssistPopupDataItem = {
-                data: label.Ui,
-                name: label.Ui.Name,
-                hint: "",
-                isSelected: false,
-                select: (el) => { thiss.Select(el, true); },
-                index: i,
-            }
+            var el: ICodeAssistPopupDataItem = this.CreateItem(i + indexOffset, label.Ui.Name, label.Ui, "");
+            oncreated(el);
             labels.push(el);
         }
-        this.data.items = labels;
     }
 
-    private UpdateOpcodes(search: string) {
-        var thiss = this;
+    private CreateOpcodesArray(labels: ICodeAssistPopupDataItem[]) {
         if (this.opcodeManager == null) return;
-        var allOpcodes = this.opcodeManager.Search(search);
-        var labels: ICodeAssistPopupDataItem[] = [];
+        var indexOffset: number = labels.length;
+        var allOpcodes = this.opcodeManager.Search(this.search);
         for (var i = 0; i < allOpcodes.length; i++) {
             var opcode = allOpcodes[i];
-            var el: ICodeAssistPopupDataItem = {
-                data: opcode,
-                name: opcode.code,
-                hint: opcode.html != null ? opcode.html:"",
-                isSelected: false,
-                select: (el) => { thiss.Select(el, true); },
-                index: i,
-            }
+            var el: ICodeAssistPopupDataItem = this.CreateItem(i + indexOffset, opcode.code, opcode, opcode.html != null ? opcode.html : "");
             labels.push(el);
         }
-        this.data.items = labels;
     }
 
-    private UpdateMacros(search: string) {
-        var thiss = this;
-        if (this.sourceCodeManager.Bundle == null) return;
-        var macrosSrc = this.sourceCodeManager.Bundle.MacroManager.GetAll();
-        var macros: ICodeAssistPopupDataItem[] = [];
-        for (var i = 0; i < macrosSrc.length; i++) {
-            var macro = macrosSrc[i];
-            if (search != "" && macro.Ui.Name.search(new RegExp(search, "i")) === -1) continue;
-            var el: ICodeAssistPopupDataItem = {
-                data: macro.Ui,
-                name: macro.Ui.Name,
-                hint:"",
-                isSelected: false,
-                select: (el) => { thiss.Select(el, true); },
-                index: i,
-            }
-            macros.push(el);
-        }
-        this.data.items = macros;
+    private CreateItem(index: number, name: string, uiObj: any, hint: string): ICodeAssistPopupDataItem {
+        var el: ICodeAssistPopupDataItem = {
+            Name: name.replace(":", "").replace("+", ""),
+            Hint: hint,
+            Data: uiObj,
+            IsSelected: false,
+            Select: (el) => { this.Select(el, true); },
+            Index: index,
+            IsLabel: false,
+            IsMacro: false,
+            IsProperty: false,
+        };
+        return el;
     }
 
     private ScrollToLetter(search: string) {
-        var item = this.data.items.find(x => x.name.search(new RegExp(search, "i")) > -1);
+        var item = this.data.Items.find(x => x.Name.search(new RegExp(search, "i")) > -1);
         if (item == null) return;
         this.Select(item,false);
     }
     public Select(item: ICodeAssistPopupDataItem, withEnter: boolean) {
         this.DeselectPrevious();
-        this.data.selectedIndex = item.index;
+        this.data.SelectedIndex = item.Index;
         this.UpdateSelected();
-        item.isSelected = true;
+        item.IsSelected = true;
         if (withEnter)
             this.EnterKey();
     }
     public UpdateSelected() {
-        var item = this.data.items[this.data.selectedIndex];
+        var item = this.data.Items[this.data.SelectedIndex];
         if (item == null) return;
-        item.isSelected = true;
-        this.data.selected = item;
-        var domEl = document.getElementById('codeAs' + item.index);
+        item.IsSelected = true;
+        this.data.Selected = item;
+        var domEl = document.getElementById('codeAs' + item.Index);
         if (domEl != null)
             domEl.scrollIntoView({ behavior: "smooth", block: "nearest", });
+    }
+
+    public EnterKey() {
+        if (this.data.Selected == null) return false;
+        var name = this.data.Selected.Name;
+        // We need to remove the typed search characters depending on interpreter
+        var toRemove = this.search;
+        var command = new EditorInsertTextCommand(toRemove, name, this.data.Selected);
+        if (this.sourceCodeManager.Bundle != null) 
+            this.sourceCodeManager.Bundle.Interpreter.PreInsertFromCodeAssist(command)
+        this.mainData.commandManager.InvokeCommand(command);
+        this.Close();
+        return false;
     }
 
     private Backspace() {
@@ -189,18 +190,18 @@ export class CodeAssistPopupManager {
     }
 
     public MoveUp() {
-        if (this.data.selectedIndex == 0) return false;
+        if (this.data.SelectedIndex == 0) return false;
         this.DeselectPrevious();
-        this.data.selectedIndex--;
+        this.data.SelectedIndex--;
         this.UpdateSelected();
         return false;
     }
     public MoveDown() {
-        var wanted = this.data.selectedIndex + 1;
-        if (wanted > this.data.items.length - 1)
-            wanted = this.data.items.length - 1;
+        var wanted = this.data.SelectedIndex + 1;
+        if (wanted > this.data.Items.length - 1)
+            wanted = this.data.Items.length - 1;
         this.DeselectPrevious();
-        this.data.selectedIndex = wanted;
+        this.data.SelectedIndex = wanted;
         this.UpdateSelected();
         return false;
     }
@@ -208,75 +209,64 @@ export class CodeAssistPopupManager {
    
     public PageUp() {
         this.DeselectPrevious();
-        var wanted = this.data.selectedIndex - 8;
+        var wanted = this.data.SelectedIndex - 8;
         if (wanted < 0)
             wanted = 0;
-        this.data.selectedIndex = wanted;
+        this.data.SelectedIndex = wanted;
         this.UpdateSelected();
         return false;
     }
     public PageDown() {
         this.DeselectPrevious();
-        var wanted = this.data.selectedIndex + 8;
-        if (wanted > this.data.items.length-1)
-            wanted = this.data.items.length -1;
-        this.data.selectedIndex = wanted;
+        var wanted = this.data.SelectedIndex + 8;
+        if (wanted > this.data.Items.length-1)
+            wanted = this.data.Items.length -1;
+        this.data.SelectedIndex = wanted;
         this.UpdateSelected();
         return false;
     }
     public MoveEnd() {
         this.DeselectPrevious();
-        this.data.selectedIndex = this.data.items.length;
+        this.data.SelectedIndex = this.data.Items.length;
         this.UpdateSelected();
         return false;
     }
     public MoveHome() {
         this.DeselectPrevious();
-        this.data.selectedIndex = 0;
+        this.data.SelectedIndex = 0;
         this.UpdateSelected();
         return false;
     }
-    public EnterKey() {
-        if (this.data.selected == null) return false;
-        var name = this.data.selected.name;
-        var toRemove = this.search;
-        if (this.isMacroSearch) {
-            toRemove = "+" + toRemove;
-            name = "+" + name;
-        }
-        this.mainData.commandManager.InvokeCommand(new EditorInsertTextCommand(toRemove, name));
-        this.Close();
-        return false;
-    }
+   
     public EscapeKey() {
         this.Close();
         return false;
     }
 
     public Close() {
-        this.data.isVisible = false;
+        this.data.IsVisible = false;
         this.mainData.commandManager.InvokeCommand(new CloseEditorCodeAssistCommand());
     }
 
     private DeselectPrevious() {
-        var lbl = this.data.items[this.data.selectedIndex];
+        var lbl = this.data.Items[this.data.SelectedIndex];
         if (lbl != null) {
-            lbl.isSelected = false;
-            this.data.selected = null;
+            lbl.IsSelected = false;
+            this.data.Selected = null;
         }
     }
 
     public GetVisibility() {
-        return this.data.isVisible;
+        return this.data.IsVisible;
     }
 
     public static NewData(): ICodeAssistPopupData {
         return {
-            items: [],
-            isVisible: false,
-            posX: "0px",
-            posY: "0px",
-            selectedIndex: 0,
+            Items: [],
+            IsVisible: false,
+            PosX: "0px",
+            PosY: "0px",
+            SelectedIndex: 0,
 
         }; 
     }

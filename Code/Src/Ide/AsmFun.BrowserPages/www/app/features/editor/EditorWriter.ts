@@ -109,8 +109,6 @@ export class EditorWriter  {
         var textPartS = context.currentLine.data.sourceCode.substring(0, context.editorData.cursorX);
         var textPartE = context.currentLine.data.sourceCode.substring(context.editorData.cursorX);
         var newLine: IEditorLine = context.CreateNewLine(context.currentFile.Index, lineIndex + 1);
-        //context.currentLine = newLine;
-        
         
         // when not pasting, insert the same amount of spaces as the currentline.
         var currentLineStartSpaces = "";
@@ -159,7 +157,8 @@ export class EditorWriter  {
                 //context.currentLine.context.RemoveLine(context.currentLine);
                // (<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
                // this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
-                context.currentLine = previousLine;
+                context.SetCurrentLine(previousLine);
+                
                 context.RedrawLine();
                 context.cursorLogic.UpdateCursor(context);
             }
@@ -192,7 +191,7 @@ export class EditorWriter  {
             //context.currentLine.context.RemoveLine(currentFile.lines[context.currentLine.data.lineNumber]);
             //(<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
             //this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
-            context.currentLine = currentFile.lines[lastY];
+            context.SetCurrentLine(currentFile.lines[lastY]);
             if (context.currentLine != null && context.currentLine.data.sourceCode != null) {
                 context.currentLine.data.sourceCode += textNextLine;
                 context.editorData.maxX = context.currentLine.data.sourceCode.length;

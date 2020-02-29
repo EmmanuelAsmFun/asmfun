@@ -129,6 +129,7 @@ export class BreakPointsManager {
             var uiBreakPoint = this.CreateUiBreakpoint(bp.address, address, bp.index);
             uiBreakPoint.IsEnabled = bp.isEnabled;
             this.data.list.push(uiBreakPoint);
+           
         }
         this.editorData.breakPoints = breakPointsHex;
         // console.log(breakPointsHex,this.data.list.map(x => x.Index));
@@ -147,6 +148,11 @@ export class BreakPointsManager {
                         uiLine.Line = line.Ui;
                         uiLine.LineNumber = line.data.lineNumber;
                         uiLine.LineText = line.data.sourceCode.replace(/ /g, '&nbsp;');
+                        var inArrayIndex = this.usedBreakPoints.findIndex(x => x.LineNumber === uiLine.LineNumber);
+                        if (inArrayIndex > -1)
+                            this.usedBreakPoints[inArrayIndex] = line.Ui;
+                        else
+                            this.usedBreakPoints.push(line.Ui);
                     }
                 }
 
@@ -160,6 +166,7 @@ export class BreakPointsManager {
 
     private BreakpointSwapState(uiBreakPoint: IBreakpointUIData | null): void {
         if (uiBreakPoint == null) return;
+        debugger;
         uiBreakPoint.IsEnabled = !uiBreakPoint.IsEnabled;
         this.SetBreakpoint(uiBreakPoint, true);
     }

@@ -208,25 +208,27 @@ export class ProcessorManager {
         if (sourceCode != null && sourceCode.Files != null) {
             // make address 5 chars
             var address = data.programCounter;
-            for (var i = 0; i < sourceCode.Files.length; i++) {
-                var file = sourceCode.Files[i];
-                if (file.Lines == null) break;
-                var foundL: IInterpretLine | undefined= file.Lines.find(x => x.AddressNum === address);
-                if (foundL != undefined) {
-                    if (!foundL.Ui.Selected) {
-                        if (this.previousSelectedLine != null)
-                            this.previousSelectedLine.Ui.Selected = false;
-                        foundL.Ui.Selected = true;
-                        this.previousSelectedLine = foundL;
-                        this.currentLine = this.previousSelectedLine;
-                        if (this.currentLine != null) {
-                            this.editorData.currentOpcode = this.currentLine.Opcode != null && this.currentLine.Opcode ?
-                                this.currentLine.Opcode : { asmFunCode: '', code: '' };
-                            if (this.breakPointsManager.HasBreakpoints())
-                                this.editorManager.SelectFile(this.currentLine.EditorLine.file);
+            if (address > 0) {
+                for (var i = 0; i < sourceCode.Files.length; i++) {
+                    var file = sourceCode.Files[i];
+                    if (file.Lines == null) break;
+                    var foundL: IInterpretLine | undefined = file.Lines.find(x => x.AddressNum === address);
+                    if (foundL != undefined) {
+                        if (!foundL.Ui.Selected) {
+                            if (this.previousSelectedLine != null)
+                                this.previousSelectedLine.Ui.Selected = false;
+                            foundL.Ui.Selected = true;
+                            this.previousSelectedLine = foundL;
+                            this.currentLine = this.previousSelectedLine;
+                            if (this.currentLine != null) {
+                                this.editorData.currentOpcode = this.currentLine.Opcode != null && this.currentLine.Opcode ?
+                                    this.currentLine.Opcode : { asmFunCode: '', code: '' };
+                                if (this.breakPointsManager.HasBreakpoints())
+                                    this.editorManager.SelectFile(this.currentLine.EditorLine.file);
+                            }
                         }
+                        break;
                     }
-                    break;
                 }
             }
         }

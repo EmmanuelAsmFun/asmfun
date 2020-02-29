@@ -67,12 +67,36 @@ export class Cc65Interpreter implements IInterpreter {
                     return;
                 case ".endproc": this.CloseCurrentBlock(interpretLine); return;
                 case ".if":
+                case ".ifnblank":
                     return;
                 case ".endif": this.CloseCurrentBlock(interpretLine); return;
                 case ".segment":
                 case ".debuginfo":
                 case ".listbytes":
+                case ".listbytes":
                 case ".error":
+                case ".match":
+                case ".xmatch":
+                case ".mid":
+                case ".left":
+                case ".right":
+                case ".loword":
+                case ".hiword":
+                case ".lobyte":
+                case ".hibyte":
+                case ".blankbyte":
+                case ".blank":
+                case ".concat":
+                case ".const":
+                case ".ident":
+                case ".ref":
+                case ".referenced":
+                case ".sizeof":
+                case ".tcount":
+                case ".strat":
+                case ".string":
+                case ".sprintf":
+                case ".strlen":
                 case ".res":
                 case ".include": // include file
                     return;
@@ -241,6 +265,11 @@ export class Cc65Interpreter implements IInterpreter {
             }
         }
         return results;
+    }
+
+    public PreInsertFromCodeAssist(command: import("../commands/EditorCommands.js").EditorInsertTextCommand) {
+        // The code assist wants to insert new text
+
     }
 
     public static ServiceName: ServiceName = { Name: "Cc65Interpreter" };

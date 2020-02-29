@@ -27,7 +27,7 @@ import { IInterpretLine } from './data/InterpreterData.js';
 import { InterpreterBundle } from './interpreters/InterpreterBundle.js';
 
 export class SourceCodeManager {
-  
+   
     private editorBundle: IEditorBundle | null = null;
     private projectService: ProjectService;
     private opcodeManager: OpcodeManager;
@@ -35,7 +35,7 @@ export class SourceCodeManager {
     private mainData: IMainData;
     public data: IEditorManagerData;
     private interpreter?: IInterpreter;
-    private lastProjectSettings?: IProjectSettings;
+    private lastProjectSettings: IProjectSettings | null = null;
 
     public Bundle: InterpreterBundle | null = null;
 
@@ -107,22 +107,17 @@ export class SourceCodeManager {
         this.lastProjectSettings = projectSettings;
         if (projectSettings.isProgramOnly) {
             this.RemoveAllSourceCode();
+            this.editorBundle = CreateNewEditorBundle({
+                name: "prg",
+                sourceFileName: "prg",
+                files: [],
+                labels: [],
+            });
             return;
         }
         this.LoadSourceCode();
     }
-    private RemoveAllSourceCode() {
-        this.editorBundle = CreateNewEditorBundle({
-            name: "prg",
-            sourceFileName: "prg",
-            files: [],
-            labels: [],
-        });
-        this.data.Files = [];
-        this.data.SelectedFile = null;
-        this.data.currentOpcode = null;
-        this.data.breakPoints = [];
-    }
+   
 
     private LoadSourceCode() {
         var thiss = this;
@@ -277,7 +272,24 @@ export class SourceCodeManager {
 
     public TryGetOpcode(data: string) {
         return this.opcodeManager.tryGetOpcode(data);
+    } 
+
+    public ClearProject() {
+        this.RemoveAllSourceCode();
+        this.lastProjectSettings = null;
     }
+
+    private RemoveAllSourceCode() {
+        this.data.Files = [];
+        this.data.SelectedFile = null;
+        this.data.currentOpcode = null;
+        this.data.breakPoints = [];
+        this.Bundle = null;
+        this.editorBundle = null;
+       
+        
+    }
+
 
     public static ServiceName: ServiceName = { Name: "SourceCodeManager" };
 }

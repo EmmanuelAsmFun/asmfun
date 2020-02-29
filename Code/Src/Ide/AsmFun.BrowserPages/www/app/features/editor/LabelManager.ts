@@ -62,7 +62,7 @@ export class LabelManager implements ILabelManager {
     public RemoveLabel(label: ILabelData) {
         var labelIndex = this.labels.findIndex(x => x === label);
         if (labelIndex > -1) this.labels.splice(labelIndex, 1);
-        labelIndex = this.Ui.List.findIndex(x => x.Name === name);
+        labelIndex = this.Ui.List.findIndex(x => x === label.Ui);
         if (labelIndex > -1) this.Ui.List.splice(labelIndex, 1);
     }
     public RemoveLabelByName(name: string) {

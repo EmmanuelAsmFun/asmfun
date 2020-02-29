@@ -55,9 +55,11 @@ export class EditorPasteCommand extends BaseCommand{
 export class EditorInsertTextCommand extends BaseCommand{
     public text?: string;
     public removeText?: string;
-    public constructor(removeText?:string,text?: string) {
+    public data?: any;
+    public constructor(removeText?:string,text?: string, data?:any) {
         super();
         this.text = text;
+        this.data = data;
         this.removeText = removeText;
         this.commandName = "InsertLabelCommand";
         this.nameSpace = "Editor";
@@ -107,6 +109,13 @@ export class EditorScrollToLineCommand extends BaseCommand {
         super();
         this.line = line;
         this.commandName = "ScrollToLine";
+        this.nameSpace = "Editor";
+    }
+}
+export class EditorClearProjectCommand extends BaseCommand{
+    public constructor() {
+        super();
+        this.commandName = "ClearProject";
         this.nameSpace = "Editor";
     }
 }

@@ -7,7 +7,7 @@
 import { EditorData, IEditorFile, IEditorLine, IEditorManagerData } from "./data/EditorData.js";
 import {
     KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand,
-    EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand
+    EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand, EditorClearProjectCommand
 } from "./commands/EditorCommands.js";
 import { SourceCodeManager } from "./SourceCodeManager.js";
 import { CursorLogic } from "./CursorLogic.js";
@@ -21,15 +21,17 @@ import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameEditor } from "./EditorFactory.js";
 import { IUILine } from "./ui/IUILine.js";
 import { IUIFile } from "./ui/IUIFile.js";
+import { IInterpretLine } from "./data/InterpreterData.js";
 
 export interface IEditorContext {
+    SetCurrentLine(previousLine: IEditorLine);
     RenumberLines(fileIndex: number, startIndex: number, length: number);
     CreateNewLine(fileIndex: number, lineNumber: number): IEditorLine;
     RemoveLine(fileIndex: number, lineNumber: number, doRenumbering:boolean);
     editorData: EditorData;
     cursorLogic: CursorLogic;
-    currentLine?: IEditorLine;
-    currentFile?: IEditorFile | null;
+    currentLine: IEditorLine | null;
+    currentFile: IEditorFile | null;
     requireSave: boolean;
     RedrawLine();
     RedrawLine2(line: IEditorLine);
@@ -41,7 +43,6 @@ export interface IEditorContext {
 
 export class EditorManager implements IEditorContext {
    
-   
 
     private LocalStorageName: string = ".EditorData";
    
@@ -50,10 +51,10 @@ export class EditorManager implements IEditorContext {
     public editorData: EditorData = new EditorData();
     public data: IEditorManagerData;
     
-   
-    //public sourceCode?: IEditorBundle;
     public currentFile: IEditorFile | null = null;
-    public currentLine?: IEditorLine;
+    public currentLine: IEditorLine | null = null;
+    private currentLineI: IInterpretLine | null = null;
+
     private mainData: IMainData;
     private sourceCodeManager: SourceCodeManager;
     private projectManager: ProjectManager;
@@ -83,6 +84,7 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorSwapOutputCommand(null), this, (c) => thiss.SwapOutputWindow(c.state));
         mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLineFromUi(c.line); } });
         mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
+        mainData.commandManager.Subscribe2(new EditorClearProjectCommand(), this, (c) => thiss.ClearProject());
 
     }
 
@@ -142,56 +144,44 @@ export class EditorManager implements IEditorContext {
         }
     }
 
+
+    //#region Code Assist
     private OpenCodeAssistent() {
-        if (this.currentLine == null) return;
-
-        // Check if we try to parse an AsmFunCode
+        if (this.currentLineI == null || this.currentLine == null) return;
+        var cursorPos = this.cursorLogic.GetRealPosition();
+        var svc = this.mainData.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName);
+        if (svc == null || cursorPos == null) return;
         var trimmed = this.currentLine.data.sourceCode.trim();
-        if (trimmed.length > 2) {
-            var opcode = this.sourceCodeManager.TryGetOpcode(trimmed.trim());
-            if (opcode != null && opcode != undefined) {
-                this.currentLine.opcode = opcode;
-                this.currentLine.data.sourceCode = opcode.code;
-                this.currentLine.dataCode = "";
-                this.RedrawLine();
-                this.cursorLogic.MoveToMaxX(this);
-                return;
+
+        if (this.currentLineI.Opcode == null && this.currentLineI.Macro == null) {
+
+            // Check if we try to parse an AsmFunCode
+            if (trimmed.length > 2) {
+                var opcode = this.sourceCodeManager.TryGetOpcode(trimmed.trim());
+                if (opcode != null && opcode != undefined) {
+                    // Todo : Fix here opcode
+                    this.currentLine.opcode = opcode;
+                    this.currentLine.data.sourceCode = opcode.code;
+                    this.currentLine.dataCode = "";
+                    this.currentLineI.Opcode = opcode;
+                    this.currentLineI.Text = opcode.code;
+                    this.RedrawLine();
+                    this.cursorLogic.MoveToMaxX(this);
+                    return;
+                }
             }
-        }
-        
-        // Macro search popup
-        if (trimmed.length > 0 && trimmed[0] === "+") {
-            this.codeAssistIsOpen = true;
-            console.log("Open macro code assist");
-            var cursorPos = this.cursorLogic.GetRealPosition();
-            var svc = this.mainData.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName);
-            if (svc != null && cursorPos != null)
-                svc.OpenMacroSearch(cursorPos.x, cursorPos.y, this.currentLine);
-            return;
-        }
 
-        // Label search popup
-        if (this.currentLine.opcode != null && this.currentLine.data != null) {
-            console.log("Open label code assist");
+            // Open opcode and macros popup
             this.codeAssistIsOpen = true;
-            var cursorPos = this.cursorLogic.GetRealPosition();
-            var svc = this.mainData.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName);
-            if (svc != null && cursorPos != null)
-                svc.OpenLabelSearch(cursorPos.x, cursorPos.y, this.currentLine);
+            svc.OpenOpcodesAndMacros(cursorPos.x, cursorPos.y, this.currentLineI);
             return;
         }
-
-        // Open opcode popup
-        if (this.currentLine.data != null) {
-            console.log("Open opcode assist");
-            this.codeAssistIsOpen = true;
-            var cursorPos = this.cursorLogic.GetRealPosition();
-            var svc = this.mainData.container.Resolve<CodeAssistPopupManager>(CodeAssistPopupManager.ServiceName);
-            if (svc != null && cursorPos != null)
-                svc.OpenOpcodeSearch(cursorPos.x, cursorPos.y, this.currentLine);
-            return;
-        }
+        // labels and properties
+        this.codeAssistIsOpen = true;
+        svc.OpenLabelsAndProperties(cursorPos.x, cursorPos.y, this.currentLineI);
+        return;
     }
+
     private CloseCodeAssistent() {
         this.codeAssistIsOpen = false;
     }
@@ -199,7 +189,14 @@ export class EditorManager implements IEditorContext {
     private PopupIsOpen() {
         return this.codeAssistPopupManager.GetVisibility();
     }
+    //#endregion Code Assist
 
+
+    public SetCurrentLine(line: IEditorLine) {
+        this.currentLine = line;
+        if (this.sourceCodeManager.Bundle == null) return;
+        this.currentLineI = this.sourceCodeManager.Bundle.GetLine(line);
+    }
 
     private PasteText(text: string) {
         if (!this.isEnabled) return;
@@ -246,8 +243,8 @@ export class EditorManager implements IEditorContext {
         allowContinueEmit = this.editorWriter.KeyPessed(this, allowContinueEmit, keyCommand);
         keyCommand.allowContinueEmit = allowContinueEmit;
 
-        if (this.currentLine != null)
-            console.log(this.currentLine.data.sourceCode);
+        //if (this.currentLine != null)
+        //    console.log(this.currentLine.data.sourceCode);
     }
 
     public RedrawLine() {
@@ -255,7 +252,7 @@ export class EditorManager implements IEditorContext {
         this.RedrawLine2(this.currentLine);
     }
     
-    public RedrawLineFromUi(line: IUILine) {
+    private RedrawLineFromUi(line: IUILine) {
         if (this.currentFile == null) return;
         this.RedrawLine2(this.currentFile.lines[line.LineNumber - 1]);
     }
@@ -296,7 +293,7 @@ export class EditorManager implements IEditorContext {
         //    this.currentLine.opcode : { asmFunCode: '', code: '' };
     }
 
-    public MoveCursor(x, y, smoothScolling:boolean) {
+    public MoveCursor(x, y, smoothScolling: boolean) {
         if (this.PopupIsOpen()) return;
         if (this.currentFile == null)
             this.LoadFirstFile();
@@ -371,7 +368,7 @@ export class EditorManager implements IEditorContext {
     }
 
 
-    public EditorScrollToLine(lineO: IEditorLine | IUILine | null) {
+    private EditorScrollToLine(lineO: IEditorLine | IUILine | null) {
         if (lineO == null) return;
         if ((<any>lineO).LineNumber != undefined) {
             var lineI = <IUILine>lineO;
@@ -385,24 +382,25 @@ export class EditorManager implements IEditorContext {
         this.MoveCursor(0, line.data.lineNumber - 1,true);
     }
 
+    /** Completly resets the project, when createing a new project. */
+    public ClearProject() {
+        this.currentFile = null;
+        this.currentLine = null;
+        this.currentLineI = null;
+        this.sourceCodeManager.ClearProject();
+    }
+
+
 
     public HasFiles() {
         return this.currentFile != null && this.sourceCodeManager.Bundle != null && this.sourceCodeManager.Bundle.Files.length > 0;
     }
-    
 
     private APopupIsOpen() {
         this.ChangeEnabledState(false);
     }
     private APopupIsClosed() {
         this.ChangeEnabledState(true);
-    }
-
-    private CleanSearch(str1: string) {
-        return str1.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    }
-    private CompareInsensitive(str2: string, str1: string) {
-        return new RegExp(str1, "gi").test(str2);
     }
 
     public static ServiceName: ServiceName = { Name: "EditorManager" };

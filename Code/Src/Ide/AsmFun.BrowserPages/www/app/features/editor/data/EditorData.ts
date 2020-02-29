@@ -53,19 +53,11 @@ export interface IEditorLine {
     Ui: IUILine;
     file: IEditorFile;
     data: ISourceCodeLine;
-    //context: ICodeBlockContext;
     dataCode: string;
-    sourceCodeHtml: string;
-    //codeHtml: ILineHtml | null;
-    
     isReturn: boolean;
     isJump: boolean;
     isCompare: boolean;
-   
-    // opcode
     opcode: IOpcodeData | null;
-    // error
-
     isEndOfBlock: boolean;
 }
 export enum PropertyNumType {
@@ -92,13 +84,13 @@ export function ResetLineProperties(line: IEditorLine) {
     line.isJump = false;
     line.isReturn = false;
     line.opcode = null;
+    line.isEndOfBlock = false;
 }
 
 
 export function CreateNewEditorLine(line: ISourceCodeLine, editorFile: IEditorFile): IEditorLine  {
     return {
         dataCode: "",
-        sourceCodeHtml: "",
         opcode: null,
         isCompare: false,
         isJump: false,

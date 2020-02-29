@@ -146,7 +146,7 @@ export class PropertyManager implements IPropertyManager {
     public RemoveProperty(property: IInterpretPropertyData) {
         var propertyIndex = this.properties.findIndex(x => x === property);
         if (propertyIndex > -1) this.properties.splice(propertyIndex, 1);
-        propertyIndex = this.Ui.List.findIndex(x => x.Name === name);
+        propertyIndex = this.Ui.List.findIndex(x => x === property.Ui);
         if (propertyIndex > -1) this.Ui.List.splice(propertyIndex, 1);
     }
     public RemovePropertyByName(name: string) {

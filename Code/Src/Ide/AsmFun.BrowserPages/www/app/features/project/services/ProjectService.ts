@@ -63,7 +63,9 @@ export class ProjectService extends ApiService {
     }
 
     public CreateNew(nameForFileSystem: string,developerName:string, buildConfiguration: IBuildConfiguration, doneMethod: (IProjectSettings) => void) {
-        this.post("CreateNew?nameForFileSystem=" + encodeURI(nameForFileSystem) + "&developerName=" + encodeURI(developerName), buildConfiguration, doneMethod);
+        this.post("CreateNew?nameForFileSystem=" + encodeURI(nameForFileSystem) + "&developerName=" + encodeURI(developerName), buildConfiguration,
+            (s) => { this.eventManager.InvokeEvent(new ProjectSettingsLoaded(s)); doneMethod(s); }
+        );
     }
 
     public LoadWebExisting(detail: IProjectDetail, doneMethod: (s:IProjectSettings) => void, error: (e) => void) {

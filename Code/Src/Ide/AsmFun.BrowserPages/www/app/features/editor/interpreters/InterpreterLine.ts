@@ -1,6 +1,6 @@
 ﻿import { IInterpretLine, IUIInterpreterBundleData, IInterpretLinePart, LinePartType, LineType } from "../data/InterpreterData.js";
 import { IUILine, NewUiLine } from "../ui/IUILine.js";
-import { IEditorLine, IPropertyType } from "../data/EditorData.js";
+import { IEditorLine, IPropertyType, ResetLineProperties } from "../data/EditorData.js";
 import { AsmTools } from "../../../Tools.js";
 import { InterpreterBundle } from "./InterpreterBundle.js";
 import { IZoneData } from "../data/IZonesData.js";
@@ -54,7 +54,6 @@ export class InterpreterLine implements IInterpretLine{
         this.Ui.LineNumber = line.data.lineNumber;
         this.LineNumber = line.data.lineNumber;
         this.Reset();
-        
     }
 
     public Reset() {
@@ -65,6 +64,7 @@ export class InterpreterLine implements IInterpretLine{
         this.Parts = [];
         this.NoSpaceParts = [];
         this.Text = this.EditorLine.data.sourceCode.replace(/\t/g, "  ");
+
         this.Zone = null;
         this.ZoneFound = false;
         this.Opcode = null;
@@ -78,12 +78,15 @@ export class InterpreterLine implements IInterpretLine{
         this.MacroFound = false;
         this.Label = null;
         this.LabelFound = false;
+
         this.Type = LineType.Unknown;
         this.DataCode = "";
         this.Ui.Error = null;
         this.Ui.HasError = false;
         this.Ui.AsmFunCode = "";
         this.Ui.CanEditProp = false;
+        this.EditorLine.opcode = null;
+        ResetLineProperties(this.EditorLine);
     }
 
 
@@ -126,7 +129,7 @@ export class InterpreterLine implements IInterpretLine{
             }
             current = this.ParseChar(current, LinePartType.Unknown, i, char);
         }
-        
+        this.DataCode = this.Text;
         return this;
     }
 
@@ -201,6 +204,7 @@ export class InterpreterLine implements IInterpretLine{
         this.LabelFound = true;
         this.Label = this.bundle.LabelManager.AddLabel(this, linePart.Text, isLocalLabel);
         this.Type = LineType.Label;
+        // this.EditorLine.dataCode = labelPartIndex + 1 <= this.NoSpaceParts.length ? this.Text.substr(this.NoSpaceParts[labelPartIndex + 1].Index) : this.Text;
         if (this.Log)
             console.log("Add Label:\t\t" + this.LineNumber + "\t" +this.Label.Ui.Name);
     }
@@ -249,27 +253,6 @@ export class InterpreterLine implements IInterpretLine{
         return true;
     }
 
-
-    public ParseProperty(propertyNameIndex: number) {
-        
-        // Variable
-        var propNamePart = this.NoSpaceParts[propertyNameIndex];
-        var propValuePart = this.NoSpaceParts[propertyNameIndex + 1];
-        //if (propNamePart.Text == "enemy_map") {
-        //    debugger;
-        //}
-        var propType: IPropertyType = PropertyManager.NewPropType();
-        this.Property = this.bundle.PropertyManager.AddProperty(this, propNamePart.Text, propValuePart.Text, propType);
-        this.PropertyFound = true;
-        this.NoSpaceParts[propertyNameIndex].HasBeenParsed = true;
-        this.NoSpaceParts[propertyNameIndex + 1].HasBeenParsed = true;
-        propNamePart.Type = LinePartType.Property;
-        this.Type = LineType.Property;
-        
-        if (this.Log)
-            console.log("Add Property:\t" + this.LineNumber + "\t" +propNamePart.Text + "=" + propValuePart.Text);
-        return true;
-    }
 
     public ParsePropertyWithType(propertyNameIndex: number) {
         // Example:         enemy_map: .byte 0,0,0,1,2,3

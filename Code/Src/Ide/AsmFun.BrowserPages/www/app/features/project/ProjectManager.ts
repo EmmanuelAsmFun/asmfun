@@ -24,6 +24,7 @@ import { ASMStorage } from "../../Tools.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { UIDataNameProject } from "./ProjectFactory.js";
 import { IPopupSubscription, IPopupWindow, IPopupWindowData, IPopupEventData } from "../../framework/data/IPopupData.js";
+import { EditorClearProjectCommand } from "../editor/commands/EditorCommands.js";
 
 
 export class ProjectManager implements IPopupWindow {
@@ -71,7 +72,7 @@ export class ProjectManager implements IPopupWindow {
         });
     }
    
-    public SaveProjectsFolder() {
+    private SaveProjectsFolder() {
         var thiss = this;
         if (this.userSettings == null) return;
         this.userSettings.projectsFolder = this.data.projectsFolder;
@@ -80,13 +81,13 @@ export class ProjectManager implements IPopupWindow {
         }, () => { });
     }
 
-    public NewProjectRequest() {
+    private NewProjectRequest() {
         if (this.data.projectIsDownloading) return;
         this.data.isNewProject = !this.data.isNewProject;
         this.data.newBuildConfiguration = NewBuildConfiguration();
     }
 
-    public CreateNewProject() {
+    private CreateNewProject() {
         var thiss = this;
         if (this.data.newProjectFileName == null || this.data.newProjectFileName.length < 2) {
             this.myAppData.alertMessages.ShowError("Project name is empty", "The project name in the project folder is empty.", ErrorIcon.Exclamation);
@@ -94,19 +95,20 @@ export class ProjectManager implements IPopupWindow {
         };
         this.data.newBuildConfiguration.compilerType = this.data.newProjectCompiler;
         this.data.newBuildConfiguration.romVersion = this.data.newProjectRomVersion;
+        this.mainData.commandManager.InvokeCommand(new EditorClearProjectCommand());
         this.service.CreateNew(this.data.newProjectFileName, this.data.newProjectDeveloperName, this.data.newBuildConfiguration, (settings) => { thiss.Load(settings); });
         this.data.isNewProject = false;
         this.data.newProjectFileName = "";
     }
 
-    public ProjectOpenProjectWebsite(detail?: IProjectDetail | null) {
+    private ProjectOpenProjectWebsite(detail?: IProjectDetail | null) {
         if (detail == null || detail.projectUrl == null) return;
         open(detail.projectUrl, "_blank");
     }
 
     
 
-    public LoadLocalExisting(detail?: IProjectDetail | null) {
+    private LoadLocalExisting(detail?: IProjectDetail | null) {
         var thiss = this;
         if (this.data.projectIsDownloading) return;
         this.CheckRequireSave(() => {

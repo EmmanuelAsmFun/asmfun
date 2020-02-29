@@ -118,7 +118,7 @@ namespace AsmFun.UI.Consolee
         } 
         private void LaunchOnlineIde()
         {
-            OpenUrl("http://asmfun.com");
+            OpenUrl("https://asmfun.com");
             Redraw();
         }
 

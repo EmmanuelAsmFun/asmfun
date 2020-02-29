@@ -50,7 +50,6 @@ export class CursorUI implements ICursorUI{
             this.mouseInfoElement = <any>document.getElementById("mouseInfo");
         
         this.mouseInfoElement.innerHTML = "Ln:" + (editorData.cursorY + 1) + " &nbsp Ch:" + (editorData.cursorX + 1);
-       
     }
 
     public GetRealPosition() {

@@ -59,7 +59,7 @@ export class ZoneManager implements IZoneManager {
     public RemoveZone(zone: IZoneData) {
         var zoneIndex = this.zones.findIndex(x => x === zone);
         if (zoneIndex > -1) this.zones.splice(zoneIndex, 1);
-        zoneIndex = this.Ui.List.findIndex(x => x.Name === name);
+        zoneIndex = this.Ui.List.findIndex(x => x === zone.Ui);
         if (zoneIndex > -1) this.Ui.List.splice(zoneIndex, 1);
     }
     public RemoveZoneByName(name: string) {

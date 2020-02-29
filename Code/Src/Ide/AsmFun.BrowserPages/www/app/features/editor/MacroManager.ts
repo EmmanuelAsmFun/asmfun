@@ -59,7 +59,7 @@ export class MacroManager implements IMacroManager {
     public RemoveMacro(macro: IMacroData) {
         var macroIndex = this.macros.findIndex(x => x === macro);
         if (macroIndex > -1) this.macros.splice(macroIndex, 1);
-        macroIndex = this.Ui.List.findIndex(x => x.Name === name);
+        macroIndex = this.Ui.List.findIndex(x => x === macro.Ui);
         if (macroIndex > -1) this.Ui.List.splice(macroIndex, 1);
     }
     public RemoveMacroByName(name: string) {
