@@ -171,11 +171,12 @@ export class AcmeInterpreter implements IInterpreter{
                         var errorDescription = "";
                         if (parts.length > 1) errorDescription = parts[2].trim();
                         var error: ICompilationError = {
-                            lineNumber: lineNumber,
-                            error: errorKey,
-                            description: errorDescription,
-                            fileName: fileName,
-                            filePath: folder
+                            LineNumber: lineNumber,
+                            Error: errorKey,
+                            Description: errorDescription,
+                            FileName: fileName,
+                            FilePath: folder,
+                            FileIndex:0,
                         };
                         results.push(error);
                     }

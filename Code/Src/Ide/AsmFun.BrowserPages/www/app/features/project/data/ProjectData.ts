@@ -58,6 +58,7 @@ export interface IAddressDataLabelResponse {
 
 
 export interface ISourceCodeFile {
+    requireSave: boolean;
     folder: string;
     fileNameFull: string;
     fileName: string;

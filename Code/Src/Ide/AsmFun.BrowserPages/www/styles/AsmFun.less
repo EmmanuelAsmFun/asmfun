@@ -292,75 +292,90 @@ a:hover {
     }
 
 
-    .Compilation {
-        position: absolute;
-        left: 150px;
-        bottom: 4px;
-        z-index: 1200;
-        text-align: left;
+.Compilation {
+    position: absolute;
+    left: 150px;
+    bottom: 4px;
+    z-index: 1200;
+    text-align: left;
 
-        .c-link-btn {
-            .fa {
-                font-size: 14px;
-            }
-
-            a, a:link, a:visited, a:active {
-                color: #76765a;
-                background: transparent;
-                text-decoration: none;
-                font-size: 12px;
-                padding-right: 3px;
-            }
-
-            a:hover {
-                color: #bdbd92;
-                text-decoration: none;
-            }
+    .c-link-btn {
+        .fa {
+            font-size: 14px;
         }
 
-        .close-btn {
-            position: absolute;
-            right: 3px;
-            top: 3px;
-            cursor: pointer;
-            font-size: 18px;
-            z-index: 10;
+        a, a:link, a:visited, a:active {
+            color: #76765a;
+            background: transparent;
+            text-decoration: none;
+            font-size: 12px;
+            padding-right: 3px;
         }
 
-        .OutputWindow {
-            position: absolute;
-            left: 0px;
-            bottom: 21px;
-            border: 1px solid #333333;
-            padding: 5px;
-            font-size: 11px;
-            background: black;
-            -webkit-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-            -moz-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-            box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
-            z-index: 90;
-            word-wrap: break-word;
-
-            .CompilationResult {
-                min-width: 300px;
-                max-width: 600px;
-                max-height: 110px;
-                overflow-y: scroll;
-                padding-bottom: 20px;
-
-                .hasErrors {
-                    color: #9b0000;
-                }
-            }
-
-
-
-            h3 {
-                font-size: 14px;
-                font-weight: 100;
-                padding: 0;
-                margin: 0;
-                padding-bottom: 5px;
-            }
+        a:hover {
+            color: #bdbd92;
+            text-decoration: none;
         }
     }
+
+    .close-btn {
+        position: absolute;
+        right: 3px;
+        top: 3px;
+        cursor: pointer;
+        font-size: 18px;
+        z-index: 10;
+    }
+
+    .OutputWindow {
+        position: absolute;
+        left: 0px;
+        bottom: 21px;
+        border: 1px solid #333333;
+        padding: 5px;
+        font-size: 11px;
+        background: black;
+        -webkit-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+        -moz-box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+        box-shadow: 0px 0px 26px 6px rgba(0,0,0,0.9);
+        z-index: 90;
+        word-wrap: break-word;
+
+        .CompilationResult {
+            min-width: 300px;
+            max-width: 600px;
+            max-height: 110px;
+            overflow-y: scroll;
+            padding-bottom: 20px;
+
+            .hasErrors {
+                color: @color-errortext;
+            }
+
+            table, tr, td {
+                font-size: 11px;
+                color: @color-errortext;
+            }
+            tr{
+                cursor:pointer;
+            }
+
+            table {
+                margin-bottom: 20px;
+                border-top: 1px solid #444444;
+                border-bottom: 1px solid #444444;
+                width: 100%;
+            }
+        }
+
+
+
+        h3 {
+            font-size: 14px;
+            font-weight: 100;
+            padding: 0;
+            margin: 0;
+            padding-bottom: 5px;
+        }
+    }
+}

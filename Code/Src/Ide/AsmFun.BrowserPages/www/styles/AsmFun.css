@@ -737,7 +737,7 @@ body {
   padding: 0;
 }
 .sourceCode .ln.hasError {
-  color: #9b0000;
+  color: #ca5252;
 }
 .ScLines {
   margin-left: 108px;
@@ -2566,7 +2566,22 @@ button.btn {
   padding-bottom: 20px;
 }
 .Compilation .OutputWindow .CompilationResult .hasErrors {
-  color: #9b0000;
+  color: #ca5252;
+}
+.Compilation .OutputWindow .CompilationResult table,
+.Compilation .OutputWindow .CompilationResult tr,
+.Compilation .OutputWindow .CompilationResult td {
+  font-size: 11px;
+  color: #ca5252;
+}
+.Compilation .OutputWindow .CompilationResult tr {
+  cursor: pointer;
+}
+.Compilation .OutputWindow .CompilationResult table {
+  margin-bottom: 20px;
+  border-top: 1px solid #444444;
+  border-bottom: 1px solid #444444;
+  width: 100%;
 }
 .Compilation .OutputWindow h3 {
   font-size: 14px;

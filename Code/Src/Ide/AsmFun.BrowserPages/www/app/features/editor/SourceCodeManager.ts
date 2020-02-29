@@ -76,14 +76,17 @@ export class SourceCodeManager {
 
     public SaveSourceCode() {
         var thiss = this;
+        
         var bundle = this.editorBundle;
         if (bundle == null) return;
         var scBundle = bundle.data;
         if (scBundle.files == null) return;
         for (var i = 0; i < bundle.files.length; i++) {
             var file = bundle.files[i];
+            if (!file.Ui.RequireSave) continue;
             var scFile = scBundle.files[i];
             if (scFile != null) {
+                scFile.requireSave = file.Ui.RequireSave;
                 scFile.lines = [];
                 for (var j = 0; j < file.lines.length; j++) {
                     var line = file.lines[j];
@@ -148,9 +151,16 @@ export class SourceCodeManager {
         if (this.interpreter == null) this.interpreter = this.PrepareInterpreter();
         var txt = c.rawText;
         if (txt != null)
-            txt = txt.replace(/(?:\r\n|\r|\n)/g,"<br/>");
+            txt = txt
+                .replace(/>/g, '&gt;')
+                .replace(/</g, '&lt;')
+                .replace(/(?:\r\n|\r|\n)/g, "<br/>");
+                
         this.mainData.appData.compilation.compilerResult = txt;
-        this.mainData.appData.compilation.compilerErrors = c.errorText;
+        this.mainData.appData.compilation.compilerErrors =
+            c.errorText != null ? c.errorText
+                                    .replace(/>/g, '&gt;')
+                                    .replace(/</g, '&lt;') : "";
         this.mainData.appData.compilation.hasErrors = c.hasErrors;
 
         if (c.hasErrors) {
@@ -158,22 +168,27 @@ export class SourceCodeManager {
             this.mainData.appData.compilation.isVisible = true;
             var errors = this.interpreter.GetCompilerResultErrors(c);
             if (errors != null) {
+                if (this.editorBundle == null) return;
                 for (var i = 0; i < errors.length; i++) {
                     var error = errors[i];
-                    var file = this.editorBundle?.files.find(x => x.data.fileName == error.fileName);
+                    error.Error = error.Error;
+                    
+                    var file = this.editorBundle.files.find(x => x.data.fileName == error.FileName);
                     if (file == null) {
-                        if (this.lastProjectSettings != null && error.filePath != null)
-                            error.filePath = error.filePath.replace(this.lastProjectSettings.folder, "").replace("..\\", "").replace("../", "");
-                        var fileWithPath = error.filePath + error.fileName;
-                        file = this.editorBundle?.files.find(x => x.data.fileName == fileWithPath);
+                        if (this.lastProjectSettings != null && error.FilePath != null)
+                            error.FilePath = error.FilePath.replace(this.lastProjectSettings.folder, "").replace("..\\", "").replace("../", "");
+                        var fileWithPath = error.FilePath + error.FileName;
+                        file = this.editorBundle.files.find(x => x.data.fileName == fileWithPath);
                     }
                     if (file != null) {
-                        var line = file.lines.find(x => x.data.lineNumber == error.lineNumber);
+                        error.FileIndex = this.editorBundle.files.indexOf(file);
+                        var line = file.lines.find(x => x.data.lineNumber == error.LineNumber);
                         if (line != null) {
+                            error.Line = line.Ui;
                             line.Ui.HasError = true;
                             line.Ui.Error = {
                                 line: line.Ui,
-                                message: error.error + " " + error.description,
+                                message: error.Error + " " + error.Description,
                                 isFromCompiler: true,
                                 compilerName: this.interpreter.GetCompilerName()
                             }

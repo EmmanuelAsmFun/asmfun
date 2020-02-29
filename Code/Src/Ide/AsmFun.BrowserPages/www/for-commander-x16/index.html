@@ -1102,7 +1102,7 @@ programItem.address  | toHex2
                 </div>
                 <div class="content">
                     <h3 v-if="projectManager.projectIsDownloading" style="float:right;">Downloading...</h3>
-                    <p v-if="!projectManager.isNewProject" class="footernote">These are projects I found on GitHub. Hope you like it! If you have a nice project too, tell me, I'll will add it to the list.</p>
+                    <p v-if="!projectManager.isNewProject" class="footernote">These are projects I found on GitHub. Hope you like it! If you have a nice project too, tell me, I'll add it to the list.</p>
                     <div v-if="!projectManager.projectIsDownloading">
                         <div class="project-form">
                             <div v-if="!projectManager.isNewProject" class="start-form">
@@ -1420,6 +1420,15 @@ programItem.address  | toHex2
                 <div>
                     <h3 v-on:click="SwapOutputWindow">Output</h3>
                     <div class="CompilationResult">
+                        <table v-if="compilation.errors != null && compilation.errors.length > 0">
+                            <tr v-for="error in compilation.errors" v-on:click="EditorScrollToLine(error.Line)">
+                                <td> {{error.LineNumber}}</td>
+                                <td> {{error.Error}}</td>
+                                <td> {{error.Description}}</td>
+                                <td> {{error.FileName}}</td>
+                            </tr>
+                        </table>
+
                         <div class="hasErrors" v-html="compilation.compilerErrors"></div>
                         <br />
                         <div v-html="compilation.compilerResult"></div>

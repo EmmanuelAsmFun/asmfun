@@ -251,11 +251,12 @@ export class Cc65Interpreter implements IInterpreter {
                         var fileName = folderParts[folderParts.length - 1];
                         var folder = filePart2.replace(fileName, "");
                         var error: ICompilationError = {
-                            lineNumber: lineNumber,
-                            error: errorType ?? "",
-                            description: compilerName+": "+description,
-                            fileName: fileName,
-                            filePath: folder
+                            LineNumber: lineNumber,
+                            Error: errorType ?? "",
+                            Description: compilerName+": "+description,
+                            FileName: fileName,
+                            FilePath: folder,
+                            FileIndex:0
                         };
                         results.push(error);
                     }

@@ -1,9 +1,13 @@
-﻿export interface ICompilationError {
-    lineNumber: number;
-    error: string;
-    description: string;
-    fileName: string;
-    filePath: string;
+﻿import { IUILine } from "../ui/IUILine";
+
+export interface ICompilationError {
+    FileIndex: number;
+    LineNumber: number;
+    Error: string;
+    Description: string;
+    FileName: string;
+    FilePath: string;
+    Line: IUILine | null;
 }
 export interface ICompilationResult {
     rawText?: string;
