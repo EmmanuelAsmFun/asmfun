@@ -1,89 +1,66 @@
 ﻿import { IZoneManager } from "./data/IZoneManager.js";
-import { IZoneData, IUIZonesData, NewUIZonesData } from "./data/IZonesData.js";
+import { IZoneData, IUIZonesData, NewUIZonesData, IUIZone } from "./data/IZonesData.js";
 import { AsmTools, AsmString } from "../../Tools.js";
 import { IInterpretLine } from "./data/InterpreterData.js";
+import { InterpreterLine } from "./interpreters/InterpreterLine.js";
+import { NavCollection } from "./NavCollection.js";
 
 export class ZoneManager implements IZoneManager {
 
-    private zones: IZoneData[] = [];
-
+    private collection: NavCollection<IZoneData, IUIZone>;
     public Ui: IUIZonesData = NewUIZonesData();
+
+    public constructor() {
+        this.collection = new NavCollection<IZoneData, IUIZone>();
+    }
 
     public SetUIData(uiData: IUIZonesData) {
         this.Ui = uiData;
-        this.Ui.List = [];
-        for (var i = 0; i < this.zones.length; i++) 
-            this.Ui.List.push(this.zones[i].Ui);
-        this.Ui.SearchChanged = () => {
-            var search = AsmString.CleanSearch(this.Ui.Search);
-            this.Ui.List = this.zones.filter(x => AsmString.CompareInsensitive(x.Ui.Name, search)).map(x => x.Ui);
-        }
+        this.collection.SetUIData(uiData);
     }
 
-    public Reset() {
-        this.zones = [];
-        this.Ui.List = [];
-    }
-
-    public AddZone(line: IInterpretLine, zoneName: string): IZoneData {
-        var cleanName = zoneName.replace(":", "");
-        var dirtyName = zoneName;
+    public AddZone(line: IInterpretLine, name: string): IZoneData {
+        var cleanName = name.replace(":", "");
+        var dirtyName = name;
         // Check if it already exists
-        var zone = this.zones.find(x => x.Ui.Name == cleanName);
+        var zone = this.collection.Find(cleanName);
         if (zone != null) {
             // Update Zone
             zone.Line = line;
             return zone;
         }
-        // New Zone
-        zone = this.CreateZone(cleanName, line);
+        zone = this.NewZone(cleanName, line);
+        this.collection.Add(zone);
         zone.DirtyName = dirtyName;
         return zone;
     }
 
-    public CreateZone(name: string, line: IInterpretLine): IZoneData {
-        var zone = this.NewZone(name, line);
-        this.zones.push(zone);
-        this.Ui.List.push(zone.Ui);
-        return zone;
+    public Reset() {
+        this.collection.Reset();
     }
-
     public ParseAddress(name: string, addressNum: number) {
-        var zoneIndex = this.zones.findIndex(x => x.Ui.Name === name);
-        if (zoneIndex < 0) return;
-        var zone = this.zones[zoneIndex];
-        zone.AddressNum = addressNum;
-        zone.Ui.Address = AsmTools.numToHex5(addressNum);
+        this.collection.ParseAddress(name, addressNum);
     }
-
+    public AddUsedBy(zone: IZoneData, lineI: InterpreterLine) {
+        this.collection.AddUsedBy(zone, lineI);
+    }
     public RemoveZone(zone: IZoneData) {
-        var zoneIndex = this.zones.findIndex(x => x === zone);
-        if (zoneIndex > -1) this.zones.splice(zoneIndex, 1);
-        zoneIndex = this.Ui.List.findIndex(x => x === zone.Ui);
-        if (zoneIndex > -1) this.Ui.List.splice(zoneIndex, 1);
+        this.collection.Remove(zone, i => i.ZoneLink = null);
     }
     public RemoveZoneByName(name: string) {
-        var zoneIndex = this.zones.findIndex(x => x.Ui.Name === name);
-        if (zoneIndex > -1) this.zones.splice(zoneIndex, 1);
-        zoneIndex = this.Ui.List.findIndex(x => x.Name === name);
-        if (zoneIndex > -1) this.Ui.List.splice(zoneIndex, 1);
+        this.collection.RemoveByName(name, i => i.ZoneLink = null);
     }
-
-    public Find(name: string): IZoneData | null {
-        var item = this.zones.find(x => x.Ui.Name === name);
-        return item != undefined ? item : null;
+    public Find(zoneName: string): IZoneData | null {
+        return this.collection.Find(zoneName);
     }
     public FindByAddress(address: number): IZoneData | null {
-        var lbl = this.zones.find(x => x.AddressNum === address);
-        return lbl != undefined ? lbl : null;
+        return this.collection.FindByAddress(address);
     }
     public FindByHexAddress(hexAddress: string): IZoneData | null {
-        var lbl = this.zones.find(x => x.Ui.Address === hexAddress);
-        return lbl != undefined ? lbl : null;
+        return this.collection.FindByHexAddress(hexAddress);
     }
-
     public GetAll() {
-        return this.zones;
+        return this.collection.GetAll();
     }
 
     private NewZone(name: string, line: IInterpretLine): IZoneData {
@@ -91,11 +68,15 @@ export class ZoneManager implements IZoneManager {
             AddressNum: 0,
             DirtyName: name,
             Line: line,
+            UsedByLines: [],
             Ui: {
                 Name: name,
                 Address: "",
                 LineNumber: line.LineNumber,
                 FileIndex: line.Ui.FileIndex,
+                Hilite: false,
+                UsedByLines: [],
+                ShowUsedBy: false,
             }
         };
     }

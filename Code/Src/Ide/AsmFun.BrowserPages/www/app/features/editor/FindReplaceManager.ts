@@ -56,6 +56,12 @@ export class FindReplaceManager {
                     this.mainData.commandManager.InvokeCommand(new FindReplaceOpenManagerCommand(true));
                     key.allowContinueEmit = false;
                     evt.ContinuePropagation = false;
+                    setTimeout(() => {
+                        // Todo: change to vue link
+                        var field = document.getElementById("findReplaceField");
+                        if (field != null)
+                            field.focus();
+                    }, 200)
                     return;
             }
         }

@@ -6,35 +6,41 @@ import { ISourceCodeLabel, IAddressDataLabel, IAddressDataLabelResponse } from "
 import { InterpreterLine } from "./interpreters/InterpreterLine.js";
 import { PropertyNumType, IPropertyType } from "./data/EditorData.js";
 import { InterpreterValue } from "./interpreters/InterpreterValue.js";
+import { NavCollection } from "./NavCollection.js";
 
 export class PropertyManager implements IPropertyManager {
 
-    private properties: IInterpretPropertyData[] = [];
+    private collection: NavCollection<IInterpretPropertyData, IUIProperty>;
 
     public Ui: IUIPropertiesData = NewUIPropertiesData();
 
-    public SetUIData(uiData: IUIPropertiesData) {
-        this.Ui = uiData;
-        this.Ui.List = [];
-        for (var i = 0; i < this.properties.length; i++)
-            this.Ui.List.push(this.properties[i].Ui);
-        this.Ui.SearchChanged = () => {
-            var search = AsmString.CleanSearch(this.Ui.Search);
-            this.Ui.List = this.properties.filter(x => AsmString.CompareInsensitive(x.Ui.Name, search)).map(x => x.Ui);
-        }
+    public constructor() {
+        this.collection = new NavCollection<IInterpretPropertyData, IUIProperty>();
     }
 
-    public Reset() {
-        this.properties = [];
-        this.Ui.List = [];
+    public SetUIData(uiData: IUIPropertiesData) {
+        this.Ui = uiData;
+        this.collection.SetUIData(uiData);
     }
+
+
+    private PropMouseHover(uiProp: IUIProperty) {
+        //var prop = this.Find(uiProp.Name);
+        //if (prop == null) return;
+        //if (uiProp.IsMultiValue && ) {
+        //    var result = "";
+
+        //    InterpreterValue.GetNumericValue(this.bundle.PropertyManager, propAddressPart.Text);
+        //}
+    }
+
 
     public AddProperty(line: IInterpretLine, name: string, value: string, propType: IPropertyType): IInterpretPropertyData {
         //if (name === "@start" || name === "start") {
         //    debugger;
         //}
         // Check if it already exists
-        var property = this.properties.find(x => x.Ui.Name == name);
+        var property = this.collection.Find(name);
         if (property != null) {
             // Update Property
             property.Line = line;
@@ -42,27 +48,15 @@ export class PropertyManager implements IPropertyManager {
             return property;
         }
         // New Property
-        property = this.CreateProperty(name, line, propType);
+        property = this.NewProperty(name, line, propType);
+        this.collection.Add(property);
         property.Ui.IsMultiValue = propType.dataLength > 1;
         property.DirtyValue = value;
-        property.Ui.MouseHover = (p) => this.PropMouseHover(p);
+        //property.Ui.MouseHover = (p) => this.PropMouseHover(p);
         return property;
     }
 
-    private CreateProperty(name: string, line: IInterpretLine, propType: IPropertyType): IInterpretPropertyData {
-        var property = this.NewProperty(name, line,propType);
-        this.properties.push(property);
-        this.Ui.List.push(property.Ui);
-        return property;
-    }
-
-    public ParseAddress(name: string, addressNum: number) {
-        var propertyIndex = this.properties.findIndex(x => x.Ui.Name === name);
-        if (propertyIndex < 0) return;
-        var property = this.properties[propertyIndex];
-        property.AddressNum = addressNum;
-        property.Ui.Address = AsmTools.numToHex5(addressNum);
-    }
+  
 
     public ParseValueDatas(newLblValues: IAddressDataLabelResponse[]) {
         for (var i = 0; i < newLblValues.length; i++) {
@@ -127,50 +121,33 @@ export class PropertyManager implements IPropertyManager {
         return strValues;
     }
 
-    private PropMouseHover(uiProp: IUIProperty) {
-        //var prop = this.Find(uiProp.Name);
-        //if (prop == null) return;
-        //if (uiProp.IsMultiValue && ) {
-        //    var result = "";
 
-        //    InterpreterValue.GetNumericValue(this.bundle.PropertyManager, propAddressPart.Text);
-        //}
+    public Reset() {
+        this.collection.Reset();
     }
-
-
+    public ParseAddress(name: string, addressNum: number) {
+        this.collection.ParseAddress(name, addressNum);
+    }
     public AddUsedBy(property: IInterpretPropertyData, lineI: InterpreterLine) {
-        property.UsedByLines.push(lineI.LineNumber);
+        this.collection.AddUsedBy(property, lineI);
     }
-
-
     public RemoveProperty(property: IInterpretPropertyData) {
-        var propertyIndex = this.properties.findIndex(x => x === property);
-        if (propertyIndex > -1) this.properties.splice(propertyIndex, 1);
-        propertyIndex = this.Ui.List.findIndex(x => x === property.Ui);
-        if (propertyIndex > -1) this.Ui.List.splice(propertyIndex, 1);
+        this.collection.Remove(property, i => i.PropertyLink = null);
     }
     public RemovePropertyByName(name: string) {
-        var propertyIndex = this.properties.findIndex(x => x.Ui.Name === name);
-        if (propertyIndex > -1) this.properties.splice(propertyIndex, 1);
-        propertyIndex = this.Ui.List.findIndex(x => x.Name === name);
-        if (propertyIndex > -1) this.Ui.List.splice(propertyIndex, 1);
+        this.collection.RemoveByName(name, i => i.PropertyLink = null);
     }
-
-    public Find(name: string): IInterpretPropertyData | null {
-        var item = this.properties.find(x => x.Ui.Name === name);
-        return item != undefined ? item : null;
+    public Find(propertyName: string): IInterpretPropertyData | null {
+        return this.collection.Find(propertyName);
     }
     public FindByAddress(address: number): IInterpretPropertyData | null {
-        var lbl = this.properties.find(x => x.AddressNum === address);
-        return lbl != undefined ? lbl : null;
+        return this.collection.FindByAddress(address);
     }
     public FindByHexAddress(hexAddress: string): IInterpretPropertyData | null {
-        var lbl = this.properties.find(x => x.Ui.Address === hexAddress);
-        return lbl != undefined ? lbl : null;
+        return this.collection.FindByHexAddress(hexAddress);
     }
-
     public GetAll() {
-        return this.properties;
+        return this.collection.GetAll();
     }
 
     private NewProperty(name: string, line: IInterpretLine,propType: IPropertyType): IInterpretPropertyData {
@@ -195,7 +172,10 @@ export class PropertyManager implements IPropertyManager {
                 IsMultiValue: false,
                 FullValue:"",
                 MouseHover: (i) => { },
-            }
+                ShowUsedBy: false,
+                UsedByLines: [],
+            },
+            DirtyName:"",
         };
     }
    

@@ -21,6 +21,7 @@ import { Cc65Interpreter } from './interpreters/Cc65Interpreter.js';
 import { ProjectService } from '../project/services/ProjectService.js';
 import { IMainData } from '../../framework/data/MainData.js';
 import { ProjectSaveCommand, ProjectSettingsLoaded } from '../project/commands/ProjectsCommands.js';
+import { SourceCodeLoadedAndParsed } from './commands/SourceCodeCommands.js';
 import { ServiceName } from '../../framework/serviceLoc/ServiceName.js';
 import { UIDataNameEditor } from './EditorFactory.js';
 import { IInterpretLine } from './data/InterpreterData.js';
@@ -134,14 +135,17 @@ export class SourceCodeManager {
                 var editorFile = this.Bundle.Files[thiss.data.SelectedFile.Index].Data.File;
                 thiss.RedrawErrorsBar(editorFile);
             }
-            thiss.LoadCompiled(() => { });
+            thiss.LoadCompiled(() => {
+                this.mainData.eventManager.InvokeEvent(new SourceCodeLoadedAndParsed())
+            });
+            
         });
     }
 
     private LoadCompiled(doneMethod: () => void) {
         this.projectService.LoadCompiled(s => {
             this.ParseCompilerResult(s);
-            this.MergeCompile(s.sourceCodeBundle);
+            this.ParseAddressBundleData(s.sourceCodeBundle);
             if (doneMethod != null)
                 doneMethod();
         });
@@ -203,7 +207,7 @@ export class SourceCodeManager {
         }
     }
 
-    private MergeCompile(s: IAddressDataBundle) {
+    private ParseAddressBundleData(s: IAddressDataBundle) {
         if (s.files == null) return;
         if (this.Bundle == null) return;
         this.Bundle.ParseAddressData(s);

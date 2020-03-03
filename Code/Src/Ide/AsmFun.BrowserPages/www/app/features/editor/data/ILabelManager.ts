@@ -1,7 +1,9 @@
 ﻿import { IUILabelsData, ILabelData } from "./ILabelsData.js";
 import { IInterpretLine } from "./InterpreterData.js";
+import { InterpreterLine } from "../interpreters/InterpreterLine.js";
 
 export interface ILabelManager {
+    AddUsedBy(label: ILabelData, lineI: InterpreterLine);
     Find(labelName: string): ILabelData | null;
     FindByAddress(address: number): ILabelData | null;
     FindByHexAddress(hexAddress: string): ILabelData | null;

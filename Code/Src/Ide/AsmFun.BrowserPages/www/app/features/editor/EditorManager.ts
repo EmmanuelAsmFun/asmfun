@@ -24,9 +24,10 @@ import { IUILine } from "./ui/IUILine.js";
 import { IUIFile } from "./ui/IUIFile.js";
 import { IInterpretLine } from "./data/InterpreterData.js";
 import { FindReplaceOpenManagerCommand, FindReplaceSearchNextCommand } from "./commands/FindReplaceCommands.js";
+import { SourceCodeLoadedAndParsed } from "./commands/SourceCodeCommands.js";
 
 export interface IEditorContext {
-    SetCurrentLine(previousLine: IEditorLine);
+    SelectLine(previousLine: IEditorLine);
     RenumberLines(fileIndex: number, startIndex: number, length: number);
     CreateNewLine(fileIndex: number, lineNumber: number): IEditorLine;
     RemoveLine(fileIndex: number, lineNumber: number, doRenumbering:boolean);
@@ -44,6 +45,7 @@ export interface IEditorContext {
 
 
 export class EditorManager implements IEditorContext {
+  
    
 
     private LocalStorageName: string = ".EditorData";
@@ -89,6 +91,8 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLineFromUi(c.line); } });
         mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
         mainData.commandManager.Subscribe2(new EditorClearProjectCommand(), this, (c) => thiss.ClearProject());
+        // Events
+        mainData.eventManager.Subscribe2(new SourceCodeLoadedAndParsed(), this, (c) => thiss.SourceCodeLoadedAndParsed());
 
     }
 
@@ -126,7 +130,13 @@ export class EditorManager implements IEditorContext {
         if (this.currentFile.lines != null)
             this.editorData.maxY = this.currentFile.lines.length;
         this.data.SelectedFile = file.Ui;
+        this.currentFile.Ui.IsSelected = true;
+        this.LoadLastFileCursorPosition();
         
+    }
+
+    private LoadLastFileCursorPosition() {
+        if (this.currentFile == null) return;
         if (this.currentFile.lastCursorX == 0 || this.currentFile.lastCursorX == null) this.currentFile.lastCursorX = 0;
         if (this.currentFile.lastCursorY == 0 || this.currentFile.lastCursorY == null) this.currentFile.lastCursorY = 0;
         var fileEditorData: { x: number, y: number } | null = this.projectManager.ProjectGetProp(this.currentFile.data.fileName + this.LocalStorageName);
@@ -137,7 +147,7 @@ export class EditorManager implements IEditorContext {
             this.editorData.cursorX = this.currentFile.lastCursorX;
             this.editorData.cursorY = this.currentFile.lastCursorY;
         }
-        this.currentFile.Ui.IsSelected = true;
+
         this.cursorLogic.UpdateCursor(this, false);
     }
 
@@ -147,6 +157,18 @@ export class EditorManager implements IEditorContext {
             if (force || this.currentFile == null)
                 this.SelectFile(sourceCode.files[0]);
         }
+    }
+
+    /** Event when the source code is completly loaded */
+    private SourceCodeLoadedAndParsed(): void {
+        // Select the current file again to ensure this file and line are from the new instance.
+        if (this.sourceCodeManager.Bundle == null || this.currentFile == null || this.currentLine ==null) return;
+        var fileIndex = this.currentFile.Index;
+        var lineIndex = this.currentLine.Ui.LineNumber - 1;
+        this.currentFile = null;
+        this.currentLine = null;
+        this.SelectFileByIndex(fileIndex);
+        this.SelectLineByIndex(lineIndex);
     }
 
 
@@ -197,7 +219,11 @@ export class EditorManager implements IEditorContext {
     //#endregion Code Assist
 
 
-    public SetCurrentLine(line: IEditorLine) {
+    public SelectLineByIndex(index: number) {
+        if (this.currentFile == null) return;
+        this.SelectLine(this.currentFile.lines[index]);
+    }
+    public SelectLine(line: IEditorLine) {
         this.currentLine = line;
         if (this.sourceCodeManager.Bundle == null) return;
         this.currentLineI = this.sourceCodeManager.Bundle.GetLine(line);

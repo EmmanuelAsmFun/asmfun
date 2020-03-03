@@ -157,7 +157,7 @@ export class EditorWriter  {
                 //context.currentLine.context.RemoveLine(context.currentLine);
                // (<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
                // this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
-                context.SetCurrentLine(previousLine);
+                context.SelectLine(previousLine);
                 
                 context.RedrawLine();
                 context.cursorLogic.UpdateCursor(context);
@@ -191,7 +191,7 @@ export class EditorWriter  {
             //context.currentLine.context.RemoveLine(currentFile.lines[context.currentLine.data.lineNumber]);
             //(<any>context.currentFile).lines.splice(context.currentLine.data.lineNumber - 1, 1);
             //this.RenumberLines(context, context.currentLine.data.lineNumber - 1, currentFile.lines.length);
-            context.SetCurrentLine(currentFile.lines[lastY]);
+            context.SelectLine(currentFile.lines[lastY]);
             if (context.currentLine != null && context.currentLine.data.sourceCode != null) {
                 context.currentLine.data.sourceCode += textNextLine;
                 context.editorData.maxX = context.currentLine.data.sourceCode.length;

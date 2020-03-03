@@ -105,6 +105,7 @@ export class CommonInterpreter  {
 
 
     public ConvertToPropertyType(propType: string, data: string): IPropertyType {
+        propType = propType.toLowerCase();
         var returnData: IPropertyType = {
             dataItemLength: 0,
             dataLength: 0,

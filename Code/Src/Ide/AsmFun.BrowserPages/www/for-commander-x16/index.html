@@ -281,9 +281,21 @@
                     </span> 
                     <div class="listing-table">
                         <table>
-                            <tr v-for="item in editor.Bundle.Labels.List" v-on:click="EditorScrollToLine(item)" v-bind:id="'lblview'+item.Name">
-                                <td> {{ item.LineNumber}} </td>
-                                <td v-bind:class="{ 'hilite' : item.Hilite }"> {{ item.Name }} </td>
+                            <tr v-for="item in editor.Bundle.Labels.List" v-bind:id="'lblview'+item.Name">
+                                <td  v-on:click="EditorScrollToLine(item)" > {{ item.LineNumber}} </td>
+                                <td v-bind:class="{ 'hilite' : item.Hilite }">
+                                    <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy" 
+                                          v-on:click.ctrl="EditorScrollToLine(item)">{{ item.Name }} </span>
+                                    <span class="UsedByCount">({{item.UsedByLines.length}})</span>
+                                    <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
+                                        <div class="items">
+                                            <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
+                                                <span>{{link.LineNumber}}</span>&nbsp;
+                                                <span>{{link.Text}}</span>
+                                            </div>
+                                        </div>
+                                        </div>
+</td>
                             </tr>
                         </table>
                     </div>
@@ -296,9 +308,22 @@
                     </span>
                     <div class="listing-table">
                     <table>
-                        <tr v-for="item in editor.Bundle.Macros.List" v-on:click="EditorScrollToLine(item)">
-                            <td> {{ item.LineNumber}} </td>
-                            <td> {{ item.Name }} <span class="parameters">{{item.ParametersNames}}</span></td>
+                        <tr v-for="item in editor.Bundle.Macros.List">
+                            <td  v-on:click="EditorScrollToLine(item)"> {{ item.LineNumber}} </td>
+                            <td>
+                                <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy" v-on:click.ctrl="EditorScrollToLine(item)">{{ item.Name }}</span>
+                                <span class="UsedByCount">({{item.UsedByLines.length}})</span>
+                                <span class="parameters" v-on:click="item.ShowUsedBy = !item.ShowUsedBy">{{item.ParametersNames}}</span> 
+                                <span class="UsedByCount">({{item.UsedByLines.length}})</span>
+                                <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
+                                    <div class="items">
+                                        <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
+                                            <span>{{link.LineNumber}}</span>&nbsp;
+                                            <span>{{link.Text}}</span>
+                                        </div>
+                                    </div>
+                                    </div>
+</td>
                         </tr>
                     </table>
                 </div>
@@ -315,7 +340,20 @@
                                 <td>
                                     <span class="ad" v-bind:class="{ 'hilite' : item.Hilite }">{{ item.Address }}</span>
                                 </td>
-                                <td v-bind:class="{ 'hilite' : item.Hilite }"  v-on:click="EditorScrollToLine(item)" v-bind:title="item.FullValue"><span class="p-name">{{ item.Name  }}</span></td>
+                                <td v-bind:class="{ 'hilite' : item.Hilite }" v-bind:title="item.FullValue">
+                                    <span class="p-name">
+                                        <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy" v-on:click.ctrl="EditorScrollToLine(item)">{{ item.Name  }}</span>
+                                        <span class="UsedByCount">({{item.UsedByLines.length}})</span>
+                                    </span>
+                                    <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
+                                        <div class="items">
+                                        <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
+                                            <span>{{link.LineNumber}}</span>&nbsp;
+                                            <span>{{link.Text}}</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td v-bind:class="{ 'hilite' : item.Hilite }">
                                     <input v-bind:id="'labelEdit'+item.LineNumber" v-if="item.IsInEditMode" style="width:30px;"
                                            type="text" v-model="item.NewValue" v-on:keydown="ChangeLabelValue(event,item)" />
@@ -1235,7 +1273,7 @@ programItem.address  | toHex2
         <div class="findreplace" v-if="findReplace.IsVisible">
             <div class="content">
                 <div class="find">
-                    <input type="text" v-model="findReplace.SearchWord" placeholder="Find..."
+                    <input id="findReplaceField" type="text" v-model="findReplace.SearchWord" placeholder="Find..."
                            v-on:keyup.enter="FindReplaceSearch()" v-on:keyup.esc="FindReplaceOpenManager(false)"/>
                     <a v-on:click="FindReplaceSearch()" title="Find Next"><span class="fa fa-arrow-right"></span></a>
                     <a v-on:click="FindReplaceOpenManager(false)" title="Close find and replace"><span class="fa fa-close"></span></a>

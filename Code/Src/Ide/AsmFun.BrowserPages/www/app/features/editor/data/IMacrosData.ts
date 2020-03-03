@@ -1,25 +1,14 @@
-﻿import { IInterpretLine } from "./InterpreterData.js";
+﻿import { INavItem, INavUIItem, INavItemUICollection } from "./INavItemCollection.js";
 
-export interface IMacroData {
+export interface IMacroData extends INavItem<IUIMacro>{
     ParameterNames: string[];
-    DirtyName: string;
-    Ui: IUIMacro,
-    AddressNum: number;
-    Line: IInterpretLine;
 }
 
-export interface IUIMacro {
+export interface IUIMacro extends INavUIItem{
     ParametersNames: string;
-    Name: string;
-    Address: string;
-    LineNumber: number;
-    FileIndex: number;
 }
 
-export interface IUIMacrosData {
-    List: IUIMacro[],
-    Search: string,
-    SearchChanged: () => void,
+export interface IUIMacrosData extends INavItemUICollection<IUIMacro>{
 }
 export function NewUIMacrosData(): IUIMacrosData {
     return {

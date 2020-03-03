@@ -150,6 +150,8 @@ export class InterpreterBundle {
         if (label != null) {
             part.LabelRef = label;
             part.Type = LinePartType.LabelRef;
+            lineI.LabelLink = label;
+            this.LabelManager.AddUsedBy(label, lineI);
             return true;
         }
         // search in macros
@@ -157,6 +159,8 @@ export class InterpreterBundle {
         if (macro != null) {
             part.MacroRef = macro;
             part.Type = LinePartType.MacroRef;
+            lineI.MacroLink = macro;
+            this.MacroManager.AddUsedBy(macro, lineI);
             return true;
         }
         // search in variables
@@ -167,6 +171,7 @@ export class InterpreterBundle {
             property.IsPointer = isPointer;
             lineI.Ui.CanEditProp = true;
             lineI.Ui.Prop = property.Ui;
+            lineI.PropertyLink = property;
             this.PropertyManager.AddUsedBy(property,lineI);
             return true;
         }
@@ -189,7 +194,12 @@ export class InterpreterBundle {
         this.RemoveLineLinks(lineI);
         lineI.ResetSameLineOnly();
         this.Interpreter.InterpretLineParts(this, lineI);
-        this.ParseLinks();
+        var indexRef = this.potentialRefsLines.indexOf(lineI);
+        if (indexRef > -1) {
+            //todo: here
+            var part = this.potentialRefsPart[indexRef];
+            this.ParseLink(lineI, part);
+        }
         lineI.EditorLine.dataCode = lineI.DataCode;
         if (render)
             this.RenderLine(lineI);
@@ -333,6 +343,12 @@ export class InterpreterBundle {
         if (line.Property != null) this.PropertyManager.RemoveProperty(line.Property);
         if (line.Macro != null) this.MacroManager.RemoveMacro(line.Macro);
         if (line.Label != null) this.LabelManager.RemoveLabel(line.Label);
+        var index = this.potentialRefsLines.findIndex(x => x == line);
+        if (index > -1) {
+            line.RemoveLinks();
+            this.potentialRefsLines.splice(index, 1);
+            this.potentialRefsPart.splice(index, 1);
+        }
     }
 
     public GetMacro(name: string) { return this.MacroManager.Find(name); }

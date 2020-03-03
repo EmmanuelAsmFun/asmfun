@@ -1,0 +1,204 @@
+﻿@import "colors";
+
+
+.code-nav {
+    position: fixed;
+    right: 110px;
+    top: 150px;
+    bottom: 60px;
+    min-width: 185px;
+    min-height: 50px;
+    bottom: @footerHeight+2;
+    z-index: 51;
+
+    .code-nav-top {
+        font-size: 12px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        a, a:link, a:visited, a:hover {
+            display: inline-block;
+            background: #a1a17b;
+            color: black;
+            float: left;
+            padding: 1px 8px 1px 8px;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 1px;
+
+            &.selected {
+                background: #222222;
+                color: #a1a17b;
+            }
+        }
+    }
+
+    .listing {
+        clear: both;
+        line-height: 12px;
+        width: 200px;
+        border: 1px solid #313126;
+        position: relative;
+        height: 100%;
+    }
+
+    .listing-table {
+        width: 100%;
+        position: absolute;
+        top: 20px;
+        bottom: 20px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+
+    .ad {
+        padding-right: 10px;
+    }
+
+
+
+    table, tr, td {
+        font-size: 10px;
+        margin: 0;
+        padding: 0;
+    }
+
+    td {
+        padding-right: 5px;
+    }
+
+    .variables {
+        cursor: pointer;
+
+        table, tr, td {
+            color: @color-lbl-memory;
+
+            &.hilite {
+                background: @color-lbl-memory;
+                color: black;
+            }
+        }
+
+        .p-name {
+            display: inline-block;
+            width: 100px;
+            overflow-x: hidden;
+        }
+
+        .ShowUsedBy {
+            border: 1px solid @color-lbl-memory;
+
+            &:after {
+                border-bottom-color: @color-lbl-memory;
+            }
+        }
+    }
+
+    .labels {
+        table, tr, td {
+            color: @color-label;
+
+            &.hilite {
+                background: @color-label;
+                color: black;
+            }
+        }
+
+        .ShowUsedBy {
+            border: 1px solid @color-label;
+
+            &:after {
+                border-bottom-color: @color-label;
+            }
+        }
+    }
+
+    .macros {
+        table, tr, td {
+            color: @color-macro;
+
+            .parameters {
+                color: #777777;
+                font-size: 9px;
+            }
+        }
+
+        .ShowUsedBy {
+            border: 1px solid @color-macro;
+
+            &:after {
+                border-bottom-color: @color-macro;
+            }
+        }
+    }
+
+    .labels, .macros {
+        tr {
+            cursor: pointer;
+
+            &:hover {
+                background: #3d3d30;
+            }
+        }
+    }
+
+    .ShowUsedByItem {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        overflow-x: hidden;
+        white-space: nowrap;
+        font-size: 10px;
+
+        &:hover {
+            background: #3d3d30;
+        }
+    }
+
+    .UsedByCount {
+        color: #999999;
+        font-size: 8px;
+    }
+
+    .ShowUsedBy {
+        position: absolute;
+        margin-top: 3px;
+        z-index: 200;
+        right: 20px;
+        left: 3px;
+        background: black;
+        border: 1px solid #333333;
+        border-radius: .4em;
+        padding: 3px;
+        -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        .items {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-top: 0;
+            border-left: 0;
+            margin-left: -4px;
+            margin-top: -8px;
+        }
+    }
+}

@@ -1,26 +1,18 @@
-﻿import { IInterpretLine } from "./InterpreterData";
+﻿import { INavItem, INavItemUICollection, INavUIItem } from "./INavItemCollection.js";
+import { IInterpretLine } from "./InterpreterData.js";
+import { InterpreterLine } from "../interpreters/InterpreterLine.js";
 
-export interface ILabelData {
-    DirtyName: string;
+
+export interface ILabelData extends INavItem<IUILabel>{
     IsAnonymousLabel: boolean;
     IsLocalLabel: boolean;
-    Ui: IUILabel,
-    AddressNum: number;
-    Line: IInterpretLine;
 }
 
-export interface IUILabel {
-    Name: string;
-    LineNumber: number;
-    Address: string;
-    FileIndex: number;
-    Hilite: boolean;
+export interface IUILabel extends INavUIItem{
+    
 }
 
-export interface IUILabelsData {
-    List: IUILabel[],
-    Search: string,
-    SearchChanged: () => void,
+export interface IUILabelsData extends INavItemUICollection<IUILabel> {
 }
 export function NewUILabelsData(): IUILabelsData {
     return {

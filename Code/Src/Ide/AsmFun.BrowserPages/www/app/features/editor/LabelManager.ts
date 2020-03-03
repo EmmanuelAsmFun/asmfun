@@ -1,40 +1,36 @@
 ﻿import { ILabelManager } from "./data/ILabelManager.js";
-import { ILabelData, IUILabelsData, NewUILabelsData } from "./data/ILabelsData.js";
+import { ILabelData, IUILabelsData, NewUILabelsData, IUILabel } from "./data/ILabelsData.js";
 import { AsmTools, AsmString } from "../../Tools.js";
 import { IInterpretLine } from "./data/InterpreterData.js";
+import { InterpreterLine } from "./interpreters/InterpreterLine.js";
+import { NavCollection } from "./NavCollection.js";
 
 export class LabelManager implements ILabelManager {
-   
 
-    private labels: ILabelData[] = [];
-
+    private collection: NavCollection<ILabelData, IUILabel>;
     public Ui: IUILabelsData = NewUILabelsData();
+
+    public constructor() {
+        this.collection = new NavCollection<ILabelData, IUILabel>();
+    }
 
     public SetUIData(uiData: IUILabelsData) {
         this.Ui = uiData;
-        this.Ui.SearchChanged = () => {
-            var search = AsmString.CleanSearch(this.Ui.Search);
-            this.Ui.List = this.labels.filter(x => AsmString.CompareInsensitive(x.Ui.Name, search)).map(x => x.Ui);
-        }
-    }
-
-    public Reset() {
-        this.labels = [];
-        this.Ui.List = [];
+        this.collection.SetUIData(uiData);
     }
 
     public AddLabel(line: IInterpretLine, name: string, isLocalLabel: boolean): ILabelData {
         var cleanName = name.replace(":", "");
         var dirtyName = name;
         // Check if it already exists
-        var label = this.labels.find(x => x.Ui.Name == cleanName);
+        var label = this.collection.Find(cleanName);
         if (label != null) {
             // Update Label
             label.Line = line;
             return label;
         }
-        // New Label
-        label = this.CreateLabel(cleanName, line);
+        label = this.NewLabel(cleanName, line);
+        this.collection.Add(label);
         label.IsLocalLabel = isLocalLabel;
         label.DirtyName = dirtyName;
         var isNextAn = cleanName == "+" || cleanName.indexOf("++") > -1;
@@ -44,51 +40,33 @@ export class LabelManager implements ILabelManager {
         return label;
     }
 
-    public CreateLabel(name: string, line: IInterpretLine): ILabelData {
-        var label = this.NewLabel(name, line);
-        this.labels.push(label);
-        this.Ui.List.push(label.Ui);
-        return label;
+    public Reset() {
+        this.collection.Reset();
     }
-
     public ParseAddress(name: string, addressNum: number) {
-        var labelIndex = this.labels.findIndex(x => x.Ui.Name === name);
-        if (labelIndex < 0) return;
-        var label = this.labels[labelIndex];
-        label.AddressNum = addressNum;
-        label.Ui.Address = AsmTools.numToHex5(addressNum);
+        this.collection.ParseAddress(name, addressNum);
     }
-
+    public AddUsedBy(label: ILabelData, lineI: InterpreterLine) {
+        this.collection.AddUsedBy(label, lineI);
+    }
     public RemoveLabel(label: ILabelData) {
-        var labelIndex = this.labels.findIndex(x => x === label);
-        if (labelIndex > -1) this.labels.splice(labelIndex, 1);
-        labelIndex = this.Ui.List.findIndex(x => x === label.Ui);
-        if (labelIndex > -1) this.Ui.List.splice(labelIndex, 1);
+        this.collection.Remove(label, i => i.LabelLink = null);
     }
     public RemoveLabelByName(name: string) {
-        var labelIndex = this.labels.findIndex(x => x.Ui.Name === name);
-        if (labelIndex > -1) this.labels.splice(labelIndex, 1);
-        labelIndex = this.Ui.List.findIndex(x => x.Name === name);
-        if (labelIndex > -1) this.Ui.List.splice(labelIndex, 1);
+        this.collection.RemoveByName(name, i => i.LabelLink = null);
     }
-
     public Find(labelName: string): ILabelData | null{
-        var lbl = this.labels.find(x => x.Ui.Name === labelName);
-        return lbl != undefined ? lbl : null;
+        return this.collection.Find(labelName);
     }
     public FindByAddress(address: number): ILabelData | null {
-        var lbl = this.labels.find(x => x.AddressNum === address);
-        return lbl != undefined ? lbl : null;
+        return this.collection.FindByAddress(address);
     }
     public FindByHexAddress(hexAddress: string): ILabelData | null {
-        var lbl = this.labels.find(x => x.Ui.Address === hexAddress);
-        return lbl != undefined ? lbl : null;
+        return this.collection.FindByHexAddress(hexAddress);
     }
-
     public GetAll() {
-        return this.labels;
+        return this.collection.GetAll();
     }
-
 
     private NewLabel(name: string, line: IInterpretLine): ILabelData {
         return {
@@ -97,12 +75,15 @@ export class LabelManager implements ILabelManager {
             IsAnonymousLabel: false,
             DirtyName: name,
             Line: line,
+            UsedByLines:[],
             Ui: {
                 Name: name,
                 Address: "",
                 LineNumber: line.LineNumber,
                 FileIndex: line.Ui.FileIndex,
                 Hilite: false,
+                UsedByLines: [],
+                ShowUsedBy:false,
             }
         };
     }

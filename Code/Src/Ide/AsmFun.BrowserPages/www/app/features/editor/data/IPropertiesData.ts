@@ -1,27 +1,17 @@
-﻿import { IInterpretLine } from "./InterpreterData";
-import { IPropertyType } from "./EditorData";
-import { IUILine } from "../ui/IUILine";
+﻿import { IPropertyType } from "./EditorData.js";
+import { INavItem, INavUIItem, INavItemUICollection } from "./INavItemCollection.js";
 
-export interface IInterpretPropertyData {
+export interface IInterpretPropertyData extends INavItem<IUIProperty>{
     Values: Uint8Array | null;
-    UsedByLines: number[];
     IsPointer: boolean;
-    DirtyValue: string;
-    Ui: IUIProperty,
-    AddressNum: number;
     ValueNum: number;
-    Line: IInterpretLine;
+    DirtyValue: string;
     PType: IPropertyType | null;
 }
 
 
-export interface IUIProperty {
-    Name: string;
-    Address: string;
-    LineNumber: number;
+export interface IUIProperty extends INavUIItem{
     Value: string;
-    Hilite: boolean;
-    FileIndex: number;
     IsInEditMode: boolean,
     NewValue: string, 
     IsMultiValue: boolean,
@@ -29,10 +19,7 @@ export interface IUIProperty {
     MouseHover: (p: IUIProperty) => void,
 }
 
-export interface IUIPropertiesData {
-    List: IUIProperty[],
-    Search: string,
-    SearchChanged: () => void,
+export interface IUIPropertiesData extends INavItemUICollection<IUIProperty> {
 }
 export function NewUIPropertiesData(): IUIPropertiesData {
     return {

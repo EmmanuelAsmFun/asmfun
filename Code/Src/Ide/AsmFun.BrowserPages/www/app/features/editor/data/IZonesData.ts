@@ -1,23 +1,13 @@
 ﻿import { IInterpretLine } from "./InterpreterData";
+import { INavItem, INavUIItem, INavItemUICollection } from "./INavItemCollection";
 
-export interface IZoneData {
-    DirtyName: string;
-    Ui: IUIZone,
-    AddressNum: number;
-    Line: IInterpretLine;
+export interface IZoneData extends INavItem<IUIZone>{
 }
 
-export interface IUIZone {
-    Name: string;
-    LineNumber: number;
-    Address: string;
-    FileIndex: number;
+export interface IUIZone extends INavUIItem{
 }
 
-export interface IUIZonesData {
-    List: IUIZone[],
-    Search: string,
-    SearchChanged: () => void,
+export interface IUIZonesData extends INavItemUICollection<IUIZone>{
 }
 export function NewUIZonesData(): IUIZonesData {
     return {

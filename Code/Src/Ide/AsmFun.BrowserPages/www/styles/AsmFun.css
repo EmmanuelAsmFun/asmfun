@@ -2323,82 +2323,6 @@ body {
   border-top: 2px solid #fff693;
   animation: actifOpcode 0.5s ease-in-out infinite alternate;
 }
-@font-face {
-  font-family: 'robot';
-  src: url('../fonts/roboto.ttf') format('truetype');
-}
-a,
-a:link,
-a:visited,
-a:active,
-a:hover {
-  color: #bfbf1c;
-  text-decoration: none;
-}
-a:hover {
-  color: #e8e80c;
-}
-button.btn {
-  display: inline-block;
-  background: #666666;
-  border: none;
-  padding: 3px 0 3px 0;
-}
-.files {
-  padding-top: 10px;
-  position: fixed;
-  top: 30px;
-  left: 0;
-  height: 300px;
-  width: 150px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  border-right: 1px solid #111111;
-  border-bottom: 1px solid #111111;
-}
-.files .fileName {
-  white-space: nowrap;
-  padding-left: 5px;
-  font-size: 11px;
-  line-height: 16px;
-}
-.files .selectableFile {
-  cursor: pointer;
-}
-.Dissasembly {
-  position: fixed;
-  left: 0px;
-  top: 340px;
-  overflow-y: no-display;
-  width: 140px;
-  z-index: 20;
-  border-right: 1px solid #111111;
-  border-bottom: 1px solid #111111;
-  padding: 5px;
-  font-size: 11px;
-  background: transparent;
-  color: #555555;
-}
-.Dissasembly:hover {
-  color: #999999;
-}
-.Dissasembly .title {
-  margin-bottom: 8px;
-}
-.search-field input {
-  font-size: 10px;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #666666;
-  padding-left: 5px;
-  color: #aaaaaa;
-  display: inline-block;
-  width: 170px;
-}
-.search-field a {
-  cursor: pointer;
-  vertical-align: middle;
-}
 .code-nav {
   position: fixed;
   right: 110px;
@@ -2473,6 +2397,9 @@ button.btn {
 .code-nav td {
   padding-right: 5px;
 }
+.code-nav .variables {
+  cursor: pointer;
+}
 .code-nav .variables table,
 .code-nav .variables tr,
 .code-nav .variables td {
@@ -2489,6 +2416,12 @@ button.btn {
   width: 100px;
   overflow-x: hidden;
 }
+.code-nav .variables .ShowUsedBy {
+  border: 1px solid #00ad5e;
+}
+.code-nav .variables .ShowUsedBy:after {
+  border-bottom-color: #00ad5e;
+}
 .code-nav .labels table,
 .code-nav .labels tr,
 .code-nav .labels td {
@@ -2499,6 +2432,12 @@ button.btn {
 .code-nav .labels td.hilite {
   background: #39b6ff;
   color: black;
+}
+.code-nav .labels .ShowUsedBy {
+  border: 1px solid #39b6ff;
+}
+.code-nav .labels .ShowUsedBy:after {
+  border-bottom-color: #39b6ff;
 }
 .code-nav .macros table,
 .code-nav .macros tr,
@@ -2511,6 +2450,12 @@ button.btn {
   color: #777777;
   font-size: 9px;
 }
+.code-nav .macros .ShowUsedBy {
+  border: 1px solid #32d9d4;
+}
+.code-nav .macros .ShowUsedBy:after {
+  border-bottom-color: #32d9d4;
+}
 .code-nav .labels tr,
 .code-nav .macros tr {
   cursor: pointer;
@@ -2519,59 +2464,33 @@ button.btn {
 .code-nav .macros tr:hover {
   background: #3d3d30;
 }
-.stack {
-  position: fixed;
-  right: 25px;
-  top: 35px;
-  bottom: 30px;
-  color: #11b011;
-  width: 70px;
+.code-nav .ShowUsedByItem {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  overflow-x: hidden;
+  white-space: nowrap;
   font-size: 10px;
-  padding: 5px;
-  z-index: 50;
-  overflow-y: scroll;
 }
-.stack .title {
-  margin-bottom: 8px;
+.code-nav .ShowUsedByItem:hover {
+  background: #3d3d30;
 }
-.stack .isActifOpcode {
-  color: #f0f167;
-  -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
-  -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
-  animation: actifOpcode 0.5s ease-in-out infinite alternate;
+.code-nav .UsedByCount {
+  color: #999999;
+  font-size: 8px;
 }
-.stack::-webkit-scrollbar {
-  display: none;
-}
-.isSelected {
-  background: #333333;
-}
-.statusRBar {
-  width: 7px;
-  font-size: 1px;
-  position: fixed;
-  top: 34px;
-  bottom: 25px;
-  right: 0px;
-  -webkit-touch-callout: none;
-  /* iOS Safari */
-  -webkit-user-select: none;
-  /* Safari */
-  -khtml-user-select: none;
-  /* Konqueror HTML */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* Internet Explorer/Edge */
-  user-select: none;
-  /* Non-prefixed version, currently supported by Chrome and Opera */
-  pointer-events: none;
-}
-.statusRBar .error {
+.code-nav .ShowUsedBy {
   position: absolute;
-  background: #9b0000;
-  height: 5px;
-  width: 7px;
+  margin-top: 3px;
+  z-index: 200;
+  right: 20px;
+  left: 3px;
+  background: black;
+  border: 1px solid #333333;
+  border-radius: 0.4em;
+  padding: 3px;
+  -webkit-box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
   -webkit-touch-callout: none;
   /* iOS Safari */
   -webkit-user-select: none;
@@ -2584,6 +2503,23 @@ button.btn {
   /* Internet Explorer/Edge */
   user-select: none;
   /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.code-nav .ShowUsedBy .items {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.code-nav .ShowUsedBy:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-top: 0;
+  border-left: 0;
+  margin-left: -4px;
+  margin-top: -8px;
 }
 .Compilation {
   position: absolute;
@@ -2662,4 +2598,146 @@ button.btn {
   padding: 0;
   margin: 0;
   padding-bottom: 5px;
+}
+@font-face {
+  font-family: 'robot';
+  src: url('../fonts/roboto.ttf') format('truetype');
+}
+a,
+a:link,
+a:visited,
+a:active,
+a:hover {
+  color: #bfbf1c;
+  text-decoration: none;
+}
+a:hover {
+  color: #e8e80c;
+}
+button.btn {
+  display: inline-block;
+  background: #666666;
+  border: none;
+  padding: 3px 0 3px 0;
+}
+.files {
+  padding-top: 10px;
+  position: fixed;
+  top: 30px;
+  left: 0;
+  height: 300px;
+  width: 150px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-right: 1px solid #111111;
+  border-bottom: 1px solid #111111;
+}
+.files .fileName {
+  white-space: nowrap;
+  padding-left: 5px;
+  font-size: 11px;
+  line-height: 16px;
+}
+.files .selectableFile {
+  cursor: pointer;
+}
+.Dissasembly {
+  position: fixed;
+  left: 0px;
+  top: 340px;
+  overflow-y: no-display;
+  width: 140px;
+  z-index: 20;
+  border-right: 1px solid #111111;
+  border-bottom: 1px solid #111111;
+  padding: 5px;
+  font-size: 11px;
+  background: transparent;
+  color: #555555;
+}
+.Dissasembly:hover {
+  color: #999999;
+}
+.Dissasembly .title {
+  margin-bottom: 8px;
+}
+.search-field input {
+  font-size: 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #666666;
+  padding-left: 5px;
+  color: #aaaaaa;
+  display: inline-block;
+  width: 170px;
+}
+.search-field a {
+  cursor: pointer;
+  vertical-align: middle;
+}
+.stack {
+  position: fixed;
+  right: 25px;
+  top: 35px;
+  bottom: 30px;
+  color: #11b011;
+  width: 70px;
+  font-size: 10px;
+  padding: 5px;
+  z-index: 50;
+  overflow-y: scroll;
+}
+.stack .title {
+  margin-bottom: 8px;
+}
+.stack .isActifOpcode {
+  color: #f0f167;
+  -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+  -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+  animation: actifOpcode 0.5s ease-in-out infinite alternate;
+}
+.stack::-webkit-scrollbar {
+  display: none;
+}
+.isSelected {
+  background: #333333;
+}
+.statusRBar {
+  width: 7px;
+  font-size: 1px;
+  position: fixed;
+  top: 34px;
+  bottom: 25px;
+  right: 0px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+  pointer-events: none;
+}
+.statusRBar .error {
+  position: absolute;
+  background: #9b0000;
+  height: 5px;
+  width: 7px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
 }

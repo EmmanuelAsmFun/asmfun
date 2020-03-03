@@ -35,6 +35,11 @@ export class InterpreterLine implements IInterpretLine{
     public MacroFound: boolean = false;
     public Label: ILabelData | null = null;
     public LabelFound: boolean = false;
+    // Links
+    public PropertyLink: IInterpretPropertyData | null = null;
+    public MacroLink: IMacroData | null = null;
+    public LabelLink: ILabelData | null = null;
+    public ZoneLink: IZoneData | null = null;
 
     public Ui: IUILine;
     public Log: boolean = false;
@@ -43,6 +48,7 @@ export class InterpreterLine implements IInterpretLine{
     public DataCode: string = "";
     public LineNumber: number = 0;
     public AddressNum: number = 0;
+   
     
 
     constructor(line: IEditorLine, bundle: InterpreterBundle, block: InterpreterBlock) {
@@ -78,6 +84,10 @@ export class InterpreterLine implements IInterpretLine{
         this.MacroFound = false;
         this.Label = null;
         this.LabelFound = false;
+        // Links
+        this.LabelLink = null;
+        this.PropertyLink = null;
+        this.MacroLink = null;
 
         this.Type = LineType.Unknown;
         this.DataCode = "";
@@ -89,6 +99,36 @@ export class InterpreterLine implements IInterpretLine{
         ResetLineProperties(this.EditorLine);
     }
 
+    public RemoveLinks() {
+        if (this.LabelLink != null) {
+            var index = this.LabelLink.UsedByLines.indexOf(this);
+            if (index > -1) {
+                this.LabelLink.UsedByLines.splice(index, 1);
+                this.LabelLink.Ui.UsedByLines.splice(index, 1);
+            }
+        }
+        if (this.MacroLink != null) {
+            var index = this.MacroLink.UsedByLines.indexOf(this);
+            if (index > -1) {
+                this.MacroLink.UsedByLines.splice(index, 1);
+                this.MacroLink.Ui.UsedByLines.splice(index, 1);
+            }
+        }
+        if (this.ZoneLink != null) {
+            var index = this.ZoneLink.UsedByLines.indexOf(this);
+            if (index > -1) {
+                this.ZoneLink.UsedByLines.splice(index, 1);
+                this.ZoneLink.Ui.UsedByLines.splice(index, 1);
+            }
+        }
+        if (this.PropertyLink != null) {
+            var index = this.PropertyLink.UsedByLines.indexOf(this);
+            if (index > -1) {
+                this.PropertyLink.UsedByLines.splice(index, 1);
+                this.PropertyLink.Ui.UsedByLines.splice(index, 1);
+            }
+        }
+    }
 
    
     public GetLineParts() {

@@ -253,7 +253,7 @@ export class CursorLogic {
 
     private UpdateLine(ctx: IEditorContext) {
         if (ctx.currentFile != null && ctx.currentFile.lines != null && ctx.currentFile.lines.length >= ctx.editorData.cursorY) {
-            ctx.SetCurrentLine(ctx.currentFile.lines[ctx.editorData.cursorY]);
+            ctx.SelectLine(ctx.currentFile.lines[ctx.editorData.cursorY]);
             if (ctx.currentLine == null) return;
             ctx.editorData.maxX = ctx.currentLine.data.sourceCode.length;
             // var exactWidth = ctx.currentLine.sourceCode.length
