@@ -21,6 +21,8 @@ https://murray2.com/forums/commander-x16.9/
 - Label/Zone/Variable search
 - Compile On Save
 - Find And replace
+- Easy Variable, Macro's and Label Links, navigate or find all usages.
+
 
 ### Emulator
 - Embedded Emulator
@@ -74,8 +76,7 @@ Now I only used:
 
 # Features coming
 - Variable renaming
-- Variable Links
-- Label links
+
 - cc65 compiler : More features
 - Tile and Map painter
 - Labels in memory viewer
