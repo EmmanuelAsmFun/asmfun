@@ -5,7 +5,7 @@ Discover here:
 https://asmfun.com
 
 I created this as a hobby learning project. 
-The userinterface runs in a browser (Typescript), the Commander-X16 runs on a local exe written in .net Core 3.0. For now, it uses the ACME compiler, but everything is prepared for other compilers.
+The userinterface runs in a browser (Typescript), the Commander-X16 runs on a local exe written in .net Core 3.1. For now, it uses the ACME compiler, but everything is prepared for other compilers.
 
 # for Commander-X16
 This project is specially build for the Commander-X16, David Murray, the 8-bit Guy.
@@ -104,10 +104,10 @@ Before starting it's best to set the projects folder in the settings, this can b
 ## For SourceCode
 Follow the steps on microsofts website
 https://docs.microsoft.com/en-us/dotnet/core/install/linux-package-manager-ubuntu-1804
-Install the .net core version 3.0, so run
+Install the .net core version 3.1, so run
 ```sh
- sudo apt-get install dotnet-sdk-3.0
- sudo apt-get install aspnetcore-runtime-3.0
+ sudo apt-get install dotnet-sdk-3.1
+ sudo apt-get install aspnetcore-runtime-3.1
  sudo apt-get install dotnet-runtime-3.1
 ````
 
