@@ -6,8 +6,10 @@
 
 
 using AsmFun.Common.ServiceLoc;
+using AsmFun.Computer.Common.IO;
 using AsmFun.Ide.Core.Features.Files;
 using AsmFun.NetCore.Startup;
+using AsmFun.Startup;
 using AsmFun.WPF.EnvTools;
 
 namespace AsmFun.WPF.Startup
@@ -18,6 +20,7 @@ namespace AsmFun.WPF.Startup
         {
             new AsmNetCoreRegisterer().Configure(container);
             container.Add<IFileSelectorPopup, FileSelectorPopup>();
+            container.Add<IJoystickReader, SDLJoystickReader>();
         }
     }
 }

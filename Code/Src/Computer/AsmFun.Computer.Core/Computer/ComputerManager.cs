@@ -198,6 +198,24 @@ namespace AsmFun.Computer.Core.Computer
             return Computer.GetLoadedMemoryBlocks();
         }
 
+        public void MouseButtonDown(int index)
+        {
+            if (Computer == null) return;
+            Computer.MouseButtonDown(index);
+        }
+
+        public void MouseButtonUp(int index)
+        {
+            if (Computer == null) return;
+            Computer.MouseButtonUp(index);
+        }
+
+        public void MouseMove(int x, int y)
+        {
+            if (Computer == null) return;
+            Computer.MouseMove(x,y);
+        }
+
         private class ComputerFactoryItem
         {
             public ComputerSettings ComputerSettings { get; set; }

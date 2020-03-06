@@ -41,5 +41,9 @@ namespace AsmFun.Computer.Common.Computer
         void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
         void WriteMemoryBlock(int startAddress, byte[] data, int count);
         List<MemoryDumpData> GetLoadedMemoryBlocks();
+
+        void MouseButtonDown(int index);
+        void MouseButtonUp(int index);
+        void MouseMove(int x, int y);
     }
 }

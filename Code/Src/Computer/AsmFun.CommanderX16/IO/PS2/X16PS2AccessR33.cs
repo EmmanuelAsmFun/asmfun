@@ -380,5 +380,19 @@ namespace AsmFun.CommanderX16.IO
         {
             throw new NotImplementedException();
         }
+
+        public void MouseButtonDown(int num)
+        {
+            buttons = (byte)(buttons | 1 << num);
+        }
+
+        public void MouseButtonUp(int num)
+        {
+            buttons = (byte)(buttons & (1 << num) ^ 0xff);
+        }
+
+        public void MouseMove(int x, int y)
+        {
+        }
     }
 }

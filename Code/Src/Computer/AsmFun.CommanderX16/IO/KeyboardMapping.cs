@@ -75,6 +75,8 @@ namespace AsmFun.CommanderX16.IO
             new KeyMap('@', 0X111, 0x14,0x1E),new KeyMap('#', 0x59, 0x26),
             // Specials
             new KeyMap('\n', 0x5A),
+            new KeyMap((char)22, 0x2A), // CTRL + V
+
                 };
 
 

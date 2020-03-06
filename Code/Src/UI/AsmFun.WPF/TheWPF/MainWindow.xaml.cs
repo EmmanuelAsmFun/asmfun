@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -31,6 +32,7 @@ namespace AsmFun.WPF
     /// </summary>
     public partial class MainWindow : Window, IComputerDisplay
     {
+        private bool isClosing;
         private bool newFrame = false;
         private bool bgHasChanged = false;
         private IntPtr framebuffer;
@@ -40,7 +42,7 @@ namespace AsmFun.WPF
         private int StrideSize;
         internal IEmServiceResolverFactory Container { get; set; }
         private IKeyboardAccess keyboardAccess;
-        Int32Rect theRect;
+        private Int32Rect theRect;
         private int programCounter = 0;
         private Stopwatch _stopwatchWPF = new Stopwatch();
         private Stopwatch _stopwatchFramePaint = new Stopwatch();
@@ -53,6 +55,11 @@ namespace AsmFun.WPF
         private bool isInitialized;
         private List<Image> sprites = new List<Image>();
         private SDLSound sound;
+        private int lastMousePositionX;
+        private int lastMousePositionY;
+        private bool isNewFrameForActions = false;
+        private Queue<Action<IComputerManager>> toSendInComputer = new Queue<Action<IComputerManager>>();
+        private Queue<Action<IKeyboardAccess>> toSendInKeyboardAccess = new Queue<Action<IKeyboardAccess>>();
 
         public MainWindow()
         {
@@ -61,19 +68,50 @@ namespace AsmFun.WPF
             Closing += MainWindow_Closing;
             KeyDown += MainWindow_KeyDown;
             KeyUp += MainWindow_KeyUp;
+            MouseLeftButtonDown += (s,e) => ExcecuteSafeOnComputer(c => c.MouseButtonDown(0));
+            MouseLeftButtonUp += (s, e) => ExcecuteSafeOnComputer(c => c.MouseButtonUp(0));
+            MouseRightButtonDown += (s, e) => ExcecuteSafeOnComputer(c => c.MouseButtonDown(1));
+            MouseRightButtonUp += (s, e) => ExcecuteSafeOnComputer(c => c.MouseButtonUp(1));
+            MouseMove += (s, e) =>
+            {
+                var pos = e.GetPosition(myCont);
+                var newX = (int)Math.Floor(pos.X);
+                var newY = (int)Math.Floor(pos.Y);
+                if ((newX == lastMousePositionX && newY == lastMousePositionY) || newX > 640 || newX <0 || newY <0 || newY > 480) return;
+                var newPosX = newX - lastMousePositionX;
+                var newPosY = newY - lastMousePositionY;
+                //Console.WriteLine($"MouseUI {newX} x {newY} \t\t {newPosX} x {newPosY}");
+                ExcecuteSafeOnComputer(c => c.MouseMove(newPosX, newPosY));
+                lastMousePositionX = newX;
+                lastMousePositionY = newY;
+            };
             sound = new SDLSound();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
-            if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_AUDIO) < 0)
+            if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_AUDIO | SDL2.SDL.SDL_INIT_GAMECONTROLLER) < 0)
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
             sound.Init();
             Topmost = true;
+        }
+
+      
+        private void ExcecuteSafeOnComputer(Action<IComputerManager> action)
+        {
+            try
+            {
+                lock (toSendInComputer)
+                    toSendInComputer.Enqueue(action);
+                
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
+                isClosing = true;
+                joystickReader.Dispose();
                 SDL2.SDL.SDL_Quit();
                 isClosed = true;
                 var computerManager = Container.Resolve<IComputerManager>();
@@ -116,11 +154,14 @@ namespace AsmFun.WPF
             if (isInitialized) return;
             var computerManager = Container.Resolve<IComputerManager>();
             displayComposer = Container.Resolve<IDisplayComposer>();
+            joystickReader = Container.Resolve<IJoystickReader>();
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
             computer.SetWriteAudioMethod(sound.WriteAudio);
             keyboardAccess = computer.GetKeyboard();
+            // Todo: Find a solution to make a sdl window to be able to use the joystick
+            joystickReader.Init();
             _stopwatchWPF.Start();
             //ResizeInterBG();
             isInitialized = true;
@@ -131,6 +172,7 @@ namespace AsmFun.WPF
             newFrame = true;
             this.bgHasChanged = bgHasChanged;
             this.framebuffer = framebuffer;
+            isNewFrameForActions = true;
         }
 
 
@@ -139,6 +181,31 @@ namespace AsmFun.WPF
             this.mhzRunning = mhzRunning;
             this.programCounter = programCounter;
             _frameCounterGameEngine++;
+      
+            // Send new actions in processor thread.
+            if (!isNewFrameForActions) return;
+            isNewFrameForActions = false;
+            if (toSendInComputer.Count > 0)
+            {
+                var computerManager = Container.Resolve<IComputerManager>();
+                while (toSendInComputer.Count > 0)
+                {
+                    Action<IComputerManager> toSendItem;
+                    lock (toSendInComputer)
+                        toSendItem = toSendInComputer.Dequeue();
+                    toSendItem(computerManager);
+                }
+            }
+            if (toSendInKeyboardAccess.Count > 0)
+            {
+                while (toSendInKeyboardAccess.Count > 0)
+                {
+                    Action<IKeyboardAccess> toSendItem;
+                    lock (toSendInKeyboardAccess)
+                        toSendItem = toSendInKeyboardAccess.Dequeue();
+                    toSendItem(keyboardAccess);
+                }
+            }
         }
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
@@ -174,6 +241,8 @@ namespace AsmFun.WPF
                 StepSprite();
                 newFrame = false;
             }
+            joystickReader.UpdateStates();
+            if (isClosing) return;
         }
 
         #region Keyboard
@@ -184,9 +253,10 @@ namespace AsmFun.WPF
             {
                 if (keyboardAccess == null) return;
                 if (e.Key == Key.V && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0)
-                    keyboardAccess.SetClipBoard(Clipboard.GetText().ToLower());
+                    keyboardAccess.SetClipBoard(Clipboard.GetText());
                 var keyChar = KeyboardHelper.GetCharFromKey(e.Key);
-                keyboardAccess.KeyDown(keyChar, (byte)e.Key);
+                lock (toSendInKeyboardAccess)
+                    toSendInKeyboardAccess.Enqueue(k => k.KeyDown(keyChar, (byte)e.Key));
             }
             catch (Exception)
             {
@@ -198,7 +268,8 @@ namespace AsmFun.WPF
             {
                 if (keyboardAccess == null) return;
                 var keyChar = KeyboardHelper.GetCharFromKey(e.Key);
-                keyboardAccess.KeyUp(keyChar, (byte)e.Key);
+                lock (toSendInKeyboardAccess)
+                    toSendInKeyboardAccess.Enqueue(k => k.KeyUp(keyChar, (byte)e.Key));
             }
             catch (Exception)
             {
@@ -241,6 +312,7 @@ namespace AsmFun.WPF
             if (isClosed) return;
             Dispatcher.Invoke(() =>
             {
+                
                 Close();
             });
         }
@@ -260,6 +332,7 @@ namespace AsmFun.WPF
             img.Source = wbitmap;
             bgHasChanged = false;
         }
+   
 
         #region Palette
         public void InitPalette(IVideoPaletteAccess paletteAccess)
@@ -291,6 +364,7 @@ namespace AsmFun.WPF
         #region Sprites 
         private ISpriteAccess spriteAccess;
         private IDisplayComposer displayComposer;
+        private IJoystickReader joystickReader;
         private BitmapPalette palette0;
         private BitmapPalette palette1;
         private IVideoPaletteAccess paletteAccess;
@@ -354,6 +428,8 @@ namespace AsmFun.WPF
         private IntPtr newLyerData0;
         private IntPtr newLyerData1;
         VideoLayerData[] videoLayerDatas = new[] { new VideoLayerData(0), new VideoLayerData(1) };
+        
+
         public void RequestRedrawLayer(int layerIndex, IntPtr colorIndexes, VideoLayerData videoLayerData)
         {
             if (layerIndex == 0)

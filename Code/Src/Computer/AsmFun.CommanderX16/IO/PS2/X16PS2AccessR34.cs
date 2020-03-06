@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AsmFun.Computer.Common.Computer;
+using System;
+using System.Collections.Generic;
 
 namespace AsmFun.CommanderX16.IO
 {
@@ -9,6 +11,7 @@ namespace AsmFun.CommanderX16.IO
 		public readonly int PS2_DATA_MASK = 1;
 		public readonly int PS2_CLK_MASK = 2;
 		private readonly int PS2_BUFFER_SIZE = 32;
+		private readonly IComputerDisplay computerDisplay;
 		private byte buttons;
 		private short mouse_diff_x = 0;
 		private short mouse_diff_y = 0;
@@ -48,7 +51,7 @@ namespace AsmFun.CommanderX16.IO
 			}
 		}
 
-		public X16PS2AccessR34()
+		public X16PS2AccessR34(IComputerDisplay computerDisplay)
 		{
 			state = new PS2State[2];
 			for (int i = 0; i < 2; i++)
@@ -56,6 +59,7 @@ namespace AsmFun.CommanderX16.IO
 			ps2_port = new PS2Port[2];
 			for (int i = 0; i < 2; i++)
 				ps2_port[i] = new PS2Port();
+			this.computerDisplay = computerDisplay;
 		}
 
 		public bool ps2_buffer_can_fit(int i, int n)
@@ -187,7 +191,8 @@ namespace AsmFun.CommanderX16.IO
 		}
 
 
-	
+
+
 
 		// byte 0, bit 7: Y overflow
 		// byte 0, bit 6: X overflow
@@ -225,6 +230,7 @@ namespace AsmFun.CommanderX16.IO
 
 		private void mouse_send_state()
 		{
+			//Console.WriteLine($"Mouse {mouse_diff_x} x {mouse_diff_y}  b={buttons}");
 			if (mouse_diff_x > 255)
 			{
 				mouse_send(255, 0, buttons);
@@ -253,20 +259,21 @@ namespace AsmFun.CommanderX16.IO
 		}
 
 
-		private void mouse_button_down(int num)
+		public void MouseButtonDown(int num)
 		{
-			buttons = (byte)(buttons | 1 << num);
+			buttons |= (byte)(buttons | 1 << num);
 			mouse_send_state();
 		}
 
-		private void mouse_button_up(int num)
+		public void MouseButtonUp(int num)
 		{
-			buttons = (byte)(buttons & (1 << num) ^ 0xff);
+			buttons &= (byte)(buttons & (1 << num) ^ 0xff);
 			mouse_send_state();
 		}
 
-		private void mouse_move(int x, int y)
+		public void MouseMove(int x, int y)
 		{
+			//Console.WriteLine($"Mouse {x} x {y} \t {mouse_diff_x} x {mouse_diff_y}  b={buttons}");
 			mouse_diff_x = (short)(mouse_diff_x + x);
 			mouse_diff_y = (short)(mouse_diff_y + y);
 			mouse_send_state();
@@ -313,8 +320,9 @@ namespace AsmFun.CommanderX16.IO
 		}
 		public void KeyPressed(byte keyCode)
 		{
-			lock (pressedKeys)
-				pressedKeys.Enqueue(keyCode);
+			//lock (pressedKeys)
+			//	pressedKeys.Enqueue(keyCode);
+			ps2_buffer_add(0, keyCode);
 		}
 
 		

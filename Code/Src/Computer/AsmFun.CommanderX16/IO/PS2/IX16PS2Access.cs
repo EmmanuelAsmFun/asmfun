@@ -11,6 +11,8 @@ namespace AsmFun.CommanderX16.IO
 
         byte GetValueForViaPB(byte via2reg2);
         void SetDataFromViaPB(byte via2reg0, byte via2reg2);
-
-	}
+        void MouseButtonDown(int index);
+        void MouseButtonUp(int index);
+        void MouseMove(int x, int y);
+    }
 }

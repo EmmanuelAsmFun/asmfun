@@ -60,9 +60,19 @@ namespace AsmFun.Startup
                     quit = keyboardSDL.DoKeyDown(e.key.keysym.sym); break;
                 case SDL2.SDL.SDL_EventType.SDL_KEYUP:
                     quit = keyboardSDL.DoKeyUp(e.key.keysym.sym); break;
+                case SDL2.SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN: container.Resolve<IComputerManager>().MouseButtonDown(e.button.button == SDL2.SDL.SDL_BUTTON_LEFT ? 0 : 1); break;
+                case SDL2.SDL.SDL_EventType.SDL_MOUSEBUTTONUP: container.Resolve<IComputerManager>().MouseButtonUp(e.button.button == SDL2.SDL.SDL_BUTTON_LEFT ? 0 : 1); break;
+                case SDL2.SDL.SDL_EventType.SDL_MOUSEMOTION:
+                    if (lastMouseX == e.motion.x && lastMouseY == e.motion.y) break; 
+                    container.Resolve<IComputerManager>().MouseMove(e.motion.x - lastMouseX, e.motion.y - lastMouseY);
+                    lastMouseX = e.motion.x;
+                    lastMouseY = e.motion.y;
+                    break;
             }
             return quit;
         }
+        private int lastMouseX;
+        private int lastMouseY;
 
         public void Dispose()
         {

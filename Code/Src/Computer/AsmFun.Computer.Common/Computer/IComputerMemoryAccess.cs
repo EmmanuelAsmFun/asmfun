@@ -33,6 +33,7 @@ namespace AsmFun.Computer.Common.Computer
         void WriteROM(byte[] bytes, int startIndex = 0);
         void WriteUShort(int address, ushort value);
         void WriteBlock(int startAddress, byte[] data, int count);
+        void WriteBlock(byte[] data, int startOffset, int startTargetAddress, int count);
         void WriteBlock(MemoryAddressType type, byte[] data, int startOffset, int startTargetAddress,  int count);
 
         ProcessorStackModel ReadStack(int bytesCount);

@@ -21,6 +21,11 @@ namespace AsmFun.Computer.Core.Computer
         {
         }
 
+        public int[] GetMouseInfo()
+        {
+            return new[] { 0, 0,0,0 };
+        }
+
         public void Init(int width, int height)
         {
         }

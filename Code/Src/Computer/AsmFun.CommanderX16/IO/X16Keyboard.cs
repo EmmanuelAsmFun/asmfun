@@ -6,18 +6,22 @@
 
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.IO;
+using AsmFun.Computer.Common.Memory;
 using AsmFun.Computer.Core.IO;
 using System;
 using System.Collections.Generic;
+
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AsmFun.CommanderX16.IO
 {
     public class X16Keyboard: KeyboardAccess 
     {
-
+        private ushort NDX = 0x00A00A;
+        private ushort KEYD = 0x00A000;
 
         private int EXTENDED_FLAG = 0x100;
         private bool isRunningPasteMethod = false;
@@ -27,104 +31,101 @@ namespace AsmFun.CommanderX16.IO
         private readonly IX16PS2Access ps2;
         private readonly IKeyboardMapping keyboardMapping;
         private char[] invalidChars = new char[] { '{', '}', '\t', '_' };
+        private byte[] pasteText;
+        private bool isPasting = false;
+        private int lastPasteOffset;
         
 
-        public X16Keyboard(IX16PS2Access ps2, IComputerMemoryAccess memoryAccess, IKeyboardMapping keyboardMapping)
+        public X16Keyboard(IX16PS2Access ps2, IComputerMemoryAccess memoryAccess, IKeyboardMapping keyboardMapping, ISymbolsDA symbolsDA)
          : base(memoryAccess)
         {
             this.ps2 = ps2;
             this.keyboardMapping = keyboardMapping;
+            var ndx = symbolsDA.GetAsShort(nameof(NDX));
+            if (ndx != 0) NDX = ndx;
+            var keyd = symbolsDA.GetAsShort(nameof(KEYD));
+            if (keyd != 0) KEYD = keyd;
         }
 
-       
-     
+        public override void Step()
+        {
+            if (!isPasting)
+                return;
+            var ndx = memoryAccess.ReadByte(NDX);
+            var canWrite = (byte)(10 - ndx);
+            if (canWrite == 0) return;
+            var address = KEYD;
+            var toWrite = pasteText.Length - lastPasteOffset;
+            if (toWrite == 0) {
+                return;
+            }
+            if (toWrite > canWrite)
+                toWrite = canWrite;
+            memoryAccess.WriteBlock(pasteText, lastPasteOffset, address+ ndx, toWrite);
+            ndx += (byte)toWrite;
+            memoryAccess.WriteByte(NDX, ndx);
+            lastPasteOffset += toWrite;
+            //ndx = memoryAccess.ReadByte(NDX);
+            //var bytes = memoryAccess.ReadBlock(address, 16);
+            //Console.WriteLine("EndPAste NDX={0} |bytes={1}" ,ndx, string.Join(',', bytes));
+            if (lastPasteOffset >= pasteText.Length)
+            {
+                isPasting = false;
+                var thread = System.Threading.Thread.CurrentThread;
+                Task.Run(() =>
+                {
+                    // we need to press the 'V' key to terminate...strange?!
+                    Task.Delay(200).Wait();
+                    DoScanCodeDown(0x2A);
+                    Task.Delay(50).Wait();
+                    DoScanCodeUp(0x2A); 
+                    // backspace ... remove V
+                    Task.Delay(200).Wait();
+                    DoScanCodeDown(0x66);
+                    Task.Delay(50).Wait();
+                    DoScanCodeUp(0x66);
+                });
+            }
+        }
+
+
+        public override void PressText(string data)
+        {
+            //Console.BackgroundColor = ConsoleColor.Black;
+            //Console.ForegroundColor = ConsoleColor.Gray;
+            //Console.WriteLine();
+            //Console.WriteLine();
+            //Console.WriteLine("Paste Text=" + data);
+            if (string.IsNullOrWhiteSpace(data)) return;
+            pasteText = Encoding.UTF8.GetBytes(data);
+            for (int i = 0; i < pasteText.Length; i++)
+                pasteText[i] = X16Encoding.Iso8859_15_FromUnicode(pasteText[i]);
+            lastPasteOffset = 0;
+            isPasting = true;
+           
+        }
+
+
+
         public override void SelectKeyMap(byte keymapIndex)
         {
             if (!keyboardMapping.Select(keymapIndex)) return;
             base.SelectKeyMap(keymapIndex);
             memoryAccess.WriteByte(0x9fb0 + 13, keymapIndex);
         }
-
-
-
-
+        
         public override void KeyDown(char kk3, int theKey)
         {
-            Console.Write(kk3 + " " + (int)kk3+" ");
-            if (isRunningPasteMethod) return;
+            var hex = theKey.ToString("X2");
+            //Console.Write($"KeyDown ={kk3} (0x{hex}) {(int)kk3} |");
             HandlePressedKey(new KeyQueueItem(kk3, theKey, true));
         }
         public override void KeyUp(char kk3, int theKey)
         {
-            if (isRunningPasteMethod) return;
+            var hex = theKey.ToString("X2");
+            //Console.Write($"KeyUp ={kk3} (0x{hex}) {(int)kk3} |");
             HandlePressedKey(new KeyQueueItem(kk3, theKey, false));
         }
-
-        public override void PressText(string data)
-        {
-            if (string.IsNullOrWhiteSpace(data)) return;
-            foreach (var item in data)
-            {
-                var code = -1;
-                var num = 0;
-                if (int.TryParse(item.ToString(), out num))
-                    code = num + 74;
-                HandlePressedKey(new KeyQueueItem(item, code, true));
-                //Task.Delay(1).Wait();
-                HandlePressedKey(new KeyQueueItem(item, code, false));
-                //Task.Delay(1).Wait();
-            }
-        }
-        
-        private void ExecuteMapping(char character)
-        {
-            if (invalidChars.Contains(character)) return;
-            if (character == '\r') return;
-            //try
-            //{
-                KeyMap mapping;
-                if (character == 0x00) return;
-
-            mapping = keyboardMapping.Get(character);
-              
-
-                if (mapping.Modifier1 == -1)
-                {
-                    if (mapping.Modifier == -1)
-                    {
-                        DoScanCodeDown(mapping.CharNum);
-                        DoScanCodeUp(mapping.CharNum);
-                    }
-                    else
-                    {
-                        DoScanCodeDown(mapping.Modifier);
-                        DoScanCodeDown(mapping.CharNum);
-                        DoScanCodeUp(mapping.CharNum);
-                        DoScanCodeUp(mapping.Modifier);
-                    }
-                }
-                else
-                {
-                    DoScanCodeDown(mapping.Modifier1);
-                    DoScanCodeDown(mapping.Modifier);
-                    DoScanCodeDown(mapping.CharNum);
-                    DoScanCodeUp(mapping.CharNum);
-                    DoScanCodeUp(mapping.Modifier);
-                    DoScanCodeUp(mapping.Modifier1);
-                }
-                if (character == '\n')
-            {
-                //MappingDown('\n');
-                //MappingUp('\n');
-            }
-            //}
-            //catch (Exception e)
-            //{
-            //    ConsoleHelper.WriteError<X16Keyboard>(e);
-            //}
-        }
-
-      
 
         private void HandlePressedKey(KeyQueueItem toWorkOn)
         {
@@ -165,7 +166,7 @@ namespace AsmFun.CommanderX16.IO
                 //isExt = true;
                 SendToKeyboard(0xe0);
             }
-            //Console.WriteLine($"KeyDown:{scancode.ToString("X2")}:{isExt}");
+            //Console.WriteLine($"KeyDown:{scancode.ToString("X2")}");
             //Console.WriteLine($"KeyDown:{kk3}:{scancode.ToString("X2")}:{isExt}");
             SendToKeyboard((byte)(scancode & 0xff));
         }
@@ -180,7 +181,7 @@ namespace AsmFun.CommanderX16.IO
                 //isExt = true;
                 SendToKeyboard(0xe0);
             }
-             //Console.WriteLine($"KeyUp:{scancode.ToString("X2")}:{isExt}");
+            // Console.WriteLine($"KeyUp:{scancode.ToString("X2")}");
             // Console.WriteLine($"KeyUp:{kk3}:{scancode.ToString("X2")}:{isExt}");
             if (withBreak)
                 SendToKeyboard(0xf0); // BREAK
@@ -192,19 +193,20 @@ namespace AsmFun.CommanderX16.IO
         {
             ps2.KeyPressed(scancode);
         }
-
         private int InterpretSpecialKey(Char kk3, int theKey, bool isDown)
         {
             //if (isRunningPasteMethod) return -2;
             if (ctrlIsDown)
             {
+                
                 //Console.Write("C " + theKey.ToString("X2")+",");
                 // CTRL V
-                if (theKey == 0x41) //'v' = 02A, wirth ctrl its 0x41
+                if (theKey == 0x41 && isDown) //'v' = 02A, wirth ctrl its 0x41
                 {
                     // send a keyUp for CTRL
-                    DoScanCodeUp(0x14);
+                    
                     RunPasteMethod();
+                    //DoScanCodeUp(0x2A);
                     return -2;
                 }
             }
@@ -215,10 +217,12 @@ namespace AsmFun.CommanderX16.IO
             {
                 case 74:case 75: case 76: case 77: case 78: case 79: case 80: case 81: case 82: case 83:     // NumPad 1 - 9
                     scancode = DoNum(kk3, isDown); break;
-                case 119: scancode = 0x114; ctrlIsDown = isDown; break;     // RCTRL
+                case 119: scancode = 0x114; 
+                    ctrlIsDown = isDown; break;     // RCTRL
                 case 117: scancode = 89; shiftIsDown = isDown; break;   // RSHIFT
                 case 116: scancode = 0x12; shiftIsDown = isDown; break;     // LSHIFT
-                case 118: scancode = 0x14; ctrlIsDown = isDown; break;     // LCTRL
+                case 118: scancode = 0x14;
+                    ctrlIsDown = isDown; break;     // LCTRL
                 case 121:
                     // 0x14, 0xE0, 0x11 ---- ~0xF0, 0x14, 0xE0,~0xF0, 0x11,
                     if (isDown)
@@ -260,13 +264,19 @@ namespace AsmFun.CommanderX16.IO
         
         private void RunPasteMethod()
         {
+            if (isRunningPasteMethod) return;
             isRunningPasteMethod = true;
-            Task.Run(() =>
-            {
-                Task.Delay(10).Wait();
-                PressText(lastClipBoardText);
-                isRunningPasteMethod = false;
-            });
+            PressText(lastClipBoardText);
+            isRunningPasteMethod = false;
+            //isRunningPasteMethod = true;
+            //Task.Run(() =>
+            //{
+
+            //    Task.Delay(100).Wait();
+            //    PressText(lastClipBoardText);
+            //    Task.Delay(1000).Wait();
+            //    isRunningPasteMethod = false;
+            //});
         }
 
 

@@ -8,6 +8,7 @@ namespace AsmFun.Computer.Common.IO
 {
     public interface IKeyboardAccess
     {
+        void Step();
         void KeyDown(char character, int keyCode);
         void KeyUp(char character, int keyCode);
         void PressText(string data);

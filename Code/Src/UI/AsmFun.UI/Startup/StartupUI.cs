@@ -23,6 +23,7 @@ using AsmFun.Ide.Common.Features.Ide.Data;
 using AsmFun.Computer.Common.Computer.Data;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Computer.EventArgss;
+using System.Text;
 
 namespace AsmFun.UI.Startup
 {

@@ -24,15 +24,13 @@ namespace AsmFun.Computer.Core.IO
             this.memoryAccess = memoryAccess;
         }
 
+        public virtual void Step()
+        {
+
+        }
         public virtual void PressText(string data)
         {
-            foreach (var item in data)
-            {
-                KeyDown(item, -1);
-                Task.Delay(25).Wait();
-                KeyUp(item, -1);
-                Task.Delay(25).Wait();
-            }
+           
         }
 
         public virtual void KeyDown(char character, int keyCode)

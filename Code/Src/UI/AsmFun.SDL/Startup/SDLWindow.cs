@@ -69,6 +69,7 @@ namespace AsmFun.Startup
             if (isInitialized) return;
             var computerManager = Container.Resolve<IComputerManager>();
             displayComposer = Container.Resolve<IDisplayComposer>();
+            joystickReader = Container.Resolve<IJoystickReader>();
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
@@ -119,6 +120,7 @@ namespace AsmFun.Startup
             SDL2.SDL.SDL_SetWindowResizable(window, SDL2.SDL.SDL_bool.SDL_TRUE);
             
             SDL2.SDL.SDL_SetWindowTitle(window, "ASMFun - Commander X16");
+            joystickReader.Init();
         }
 
 
@@ -126,6 +128,7 @@ namespace AsmFun.Startup
         {
             // first stop the events
             eventManagerSDL?.Dispose();
+            joystickReader.Dispose();
             sound.CloseAudio();
             SDL2.SDL.SDL_DestroyWindow(window);
             DisposeFpsCounter();
@@ -160,6 +163,7 @@ namespace AsmFun.Startup
                 StepLayers();
                 StepSprite();
             }
+            joystickReader.UpdateStates();
             CalculateFps();
             SDL2.SDL.SDL_RenderPresent(renderer);
         }
@@ -215,34 +219,34 @@ namespace AsmFun.Startup
 
 #if WINDOWS
 #if DEBUG
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                try
-                {
-                    if (SDL2.SDL_ttf.TTF_Init() >= 0)
-                    {
-                        font = SDL2.SDL_ttf.TTF_OpenFont(@"arial.ttf", 10);
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            //{
+            //    try
+            //    {
+            //        if (SDL2.SDL_ttf.TTF_Init() >= 0)
+            //        {
+            //            font = SDL2.SDL_ttf.TTF_OpenFont(@"arial.ttf", 10);
 
-                        textColor = new SDL2.SDL.SDL_Color();
-                        textColor.r = 255;
-                        textColor.g = 255;
-                        textColor.a = 255;
+            //            textColor = new SDL2.SDL.SDL_Color();
+            //            textColor.r = 255;
+            //            textColor.g = 255;
+            //            textColor.a = 255;
 
-                        surfaceMessage = SDL2.SDL_ttf.TTF_RenderText_Blended_Wrapped(font, "put your text here", textColor, 50);
+            //            surfaceMessage = SDL2.SDL_ttf.TTF_RenderText_Blended_Wrapped(font, "put your text here", textColor, 50);
 
-                        messageSurf = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+            //            messageSurf = SDL2.SDL.SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
-                        Message_rect.x = 400;
-                        Message_rect.y = 50;
-                        Message_rect.w = 200;
-                        Message_rect.h = 20;
-                    }
-                }
-                catch (Exception e2)
-                {
-                    ConsoleHelper.WriteError(this, e2);
-                }
-            }
+            //            Message_rect.x = 400;
+            //            Message_rect.y = 50;
+            //            Message_rect.w = 200;
+            //            Message_rect.h = 20;
+            //        }
+            //    }
+            //    catch (Exception e2)
+            //    {
+            //        ConsoleHelper.WriteError(this, e2);
+            //    }
+            //}
 #endif
 #endif
         }
@@ -322,6 +326,7 @@ namespace AsmFun.Startup
         #region Sprites 
         private ISpriteAccess spriteAccess;
         private IDisplayComposer displayComposer;
+        private IJoystickReader joystickReader;
         private byte[][] palette;
         private IVideoPaletteAccess paletteAccess;
         private List<IntPtr> sprites;
@@ -468,7 +473,7 @@ namespace AsmFun.Startup
             try{ Marshal.FreeHGlobal(layerData1); } catch (Exception) {  throw; }
         }
 
-       
+
         #endregion
 
     }

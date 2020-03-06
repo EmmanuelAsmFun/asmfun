@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Compile Include="..\AsmFun.SDL\SDLL\SDL2.cs" Link="Startup\SDL2.cs" />
+    <Compile Include="..\AsmFun.SDL\Startup\SDLJoystickReader.cs" Link="Startup\SDLJoystickReader.cs" />
     <Compile Include="..\AsmFun.SDL\Startup\SDLSound.cs" Link="Startup\SDLSound.cs" />
   </ItemGroup>
 

@@ -53,5 +53,9 @@ namespace AsmFun.Computer.Common.Computer.Data
         void SetWriteAudioMethod(Action<int, int> writeAudio);
 
         List<MemoryDumpData> GetLoadedMemoryBlocks();
+
+        void MouseButtonDown(int index);
+        void MouseButtonUp(int index);
+        void MouseMove(int x, int y);
     }
 }

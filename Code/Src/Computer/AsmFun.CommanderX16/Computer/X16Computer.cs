@@ -172,6 +172,7 @@ namespace AsmFun.CommanderX16.Computer
                             if ((processorData.Status & 4) == 0)
                                 processor.TriggerVideoIrq();
                         }
+                        keyboardAccess.Step();
                     }
                 }
                 catch (Exception e)
@@ -354,6 +355,10 @@ namespace AsmFun.CommanderX16.Computer
         {
             return programAccess.GetLoadedMemoryBlocks();
         }
+
+        public void MouseButtonDown(int index) { ps2.MouseButtonDown(index); }
+        public void MouseButtonUp(int index) { ps2.MouseButtonUp(index); }
+        public void MouseMove(int x, int y) { ps2.MouseMove(x, y);}
 
         public void Dispose()
         {

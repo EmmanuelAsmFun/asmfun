@@ -154,6 +154,12 @@ namespace AsmFun.Computer.Common.Data.Computer
             var type = computerAccess.GetAddressType(startAddress, 0);
             //lock (ByType)
             ByType[type].WriteBlock(data, 0, startAddress, count);
+        } 
+        public void WriteBlock(byte[] data, int startOffset, int startTargetAddress, int count)
+        {
+            var type = computerAccess.GetAddressType(startTargetAddress, 0);
+            //lock (ByType)
+            ByType[type].WriteBlock(data, startOffset, startTargetAddress, count);
         }
          public void WriteBlock(MemoryAddressType type, byte[] data, int startOffset, int startTargetAddress, int count)
         {

@@ -92,8 +92,15 @@ namespace AsmFun.UI.Consolee.UI
                 if (withShadow)
                 {
                     style.SetBoxShadowColor();
-                    Console.SetCursorPosition(x + width - widthReduction, y + i);
-                    Console.Write(' ');
+                    var posX = x + width - widthReduction;
+                    if (posX < Console.BufferWidth)
+                    {
+                        Console.SetCursorPosition(posX, y + i);
+                        Console.Write(' ');
+                    }else
+                    {
+                        return;
+                    }
                 }
                 if (asPopup)
                     style.SetBoxBgColor();

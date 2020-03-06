@@ -5,6 +5,7 @@
 #endregion
 
 using AsmFun.Common.ServiceLoc;
+using AsmFun.Computer.Common.IO;
 using AsmFun.EnvTools;
 using AsmFun.Ide.Core.Features.Files;
 using AsmFun.NetCore.Startup;
@@ -17,6 +18,7 @@ namespace AsmFun.Startup
         {
             new AsmNetCoreRegisterer().Configure(container);
             container.Add<IFileSelectorPopup, FileSelectorPopup>();
+            container.Add<IJoystickReader, SDLJoystickReader>();
         }
     }
 }

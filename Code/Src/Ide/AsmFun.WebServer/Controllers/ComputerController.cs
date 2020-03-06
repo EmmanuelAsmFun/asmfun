@@ -55,6 +55,7 @@ namespace AsmFun.WebServer.Controllers
         public object LoadProgram()
         {
             var buildConfiguration = projectManager.GetBuildConfiguration();
+            if (buildConfiguration == null) return new { ok = false};
             var programFileName = Path.GetFileNameWithoutExtension(buildConfiguration.ProgramFileName.Trim(Path.DirectorySeparatorChar));
             var settings = projectManager.GetCurrentProjectSettings();
             if (settings.IsProgramOnly)
