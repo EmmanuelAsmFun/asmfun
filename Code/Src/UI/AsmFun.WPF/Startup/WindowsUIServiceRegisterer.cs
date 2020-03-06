@@ -20,7 +20,7 @@ namespace AsmFun.WPF.Startup
         {
             new AsmNetCoreRegisterer().Configure(container);
             container.Add<IFileSelectorPopup, FileSelectorPopup>();
-            container.Add<IJoystickReader, SDLJoystickReader>();
+            container.Add<IJoystickReader, DirectXJoystickReader>();
         }
     }
 }

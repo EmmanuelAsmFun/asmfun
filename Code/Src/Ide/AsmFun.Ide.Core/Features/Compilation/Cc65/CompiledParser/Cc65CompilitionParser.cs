@@ -132,10 +132,11 @@ namespace AsmFun.Ide.Core.Features.Compilation.Cc65.CompiledParser
 
         private CC65ParseLineContext CreateLineContext(string txtLine, Cc65Segment currentSegment)
         {
+            var fileDepth = txtLine.Substring(8, 2).Trim();
             var context = new CC65ParseLineContext
             {
                 AddressString = txtLine.Substring(1, 5).Replace("r", "").Trim(),
-                FileDepth = int.Parse(txtLine.Substring(8, 2).Trim()),
+                FileDepth = fileDepth != "" ?int.Parse(fileDepth):1,
                 DataChars = txtLine.Substring(11, 12).ToUpper().Trim(),
                 CodeChars = txtLine.Substring(24, txtLine.Length - 24),
                 Segment = currentSegment

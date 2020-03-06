@@ -127,10 +127,18 @@ namespace AsmFun.CommanderX16.IO
         {
             if ( index >= joystickReader.NumJoysticks) return 0xFFFF;
             var state = joystickReader.GetStates(index);
-            //if (state.UpState) Console.WriteLine("Up");
-            //if (state.DownState) Console.WriteLine("Down");
-            //if (state.LeftState) Console.WriteLine("Left");
-            //if (state.RightState) Console.WriteLine("Right");
+            //if (state.UpState) Console.WriteLine("Joystick:Up");
+            //if (state.DownState) Console.WriteLine("Joystick:Down");
+            //if (state.LeftState) Console.WriteLine("Joystick:Left");
+            //if (state.RightState) Console.WriteLine("Joystick:Right");
+            //if (state.AState) Console.WriteLine("Joystick:A");
+            //if (state.BState) Console.WriteLine("Joystick:B");
+            //if (state.XState) Console.WriteLine("Joystick:X");
+            //if (state.YState) Console.WriteLine("Joystick:Y");
+            //if (state.LState) Console.WriteLine("Joystick:L");
+            //if (state.RState) Console.WriteLine("Joystick:R");
+            //if (state.BackState) Console.WriteLine("Joystick:Back");
+            //if (state.StartState) Console.WriteLine("Joystick:Start");
             if (mode == JoystickMode.NES)
             {
                 return (ushort)(
