@@ -9,8 +9,12 @@
     bottom: 21px;
     z-index: 200;
     background: black;
-
-
+    -webkit-touch-callout: text; /* iOS Safari */
+    -webkit-user-select: text; /* Safari */
+    -khtml-user-select: text; /* Konqueror HTML */
+    -moz-user-select: text; /* Firefox */
+    -ms-user-select: text; /* Internet Explorer/Edge */
+    user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
     h3 {
         color: #c4c480;
     }
@@ -211,17 +215,16 @@
 
     .VideoViewer {
         float: left;
-        position:relative;
+        position: relative;
 
         .vAddress {
             margin-bottom: 10px;
         }
 
-        .btn-hide-Ram{
-            position:absolute;
-            right:20px;
-            font-size:22px;
-
+        .btn-hide-Ram {
+            position: absolute;
+            right: 20px;
+            font-size: 22px;
         }
     }
 

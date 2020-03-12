@@ -1,5 +1,5 @@
 ﻿import { BaseCommand } from "../../../framework/commands/CommandsCommon.js";
-import { IEditorFile, IEditorLine } from "../data/EditorData.js";
+import { IEditorFile, IEditorLine, IEditorSelection } from "../data/EditorData.js";
 import { IUILine } from "../ui/IUILine.js";
 import { IUIFile } from "../ui/IUIFile.js";
 
@@ -45,9 +45,11 @@ export class CloseEditorCodeAssistCommand extends BaseCommand{
 
 export class EditorPasteCommand extends BaseCommand{
     public text: string;
-    public constructor(text:string){
+    public selection: IEditorSelection | null;
+    public constructor(text: string, selection: IEditorSelection | null){
         super();
         this.text = text;
+        this.selection = selection;
         this.commandName = "PasteCommand";
         this.nameSpace = "Editor";
     }

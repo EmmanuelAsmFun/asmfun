@@ -6,7 +6,6 @@
 
 using AsmFun.Common.ServiceLoc;
 using AsmFun.WPF.EnvTools;
-using System;
 using System.Windows;
 
 namespace AsmFun.WPF.TheWPF

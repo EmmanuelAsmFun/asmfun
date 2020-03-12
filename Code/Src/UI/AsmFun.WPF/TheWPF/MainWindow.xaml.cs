@@ -55,6 +55,7 @@ namespace AsmFun.WPF
         private bool isInitialized;
         private List<Image> sprites = new List<Image>();
         private SDLSound sound;
+        private DirectXSound sound2;
         private int lastMousePositionX;
         private int lastMousePositionY;
         private bool isNewFrameForActions = false;
@@ -85,6 +86,8 @@ namespace AsmFun.WPF
                 lastMousePositionX = newX;
                 lastMousePositionY = newY;
             };
+            //sound2 = new DirectXSound();
+            //sound2.Init();
             sound = new SDLSound();
             if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_AUDIO | SDL2.SDL.SDL_INIT_GAMECONTROLLER) < 0)
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
@@ -112,6 +115,8 @@ namespace AsmFun.WPF
             {
                 isClosing = true;
                 joystickReader.Dispose();
+                sound.Dispose();
+                //sound2.Dispose();
                 SDL2.SDL.SDL_Quit();
                 isClosed = true;
                 var computerManager = Container.Resolve<IComputerManager>();
@@ -159,6 +164,7 @@ namespace AsmFun.WPF
             if (computer == null) return;
             computerManager.SetDisplay(this);
             computer.SetWriteAudioMethod(sound.WriteAudio);
+            //computer.SetWriteAudioMethod(sound2.WriteAudio);
             keyboardAccess = computer.GetKeyboard();
             // Todo: Find a solution to make a sdl window to be able to use the joystick
             joystickReader.Init();

@@ -22,13 +22,20 @@
         padding: 20px;
         overflow-x: auto;
         overflow-y: auto;
+        -webkit-touch-callout: text; /* iOS Safari */
+        -webkit-user-select: text; /* Safari */
+        -khtml-user-select: text; /* Konqueror HTML */
+        -moz-user-select: text; /* Firefox */
+        -ms-user-select: text; /* Internet Explorer/Edge */
+        user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
     }
 
     .project-form {
-        .start-form{
-        max-width: 550px;
+        .start-form {
+            max-width: 550px;
         }
-        float:left;
+
+        float: left;
     }
 
     h2 {
@@ -37,7 +44,7 @@
 
     a {
         font-size: 11px;
-        cursor:pointer;
+        cursor: pointer;
     }
 
     &.pojectIsDownloading {
@@ -66,7 +73,7 @@
 
     .form-item {
         margin-bottom: 10px;
-        word-wrap:break-word;
+        word-wrap: break-word;
 
         .form-lbl {
             width: 160px;

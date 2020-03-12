@@ -86,7 +86,12 @@
         width: 100%;
         min-width: 400px;
         white-space: nowrap;
-
+        -webkit-touch-callout: text; /* iOS Safari */
+        -webkit-user-select: text; /* Safari */
+        -khtml-user-select: text; /* Konqueror HTML */
+        -moz-user-select: text; /* Firefox */
+        -ms-user-select: text; /* Internet Explorer/Edge */
+        user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
         &:hover {
             background: #222222;
         }
@@ -107,12 +112,6 @@
             background: transparent;
             margin-left: 3px;
             display: inline-block;
-            -webkit-touch-callout: text; /* iOS Safari */
-            -webkit-user-select: text; /* Safari */
-            -khtml-user-select: text; /* Konqueror HTML */
-            -moz-user-select: text; /* Firefox */
-            -ms-user-select: text; /* Internet Explorer/Edge */
-            user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
         }
 
         .errorDetail {

@@ -25,26 +25,41 @@ export class EditorWriter  {
         switch (keyCommand.which) {
             // Text edit
             case 8: allowContinueEmit = this.Backspace(context); break;    // Backspace
-            case 46: allowContinueEmit = this.DeleteKey(context); break;   // DeleteKey
+            case 46: // DeleteKey
+                allowContinueEmit = keyCommand.shiftKey ?
+                                        this.DeleteLine(context) :
+                                        this.DeleteKey(context); break;  
             case 9: theKey = "\t"; isTab = true; break;                                  // Tab
         }
+        // CTRL key
         if (keyCommand.ctrlKey) {
-            if (keyCommand.key === "x") {
-                return !this.CutText(context);
+            switch (keyCommand.key) {
+                case "x":
+                    return !this.CutText(context);
+                case "d": // Duplicate line
+                    return !this.DuplicateLine(context)
             }
         }
-
-        // Check if we are typing
-        if (!keyCommand.ctrlKey && !keyCommand.altKey && allowContinueEmit) 
-            allowContinueEmit = this.InterpretKey(context, theKey);
+       
+        
         // When it's tab, we need to move right one more time.
-        if (isTab) context.cursorLogic.MoveRight(context,false,false);
+        if (isTab) {
+            //context.cursorLogic.MoveRight(context, false, false);
+            allowContinueEmit = this.InterpretKey(context, " ");
+            allowContinueEmit = this.InterpretKey(context, " ");
+        } else
+            // Check if we are typing
+            if (!keyCommand.ctrlKey && !keyCommand.altKey && allowContinueEmit)
+                allowContinueEmit = this.InterpretKey(context, theKey);
         return allowContinueEmit;
     }
 
-    public PasteText(context: IEditorContext,text: string) {
+    public PasteText(context: IEditorContext, text: string, selection: IEditorSelection | null) {
         if (text == null) return;
-
+        // Delete selection if needed
+        if (context.cursorLogic.HasSelection(null))
+            this.DeleteKey(context);
+        
         for (var i = 0; i < text.length; i++) {
             var key = text[i];
             if (key == "\n")
@@ -55,11 +70,33 @@ export class EditorWriter  {
         this.RequireSave(context);
     }
 
+    
     public CutText(context: IEditorContext): boolean {
         this.Copy(context);
         this.DeleteKey(context);
         return true;
     }
+    public DuplicateLine(context: IEditorContext): boolean {
+        if (context.currentLine == null) return false;
+        var previousX = context.editorData.cursorX
+        var currentLineText = context.currentLine.data.sourceCode;
+        context.cursorLogic.MoveEnd(context, false);
+        this.EnterKey(context, true);
+        this.AddUndoSameLine(context.currentLine, 0, context.editorData.cursorY);
+        context.currentLine.data.sourceCode = currentLineText;
+        context.RedrawLine();
+        context.cursorLogic.MoveCursorX(context, previousX);
+        return true;
+    }
+
+    public DeleteLine(context: IEditorContext): boolean {
+        if (context.currentLine == null) return false;
+        this.AddUndoSameLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY, context.editorData.cursorX);
+        context.currentLine.data.sourceCode = "";
+        context.cursorLogic.MoveHome(context, false);
+        return this.Backspace(context);
+    }
+
     public Copy(context: IEditorContext) {
         AsmTools.CopyToClipBoardSelected();
         return true;
@@ -71,6 +108,10 @@ export class EditorWriter  {
                 return true;
         }
         if (context.currentLine == null) return true;
+        // Delete selection if needed
+        if (context.cursorLogic.HasSelection(null))
+            this.DeleteKey(context);
+
         var line = context.currentLine.data.sourceCode;
         if (context.editorData.cursorX <= line.length) {
             this.DeleteSelection(context);
@@ -126,6 +167,7 @@ export class EditorWriter  {
 
         context.currentLine.data.sourceCode = textPartS;
         context.RedrawLine();
+        context.editorData.maxY = context.currentFile.lines.length;
         context.cursorLogic.MoveDown(context,false,false);
         context.currentLine.data.sourceCode = currentLineStartSpaces+textPartE;
         context.RedrawLine();
@@ -133,6 +175,7 @@ export class EditorWriter  {
             context.editorData.cursorX = xNewPos;
             context.cursorLogic.UpdateCursor(context);
         }
+        context.editorData.maxY = context.currentFile.lines.length;
         this.AddUndoEnter(previousLine, context.editorData.cursorX, context.editorData.cursorY);
         this.RequireSave(context);
         return false;
@@ -160,6 +203,7 @@ export class EditorWriter  {
                 context.SelectLine(previousLine);
                 
                 context.RedrawLine();
+                context.editorData.maxY = context.currentFile.lines.length;
                 context.cursorLogic.UpdateCursor(context);
             }
         }
@@ -181,7 +225,7 @@ export class EditorWriter  {
         var line = context.currentLine.data.sourceCode;
         var lengthEnd = context.currentLine.data.sourceCode.length - context.editorData.cursorX;
         if (lengthEnd === 0 && context.editorData.cursorY < context.currentFile.lines.length-1) {
-            var currentFile = (<any>context.currentFile);
+            var currentFile = context.currentFile;
             this.AddUndoDeleteKey(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
             var nextLine: IEditorLine = currentFile.lines[context.currentLine.data.lineNumber];
             var textNextLine = nextLine.data.sourceCode;
@@ -196,6 +240,7 @@ export class EditorWriter  {
                 context.currentLine.data.sourceCode += textNextLine;
                 context.editorData.maxX = context.currentLine.data.sourceCode.length;
             }
+            context.editorData.maxY = currentFile.lines.length;
         }
         else {
             this.AddUndoSameLine(context.currentLine, context.editorData.cursorX, context.editorData.cursorY);
@@ -225,7 +270,7 @@ export class EditorWriter  {
         if (context.currentFile == null) return false;
         var line = context.currentFile.lines[selection.startLine - 1];
         if (line == null) return false;
-        this.AddUndoSameLine(line, context.editorData.cursorX, context.editorData.cursorY);
+        this.AddUndoSameLine(line, context.editorData.cursorX, context.editorData.cursorY, context.editorData.cursorX);
         var beginPart = line.data.sourceCode.substring(0, selection.startOffset);
         var endPart = line.data.sourceCode.substring(selection.endOffset);
         line.data.sourceCode = beginPart + endPart;
@@ -242,6 +287,7 @@ export class EditorWriter  {
         var firstLine = context.currentFile.lines[selection.startLine - 1];
         var lastLine = context.currentFile.lines[selection.endLine - 1];
         if (firstLine == null || lastLine == null) return false;
+        var startX = context.editorData.cursorX;
         var toDelete = selection.endLine - selection.startLine;
         var x = selection.startOffset;
         var y = selection.startLine;
@@ -264,11 +310,12 @@ export class EditorWriter  {
 
             // Renumber the next lines
             this.RenumberLines(context,selection.startLine,0);
-
+            context.editorData.maxY = context.currentFile.lines.length;
         }
-        this.AddUndoMultiLine(firstLine, undoLineTexts, x,y - 1);
+        this.AddUndoMultiLine(firstLine, undoLineTexts, x, y - 1, startX);
         firstLine.data.sourceCode = firstLine.data.sourceCode.substring(0, selection.startOffset) + lastLine.data.sourceCode.substring(selection.endOffset);
         context.RedrawLine2(firstLine);
+        
         context.cursorLogic.Deselect();
         context.cursorLogic.MoveCursor(context, selection.startOffset, selection.startLine - 1);
         this.RequireSave(context);
@@ -296,8 +343,6 @@ export class EditorWriter  {
         context.editorData.cursorX = context.currentLine.data.sourceCode.length;
         this.RequireSave(context);
     }
-
-
 
 
     private runningUndo = false;
@@ -338,7 +383,10 @@ export class EditorWriter  {
                         }
                     }
                     // Renumber the next lines
-                    this.RenumberLines(context, undo.y,0);
+                    this.RenumberLines(context, undo.y, 0);
+                    context.editorData.maxY = context.currentFile.lines.length;
+                    if (undo.afterUndoX > -1)
+                        context.cursorLogic.MoveCursor(context, undo.afterUndoX, undo.y);
                 }
             }
            
@@ -372,9 +420,9 @@ export class EditorWriter  {
         if (this.currentUndo == null) return;
         this.currentUndo.isSameLine = true;
     }
-    private AddUndoMultiLine(line: IEditorLine, addonLines: string[], x: number, y: number) {
+    private AddUndoMultiLine(line: IEditorLine, addonLines: string[], x: number, y: number, afterUndoX: number = -1) {
         if (this.runningUndo) return;
-        this.AddUndo(line, x, y);
+        this.AddUndo(line, x, y, afterUndoX);
         if (this.currentUndo == null) return;
         this.currentUndo.isMultiLine = true;
         this.currentUndo.addonLines = addonLines;
@@ -412,5 +460,6 @@ export class EditorWriter  {
         if (this.undos.length > 200)
             this.undos.shift();
     }
+
    
 }

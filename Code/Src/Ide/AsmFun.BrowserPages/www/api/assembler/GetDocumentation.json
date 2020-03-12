@@ -1,0 +1,17 @@
+{
+  "ChapterItem": [
+    {
+      "Name": "The byte extraction operators:  &gt;, &lt; and ^",
+      "Description": `
+        Applying the byte extraction operators to any  value will clear the argument's Force Bits 2 and 3 and set Force
+		Bit 1 instead. So "lda &lt;label" will use 8-bit addressing, regardless of the label's Force Bits. Of course, you can change this by postfixing the command again...<br/>
+		<br />
+		- '&lt;' gives the low byte <br/>
+		- '&gr;' gives the high byte and <br/>
+		- '^' gives the bank byte of a value <br/>
+		
+		`
+
+    }
+  ]
+}

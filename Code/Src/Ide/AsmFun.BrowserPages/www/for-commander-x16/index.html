@@ -435,7 +435,7 @@ programItem.address  | toHex2
                             </span>
                         </div>
                     </div>
-                    <div class="ScLines" v-on:mousedown="SourCodeLineClick(event)" tabindex="0" @focus="editor.isTextEditorInFocus = true" @blur="editor.isTextEditorInFocus = false">
+                    <div id="ScLines" class="ScLines" v-on:mousedown="SourCodeLineClick(event)" tabindex="0" @focus="editor.isTextEditorInFocus = true" @blur="editor.isTextEditorInFocus = false">
                         <span class="ln" v-for="line in editor.Bundle.Lines"
                               v-bind:class="{  'isSelected' : line.Selected, 'hasError' : line.HasError , 'hilite' : line.Hilite }">
                             <span class="scline"><span class="scline" v-bind:data-ln="line.LineNumber" v-bind:id="'lineCode'+line.LineNumber" v-html="line.Html"></span></span>
@@ -465,6 +465,10 @@ programItem.address  | toHex2
                 <span class="paging"> {{memoryViewer.memoryBlock.currentPage +1}}/ {{memoryViewer.memoryBlock.totalPages+ 1}} </span>
                 <span class="address">{{memoryViewer.memoryBlock.startAddressHex}} - {{memoryViewer.memoryBlock.endAddressHex}} </span>
                 <span class="pageControl">
+                    <a v-on:click="memoryViewer.swapAutoReload()" title="Auto Reload data ON" v-if="!memoryViewer.autoReload"><span class="fa fa-automobile"></span></a>
+                    <a v-on:click="memoryViewer.swapAutoReload()" title="Auto Reload data OFF" v-else><span class="fa-stack">
+                        <i class="fa fa-automobile fa-stack-1x"></i>
+                        <i class="fa fa-ban fa-stack-1x"></i></span></a>
                     <a v-on:click="SelectMemoryPage(-1)" title="Reload data"><span class="fa fa-refresh"></span></a>
                     &nbsp;
                     <a v-on:click="PreviousMemoryPage(64)" title="Previous 16 kb"> &lt;&lt;&lt; </a>

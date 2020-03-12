@@ -285,7 +285,7 @@ namespace AsmFun.CommanderX16.Computer
 
         public void RunProgram()
         {
-            keyboardAccess.PressText("run\r\n");
+            keyboardAccess.PressText("RUN\r\n");
         }
         public ComputerSetupSettings GetSetupSettings()
         {

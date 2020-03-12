@@ -14,7 +14,9 @@ export interface ICursorUI {
     GetRealPosition();
     Hide();
     Show();
+    FocusEditor();
     GetSelection(): IEditorSelection | null;
+    SetSelection(selection: IEditorSelection, forceRecreateNew: boolean);
     SetSelectionStart(x, y, forceRecreateNew: boolean);
     SetSelectionEnd(x, y);
 }
@@ -65,6 +67,15 @@ export class CursorUI implements ICursorUI{
     }
     public Show() {
         this.cursorElement.style.left = this.lastX + "px";
+    }
+
+    public FocusEditor() {
+        var sourceCodeLines: HTMLElement | null = document.getElementById("ScLines");
+        var sourceCodeEl: HTMLElement | null = document.getElementById("sourceCode");
+        if (sourceCodeLines == null || sourceCodeEl == null) return;
+        var scrollPos = sourceCodeEl.scrollTop;
+        sourceCodeLines.focus();
+        sourceCodeEl.scrollTop = scrollPos;
     }
 
     public GetHtmlElementUnderCursor() {
@@ -219,6 +230,10 @@ export class CursorUI implements ICursorUI{
         selection.removeAllRanges();
     }
 
+    public SetSelection(selection: IEditorSelection, forceRecreateNew: boolean) {
+        this.SetSelectionStart(selection.startOffset, selection.startLine, forceRecreateNew);
+        this.SetSelectionEnd(selection.endOffset, selection.endLine);
+    }
 
     public SetSelectionStart(x: number, y: number,forceRecreateNew: boolean = false) {
         var lineHtml:any = document.getElementById("lineCode" +(y +1));

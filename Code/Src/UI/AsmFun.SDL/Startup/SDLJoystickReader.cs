@@ -89,7 +89,7 @@ namespace AsmFun.Startup
             {
                 // ensure processor is not reading
                 Thread.Sleep(50);
-                joySticks.ForEach(j => SDL2.SDL.SDL_JoystickClose(j));
+                //joySticks.ForEach(j => SDL2.SDL.SDL_JoystickClose(j));
             }
             catch (Exception)
             {

@@ -6,6 +6,7 @@
 
 import { ICursorUI, CursorUI } from "./ui/CursorUI.js";
 import { IEditorContext } from "./EditorManager.js";
+import { IEditorSelection } from "./data/EditorData.js";
 
 
 
@@ -59,7 +60,7 @@ export class CursorLogic {
         return false;
     }
 
-    public MoveCursor(ctx: IEditorContext, x, y, smoothScolling = false) {
+    public MoveCursor(ctx: IEditorContext, x: number, y:number, smoothScolling = false) {
         if (y > ctx.editorData.maxY) y = ctx.editorData.maxY;
         if (y < 0) y = 0;
         ctx.editorData.cursorY = y;
@@ -72,20 +73,33 @@ export class CursorLogic {
         this.UpdateCursor(ctx, smoothScolling);
        // ctx.RedrawLine();
     }
+    public MoveCursorX(ctx: IEditorContext, x:number) {
+        if (x > ctx.editorData.maxX) x = ctx.editorData.maxX;
+        if (x < 0) x = 0;
+        ctx.editorData.cursorX = x;
+        ctx.editorData.cursorWishedX = x;
+        this.UpdateCursor(ctx, false);
+       // ctx.RedrawLine();
+    }
 
     public MoveUp(ctx: IEditorContext, ctrlIsDown: boolean, shiftisDown: boolean, rows: number = 1) {
-        if (shiftisDown)
-            this.SetSelectionStart(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
-        else
+        var previousX = ctx.editorData.cursorX;
+        var previousY = ctx.editorData.cursorY;
+        if (!shiftisDown) 
             this.Deselect();
-        if (ctx.editorData.cursorY - rows  <= 0)
+
+        if (ctx.editorData.cursorY - rows <= 0)
             rows = ctx.editorData.cursorY;
         ctx.editorData.cursorY -= rows;
         this.UpdateLine(ctx);
         this.EnsureCursorInRange(ctx);
         this.UpdateCursor(ctx);
-        if (shiftisDown)
+        if (shiftisDown) {
+            var hadSelection = this.HasSelection(null);
             this.SetSelectionEnd(ctx, ctx.editorData.cursorX, ctx.editorData.cursorY);
+            if (!hadSelection)
+                this.SetSelectionStart(ctx, previousX, previousY);
+        }
         return false;
     }
 
@@ -278,7 +292,7 @@ export class CursorLogic {
             this.UpdateCursor(ctx);
         }
     }
-    public GetSelection() {
+    public GetSelection(): IEditorSelection | null {
         return this.cursorUI.GetSelection();
     }
     public Deselect() {
@@ -290,5 +304,17 @@ export class CursorLogic {
     public SetSelectionEnd(ctx: IEditorContext, x: number, y: number) {
         this.cursorUI.SetSelectionEnd(x, y);
     }
-   
+    public SetSelection(selection: IEditorSelection, forceRecreateNew: boolean = false) {
+        this.cursorUI.SetSelection(selection, forceRecreateNew);
+    }
+
+    public FocusEditor() {
+        this.cursorUI.FocusEditor();
+    }
+
+    public HasSelection(selection: IEditorSelection | null): boolean {
+        if (selection == null) var selection = this.cursorUI.GetSelection();
+        return selection != null && (selection.startLine != selection.endLine || selection.startOffset != selection.endOffset);
+    }
+
 }

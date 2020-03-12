@@ -16,6 +16,7 @@ import { EditorManager } from "../features/editor/EditorManager.js";
 import { VideoManager } from "../features/video/VideoManager.js";
 import { MemoryItemHoverCommand } from "../features/memory/commands/MemoryCommands.js";
 import { MemoryEdit } from "../features/memory/MemoryMethods.js";
+import { IEditorSelection } from "../features/editor/data/EditorData.js";
 
 // Initialize base objects
 var reg = new ServiceRegisterer();
@@ -204,7 +205,8 @@ document.onkeydown = function (e) {
         if (e.key === "v" && e.ctrlKey) {
             var editorManager = reg.myMainData.container.Resolve<EditorManager>(EditorManager.ServiceName);
             if (editorManager != null && editorManager.data.isTextEditorInFocus) {
-                paste(null);
+                var selection =editorManager.cursorLogic.GetSelection();
+                paste(selection);
                 return;
             }
         }
@@ -229,19 +231,24 @@ function sendCommand(command) {
 
 var systemPasteReady = false;
 var systemPasteContent = "";
-function paste(target2) {
+function paste(selection: IEditorSelection | null) {
     console.log("paste");
+    var selectionRange = saveSelection();
     var textArea;
     function waitForPaste() {
         if (textArea.value == null || textArea.value === "") {
             setTimeout(waitForPaste, 50);
             return;
         }
-        sendCommand(new EditorPasteCommand(textArea.value))
+        // Restore the selection
+        restoreSelection(selectionRange);
+        
+        sendCommand(new EditorPasteCommand(textArea.value, selection))
         systemPasteReady = false;
         document.body.removeChild(textArea);
         textArea = null;
     }
+    
     // FireFox requires at least one editable
     // element on the screen for the paste event to fire
     textArea = document.createElement('textarea');
@@ -252,6 +259,32 @@ function paste(target2) {
     waitForPaste();
 }
 
+
+function saveSelection() {
+    if (window.getSelection) {
+        var sel = window.getSelection();
+        if (sel != null && sel.getRangeAt && sel.rangeCount) {
+            return sel.getRangeAt(0);
+        }
+    } else if ((<any>document).selection && (<any>document).selection.createRange) {
+        return (<any>document).selection.createRange();
+    }
+    return null;
+}
+
+function restoreSelection(range) {
+    if (range) {
+        if (window.getSelection) {
+            var sel = window.getSelection();
+            if (sel != null) {
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        } else if ((<any>document).selection && range.select) {
+            range.select();
+        }
+    }
+}
 
 
 

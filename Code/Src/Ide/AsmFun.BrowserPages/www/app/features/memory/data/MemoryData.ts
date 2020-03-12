@@ -45,6 +45,8 @@ export interface IMemoryViewerData {
     memoryEditYOffset:number,
     showTOC: boolean;
     swapShowTOC: () => void;
+    swapAutoReload: () => void;
+    autoReload: boolean;
 }
 export interface IMemoryAddressInfo {
     startAddress: number;

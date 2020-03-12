@@ -13,12 +13,19 @@
     -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
-    a{
+    -webkit-touch-callout: text; /* iOS Safari */
+    -webkit-user-select: text; /* Safari */
+    -khtml-user-select: text; /* Konqueror HTML */
+    -moz-user-select: text; /* Firefox */
+    -ms-user-select: text; /* Internet Explorer/Edge */
+    user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
+    a {
         font-size: 11px;
     }
+
     h2 {
-        font-weight:100;
-        font-size:22px;
+        font-weight: 100;
+        font-size: 22px;
     }
 
     .content {
@@ -44,15 +51,16 @@
         opacity: 0.5;
     }
 
-  
+
 
     .form-item {
         margin-bottom: 10px;
-        .form-lbl{
-            display:inline-block;
-            font-size:12px;
+
+        .form-lbl {
+            display: inline-block;
+            font-size: 12px;
             width: 170px;
-            vertical-align:top;
+            vertical-align: top;
         }
     }
 

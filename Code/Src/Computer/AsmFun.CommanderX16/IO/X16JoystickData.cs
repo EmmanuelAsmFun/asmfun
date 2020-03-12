@@ -20,7 +20,7 @@ namespace AsmFun.CommanderX16.IO
         private const int JOY_CLK_MASK = 0x20;
         private const int JOY_DATA2_MASK = 0x40;
         private readonly IJoystickReader joystickReader;
-        public JoystickMode joy1_mode = JoystickMode.NES;
+        public JoystickMode joy1_mode = JoystickMode.NONE;
         public JoystickMode joy2_mode = JoystickMode.NONE;
 
 

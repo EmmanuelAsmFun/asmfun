@@ -29,7 +29,7 @@ import { IdeSelectCodeNavTabCommand } from "../player/commands/ASMFunPlayerManag
 
 export class MemoryManager {
    
-   
+    private autoReloadRef = -1;
     private memData: string = "";
     private debuggerService: DebuggerService;
     private editorManager: EditorManager;
@@ -97,6 +97,15 @@ export class MemoryManager {
             }
             return true;
         };
+        this.data.swapAutoReload = () => {
+            this.data.autoReload = !this.data.autoReload;
+            if (this.data.autoReload) {
+                clearInterval(this.autoReloadRef);
+                this.autoReloadRef = setInterval(() => this.SelectPageByAddress(-1), 1000);
+            } else {
+                clearInterval(this.autoReloadRef);
+            }
+        }
     }
 
     private OpenManager(state: boolean | null) {
@@ -418,7 +427,9 @@ export class MemoryManager {
             memoryEditYOffset:0,
             memoryEditKeyUp: () => { },
             isMemoryEditing: false,
-            HiliteSourceCode:false,
+            HiliteSourceCode: false,
+            autoReload: false,
+            swapAutoReload: () => { }
         };
     }
 

@@ -4,7 +4,7 @@
 //
 // #endregion
 
-import { EditorData, IEditorFile, IEditorLine, IEditorManagerData } from "./data/EditorData.js";
+import { EditorData, IEditorFile, IEditorLine, IEditorManagerData, IEditorSelection } from "./data/EditorData.js";
 import {
     KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand,
     EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand, EditorClearProjectCommand
@@ -82,7 +82,7 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new KeyboardKeyCommand(), this, this.KeyPressed);
         mainData.commandManager.Subscribe2(new EditorCodeAssistCommand(), this, () => thiss.OpenCodeAssistent());
         mainData.commandManager.Subscribe2(new CloseEditorCodeAssistCommand(), this, () => thiss.CloseCodeAssistent());
-        mainData.commandManager.Subscribe2(new EditorPasteCommand(""), this, t => thiss.PasteText(t.text));
+        mainData.commandManager.Subscribe2(new EditorPasteCommand("",null), this, t => thiss.PasteText(t.text,t.selection));
         mainData.commandManager.Subscribe2(new EditorInsertTextCommand(), this, (c) => thiss.InsertTextFromCodeAssist(c.text, c.removeText));
         mainData.commandManager.Subscribe2(new ProjectSaveCommand(), this, () => { thiss.requireSave = false; });
         mainData.commandManager.Subscribe2(new EditorEnableCommand(null), this, (c) => thiss.SetEnableState(c.state));
@@ -229,9 +229,10 @@ export class EditorManager implements IEditorContext {
         this.currentLineI = this.sourceCodeManager.Bundle.GetLine(line);
     }
 
-    private PasteText(text: string) {
+    private PasteText(text: string, selection: IEditorSelection | null) {
         if (!this.isEnabled) return;
-        this.editorWriter.PasteText(this, text);
+        this.editorWriter.PasteText(this, text, selection);
+        this.cursorLogic.FocusEditor();
     }
 
     private KeyPressed(keyCommand: KeyboardKeyCommand, evt: ICommandEvent) {

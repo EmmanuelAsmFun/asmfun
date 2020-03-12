@@ -1,0 +1,293 @@
+{
+"Variables":[
+{
+	"Code":"SCREEN_MODES",
+	"Name":"The screen Modes",
+	"Description":"",
+	"Tags":["Screen","Video","Initialization"],
+	"ListDescription": [
+            { "HexValue": "00", "Name": "40x30 text" },
+            { "HexValue": "01", "Name": "80x30 text" ,"Comment":"currently unsupported"},
+            { "HexValue": "02", "Name": "80x60 text" },
+            { "HexValue": "80", "Name": "320x200@256c 40x25 text" },
+            { "HexValue": "81", "Name": "640x400@16c" ,"Comment":"currently unsupported"},
+            { "HexValue": "FF", "Name": "Toggle between $00 and $02" ,"Comment":"Not a real mode"},
+          ],
+},{
+	"Code":"COLORS",
+	"Name":"The Default Colors",
+	"Description":"",
+	"Tags":["Screen","Video","Color","Graphics"],
+	"ListDescription": [
+            { "HexValue": "00", "Code": "COLOUR_BLACK","Name": "Black","Color":"#000000" },
+            { "HexValue": "01", "Code": "COLOUR_WHITE","Name": "White","Color":"#FFFFFF" },
+            { "HexValue": "02", "Code": "COLOUR_RED","Name": "Red","Color":"#880000" },
+            { "HexValue": "03", "Code": "COLOUR_CYAN","Name": "Cyan","Color":"#AAFFEE" },
+            { "HexValue": "04", "Code": "COLOUR_PURPLE","Name": "Purple","Color":"#CC44CC" },
+            { "HexValue": "05", "Code": "COLOUR_GREEN","Name": "Green","Color":"#00CC55" },
+            { "HexValue": "06", "Code": "COLOUR_BLUE","Name": "Blue","Color":"#0000AA" },
+            { "HexValue": "07", "Code": "COLOUR_YELLOW","Name": "Yellow","Color":"#EEEE77" },
+            { "HexValue": "08", "Code": "COLOUR_ORANGE","Name": "Orange" ,"Color":"#DD8855"},
+            { "HexValue": "09", "Code": "COLOUR_BROWN","Name": "Brown" ,"Color":"#664400"},
+            { "HexValue": "0A", "Code": "COLOUR_RED_LIGHT","Name": "Red Light","Color":"#FF7777" },
+            { "HexValue": "0B", "Code": "COLOUR_GREY_DARK","Name": "Gray Dark","Color":"#333333" },
+            { "HexValue": "0C", "Code": "COLOUR_GREY","Name": "Gray","Color":"#777777" },
+            { "HexValue": "0D", "Code": "COLOUR_GREEN_LIGHT","Name": "Green Light","Color":"#AAFF66" },
+            { "HexValue": "0E", "Code": "COLOUR_BLUE_LIGHT","Name": "Blue Light" ,"Color":"#0088FF"},
+            { "HexValue": "0F", "Code": "COLOUR_GREY_LIGHT","Name": "Gray Light","Color":"#BBBBBB" },
+            
+          ],
+},
+{
+	"Code":"MOUSE_MODES",
+	"Name":"The mouse Modes",
+	"Description":"",
+	"Tags":["Mouse","Initialization"],
+	"ListDescription": [
+            { "HexValue": "00", "Code": "MOUSE_HIDE", "Name": "Hide mouse" },
+            { "HexValue": "01", "Code": "MOUSE_SHOW", "Name": "Show mouse" ,"Comment":"Set default mouse pointer"},
+            { "HexValue": "FF", "Code": "MOUSE_SHOW_NOCONFIG", "Name": "Show mouse no config","Comment":"Don't configure mouse cursor" },
+          ],
+},
+],
+"Groups":[ 
+
+ {
+"Name":"Mouse",
+"Description":"",
+   "Functions": [
+    {
+      "AddressHex": "FF68",
+      "Code": "MOUSE_CONFIG",
+      "Name": "Mouse Config",
+      "Description": "Configures Mouse Pointer",
+      "Affects": [ "A", "X","Y" ],
+      "Tags": [ "Mouse", "Access" ],
+      "LongDescription": "The routine mouse_config configures the mouse pointer.",
+	  "Parameters": [
+        { "Name": "Mouse Visible Shape", "Target": "A", "Type":"byte", "LinkTarget": "MOUSE_MODES", "Description":"specifies whether the mouse pointer should be visible or not, and what shape it should have. For a list of possible values, see the basic statement MOUSE." },
+        { "Name": "Scale", "Target": "X", "Type":"byte", "Description":"Use a scale of 1 for a 640x480 screen, and a scale of 2 for a 320x240 screen. A value of 0 does not change the scale." },
+      ]
+    },{
+      "AddressHex": "FF71",
+      "Code": "MOUSE_SCAN",
+      "Name": "Mouse Scan",
+      "Description": "Query the mouse and save its state",
+      "Affects": [ "A", "X","Y" ],
+      "Tags": [ "Mouse", "Access" ],
+      "LongDescription": "The routine MOUSE_SCAN retrieves all state from the mouse and saves it. It can then be retrieved using MOUSE_GET. The default interrupt handler already takes care of this, so this routine should only be called if the interrupt handler has been completely replaced."
+    },{
+      "AddressHex": "FF6B",
+      "Code": "MOUSE_GET",
+      "Name": "Mouse Get",
+      "Description": "Get the mouse state",
+      "Affects": [ "A" ],
+      "Tags": [ "Mouse", "Access" ],
+      "LongDescription": "he routine mouse_get returns the state of the mouse. The caller passes the offset of a zero-page location in .X, which the routine will populate with the mouse position in 4 consecutive bytes.",
+	   "Parameters": [
+        { "Name": "ZP Offset","Code":"MOUSE_ZP_OFFSET", "Target": "X", "Type":"byte", "Description":"The Zero Page offset for the result" },
+      ],
+	  "Returns":[
+		{
+          "Name": "Mouse X Position",
+		  "Code": "MOUSE_X_POSITION",
+          "Target": "ZP+RegX",
+          "Type": "word",
+        },{
+          "Name": "Mouse Y Position",
+		  "Code": "MOUSE_Y_POSITION",
+          "Target": "ZP+RegX+2",
+          "Type": "word",
+        },{
+          "Name": "Mouse Button State",
+		  "Code": "MOUSE_BUTTON_STATE",
+          "Target": "A",
+          "Type": "flags",
+		  "Flags":[
+			{ "Value":"0", "Name":"Left Button","Code":"MOUSE_LEFT_BUTTON" },
+			{ "Value":"1", "Name":"Right Button","Code":"MOUSE_RIGHT_BUTTON" },
+			{ "Value":"2", "Name":"Middle Button","Code":"MOUSE_MIDDLE_BUTTON" },
+		  ]
+        },
+	  ]
+	}
+]
+    
+},
+{
+"Name":"Console",
+"Description":"The console is a screen mode that allows text output and input in proportional fonts that support the usual styles. It is useful for rich text-based interfaces.",
+  "Functions": [
+    {
+      "AddressHex": "FEDB",
+      "Code": "CONSOLE_INIT",
+      "Name": "Console Init",
+      "Description": "Initialize the console mode",
+      "Tags": [ "Console", "Initialization" ],
+      "LongDescription": "This function initializes console mode. It sets up the window (text clipping area) passed into it, clears the window and positions the cursor at the top left. All 0 arguments create a full screen console. You have to switch to graphics mode using screen_set_mode beforehand.",
+      "Signature": "void console_init(word x: r0, word y: r1, word width: r2, word height: r3)",
+	  "Parameters": [
+        { "Name": "x", "Target": "r0", "Type":"word" },
+        { "Name": "y", "Target": "r1", "Type":"word" },
+        { "Name": "width", "Target": "r2", "Type":"word" },
+        { "Name": "height", "Target": "r3", "Type":"word" },
+      ]
+    },
+    {
+      "AddressHex": "FED5",
+      "Code": "CONSOLE_SET_PAGING_MESSAGE ",
+      "Name": "Console Set Paging Message",
+      "Description": "Enable paging for the console",
+      "Tags": [ "Console", "Initialisation" ],
+      
+    },
+    {
+      "AddressHex": "FEDE",
+      "Code": "CONSOLE_PUT_IMAGE",
+      "Name": "Console Put Image",
+      "Description": "Draw image as if it was a character",
+      "Tags": ["Console","Paint","Video","Image"],
+	  "LongDescription": "This function draws an image (in GRAPH_draw_image format) at the current cursor position and advances the cursor accordingly. This way, an image can be presented inline. A common example would be an emoji bitmap, but it is also possible to show full-width pictures if you print a newline before and after the image."
+    },
+    {
+      "AddressHex": "FEDE",
+      "Code": "CONSOLE_PUT_CHAR",
+      "Name": "Console Put Character",
+      "Description": "Print character to console",
+      "Tags": [ "Console", "Access" ],
+	  "Tutorials":["CONSOLE_BASIC_DEMO"],
+      "LongDescription": "This function prints a character to the console. The .C flag specifies whether text should be wrapped at character (.C=0) or word (.C=1) boundaries. In the latter case, characters will be buffered until a SPACE, CR or LF character is sent, so make sure the text that is printed always ends in one of these characters.",
+      "Signature":"void console_put_char(byte char: .a, bool wrapping: .c)"
+    },
+    {
+      "AddressHex": "FEE1",
+      "Code": "CONSOLE_GET_CHAR",
+      "Name": "Console Get Character",
+      "Description": "Get character from console",
+      "Tags": ["Console","Access"],
+	  "Tutorials":["CONSOLE_BASIC_DEMO"],
+      "LongDescription": "This function gets a character to the console. It does this by collecting a whole line of character, i.e. until the user presses RETURN. Then, the line will be sent character by character.\r\n\r\nThis function allows editing the line using BACKSPACE/DEL, but does not allow moving the cursor within the line, write more than one line, or using control codes."
+    },
+ ]
+ },
+ {
+"Name":"Memory",
+"Description":"",
+   "Functions": [
+    {
+      "AddressHex": "FEE4",
+      "Code": "MEMORY_FILL",
+      "Name": "Memory Fill",
+      "Description": "Fills the Memory Region with a byte value",
+      "Tags": [ "Memory", "Access" ],
+      "LongDescription": "This function fills the memory region specified by an address (r0) and a size in bytes (r1) with the constant byte value passed in .A"
+    },
+    {
+      "AddressHex": "FEE7",
+      "Code": "MEMORY_COPY",
+      "Name": "Memory Copy",
+      "Description": "Copy a Memory Region",
+      "Tags": [ "Memory", "Access" ],
+      "LongDescription": "This function copies one memory region specified by an address (r0) and a size in bytes (r2) to a different region specified by its start address (r1). The two regions may overlap."
+    },
+    {
+      "AddressHex": "FEEA",
+      "Code": "MEMORY_CRC",
+      "Name": "Calculate Memory Region",
+      "Description": "Calculate CRC16 of memory region",
+      "Tags": [ "Memory", "Access" ],
+      "LongDescription": "This function calculates the CRC16 checksum of the memory region specified by an address (r0) and a size in bytes (r1). The result is returned in r2."
+    },
+	{
+      "AddressHex": "FEED",
+      "Code": "MEMORY_DECOMPRESS",
+      "Name": "Decompress Memory",
+      "Description": "Decompress an LZSA2 block",
+      "Tags": [ "Memory", "Access" ],
+      "LongDescription": "This function decompresses an LZSA2-compressed data block from the location passed in r0 and outputs the decompressed data at the location passed in r1. After the call, r1 will be updated with the location of the last output byte plus one."
+    },
+	]
+  },
+ {
+"Name":"Video",
+"Description":"",
+  "Functions": [
+    {
+      "AddressHex": "FF5F",
+      "Code": "SCREEN_SET_MODE",
+      "Name": "Set Screen Mode",
+      "Description": "Sets the screen Mode",
+      "Tags": [ "Video", "Initialization" ],
+      "LongDescription": "Set the screen mode Call address: $FF5F Communication registers: .A Preparatory routines: None Error returns: .C = 1 in case of error Stack requirements: Registers affected: .A, .X, .Y",
+      "Signature": "void screen_set_mode(SCREEN_MODES ScreenMode)",
+	  "Parameters": [
+        { "Name": "ScreenMode","Target":"A", "LinkTarget": "SCREEN_MODES", "Type":"byte" },
+		],
+      "Returns": [
+        {
+          "Name": "Error",
+          "Target": "C",
+          "Description": "1 in case of error Stack requirements"
+        }
+      ],
+      "Affects": [ "A", "X", "Y" ]
+    },
+    {
+      "AddressHex": "FF5F",
+      "Code": "SCREEN_SET_CHARSET",
+      "Name": "Set Screen Charset",
+      "Description": "Activate a 8x8 text mode charset",
+      "Tags": [ "Video", "Initialization" ],
+      "LongDescription": "A call to this routine uploads a character set to the video hardware and activates it. The value of .A decides what charset to upload",
+      "Signature": "void screen_set_charset()",
+      "Parameters": [
+        {
+          "Name": "Mode",
+          "Target": "A",
+          "Description": "What charset to upload",
+          "ListDescription": [
+            { "Value": "0", "Name": "Use pointer in .X/.Y" },
+            { "Value": "1", "Name": "ISO" },
+            { "Value": "2", "Name": "PET upper/graph" },
+            { "Value": "3", "Name": "PET upper/lower" }
+          ]
+        }
+      ],
+    }, 
+	]
+  },
+ {
+"Name":"Graphics",
+"Description":"",
+  "Functions": [
+	{
+      "AddressHex": "ff26",
+      "Code": "GRAPH_SET_WINDOW",
+      "Name": "Set Graphics Window",
+      "Description": "Set the clipping region",
+      "Tags": [ "Graphics", "Initialization" ],
+      "LongDescription": "All graphics commands are clipped to the window. This function configures the origin and size of the window. All 0 arguments set the window to full screen. Note: 0/0/0/0 will set the window to full screen.",
+      "Signature": "void GRAPH_set_window(word x: r0, word y: r1, word width: r2, word height: r3)",
+      "Parameters": [
+        { "Name": "x", "Target": "r0", "Type":"word" },
+        { "Name": "y", "Target": "r1", "Type":"word" },
+        { "Name": "width", "Target": "r2", "Type":"word" },
+        { "Name": "height", "Target": "r3", "Type":"word" },
+      ],
+    },
+  ]
+   },
+ {
+"Name":"Other",
+"Description":"",
+  "Functions": [
+    {"AddressHex": "0000", "Code": "UNKOWN", "Name": "____", "Description": "","Tags": ["",""] },
+  ]
+   }
+   
+   
+   
+   ],
+
+   
+}

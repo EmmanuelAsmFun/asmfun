@@ -16,6 +16,8 @@ import { ComputerStarted } from "../computer/commands/ComputerCommands.js";
 import { ProcessorBreakpointSwapStateCommand, ProcessorBreakpointSetByAddressCommand } from "./commands/ProcessorCommands.js";
 import { IUILine } from "../editor/ui/IUILine.js";
 import { IUIFile } from "../editor/ui/IUIFile.js";
+import { SourceCodeLoadedAndParsed } from "../editor/commands/SourceCodeCommands.js";
+import { SourceCodeManager } from "../editor/SourceCodeManager.js";
 
 export class BreakPointsManager {
     
@@ -26,6 +28,7 @@ export class BreakPointsManager {
     private breakPoints: IDebuggerBreakpoint[] = [];
     private debuggerService: DebuggerService;
     private editorManger: EditorManager;
+    private sourceCodeManager: SourceCodeManager;
     private editorData: IEditorManagerData;
     private data: IBreakPointsManagerData;
 
@@ -35,12 +38,15 @@ export class BreakPointsManager {
         this.data = mainData.GetUIData(UIDataNameBreakPoints);
         // Resolve services
         this.debuggerService = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
-        this.editorManger = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData); 
+        this.editorManger = mainData.container.Resolve<EditorManager>(EditorManager.ServiceName) ?? new EditorManager(mainData);
+        this.sourceCodeManager = mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(mainData);
         // Subscribe to commands
         mainData.commandManager.Subscribe2(new ProcessorBreakpointSwapStateCommand(null), this, (x) => this.BreakpointSwapState(x.breakpoint));
         mainData.commandManager.Subscribe2(new ProcessorBreakpointSetByAddressCommand(null), this, (x) => this.SetByAddress(x.breakpointAddress, x.state));
         // Subscribe to events
         mainData.eventManager.Subscribe2(new ComputerStarted(), this, () => this.ComputerStarted());
+        mainData.eventManager.Subscribe2(new SourceCodeLoadedAndParsed(), this, () => this.LoadBreakPointsFromSource());
+    
 
         this.data.swapAddBreakPoint = (s) => {
             this.data.isAddingBreakpointAddress = s;
@@ -106,10 +112,21 @@ export class BreakPointsManager {
         this.editorManger.RedrawLine();
     }
 
+    private ComputerStarted(): void {
+        this.LoadBreakPointsFromSource();
+    }
+
+    public LoadBreakPointsFromSource() {
+        var bundle = this.sourceCodeManager.GetEditorBundle();
+        if (bundle == null) return;
+        this.LoadBreakPoints(bundle.files);
+    }
+
     public LoadBreakPoints(files: IEditorFile[] | null) {
         var thiss = this;
         if (files != null)
             this.lastFiles = files;
+        if (this.lastFiles == null) return;
         this.debuggerService.GetBreakPoints((r) => {
             if (r == null) return;
             thiss.ParseBreakpoints(r, this.lastFiles);
@@ -160,9 +177,7 @@ export class BreakPointsManager {
         }
     }
 
-    private ComputerStarted(): void {
-        this.LoadBreakPoints(null);
-    }
+
 
     private BreakpointSwapState(uiBreakPoint: IBreakpointUIData | null): void {
         if (uiBreakPoint == null) return;
