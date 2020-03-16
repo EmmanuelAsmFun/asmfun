@@ -1,0 +1,196 @@
+﻿@import "colors";
+
+
+/*******************************/
+/* Documentation */
+.documentation {
+    position: fixed;
+    top: 30px;
+    width: 60%;
+    right: 0px;
+    bottom: 30px;
+    z-index: 200;
+    background: black;
+    border: 1px solid #bebe95;
+    -webkit-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 36px 6px rgba(0,0,0,0.75);
+    -webkit-touch-callout: text; /* iOS Safari */
+    -webkit-user-select: text; /* Safari */
+    -khtml-user-select: text; /* Konqueror HTML */
+    -moz-user-select: text; /* Firefox */
+    -ms-user-select: text; /* Internet Explorer/Edge */
+    user-select: text; /* Non-prefixed version, currently supported by Chrome and Opera */
+    a {
+        font-size: 11px;
+    }
+
+    h2 {
+        font-weight: 100;
+        font-size: 22px;
+        margin-top: 0;
+    }
+
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 20px;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    .nav-btns {
+        position: absolute;
+        z-index: 10;
+        right: 5px;
+        top: 2px;
+
+        a {
+            font-size: 13px;
+            cursor: pointer;
+
+            &.close-btn {
+                font-size: 22px;
+            }
+        }
+    }
+
+
+
+
+    h3 {
+        cursor: pointer;
+    }
+
+    .showByAddressList {
+        .docCode {
+            cursor: pointer;
+        }
+
+        tr:hover {
+            background: black;
+        }
+    }
+
+    .docFunctionDetail {
+        clear: both;
+        border-bottom: 1px solid #333333;
+        margin-bottom: 80px;
+    }
+
+    .docFunctionTitle {
+        cursor: pointer;
+
+        &.IsOpen {
+            font-weight: bold;
+
+            .docDescription {
+                font-size: 15px;
+            }
+        }
+    }
+
+    .docFunctionName {
+        font-size: 18px;
+        display: inline-block;
+        width: 330px;
+    }
+
+    .docDescription {
+        font-size: 12px;
+        color: #808080;
+    }
+
+    .docInsertCode {
+        border: 1px solid #333333;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        background: #222222;
+
+        .docCode {
+            color: @color-lbl-memory;
+        }
+
+        .docAddressHex {
+        }
+    }
+
+    .flagText {
+        color: @color-flags;
+    }
+
+    .docParameterTarget {
+        color: @color-flags;
+    }
+
+    .docAffects {
+        float: right;
+        font-size: 11px;
+        color: #808080;
+    }
+
+    .docTags {
+        float: right;
+        font-size: 10px;
+        color: #707070;
+        font-style: italic;
+    }
+
+    .docLongDescription {
+        clear: both;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 12px;
+    }
+
+    .docTableTitle {
+        margin-top: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        color: @color-label;
+
+        .docAddNote {
+            font-size: 11px;
+            color: #888888;
+        }
+    }
+
+    .docParameters {
+        border: 1px solid #333333;
+        background: #222222;
+
+        thead {
+            background: #333333;
+        }
+
+        tr {
+            padding: 0;
+            margin: 0;
+        }
+
+        th {
+            border-bottom: 1px solid #333333;
+            font-size: 12px;
+            text-align: left;
+            font-style: italic;
+            margin: 0;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        td {
+            padding-left: 5px;
+            padding-right: 15px;
+            vertical-align: top;
+            font-size: 12px;
+        }
+
+        .docParameterName, .docFlagName {
+            white-space: nowrap;
+        }
+    }
+}

@@ -145,6 +145,7 @@
                     <a href="javascript:" v-on:click="FindReplaceOpenManager" title="Search in sourcecode, CTRL-F" ><span class="fa fa-search"></span></a>
                 </span>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
+                <a href="javascript:" v-on:click="DocumentationOpenManager()" title="Open Documentation"><span class="fa fa-book"></span></a>
                 <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
                 <!--<a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-paint-brush"></span></a>-->
             </div>
@@ -1132,7 +1133,7 @@ programItem.address  | toHex2
                         </div>
 
                     </div>
-                    <div class="documentation">
+                    <div class="viddocumentation">
                         <a href="https://docs.google.com/document/d/1pFlevjsf_PRcOb0QLJp9IGihgYsVtUIxEW5ZZqtu0z0" target="_blank">VERA Documentation (Unofficial)</a>
                     </div>
 
@@ -1539,6 +1540,197 @@ programItem.address  | toHex2
             </div>
         </div>
 
+        <div v-if="documentation.isVisible">
+            <div v-show="documentation.isVisiblePopup" class="documentation v-scaler">
+                <div class="nav-btns">
+
+                    <a v-on:click="documentation.ShowByAddress = true" v-if="!documentation.ShowByAddress">Address List</a>
+                    <a v-on:click="documentation.ShowByAddress = false" v-else>Category List</a>
+                    
+                    &nbsp; &nbsp;
+                    <a class="close-btn" v-on:click="DocumentationOpenManager(false)">X</a>
+                </div>
+                <div class="content">
+                    <h2><span class="fa fa-book"></span> Documentation</h2>
+                    <div v-if="documentation.ShowByAddress" class="showByAddressList">
+                        <table class="docInsertCode">
+                            <tr v-for="dFunction in documentation.ComputerDocByAddress" v-on:click="documentation.SelectByAddress(dFunction); ">
+                                <td class="docCode">{{dFunction.Code}}</td>
+                                <td>= </td>
+                                <td class="docAddressHex">${{dFunction.AddressHex}}</td>
+                                <td> &nbsp; ; </td>
+                                <td class="">{{dFunction.Name}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div v-if="documentation.ComputerDoc != null && !documentation.ShowByAddress">
+                        <h2 style="cursor:pointer;" v-on:click="documentation.ShowGeneral = !documentation.ShowGeneral">Getting started</h2>
+                        <div v-if="documentation.ShowGeneral">
+                            <div v-for="dGeneralInfo in documentation.ComputerDoc.GeneralInfos">
+                                <a class="docFunctionTitle" v-on:click="dGeneralInfo.SwapVisible()" v-bind:class="{'IsOpen' : dGeneralInfo.IsVisible}">
+                                    <span v-if="dGeneralInfo.IsVisible"><span class="fa fa-caret-down fa-fw"></span></span>
+                                    <span v-else><span class="fa fa-caret-right fa-fw"></span></span>
+                                    <span>{{dGeneralInfo.Name}}</span>  <span class="docDescription">{{dGeneralInfo.Description}}</span>
+                                </a>
+                                <div v-if="dGeneralInfo.IsVisible">
+                                    <div class="docLongDescription" v-html="dGeneralInfo.LongDescription"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <br />
+                        <div v-for="dGroup in documentation.ComputerDoc.Groups">
+                            <h3 v-on:click="dGroup.SwapVisible()">{{dGroup.Name}}</h3>
+                            <div v-if="dGroup.IsVisible">
+                                <div v-for="dFunction in dGroup.Functions">
+                                    <a class="docFunctionTitle" v-on:click="dFunction.SwapVisible()" v-bind:class="{'IsOpen' : dFunction.IsVisible}">
+                                        <span v-if="dFunction.IsVisible"><span class="fa fa-caret-down fa-fw"></span></span>
+                                        <span v-else><span class="fa fa-caret-right fa-fw"></span></span>
+                                        <span class="docFunctionName">{{dFunction.Name}}</span>  <span class="docDescription">{{dFunction.Description}}</span>
+                                    </a>
+                                    <div class="docFunctionDetail" v-if="dFunction.IsVisible">
+                                        <div class="docInsertCode">
+                                            <span class="docCode">{{dFunction.Code}}</span> =
+                                            <span class="docAddressHex">${{dFunction.AddressHex}}</span>
+                                        </div>
+                                        <div class="docAffects" v-if="dFunction.Affects != null && dFunction.Affects.length > 0">Affects: <span v-for="dAffect in dFunction.Affects">{{dAffect}}, </span></div>
+
+                                        <div v-if="dFunction.Parameters != null && dFunction.Parameters.length > 0">
+                                            <div class="docTableTitle">Parameters:</div>
+                                            <table class="docParameters">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Target</th>
+                                                        <th>Type</th>
+                                                        <th>Description</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="dParameter in dFunction.Parameters">
+                                                        <td><span class="docParameterName">{{dParameter.Name}}  <a v-if="dParameter.IsOptional" title="Is optional">O</a></span></td>
+                                                        <td class="docParameterTarget">{{dParameter.Target}}</td>
+                                                        <td>
+                                                            <a v-if="dParameter.LinkTarget != null">{{dParameter.Type}} {{dParameter.LinkTarget}}</a>
+                                                            <span v-else>{{dParameter.Type}}</span>
+                                                        </td>
+                                                        <td>
+                                                            <span v-html="dParameter.Description"></span>
+                                                            <div v-if="dParameter.Flags != null && dParameter.Flags.length >0">
+                                                                <table>
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Bit</th>
+                                                                            <th>Name</th>
+                                                                            <th></th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tr v-for="flag in dParameter.Flags">
+                                                                        <td>{{flag.BitIndex}}</td>
+                                                                        <td><span class="docFlagName">{{flag.Name}}</span></td>
+                                                                        <td v-html="flag.Description"></td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                            <div v-if="dParameter.Values != null && dParameter.Values.length >0">
+                                                                <table>
+                                                                    <tr v-for="dValue in dParameter.Values">
+                                                                        <td>{{dValue.Value}}</td>
+                                                                        <td><span class="docParameterName">{{dValue.Name}}</span></td>
+                                                                        <td v-html="dValue.Description"></td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div v-if="dFunction.Returns != null && dFunction.Returns.length > 0">
+                                            <div class="docTableTitle">Returns:</div>
+                                            <table class="docParameters">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Target</th>
+                                                        <th>Type</th>
+                                                        <th>Description</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="dParameter in dFunction.Returns">
+                                                        <td>
+                                                            <span class="docParameterName">
+                                                                {{dParameter.Name}}
+                                                                <a v-if="dParameter.IsOptional" title="Is optional">O</a>
+                                                            </span>
+                                                        </td>
+                                                        <td class="docParameterTarget">{{dParameter.Target}}</td>
+                                                        <td>{{dParameter.Type}}</td>
+                                                        <td>
+                                                            <span v-html="dParameter.Description"></span>
+
+                                                            <div v-if="dParameter.Flags != null && dParameter.Flags.length >0">
+                                                                <table>
+                                                                    <tr v-for="flag in dParameter.Flags">
+                                                                        <td>{{flag.BitIndex}}</td>
+                                                                        <td>{{flag.Name}}</td>
+                                                                        <td>{{flag.Description}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                            <div v-if="dParameter.Values != null && dParameter.Values.length >0">
+                                                                <table>
+                                                                    <tr v-for="dValue in dParameter.Values">
+                                                                        <td>{{dValue.Value}}</td>
+                                                                        <td>{{dValue.Name}}</td>
+                                                                        <td>{{dValue.Description}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div v-if="dFunction.VariableDescriptions != null && dFunction.VariableDescriptions.length > 0">
+                                            <div v-for="vardesc in dFunction.VariableDescriptions">
+                                                <div class="docTableTitle">{{vardesc.Name}}: <span class="docAddNote">({{vardesc.Code}})</span></div>
+                                                <table class="docParameters">
+                                                    <!--<thead>
+                                    <tr>
+                                        <th>Address</th>
+                                        <th>Name</th>
+                                        <th>Comment</th>
+                                    </tr>
+                                </thead>-->
+                                                    <tbody>
+                                                        <tr v-for="dParameter in vardesc.Values">
+                                                            <td>0x{{dParameter.HexValue}}</td>
+                                                            <td><span class="docParameterName">{{dParameter.Name}}</span></td>
+                                                            <td>{{dParameter.Comment}}</td>
+                                                            <td>{{dParameter.Category}}</td>
+                                                            <td v-html="dParameter.Description"></td>
+                                                            <td v-bind:style="{background: dParameter.Color}">{{dParameter.Color}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="docLongDescription" v-html="dFunction.LongDescription"></div>
+                                        <div class="docTags"><span v-for="dTag in dFunction.Tags">{{dTag}}, </span></div>
+                                        <div style="clear:both"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
         <div class="serverVersionFooter">
             <a v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span> V{{ide.currentVersion}}</a>
         </div>
@@ -1551,11 +1743,12 @@ programItem.address  | toHex2
             <h1 id="fullPageInfoTitle"></h1>
             <div id="fullPageInfoContent"></div>
         </div>
-    </div>
+
+
     <div class="footerbar">
         <span class="mouseInfo" id="mouseInfo"> </span>
     </div>
-   
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HTQ9YEL51"></script>
     <script>

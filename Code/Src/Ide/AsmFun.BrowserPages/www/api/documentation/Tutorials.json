@@ -1,0 +1,210 @@
+{
+"Tutorials":[
+{
+	"Name": "Mouse Basic Demo",
+	"Code":"MOUSE_BASIC_DEMO",
+	"Tags":["Mouse"],
+	"SourceCode":`
+!cpu 65c02
+;Basic Command SYS $8010
+ *=$0801
+    !8 $0E, $08, $0A, $00, $9E, $20, $28, $32, $30 , $36, $34, $29, $00, $00, $00
+ *=$0810
+ 
+ 
+MOUSE_CONFIG = $FF68
+MOUSE_GET = $FF6B
+ 
+DEMO_MOUSEX = $10
+DEMO_MOUSEY = $12
+ 
+Start:
+ 
+  lda #$01
+  ldx #$01
+  jsr MOUSE_CONFIG
+  jmp Mainloop        
+  
+Mainloop:
+ ; get the mouse coordinates in ZP address $10
+ ;  - x = address $10 $11
+ ;  - y = address $12 $13
+ ; use the auto refresh memory to see in action.
+ ldx #$10
+ jsr MOUSE_GET
+ nop
+ jmp Mainloop
+ 
+	`
+},{
+	"Name": "Console Basic Demo",
+	"Code":"CONSOLE_BASIC_DEMO",
+	"Tags":["Console"],
+	"SourceCode":`
+	!cpu 65c02
+ *=$0801  ;Basic Command SYS $8010
+    !8 $0E, $08, $0A, $00, $9E, $20, $28, $32, $30 , $36, $34, $29, $00, $00, $00
+ *=$0810
+ 
+screen_set_mode =  $FF5F
+CONSOLE_PUT_CHAR              = $FEDE
+CONSOLE_GET_CHAR              = $FEE1
+ 
+Start:
+  LDA #$80
+  JSR screen_set_mode ; SET 320x200@256C MODE
+ 
+DrawConsoleChar:
+  lda #">" ; Is same as $3E
+  JSR CONSOLE_PUT_CHAR ; Write the letter from the register
+  jmp Mainloop        
+  
+Mainloop:
+  jsr CONSOLE_GET_CHAR ; Get the character from the console
+  cmp #$51 ; Compare to character 'q'
+  beq Done
+  cmp #$0D ; Compare to ENTER character
+  beq DrawConsoleChar
+  jmp Mainloop
+ 
+Done:
+  nop
+ `
+  
+},{
+	"Name": "Console Basic Init Demo",
+	"Code":"CONSOLE_BASIC_INIT_DEMO",
+	"Tags":["Console","Initialization"],
+	"SourceCode":`
+  !cpu 65c02
+;Basic Command SYS $8010
+ *=$0801
+    !8 $0E, $08, $0A, $00, $9E, $20, $28, $32, $30 , $36, $34, $29, $00, $00, $00
+ *=$0810
+ 
+r0L      = $02
+r0H      = $03
+r1L      = $04
+r1H      = $05
+r2L      = $06
+r2H      = $07
+r3L      = $08
+r3H      = $09
+ 
+screen_set_mode =  $FF5F
+CONSOLE_INIT                  = $FEDB
+CONSOLE_PUT_CHAR              = $FEDE
+CONSOLE_GET_CHAR              = $FEE1
+ 
+Start:
+ 
+ 
+  
+  stz r0H
+  lda #$5
+  sta r0L
+  stz r1H
+  lda #$8
+  sta r1L
+  lda #$01 ; 420 = 01 A4
+  sta r2H
+  lda #$A4
+  sta r2L
+  stz r3H    ; 240 = 00 F0
+  lda #$F0
+  sta r3L
+  jsr CONSOLE_INIT
+  
+  ; LDA #$80
+  ;JSR screen_set_mode ; SET 320x200@256C MODE
+  
+DrawConsoleChar:
+  lda #">" ; $3E
+  JSR CONSOLE_PUT_CHAR ; Write the letter from the register
+  jmp Mainloop        
+  
+Mainloop:
+  jsr CONSOLE_GET_CHAR ; Get the character from the console
+  cmp #$51 ; Compare to character 'q'
+  beq Done
+  cmp #$0D ; Compare to ENTER character
+  beq DrawConsoleChar
+  jmp Mainloop
+ 
+Done:
+  nop
+ `
+  
+},{
+	"Name": "Graphics Basic Init Demo",
+	"Code":"GRAPHICS_BASIC_INIT_DEMO",
+	"Tags":["Console","Initialization"],
+	"Description":"Prepares the drawing space with a green background",
+	"SourceCode":`
+!cpu 65c02
+ *=$0801
+    !8 $0E, $08, $0A, $00, $9E, $20, $28, $32, $30 , $36, $34, $29, $00, $00, $00
+ *=$0810
+ 
+; word r0 
+r0L      = $02
+r0H      = $03
+; word r1
+r1L      = $04
+r1H      = $05
+; word r2
+r2L      = $06
+r2H      = $07
+; word r3
+r3L      = $08
+r3H      = $09
+ 
+SCREEN_SET_MODE = $FF5F
+GRAPH_CLEAR = $FF23
+GRAPH_SET_WINDOW = $FF26 
+GRAPH_SET_COLORS = $FF29 
+COLOUR_GREEN = $05
+ 
+start:
+    ; set the screen mode 320x200@256c 40x25 text
+    lda #$80
+    jsr SCREEN_SET_MODE
+    
+    
+    ; Set the graphic window size
+    ;   - word x:      r0
+    ;   - word y:      r1
+    ;   - word width:  r2
+    ;   - word height: r3
+    lda #5
+    sta r0L   ; r0 = x = 5
+    stz r0H
+    sta r1L   ; r1 = y = 5
+    stz r1H
+    lda #<300 ; r3 = width = 300
+    sta r2L
+    lda #>300
+    sta r2H
+    lda #<150 ; r3 = height = 150
+    sta r3L
+    lda #>150
+    sta r3H
+    jsr GRAPH_SET_WINDOW
+    ; Draw gray rectangle
+    ldy #COLOUR_GREEN 
+    ; set the stroke, fill and background color. 
+    ;   - byte stroke: .a
+    ;   - byte fill: .x
+    ;   - byte background: .y
+    jsr GRAPH_SET_COLORS
+    ; Clear the current window with the current background color
+    jsr GRAPH_CLEAR 
+   
+ mainloop
+ nop
+   jmp mainloop
+
+  `
+  
+]
+}

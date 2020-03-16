@@ -70,13 +70,13 @@ namespace AsmFun.Ide.Core.Features.Files
                 Name = Path.GetFileName(Path.GetDirectoryName(folderName))
             };
             
-            var dirFiles = Directory.GetFiles(folderName);
+            var dirFiles = Directory.Exists(folderName) ?Directory.GetFiles(folderName) : new string[] { };
             foreach (var dirFile in dirFiles)
             {
                 var file = GetFileInfo(dirFile);
                 returnData.Files.Add(file);
             }
-            var dirFolders = Directory.GetDirectories(folderName);
+            var dirFolders = Directory.Exists(folderName) ? Directory.GetDirectories(folderName) : new string[] { };
             foreach (var dirFolder in dirFolders)
             {
                 var folder = GetFolderInfo(dirFolder);

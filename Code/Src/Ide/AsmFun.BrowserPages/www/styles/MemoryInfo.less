@@ -1,5 +1,6 @@
-﻿
-@import "colors";
+﻿@import "colors";
+
+
 @keyframes actifOpcode {
     from {
         transform: scale(1);
@@ -15,7 +16,7 @@
     top: 29px;
     right: 110px;
     padding: 10px;
-    color: #11b011;
+    color: @color-flags;
     width: 179px;
     height: 89px;
     border: 1px solid @color-popup-border;
@@ -81,7 +82,10 @@
         top: 28px;
         right: 5px;
         font-size: 10px;
-        a{ cursor:pointer;}
+
+        a {
+            cursor: pointer;
+        }
     }
 
     .Accumulator, .RegisterX, .RegisterY {
