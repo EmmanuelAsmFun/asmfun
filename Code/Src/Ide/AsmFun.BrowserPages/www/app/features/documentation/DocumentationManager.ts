@@ -32,8 +32,11 @@ export class DocumentationManager implements IPopupWindow {
         this.popupMe = mainData.popupManager.Subscribe(0, this);
         this.data = this.mainData.GetUIData(UIDataNameDocumentation);
         this.mainData.commandManager.Subscribe2(new DocumentationOpenManagerCommand(null), this, x => this.popupMe.SwitchState(x.state));
-        setTimeout(() => this.popupMe.Open(), 200);
+        
         this.data.SelectByAddress = f => this.SelectByAddress(f);
+        if (document.location.href.indexOf("popup=documentation") > -1)
+            setTimeout(() => this.popupMe.Open(), 200);
+        this.LoadData();
     }
 
     private SelectByAddress(selected: IDocFunction): void {
@@ -48,11 +51,7 @@ export class DocumentationManager implements IPopupWindow {
         selected.Group.IsVisible = true;
     }
 
-    
-
-    public OpeningPopup() {
-        var thiss = this;
-        if (this.data.ComputerDoc != null) return;
+    public LoadData() {
         this.documentationService.GetCommanderX16((r) => {
             console.log(r);
             var computerDocByAddress: IDocFunction[] = [];
@@ -112,6 +111,12 @@ export class DocumentationManager implements IPopupWindow {
             this.data.ComputerDocByAddress = computerDocByAddress.sort((a, b) => a.AddressHex.localeCompare(b.AddressHex));
             this.data.ComputerDoc = r;
         });
+    }
+
+    public OpeningPopup() {
+        var thiss = this;
+        if (this.data.ComputerDoc != null) return;
+        this.LoadData();
     }
 
     private ToHtml(data: string) {

@@ -139,15 +139,20 @@
                 <span> For Commander X16</span>
                 &nbsp;
                 &nbsp;
-                <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
-                <a href="javascript:" v-on:click="SaveProject" title="Save project, CTRL-S"><span class="fa fa-save"></span></a>
-                <span v-if="!painterManager.isVisible">
-                    <a href="javascript:" v-on:click="FindReplaceOpenManager" title="Search in sourcecode, CTRL-F" ><span class="fa fa-search"></span></a>
+                <span v-if="!ide.serverNotConnected">
+                    <a href="javascript:" v-on:click="ProjectOpenManager()" title="Open project manager"><span class="fa fa-folder-open"></span></a>
+                    <a href="javascript:" v-on:click="SaveProject" title="Save project, CTRL-S"><span class="fa fa-save"></span></a>
+                    <span v-if="!painterManager.isVisible">
+                        <a href="javascript:" v-on:click="FindReplaceOpenManager" title="Search in sourcecode, CTRL-F"><span class="fa fa-search"></span></a>
+                    </span>
                 </span>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
                 <a href="javascript:" v-on:click="DocumentationOpenManager()" title="Open Documentation"><span class="fa fa-book"></span></a>
-                <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
-                <!--<a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-paint-brush"></span></a>-->
+                <span v-if="!ide.serverNotConnected">
+                    <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
+                 </span>
+                <span v-else><a  href="javascript:" v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span></a></span>
+                    <!--<a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-paint-brush"></span></a>-->
             </div>
             <div class="newVersionText" v-if="ide.newVersionAvailable">
                 <a href="javascript:" v-on:click="ASMFunPlayerOpenManager(true)">
