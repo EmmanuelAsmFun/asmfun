@@ -149,7 +149,7 @@
       "Name": "Clock Set DateTime",
       "Description": "Set date and time",
       "Affects": [ "A", "X","Y" ],
-      "Tags": [ "Mouse", "Initialization" ],
+      "Tags": [ "Clock", "Time","Date" ,"Set"],
       "LongDescription": "The routine CLOCK_SET_DATE_TIME sets the system's real-time-clock. ",
 	  "Parameters": [
         { "Name": "Year (1900-based)", "Target": "r0L", "Type":"byte" },
@@ -166,7 +166,7 @@
       "Name": "Clock Get DateTime",
       "Description": "Get date and time",
       "Affects": [ "A", "X","Y" ],
-      "Tags": [ "Mouse", "Initialization" ],
+      "Tags": [ "Clock", "Time","Date" , "Get"],
       "LongDescription": "The routine CLOCK_GET_DATE_TIME returns the state of the system's real-time-clock.  ",
 	  "Parameters": [
         { "Name": "Year (1900-based)", "Target": "r0L", "Type":"byte" },
@@ -197,7 +197,7 @@
       "Name": "Mouse Config",
       "Description": "Configures Mouse Pointer",
       "Affects": [ "A", "X","Y" ],
-      "Tags": [ "Mouse", "Initialization" ],
+      "Tags": [ "Mouse", "Initialization" , "Config" ],
       "LongDescription": "The routine MOUSE_CONFIG configures the mouse pointer.",
 	  "Parameters": [
         { "Name": "Mouse Visible & Shape", "Target": "A", "Type":"byte", "LinkTarget": "MOUSE_MODES", "Description":"Specifies whether the mouse pointer should be visible or not, and what shape it should have. For a list of possible values, see the basic statement MOUSE." },
@@ -209,7 +209,7 @@
       "Name": "Mouse Scan",
       "Description": "Query the mouse and save its state",
       "Affects": [ "A", "X","Y" ],
-      "Tags": [ "Mouse", "Access" ],
+      "Tags": [ "Mouse", "Access" , "Scan" ],
       "LongDescription": "The routine MOUSE_SCAN retrieves all state from the mouse and saves it. It can then be retrieved using MOUSE_GET. The default interrupt handler already takes care of this, so this routine should only be called if the interrupt handler has been completely replaced."
     },{
       "AddressHex": "FF6B",
@@ -217,7 +217,7 @@
       "Name": "Mouse Get",
       "Description": "Get the mouse state",
       "Affects": [ "A" ],
-      "Tags": [ "Mouse", "Access" ],
+      "Tags": [ "Mouse", "Access" ,"Position", "Button" , "Get"],
       "LongDescription": "The routine MOUSE_GET returns the state of the mouse. The caller passes the offset of a zero-page location in .X, which the routine will populate with the mouse position in 4 consecutive bytes.",
 	   "Parameters": [
         { "Name": "ZP Offset","Code":"MOUSE_ZP_OFFSET", "Target": "X", "Type":"byte", "Description":"The Zero Page offset for the result" }
@@ -262,7 +262,7 @@
       "Name": "Joystick Scan",
       "Description": "Query the Joystick and save its state",
       "Affects": [ "A", "X","Y" ],
-      "Tags": [ "Joystick", "Access" ],
+      "Tags": [ "Joystick", "Access" , "Scan" ],
       "LongDescription": "The routine JOYSTICK_SCAN retrieves all state from the two joysticks and saves it. It can then be retrieved using JOYSTICK_GET. The default interrupt handler already takes care of this, so this routine should only be called if the interrupt handler has been completely replaced."
     },{
       "AddressHex": "FF56",
@@ -270,7 +270,7 @@
       "Name": "Joystick Get",
       "Description": "Get one Joystick state",
       "Affects": [ "A","X","Y" ],
-      "Tags": [ "Joystick", "Access" ],
+      "Tags": [ "Joystick", "Access", "Button" ,"Get" ],
       "LongDescription": "The routine JOYSTICK_GET retrieves all states from one joystick. The number of the joystick is passed in .A (0 or 1), and the state is returned in .A, .X and .Y.",
 	   "Parameters": [
         { "Name": "Joystick Index","Code":"JOYSTICK_INDEX", "Target": "A", "Type":"byte", "Description":"0 or 1, which joystick to query." }
@@ -330,7 +330,7 @@
       "Name": "Sprite Set Image",
       "Description": "Sets the image of a sprite.",
       "Affects": [ "A", "X","Y","C" ],
-      "Tags": [ "Sprite", "Initialization" ],
+      "Tags": [ "Sprite", "Initialization", "sprites", "Bpp", "Mask", "Pixels" ,"Set", "Image" ],
 	  "Signature":"bool sprite_set_image(byte number: .a, width: .x, height: .y, apply_mask: .c, word pixels: r0, word mask: r1, byte bpp: r2L)",
       "LongDescription": "This function sets the image of a sprite., The pixel data at r0 is interpreted accordingly and converted into the graphics hardware's native format. If the .C flag is set, the transparency mask pointed to by r1 is applied during the conversion. \r\n\r\nNote: There are certain limitations on the possible values of width, height, bpp and apply_mask:\r\n\r\n- Width and height may not exceed the hardware's capabilities.\r\n- Legal values for bpp are 1, 4 and 8. If the hardware only supports lower depths, the image data is converted down.",
 	  "Parameters": [
@@ -344,10 +344,10 @@
 		],
 	  "Returns": [
         { 
-		"Name": "Wrap Mode",
+		"Name": "Has Error",
 		"Target":"C", 
 		"Type":"bit", 
-		"Description":"Wrap Text Mode.",
+		"Description":"",
 		"Values": [
             { "Value": "0", "Name": "Converting the data was successful" },
             { "Value": "1", "Name": "Not successful. Note that this does not change the visibility of the sprite." }		
@@ -360,7 +360,7 @@
       "Code": "SPRITE_SET_POSITION",
       "Name": "Sprite Set Position",
       "Description": "Set the the position of a sprite or hide it",
-      "Tags": [ "Sprite", "Access" ],
+      "Tags": [ "Sprite", "Access", "Sprites", "Position" , "Set" ],
       "LongDescription": "This function shows a given sprite (.A) at a certain position or hides it. The position is passed in r0 and r1. If the x position is negative (>$8000), the sprite will be hidden.",
       "Signature": "void sprite_set_position(byte number: .a, word x: r0, word y: r1)",
 	  "Parameters": [
@@ -391,7 +391,7 @@
       "Name": "Framebuffer Get Info",
       "Description": "Return the resolution and color depth",
 	  "Signature":"void FB_get_info(out word width: r0, out word height: r1, out byte color_depth: .a)",
-      "Tags": [ "Framebuffer", "Initialization" ],
+      "Tags": [ "Framebuffer", "Initialization", "ColorDepth" ],
 	  "Returns": [
         { "Name": "Width", "Target": "r0", "Type":"word" },
         { "Name": "Height", "Target": "r1", "Type":"word" },
@@ -416,7 +416,7 @@
       "Name": "Framebuffer Set Cursor",
       "Description": "Set (parts of) the palette",
 	  "Signature":"void FB_cursor_position(word x: r0, word y: r1)",
-      "Tags": [ "Framebuffer", "Cursor" ],
+      "Tags": [ "Framebuffer", "Cursor", "Position" ],
 	  "Parameters": [
         { "Name": "X", "Target": "r0", "Type":"word" },
         { "Name": "Y", "Target": "r1", "Type":"word" }
@@ -427,7 +427,7 @@
       "Name": "Framebuffer go to next line",
       "Description": "Move direct-access cursor to next line",
 	  "Signature":"void void FB_cursor_next_line(word x: r0)",
-      "Tags": [ "Framebuffer", "Cursor" ],
+      "Tags": [ "Framebuffer", "Cursor", "Position" ],
 	  "LongDescription":"Increments the y position of the direct-access cursor, and sets the x position to the same one that was passed to the previous FRAMEBUFFER_SET_CURSOR call. This is useful for drawing rectangular shapes, and faster than explicitly positioning the cursor.",
 	  "Parameters": [
         { "Name": "X", "Target": "r0", "Type":"word" }
@@ -438,7 +438,7 @@
       "Name": "Framebuffer Get Pixel",
       "Description": "Copy pixels into RAM, update cursor",
 	  "Signature":"byte FB_get_pixel()",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint", "Pixel" ],
 	  "Returns": [
         { "Name": "Pixel", "Target": "A", "Type":"byte" }
       ]
@@ -448,7 +448,7 @@
       "Name": "Framebuffer Get Pixels",
       "Description": "Copy pixels into RAM, update cursor",
 	  "Signature":"void FB_get_pixels(word ptr: r0, word count: r1)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint", "Pixel" ],
 	  "LongDescription":"This function copies pixels into an array in RAM. The array consists of one byte per pixel.",
 	  "Parameters": [
         { "Name": "Pointer", "Target": "r0", "Type":"word" },
@@ -460,7 +460,7 @@
       "Name": "Framebuffer Set One Pixel",
       "Description": "Set one pixel, update cursor",
 	  "Signature":"void FB_set_pixel(byte color: .a)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint" , "Pixel"],
 	  "Parameters": [
         { "Name": "Pixel", "Target": "A", "Type":"byte" }
       ]
@@ -470,7 +470,7 @@
       "Name": "Framebuffer Set Pixels",
       "Description": "Copy pixels from RAM, update cursor",
 	  "Signature":"void FB_set_pixels(word ptr: r0, word count: r1)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint" , "Pixel"],
 	  "LongDescription":"This function sets pixels from an array of pixels in RAM. The array consists of one byte per pixel.",
 	  "Parameters": [
         { "Name": "Pointer", "Target": "r0", "Type":"word" },
@@ -482,7 +482,7 @@
       "Name": "Framebuffer Set 8 Pixels",
       "Description": "Set 8 pixels from bit mask (transparent), update cursor",
 	  "Signature":"void FB_set_8_pixels(byte pattern: .a, byte color: .x)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint", "Pixel" ,"Mask" ],
 	  "LongDescription":"This function sets all 1-bits of the pattern to a given color and skips a pixel for every 0 bit. The order is MSB to LSB. The cursor will be moved by 8 pixels.",
 	  "Parameters": [
         { "Name": "Pattern", "Target": "A", "Type":"byte" },
@@ -494,7 +494,7 @@
       "Name": "Framebuffer Set 8 Pixels Opaque",
       "Description": "Set 8 pixels from bit mask (opaque), update cursor",
 	  "Signature":"void FB_set_8_pixels_opaque(byte pattern: .a, byte mask: r0L, byte color1: .x, byte color2: .y)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint", "Pixel", "Mask" ],
 	  "LongDescription":"For every 1-bit in the mask, this function sets the pixel to color1 .X if the corresponding bit in the pattern is 1, and to color2 .Y otherwise. For every 0-bit in the mask, it skips a pixel. The order is MSB to LSB. The cursor will be moved by 8 pixels.",
 	  "Parameters": [
         { "Name": "Pattern", "Target": "A", "Type":"byte" },
@@ -508,7 +508,7 @@
       "Name": "Framebuffer Fill Pixels",
       "Description": "Sets pixels with a constant color, update cursor",
 	  "Signature":"void FB_fill_pixels(word count: r0, word step: r1, byte color: .a)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint" , "Pixel", "Fill"],
 	  "LongDescription":"Sets pixels with a constant color. The argument step r1 specifies the increment between pixels. A value of 0 or 1 will cause consecutive pixels to be set. Passing a step value of the screen width will set vertically adjacent pixels going top down. Smaller values allow drawing dotted horizontal lines, and multiples of the screen width allow drawing dotted vertical lines.",
 	  "Parameters": [
         { "Name": "Count", "Target": "r0", "Type":"word" },
@@ -521,7 +521,7 @@
       "Name": "Framebuffer Filter Pixels",
       "Description": "Apply transform to pixels, update cursor",
 	  "Signature":"void FB_filter_pixels(word ptr: r0, word count: r1)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint" , "Pixel"],
 	  "LongDescription":"This function allows modifying consecutive pixels. The function pointer will be called for every pixel, with the color in .a, and it needs to return the new color in .a.",
 	  "Parameters": [
         { "Name": "Pointer", "Target": "r0", "Type":"word" },
@@ -533,7 +533,7 @@
       "Name": "Framebuffer Move Pixels",
       "Description": "Copy horizontally consecutive pixels to a different position",
 	  "Signature":"void FB_move_pixels(word sx: r0, word sy: r1, word tx: r2, word ty: r3, word count: r4)",
-      "Tags": [ "Framebuffer", "Paint" ],
+      "Tags": [ "Framebuffer", "Paint", "Pixel", "Move" ],
 	  "LongDescription":"This function allows modifying consecutive pixels. The function pointer will be called for every pixel, with the color in .a, and it needs to return the new color in .a.",
 	  "Parameters": [
         { "Name": "Source X", "Target": "r0", "Type":"word" },
@@ -558,7 +558,7 @@
       "Code": "GRAPHICS_INIT",
       "Name": "Init Graphics Mode",
       "Description": "Activate framebuffer driver, enter and initialize graphics mode",
-      "Tags": [ "Graphics", "Initialization" ],
+      "Tags": [ "Graphics", "Initialization" , "Config"],
       "LongDescription": "This call activates the framebuffer driver whose vector table is passed in r0. If r0 is 0, the default driver is activated. It then switches the video hardware into graphics mode, sets the window to full screen, initializes the colors and activates the system font.",
       "Signature": "void GRAPH_init(word vectors: r0)",
       "Parameters": [
@@ -569,13 +569,13 @@
       "Code": "GRAPHICS_CLEAR",
       "Name": "Clear the current window",
       "Description": "Clear the current window with the current background color.",
-      "Tags": [ "Graphics", "Paint" ]
+      "Tags": [ "Graphics", "Paint", "Clear" ,"Screen", "Window" ]
     },{
       "AddressHex": "FF26",
       "Code": "GRAPHICS_SET_WINDOW",
       "Name": "Set Graphics Window",
       "Description": "Set the clipping region",
-      "Tags": [ "Graphics", "Initialization" ],
+      "Tags": [ "Graphics", "Initialization", "Set" ,"Screen", "Window" ,"Setup"],
       "LongDescription": "All graphics commands are clipped to the window. This function configures the origin and size of the window. All 0 arguments set the window to full screen. Note: 0/0/0/0 will set the window to full screen.",
       "Signature": "void GRAPH_set_window(word x: r0, word y: r1, word width: r2, word height: r3)",
       "Parameters": [
@@ -589,7 +589,7 @@
       "Code": "GRAPHICS_SET_COLORS",
       "Name": "Set Graphics Colors",
       "Description": "Set the stroke, fill and the background color",
-      "Tags": [ "Graphics", "Paint" ],
+      "Tags": [ "Graphics", "Paint", "Color", "Fill" , "Set" ],
       "LongDescription": "This function sets the three colors: The stroke color, the fill color and the background color.",
       "Signature": "void GRAPH_set_colors(byte stroke: .a, byte fill: .x, byte background: .y)",
       "Parameters": [
@@ -602,7 +602,7 @@
       "Code": "GRAPHICS_DRAW_LINE",
       "Name": "Graphics Draw Line",
       "Description": "Draw a line using the stroke color",
-      "Tags": [ "Graphics", "Paint" ],
+      "Tags": [ "Graphics", "Paint" ,"Line", "Draw"],
       "LongDescription": " Draw a line using the stroke color.",
       "Signature": "void GRAPH_draw_line(word x1: r0, word y1: r1, word x2: r2, word y2: r3)",
       "Parameters": [
@@ -616,7 +616,7 @@
       "Code": "GRAPHICS_DRAW_RECTANGLE",
       "Name": "Graphics Draw Rectangle",
       "Description": "Draw a rectangle.",
-      "Tags": [ "Graphics", "Paint" ],
+      "Tags": [ "Graphics", "Paint", "Rectangle", "Fill", "Draw" ],
       "LongDescription": "This function will draw the frame of a rectangle using the stroke color. If fill is true, it will also fill the area using the fill color. To only fill a rectangle, set the stroke color to the same value as the fill color.",
       "Signature": "void GRAPH_draw_rect(word x: r0, word y: r1, word width: r2, word height: r3, word corner_radius: r4, bool fill: .c)",
       "Parameters": [
@@ -632,7 +632,7 @@
       "Code": "GRAPHICS_MOVE_RECTANGLE",
       "Name": "Graphics Move Rectangle",
       "Description": "Copy a rectangular screen area to a different location.",
-      "Tags": [ "Graphics", "Paint" ],
+      "Tags": [ "Graphics", "Paint" , "Rectangle", "Move"],
       "LongDescription": "Copy a rectangular area of the screen to a different location. The two areas may overlap.",
       "Signature": "void GRAPH_move_rect(word sx: r0, word sy: r1, word tx: r2, word ty: r3, word width: r4, word height: r5)",
       "Parameters": [
@@ -648,7 +648,7 @@
       "Code": "GRAPHICS_DRAW_OVAL",
       "Name": "Graphics Draw Oval",
       "Description": "Draw an oval or a circle.",
-      "Tags": [ "Graphics", "Paint" ],
+      "Tags": [ "Graphics", "Paint" , "Oval","Fill", "Draw"],
       "LongDescription": "This function draws an oval filling the given bounding box. If width equals height, the resulting shape is a circle. The oval will be outlined by the stroke color. If fill is true, it will be filled using the fill color. To only fill an oval, set the stroke color to the same value as the fill color.",
       "Signature": "void GRAPH_draw_oval(word x: r0, word y: r1, word width: r2, word height: r3, bool fill: .c)",
       "Parameters": [
@@ -663,7 +663,7 @@
       "Code": "GRAPHICS_DRAW_IMAGE",
       "Name": "Graphics Draw Image",
       "Description": "Draw a rectangular image from data in memory.",
-      "Tags": [ "Graphics", "Paint","Image" ],
+      "Tags": [ "Graphics", "Paint","Image", "Draw" ,"Put" ],
       "LongDescription": "This function copies pixel data from memory onto the screen. The representation of the data in memory has to have one byte per pixel, with the pixels organized line by line top to bottom, and within the line left to right.",
       "Signature": "void GRAPH_draw_image(word x: r0, word y: r1, word ptr: r2, word width: r3, word height: r4)",
       "Parameters": [
@@ -678,7 +678,7 @@
       "Code": "GRAPHICS_SET_FONT",
       "Name": "Graphics Set Font",
       "Description": "Set the current font.",
-      "Tags": [ "Graphics", "Font","Text"  ],
+      "Tags": [ "Graphics", "Font","Text" ,"Set" , "Style"  ],
       "LongDescription": "This function sets the current font to be used for the remaining font-related functions. The argument is a pointer to the font data structure in memory, which must be in the format of a single point size GEOS font (i.e. one GEOS font file VLIR chunk). An argument of 0 will activate the built-in system font.",
       "Signature": "void GRAPH_set_font(void ptr: r0)",
       "Parameters": [
@@ -689,7 +689,7 @@
       "Code": "GRAPHICS_GET_CHAR_SIZE",
       "Name": "Graphics Get Char Size",
       "Description": "Get the size and baseline of a character, or interpret a control code.",
-      "Tags": [ "Graphics", "Font","Text" ],
+      "Tags": [ "Graphics", "Font","Text" ,"Char" ,"Get" ,"Size"],
       "LongDescription": "This functionality of GRAPH_get_char_size depends on the type of code that is passed in: For a printable character, this function returns the metrics of the character in a given format. For a control code, it returns the resulting format. In either case, the current format is passed in .x, and the character in .a.\r\n\r\n - The format is an opaque byte value whose value should not be relied upon, except for 0, which is plain text.\r\r - The resulting values are measured in pixels.\r\n - The basline is measured from the top.",
       "Signature": "(byte baseline: .a, byte width: .x, byte height_or_style: .y, bool is_control: .c) GRAPH_get_char_size(byte c: .a, byte format: .x)",
       "Parameters": [
@@ -707,7 +707,7 @@
       "Code": "GRAPHICS_PUT_CHAR",
       "Name": "Graphics Put Character",
       "Description": "Print a character.",
-      "Tags": [ "Graphics", "Font","Text" ],
+      "Tags": [ "Graphics", "Font","Text", "Character", "Write", "Put" ],
       "LongDescription": "This function prints a single character at a given location on the graphics screen. The location is then updated.",
       "Signature": "void GRAPH_put_char(inout word x: r0, inout word y: r1, byte c: .a)",
       "Parameters": [
@@ -733,11 +733,11 @@
       "Code": "CONSOLE_INIT",
       "Name": "Console Init",
       "Description": "Initialize the console mode",
-      "Tags": [ "Console", "Initialization" ],
+      "Tags": [ "Console", "Initialization", "Mode" ,"Config" ],
       "LongDescription": "This function initializes console mode. It sets up the window (text clipping area) passed into it, clears the window and positions the cursor at the top left. All 0 arguments create a full screen console. You have to switch to graphics mode using screen_set_mode beforehand.",
       "Signature": "void console_init(word x: r0, word y: r1, word width: r2, word height: r3)",
 	  "Parameters": [
-         { "Name": "X", "Target": "r0", "Type":"word" },
+        { "Name": "X", "Target": "r0", "Type":"word" },
         { "Name": "Y", "Target": "r1", "Type":"word" },
         { "Name": "Width", "Target": "r2", "Type":"word" },
         { "Name": "Height", "Target": "r3", "Type":"word" }
@@ -748,7 +748,7 @@
       "Code": "CONSOLE_SET_PAGING_MESSAGE ",
       "Name": "Console Set Paging Message",
       "Description": "Enable paging for the console",
-      "Tags": [ "Console", "Initialization" ],
+      "Tags": [ "Console", "Initialization", "Paging", "Message" ,"Set" ],
 	  "Signature":"void console_set_paging_message(word message: r0)",
 	  "LongDescription":"The console can halt printing after a full screen height worth of text has been printed. It will then show a message, wait for any key, and continue printing. This function sets this message. A zero-terminated text is passed in r0. To turn off paging, call this function with r0 = 0 - this is the default.\r\n\r\n Note: It is possible to use control codes to change the text style and color. Do not use codes that change the cursor position, like CR or LF. Also, the text must not overflow one line on the screen.",
 	   "Parameters": [
@@ -760,7 +760,7 @@
       "Code": "CONSOLE_PUT_IMAGE",
       "Name": "Console Put Image",
       "Description": "Draw image as if it was a character",
-      "Tags": ["Console","Paint","Video","Image"],
+      "Tags": ["Console","Paint","Video","Image", "Put"],
 	
 	  "LongDescription": "This function draws an image (in GRAPH_draw_image format) at the current cursor position and advances the cursor accordingly. This way, an image can be presented inline. A common example would be an emoji bitmap, but it is also possible to show full-width pictures if you print a newline before and after the image."
     },
@@ -769,7 +769,7 @@
       "Code": "CONSOLE_PUT_CHAR",
       "Name": "Console Put Character",
       "Description": "Print character to console",
-      "Tags": [ "Console", "Access" ],
+      "Tags": [ "Console", "Access", "Char", "Write", "Put" ,"Text"],
 	  "Tutorials":["CONSOLE_BASIC_DEMO"],
       "LongDescription": "This function prints a character to the console. The .C flag specifies whether text should be wrapped at character (.C=0) or word (.C=1) boundaries. In the latter case, characters will be buffered until a SPACE, CR or LF character is sent, so make sure the text that is printed always ends in one of these characters.",
       "Signature":"void console_put_char(byte char: .a, bool wrapping: .c)",
@@ -791,7 +791,7 @@
       "Code": "CONSOLE_GET_CHAR",
       "Name": "Console Get Character",
       "Description": "Get character from console",
-      "Tags": ["Console","Access"],
+      "Tags": ["Console","Access" , "Get", "Char" , "Text"],
 	  "Tutorials":["CONSOLE_BASIC_DEMO"],
 	  "Signature":"(byte char: .a) console_get_char()",
       "LongDescription": "This function gets a character to the console. It does this by collecting a whole line of character, i.e. until the user presses RETURN. Then, the line will be sent character by character.\r\n\r\nThis function allows editing the line using BACKSPACE/DEL, but does not allow moving the cursor within the line, write more than one line, or using control codes.",
@@ -817,7 +817,7 @@
       "Code": "MEMORY_FILL",
       "Name": "Memory Fill",
       "Description": "Fills the Memory Region with a byte value",
-      "Tags": [ "Memory", "Access" ],
+      "Tags": [ "Memory", "Access", "Fill" ],
 	  "Signature":"void memory_fill(word address: r0, word num_bytes: r1, byte value: .a)",
       "LongDescription": "This function fills the memory region specified by an address (r0) and a size in bytes (r1) with the constant byte value passed in .A",
 	  "Parameters": [
@@ -831,7 +831,7 @@
       "Code": "MEMORY_COPY",
       "Name": "Memory Copy",
       "Description": "Copy a Memory Region",
-      "Tags": [ "Memory", "Access" ],
+      "Tags": [ "Memory", "Access" , "Copy" , "Address" ],
 	  "Signature":"void memory_copy(word source: r0, word target: r1, word num_bytes: r2)",
       "LongDescription": "This function copies one memory region specified by a source address (r0) and a size in bytes (r2) to a different region specified by its start target address (r1). The two regions may overlap.",
 	   "Parameters": [
@@ -845,7 +845,7 @@
       "Code": "MEMORY_CRC",
       "Name": "Calculate Memory Region",
       "Description": "Calculate CRC16 of memory region",
-      "Tags": [ "Memory", "Access" ],
+      "Tags": [ "Memory", "Access" , "CRC" ,"Address" ],
 	  "Signature":"(word result: r2) memory_crc(word address: r0, word num_bytes: r1)",
       "LongDescription": "This function calculates the CRC16 checksum of the memory region specified by an address (r0) and a size in bytes (r1). The result is returned in r2.",
 	  "Parameters": [
@@ -861,7 +861,7 @@
       "Code": "MEMORY_DECOMPRESS",
       "Name": "Decompress Memory",
       "Description": "Decompress an LZSA2 block",
-      "Tags": [ "Memory", "Access" ],
+      "Tags": [ "Memory", "Access" ,"Decompress","LZSA2", "Compress"  ],
 	  "Signature":"void memory_decompress(word input: r0, inout word output: r1)",
       "LongDescription": "This function decompresses an LZSA2-compressed data block from the location passed in r0 and outputs the decompressed data at the location passed in r1. After the call, r1 will be updated with the location of the last output byte plus one.\r\n\r\nNotes:\r\n - To create compressed data, use the lzsa tool^4 like this: lzsa -r -f2 &lt;original_file&gt; &lt;compressed_file&gt;\r\n - This function cannot be used to decompress data in-place, as the output data would overwrite the input data before it is consumed. Therefore, make sure to load the input data to a different location. \r\n - It is possible to have the input data stored in banked RAM, with the obvious 8 KB size restriction.",
 	  "Parameters": [
@@ -873,7 +873,7 @@
       "Code": "JSRFAR",
       "Name": "Jump SubRoutine Far",
       "Description": "Execute a routine on another RAM or ROM bank",
-      "Tags": [ "SpecialOpcode" ],
+      "Tags": [ "Opcode" , "Jump" , "SubRoutine" , "Far" ,"Bank" ,"Address" ],
 	  "StackRequirementCount":4,
 	  "Signature":"",
       "LongDescription": "The routine JSRFAR enables code to execute some other code located on a specific RAM or ROM bank. This works independently of which RAM or ROM bank the currently executing code is residing in. The 16 bit address and the 8 bit bank number have to follow the instruction stream. The JSRFAR routine will switch both the ROM and the RAM bank to the specified bank and restore it after the routine's RTS. Execution resumes after the 3 byte arguments.",
@@ -882,20 +882,29 @@
         { "Name": "Bank", "Target": "Next byte", "Type":"byte", "Description":".BYTE 1     ; BANK"}
 		]
     },
-	{  "AddressHex": "FF9C", "Code": "MEMORY_MEMBOT", "Name": "R/W usable start address", "Description": "Read/write address of start of usable"},
+	{  "AddressHex": "FF9C", "Code": "MEMORY_MEMBOT", "Name": "R/W usable start address", "Description": "Read/write address of start of usable",
+	"Tags":["Memory", "Start" ,"Address"]},
 	{  "AddressHex": "FF99", "Code": "MEMORY_MEMTOP", "Name": "R/W usable end address", "Description": "Read/write address of end of usable. ",
 		"Returns":[
 			{ "Name": "Available RAM banks", "Target": "A", "Type":"byte"}
-		]
+		],
+	"Tags":["Memory", "Start" ,"Address" ,"Banks", "Available" ,"RAM"]
 	},
-	 {  "AddressHex": "FF8D", "Code": "MEMORY_LKUPLA", "Name": "Search tables for given LA"},
-	 {  "AddressHex": "FF8A", "Code": "MEMORY_LKUPSA", "Name": "Search tables for given SA"},
+	 {  "AddressHex": "FF8D", "Code": "MEMORY_LKUPLA", "Name": "Search tables for given LA",
+	"Tags":["Memory", "Lookup" ,"Table" ,"LA","Search"]},
+	 {  "AddressHex": "FF8A", "Code": "MEMORY_LKUPSA", "Name": "Search tables for given SA",
+	"Tags":["Memory", "Lookup" ,"Table" ,"SA" ,"Search"]},
 	 
-	 {  "AddressHex": "FF74", "Code": "MEMORY_FETCH", "Name": "LDA (fetvec),Y from any bank", "LongDescription":"Require the caller to set the zero page location containing the address in memory beforehand at address : LOGIC_FETVEC $03AF"},
-	 {  "AddressHex": "FF77", "Code": "MEMORY_STASH", "Name": "STA (stavec),Y to any bank", "LongDescription":"Require the caller to set the zero page location containing the address in memory beforehand at address : LOGIC_STAVEC $????"},
-	 {  "AddressHex": "FF7A", "Code": "MEMORY_CMPARE", "Name": "CMP (cmpvec),Y to any bank", "LongDescription":"Require the caller to set the zero page location containing the address in memory beforehand at address : LOGIC_CMPVEC $????"},
-	 {  "AddressHex": "FF7D", "Code": "MEMORY_PRIMM", "Name": "Print string with caller’s code","Description":"Print string following the caller’s code"},
-	 {  "AddressHex": "03AF", "Code": "MEMORY_FETVEC", "Name":"Fetch vector(address)", "Description": "The vector(address) to use with LOGIC_FETCH"}
+	 {  "AddressHex": "FF74", "Code": "MEMORY_FETCH", "Name": "LDA (fetvec),Y from any bank", "LongDescription":"Require the caller to set the zero page location containing the address in memory beforehand at address : LOGIC_FETVEC $03AF",
+	"Tags":["Memory", "Fetch" ]},
+	 {  "AddressHex": "FF77", "Code": "MEMORY_STASH", "Name": "STA (stavec),Y to any bank", "LongDescription":"Require the caller to set the zero page location containing the address in memory beforehand at address : LOGIC_STAVEC $????",
+		"Tags":["Memory", "Stash" ]},
+	 {  "AddressHex": "FF7A", "Code": "MEMORY_CMPARE", "Name": "CMP (cmpvec),Y to any bank", "LongDescription":"Require the caller to set the zero page location containing the address in memory beforehand at address : LOGIC_CMPVEC $????",
+		"Tags":["Memory", "Compare" ]},
+	 {  "AddressHex": "FF7D", "Code": "MEMORY_PRIMM", "Name": "Print string with caller’s code","Description":"Print string following the caller’s code",
+		"Tags":["Memory", "Print" ]},
+	 {  "AddressHex": "03AF", "Code": "MEMORY_FETVEC", "Name":"Fetch vector(address)", "Description": "The vector(address) to use with LOGIC_FETCH",
+		"Tags":["Memory", "Fetch", "Vector" ]}
 	]
   },
   
@@ -910,7 +919,7 @@
       "Code": "MONITOR",
       "Name": "Enter Monitor Mode",
       "Description": "Enter the machine language monitor",
-      "Tags": [ "Computer", "Debug" ],
+      "Tags": [ "Computer", "Debug"  , "Monitor" , "Mode"],
 	  "Signature":"",
       "LongDescription": "This routine switches from BASIC to machine language monitor mode. It does not return to the caller. When the user quits the monitor, it will restart BASIC."
     },{
@@ -918,7 +927,7 @@
       "Code": "BASIC",
       "Name": "Enter Basic Mode",
       "Description": "Enter BASIC mode",
-      "Tags": [ "Computer", "Debug" ],
+      "Tags": [ "Computer", "Debug" , "Basic" , "Mode"],
 	  "Signature":"",
       "LongDescription": "Call this to enter BASIC mode, either through a cold start (.C=1) or a warm start (.C=0).",
 	  "Parameters": [
@@ -932,7 +941,6 @@
     },
 	{  "AddressHex": "FFE1", "Code": "KEY_STOP", "Name": "Test for STOP key C64"},
 	{  "AddressHex": "FFE4", "Code": "KEY_GETIN", "Name": "Get character from keyboard C64"},
-	 
 	
 	 {  "AddressHex": "FF65", "Code": "KEY_PFKEY", "Name": "Program a function key"}
 	 
@@ -950,7 +958,7 @@
       "Code": "SCREEN_SET_MODE",
       "Name": "Set Screen Mode",
       "Description": "Sets the screen Mode",
-      "Tags": [ "Video", "Initialization" ],
+      "Tags": [ "Video", "Initialization", "Screen", "Mode" ,"Set" ],
       "LongDescription": "",
       "Signature": "void screen_set_mode(SCREEN_MODES ScreenMode)",
 	  "Parameters": [
@@ -970,7 +978,7 @@
       "Code": "SCREEN_SET_CHARSET",
       "Name": "Set Screen Charset",
       "Description": "Activate a 8x8 text mode charset",
-      "Tags": [ "Video", "Initialization" ],
+      "Tags": [ "Video", "Initialization", "Screen", "Charset", "Set" ],
       "LongDescription": "A call to this routine sets a character to the video hardware and activates it. The value of .A sets the character. If .A is zero, .X (lo) and .Y (hi) contain a pointer to a 2 KB RAM area that gets uploaded as the new 8x8 character set. The data has to consist of 256 characters of 8 bytes each, top to bottom, with the MSB on the left and set bits representing the foreground color.",
       "Signature": "void screen_set_charset()",
       "Parameters": [
@@ -990,9 +998,12 @@
 		 { "Name": "High address","Code":"SCREEN_SET_CHARSET_HIGH_AD", "Target": "Y", "Type":"byte", "Description":"The High-Address to the pointer to the 2KB RAM","IsOptional":true }
       ]
     },
-	{  "AddressHex": "FFED", "Code": "SCREEN_SCREEN", "Name": "Get the screen resolution"},
-	{  "AddressHex": "FFF0", "Code": "SCREEN_PLOT", "Name": "Read/write cursor position "},
-	 {  "AddressHex": "FF62", "Code": "SCREEN_DLCHR", "Name": "Activate a text mode font in the video hardware"}
+	{  "AddressHex": "FFED", "Code": "SCREEN_SCREEN", "Name": "Get the screen resolution",
+		"Tags":["Screen", "Resolution","Get" , "Video" ]},
+	{  "AddressHex": "FFF0", "Code": "SCREEN_PLOT", "Name": "Read/write cursor position ",
+		"Tags":["Screen", "Plot" , "Cursor","Position", "Video" ,"Set" ]},
+	 {  "AddressHex": "FF62", "Code": "SCREEN_DLCHR", "Name": "Activate a text mode font in the video hardware",
+		"Tags":["Screen", "Text","Mode","Font", "Video" , "Initialization" ,"Config" ]}
 	
 	]
   },
@@ -1003,22 +1014,38 @@
 "Name":"Channel I/O",
 "Description":"",
    "Functions": [ 
-     {  "AddressHex": "FF90", "Code": "IO_SETMSG", "Name": "Set verbosity"},
-     {  "AddressHex": "FFB7", "Code": "IO_READST", "Name": "Return status byte"},
-     {  "AddressHex": "FFBA", "Code": "IO_SETLFS", "Name": "Set LA, FA and SA"},
-     {  "AddressHex": "FFBD", "Code": "IO_SETNAM", "Name": "Set filename"},
-     {  "AddressHex": "FFC0", "Code": "IO_OPEN", "Name": "Open a channel"},
-     {  "AddressHex": "FFC3", "Code": "IO_CLOSE", "Name": "Close a channel"},
-     {  "AddressHex": "FFC6", "Code": "IO_CHKIN", "Name": "Set channel for character input"},
-     {  "AddressHex": "FFC9", "Code": "IO_CHKOUT", "Name": "Set channel for character output"},
-     {  "AddressHex": "FFCC", "Code": "IO_CLRCHN", "Name": "Restore character I/O to screen/keyboard "},
-     {  "AddressHex": "FFCF", "Code": "IO_BASIN", "Name": "Get character"},
-     {  "AddressHex": "FFD2", "Code": "IO_BASOUT", "Name": "Write character"},
-     {  "AddressHex": "FFD5", "Code": "IO_LOAD", "Name": "Load a file into memory"},
-     {  "AddressHex": "FFD8", "Code": "IO_SAVE", "Name": "Save a file from memory"},
-     {  "AddressHex": "FFE7", "Code": "IO_CLALL", "Name": "Close all channels"},
-	 {  "AddressHex": "FFF3", "Code": "IO_IOBASE", "Name": "Return start of I/O area" , "Description":"Returns $9F60, the location of the first VIA controller."},
-	 {  "AddressHex": "FF4A", "Code": "IO_CLOSE_ALL", "Name": "Close all files on a device"}
+     {  "AddressHex": "FF90", "Code": "IO_SETMSG", "Name": "Set verbosity",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Set" ,"Verbosity" ]},
+     {  "AddressHex": "FFB7", "Code": "IO_READST", "Name": "Return status byte",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Get", "Status" ]},
+     {  "AddressHex": "FFBA", "Code": "IO_SETLFS", "Name": "Set LA, FA and SA",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Set" , "LA", "FA", "SA" ]},
+     {  "AddressHex": "FFBD", "Code": "IO_SETNAM", "Name": "Set filename",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Set" , "Filename" ]},
+     {  "AddressHex": "FFC0", "Code": "IO_OPEN", "Name": "Open a channel",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Open" , "Channel" ]},
+     {  "AddressHex": "FFC3", "Code": "IO_CLOSE", "Name": "Close a channel",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Close" , "Channel" ]},
+     {  "AddressHex": "FFC6", "Code": "IO_CHKIN", "Name": "Set channel for character input",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Set", "Channel","Character"  ]},
+     {  "AddressHex": "FFC9", "Code": "IO_CHKOUT", "Name": "Set channel for character output",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Set", "Channel" ,"Character" ]},
+     {  "AddressHex": "FFCC", "Code": "IO_CLRCHN", "Name": "Restore character I/O to screen/keyboard",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Restore","Character" ]},
+     {  "AddressHex": "FFCF", "Code": "IO_BASIN", "Name": "Get character",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Get","Character" ]},
+     {  "AddressHex": "FFD2", "Code": "IO_BASOUT", "Name": "Write character",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Set","Character" ,"Write" ]},
+     {  "AddressHex": "FFD5", "Code": "IO_LOAD", "Name": "Load a file into memory",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Load","File" ,"Memory" ]},
+     {  "AddressHex": "FFD8", "Code": "IO_SAVE", "Name": "Save a file from memory",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Save","File" ,"Memory" ]},
+     {  "AddressHex": "FFE7", "Code": "IO_CLALL", "Name": "Close all channels",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Close" , "Channels"]},
+	 {  "AddressHex": "FFF3", "Code": "IO_IOBASE", "Name": "Return start of I/O area" , "Description":"Returns $9F60, the location of the first VIA controller.",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Start" , "VIA" ,"Address" ]},
+	 {  "AddressHex": "FF4A", "Code": "IO_CLOSE_ALL", "Name": "Close all files on a device",
+		"Tags":["Channel", "Input","Output" , "I/O" ,"Close" ,"Files", "Device" ]}
 	
 	]
   },
@@ -1028,15 +1055,24 @@
 "Name":"Peripheral Bus",
 "Description":"",
    "Functions": [ 
-     {  "AddressHex": "FFB4", "Code": "BUS_TALK", "Name": "Send TALK command"},
-     {  "AddressHex": "FFB1", "Code": "BUS_LISTEN", "Name": "Send LISTEN command"},
-     {  "AddressHex": "FFAE", "Code": "BUS_UNLSN", "Name": "Send UNLISTEN command"},
-     {  "AddressHex": "FFAB", "Code": "BUS_UNTLK", "Name": "Send UNTALK command"},
-     {  "AddressHex": "FFA8", "Code": "BUS_IECOUT", "Name": "Send byte to serial bus"},
-     {  "AddressHex": "FFA5", "Code": "BUS_IECIN", "Name": "Read byte from serial bus"},
-     {  "AddressHex": "FFA2", "Code": "BUS_SETTMO", "Name": "Set timeout"},
-     {  "AddressHex": "FF96", "Code": "BUS_TKSA", "Name": "Send TALK secondary address"},
-     {  "AddressHex": "FF93", "Code": "BUS_SECOND", "Name": "Send LISTEN secondary address"}
+     {  "AddressHex": "FFB4", "Code": "BUS_TALK", "Name": "Send TALK command",
+		"Tags":["Peripheral", "Bus","Send" , "command" ,"TALK" ]},
+     {  "AddressHex": "FFB1", "Code": "BUS_LISTEN", "Name": "Send LISTEN command",
+		"Tags":["Peripheral", "Bus","Send" , "command" ,"LISTEN" ]},
+     {  "AddressHex": "FFAE", "Code": "BUS_UNLSN", "Name": "Send UNLISTEN command",
+		"Tags":["Peripheral", "Bus","Send" , "command" ,"UNLISTEN" ]},
+     {  "AddressHex": "FFAB", "Code": "BUS_UNTLK", "Name": "Send UNTALK command",
+		"Tags":["Peripheral", "Bus","Send" , "command" ,"UNTALK" ]},
+     {  "AddressHex": "FFA8", "Code": "BUS_IECOUT", "Name": "Send byte to serial bus",
+		"Tags":["Peripheral", "Bus","Send" , "Serial" ,"Set" ]},
+     {  "AddressHex": "FFA5", "Code": "BUS_IECIN", "Name": "Read byte from serial bus",
+		"Tags":["Peripheral", "Bus","Read" , "Serial" ,"Get" ]},
+     {  "AddressHex": "FFA2", "Code": "BUS_SETTMO", "Name": "Set timeout",
+		"Tags":["Peripheral", "Bus","Set" , "timeout" ]},
+     {  "AddressHex": "FF96", "Code": "BUS_TKSA", "Name": "Send TALK secondary address",
+		"Tags":["Peripheral", "Bus","Send" , "command" ,"TALK" ,"Secondary" ]},
+     {  "AddressHex": "FF93", "Code": "BUS_SECOND", "Name": "Send LISTEN secondary address",
+		"Tags":["Peripheral", "Bus","Send" , "command" ,"LISTEN","Secondary"  ]}
 	]
   },
    
@@ -1051,7 +1087,7 @@
       "Code": "REGISTER_VRAM_ADDR_LOW",
       "Name": "VRAM Low (7:0)",
       "Description": "The VRAM Address Low ",
-      "Tags": [ "Register","Video", "VERA", "Access" ],
+      "Tags": [ "Register","Video", "VERA", "Access" ,"VRAM","Address" ],
 	  "Parameters": [
         { "Name": "Address", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1068,7 +1104,7 @@
       "Name": "VRAM High (16) & Incr/Decr",
       "Description": "The VRAM Address High and Address Increment or decrement",
 	  "LongDescription":"By setting the 'Address Increment' field in ADDRx_H, the address will be increment after each access to the data register. Setting the DECR bit, will decrement instead of increment by the value set by the Incr/Decr amount field. \r\nThe increment register values and corresponding increment amounts are shown in the following table:\r\n\r\nRegister value|\tIncrement amount\r\n0\t0\r\n1\t1\r\n2\t2\r\n3\t4\r\n4\t8\r\n5\t16\r\n6\t32\r\n7\t64\r\n8\t128\r\n9\t256\r\n10\t512\r\n11\t40\r\n12\t80\r\n13\t160\r\n14\t320\r\n15\t640\r\n",
-      "Tags": [ "Register","Video", "VERA", "Access" ],
+      "Tags": [ "Register","Video", "VERA", "Access","VRAM" ,"Address" ],
 	  "Parameters": [
         { "Name": "VRAM Address", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1083,7 +1119,7 @@
       "Code": "REGISTER_VRAM_DATA0",
       "Name": "VRAM Data port 0",
       "Description": "",
-      "Tags": [ "Register","Video", "VERA", "Access" ],
+      "Tags": [ "Register","Video", "VERA", "Access" ,"VRAM" ,"Data"],
 	  "Parameters": [
         { "Name": "VRAM Data port 0", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1091,7 +1127,7 @@
       "Code": "REGISTER_VRAM_DATA1",
       "Name": "VRAM Data port 1",
       "Description": "",
-      "Tags": [ "Register","Video", "VERA", "Access" ],
+      "Tags": [ "Register","Video", "VERA", "Access","VRAM" ,"Data" ],
 	  "Parameters": [
         { "Name": "VRAM Data port 1", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1099,7 +1135,7 @@
       "Code": "REGISTER_CTRL",
       "Name": "Reset, DCSEL and ADDRSEL",
       "Description": "",
-      "Tags": [ "Register","VERA", "Access" ],
+      "Tags": [ "Register","VERA", "Access","ADDRSEL","DCSEL","Reset" ],
 	  "Parameters": [
         { "Name": "CTRL", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1117,7 +1153,7 @@
       "Code": "REGISTER_IEN",
       "Name": "IEN & IRQ (8)",
       "Description": "Interrupt sources & IRQ (8)",
-      "Tags": [ "Register","VERA", "Access","Sprites","IEN","IRQ","VSYNC" ],
+      "Tags": [ "Register","VERA", "Access","Sprites","IEN","IRQ","VSYNC","LINE" ,"AFLOW" ,"Ctrl"],
 	  "Parameters": [
         { "Name": "CTRL", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1136,7 +1172,7 @@
       "Name": "ISR",
       "Description": "ISR will indicate the interrupts that have occurred",
 	  "LongDescription":"Writing a 1 to one of the lower 3 bits in ISR will clear that interrupt status. AFLOW can only be cleared by filling the audio FIFO for at least 1/4. \r\n\r\nAt the start of the vertical blank Collisions in ISR is updated. This field indicates which groups of sprites have collided. If the field is non-zero the SPRCOL interrupt will be set. The interrupt is generated once per field / frame and can be cleared by making sure the sprites no longer collide.\r\n\r\nNote that collisions are only detected on lines that are actually rendered. This can result in subtle differences between non-interlaced and interlaced video modes.",
-      "Tags": [ "Register","VERA", "Access","Sprites","ISR","VSYNC" ],
+      "Tags": [ "Register","VERA", "Access","Sprites","ISR","VSYNC","LINE" ,"AFLOW" ,"collission" ],
 	  "Parameters": [
         { "Name": "CTRL", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1152,7 +1188,7 @@
       "Name": "IRQ line (7:0)",
       "Description": "IRQ line (7:0)",
 	  "LongDescription":"IRQ_LINE specifies at which line the LINE interrupt will be generated. Note that bit 8 of this value is present in the IEN register. For interlaced modes the interrupt will be generated each field and the bit 0 of IRQ_LINE is ignored.",
-      "Tags": [ "Register","VERA", "Access","IRQ" ],
+      "Tags": [ "Register","VERA", "Access","IRQ" ,"Line" ],
 	  "Parameters": [
         { "Name": "IRQLINE_L", "Target": "Address", "Type":"byte", "Description":"IRQ line (7:0)" } ]
     },{
@@ -1160,7 +1196,7 @@
       "Code": "REGISTER_DC_VIDEO",
       "Name": "Video Config",
       "Description": "(DCSEL=0)",
-      "Tags": [ "Register","VERA", "Access","Sprites","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Sprite","Layer", "Video" ,"Enable" ,"Output","Mode", "Field" ,"Chroma" ],
 	  "Parameters": [
         { "Name": "DC_VIDEO", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1178,7 +1214,7 @@
       "Name": "Horizontal Scale",
       "Description": "Active Display Horizontal Scale (DCSEL=0)",
 	  "LongDescription":"DC_HSCALE and DC_VSCALE will set the fractional scaling factor of the active part of the display. Setting this value to 128 will output 1 output pixel for every input pixel. Setting this to 64 will output 2 output pixels for every input pixel.",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video" ,"Scale" , "Horizontal" , "HSCALE"],
 	  "Parameters": [
         { "Name": "DC_HSCALE", "Target": "Address", "Type":"byte", "Description":"Active Display H-Scale" } ]
     },{
@@ -1187,7 +1223,7 @@
       "Name": "Vertical Scale",
       "Description": "Active Display Vertical Scale (DCSEL=0)",
 	  "LongDescription":"DC_HSCALE and DC_VSCALE will set the fractional scaling factor of the active part of the display. Setting this value to 128 will output 1 output pixel for every input pixel. Setting this to 64 will output 2 output pixels for every input pixel.",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video" ,"Scale" ,"Vertical" ,"VSCALE" ],
 	  "Parameters": [
         { "Name": "DC_VSCALE", "Target": "Address", "Type":"byte", "Description":"Active Display V-Scale" } ]
     },{
@@ -1196,7 +1232,7 @@
       "Name": "Border Color",
       "Description": "The border color (DCSEL=0)",
 	  "LongDescription":"",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video" ,"Border" ,"Background" ],
 	  "Parameters": [
         { "Name": "DC_BORDER", "Target": "Address", "Type":"byte", "Description":"Border Color" } ]
     },{
@@ -1205,7 +1241,7 @@
       "Name": "Horizontal Start",
       "Description": "Active Display Horizontal Start (9:2) (DCSEL=1)",
 	  "LongDescription":"DC_HSTART/DC_HSTOP and DC_VSTART/DC_VSTOP determines the active part of the screen. The values here are specified in the native 640x480 display space. HSTART=0, HSTOP=640, VSTART=0, VSTOP=480 will set the active area to the full resolution. Note that the lower 2 bits of DC_HSTART/DC_HSTOP and the lower 1 bit of DC_VSTART/DC_VSTOP isn't available. This means that horizontally the start and stop values can be set at a multiple of 4 pixels, vertically at a multiple of 2 pixels.",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video", "Region","Start" , "Horizontal" ,"HSTART" ],
 	  "Parameters": [
         { "Name": "DC_HSTART", "Target": "Address", "Type":"byte", "Description":"Active Display H-Start (9:2)" } ]
     },{
@@ -1214,7 +1250,7 @@
       "Name": "Horizontal Stop",
       "Description": "Active Display Horizontal Stop (9:2) (DCSEL=1)",
 	  "LongDescription":"DC_HSTART/DC_HSTOP and DC_VSTART/DC_VSTOP determines the active part of the screen. The values here are specified in the native 640x480 display space. HSTART=0, HSTOP=640, VSTART=0, VSTOP=480 will set the active area to the full resolution. Note that the lower 2 bits of DC_HSTART/DC_HSTOP and the lower 1 bit of DC_VSTART/DC_VSTOP isn't available. This means that horizontally the start and stop values can be set at a multiple of 4 pixels, vertically at a multiple of 2 pixels.",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video" , "Region","End" , "Stop", "Horizontal", "HSTOP"],
 	  "Parameters": [
         { "Name": "DC_HSTOP", "Target": "Address", "Type":"byte", "Description":"Active Display H-Stop (9:2)" } ]
     },{
@@ -1223,7 +1259,7 @@
       "Name": "Vertical Start",
       "Description": "Active Display Vertical Start (8:1) (DCSEL=1)",
 	  "LongDescription":"DC_HSTART/DC_HSTOP and DC_VSTART/DC_VSTOP determines the active part of the screen. The values here are specified in the native 640x480 display space. HSTART=0, HSTOP=640, VSTART=0, VSTOP=480 will set the active area to the full resolution. Note that the lower 2 bits of DC_HSTART/DC_HSTOP and the lower 1 bit of DC_VSTART/DC_VSTOP isn't available. This means that horizontally the start and stop values can be set at a multiple of 4 pixels, vertically at a multiple of 2 pixels.",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video" , "Region","Start" , "Vertical" ,"VSTART"],
 	  "Parameters": [
         { "Name": "DC_VSTART", "Target": "Address", "Type":"byte", "Description":"Active Display V-Start (8:1)" } ]
     },{
@@ -1232,7 +1268,7 @@
       "Name": "Vertical Stop",
       "Description": "Active Display Vertical Stop (8:1) (DCSEL=1)",
 	  "LongDescription":"DC_HSTART/DC_HSTOP and DC_VSTART/DC_VSTOP determines the active part of the screen. The values here are specified in the native 640x480 display space. HSTART=0, HSTOP=640, VSTART=0, VSTOP=480 will set the active area to the full resolution. Note that the lower 2 bits of DC_HSTART/DC_HSTOP and the lower 1 bit of DC_VSTART/DC_VSTOP isn't available. This means that horizontally the start and stop values can be set at a multiple of 4 pixels, vertically at a multiple of 2 pixels.",
-      "Tags": [ "Register","VERA", "Access","Video" ],
+      "Tags": [ "Register","VERA", "Access","Video" , "Region","End" , "Stop", "Vertical" ,"VSTOP"],
 	  "Parameters": [
         { "Name": "DC_VSTOP", "Target": "Address", "Type":"byte", "Description":"Active Display V-Stop (8:1)" } ]
     }
@@ -1251,7 +1287,7 @@
       "Name": "SPI Data",
       "Description": "SPI Data, SD card data",
 	  "LongDescription": "",
-	  "Tags": [ "Register","SPI", "SD-Card"],
+	  "Tags": [ "Register","SPI", "SD-Card" , "SDCard" ,"Read"],
 	  "Parameters": [
         { "Name": "SPI_DATA", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1260,7 +1296,7 @@
       "Name": "SPI Control",
       "Description": "SPI Control, SD card connector",
 	  "LongDescription": "The SPI controller is connected to the SD card connector. The speed of the clock output of the SPI controller can be controlled by the 'Slow Clock' bit. When this bit is 0 the clock is 12.5MHz, when 1 the clock is about 390kHz. The slow clock speed is to be used during the initialization phase of the SD card. Some SD cards require a clock less than 400kHz during part of the initialization.\r\n\r\nA transfer can be started by writing to SPI_DATA. While the transfer is in progress the BUSY bit will be set. After the transfer is done, the result can be read from the SPI_DATA register.\r\n\r\nThe chip select can be controlled by writing the SELECT bit. Writing 1 will assert the chip-select (logic-0) and writing 0 will release the chip-select (logic-1).",
-	  "Tags": [ "Register","SPI", "SD-Card"],
+	  "Tags": [ "Register","SPI", "SD-Card" , "SDCard"],
 	  "Parameters": [
         { "Name": "SPI_CTRL", "Target": "Address", "Type":"flags" ,
 		"Flags":[
@@ -1291,7 +1327,7 @@
       "Name": "Layer 0 Config",
       "Description": "",
 	   "LongDescription":"'Map Width', 'Map Height' specify the dimensions of the tile map:<br /><br />Value | Map width/height<br />0 = 32 tiles<br />1 = 64 tiles<br />2 = 128 tiles<br />3 = 256 tiles\r\n\r\nThe handling of 1 bpp tile mode is different from the other tile modes. Depending on the T256C bit the tiles use either a 16-color foreground and background color or a 256-color foreground color. Other modes ignore the T256C bit.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video", "Map" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video", "Map" ,"Bitmap","Mode" ,"T256C", "Map" , "Color" ,"Depth","Initialization","Config" ],
 	  "Parameters": [
         { "Name": "L0_CONFIG", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1307,7 +1343,7 @@
       "Name": "Layer 0 Map Base Address",
       "Description": "Layer 0 Map Base Address (16:9)",
 	  "LongDescription": "Specifies the base address of the tile map. Note that the register only specifies bits 16:9 of the address, so the address is always aligned to a multiple of 512 bytes.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video", "Map" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video", "Map" ,"MAPBASE" ,"Address","Initialization","Config" ],
 	  "Parameters": [
         { "Name": "L0_MAPBASE", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1316,7 +1352,7 @@
       "Name": "Layer 0 Tile Config",
       "Description": "Tile Base Address (16:11) & Tile Width and Height",
 	  "LongDescription": "Specifies the base address of the tile data. Note that the register only specifies bits 16:11 of the address, so the address is always aligned to a multiple of 2048 bytes.<br /><br />'Tile Width', 'Tile Height' specify the dimensions of a single tile:<br />Value | Tile width/height<br />0 = 8 pixels<br />1 = 16 pixels<br /><br />Tile Width specifies the bitmap width in Bitmap mode. TILEW=0 results in 320 pixels width and TILEW=1 results in 640 pixels width.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video", "Tiles" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video", "Tiles" , "TILEBASE" ,"Address","Initialization","Config" ],
 	  "Parameters": [
         { "Name": "L0_TILEBASE", "Target": "Address", "Type":"byte", 
 		"Flags":[
@@ -1330,7 +1366,7 @@
       "Name": "Layer 0 H-Scroll (7:0)",
       "Description": "Layer 0 Horizontal Scroll Low (7:0)",
 	  "LongDescription": "Specifies the horizontal scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move left, decreasing will cause the picture to move right.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" ,"HSCROLL" ],
 	  "Parameters": [
         { "Name": "L0_HSCROLL_L", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1339,7 +1375,7 @@
       "Name": "Layer 0 H-Scroll (11:8) (Pal)",
       "Description": "Layer 0 Horizontal Scroll High (11:8) or Palette offset in bitmap mode",
 	  "LongDescription": "Specifies the horizontal scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move left, decreasing will cause the picture to move right.\r\n\r\nIn bitmap modes, the 'H-Scroll (11:8)' register is used to specify the palette offset for the bitmap.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" , "HSCROLL" ],
 	  "Parameters": [
         { "Name": "L0_HSCROLL_H", "Target": "Address", "Type":"byte" ,
 		"Flags":[
@@ -1352,7 +1388,7 @@
       "Name": "Layer 0 V-Scroll (7:0)",
       "Description": "Layer 0 Vertical Scroll Low (7:0)",
 	  "LongDescription": "Specifies the vertical scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move up, decreasing will cause the picture to move down.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" ,"VSCROLL" ],
 	  "Parameters": [
         { "Name": "L0_VSCROLL_L", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1361,7 +1397,7 @@
       "Name": "Layer 0 V-Scroll (11:8)",
       "Description": "Layer 0 Vertical Scroll High (11:8)",
 	  "LongDescription": "Specifies the vertical scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move up, decreasing will cause the picture to move down.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" ,"VSCROLL" ],
 	  "Parameters": [
         { "Name": "L0_VSCROLL_H", "Target": "Address", "Type":"byte" ,
 		"Flags":[
@@ -1377,7 +1413,7 @@
       "Name": "Layer 1 Config",
       "Description": "",
 	  "LongDescription":"'Map Width', 'Map Height' specify the dimensions of the tile map:<br /><br />Value | Map width/height<br />0 = 32 tiles<br />1 = 64 tiles<br />2 = 128 tiles<br />3 = 256 tiles\r\n\r\nThe handling of 1 bpp tile mode is different from the other tile modes. Depending on the T256C bit the tiles use either a 16-color foreground and background color or a 256-color foreground color. Other modes ignore the T256C bit.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video", "Map" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video", "Map" ,"Bitmap","Mode" ,"T256C", "Map" , "Color" ,"Depth" ,"Initialization" ,"Config"],
 	  "Parameters": [
         { "Name": "L1_CONFIG", "Target": "Address", "Type":"flags", 
 		"Flags":[
@@ -1393,7 +1429,7 @@
       "Name": "Layer 1 Map Base Address",
       "Description": "Layer 1 Map Base Address (16:9)",
 	  "LongDescription" :"Specifies the base address of the tile map. Note that the register only specifies bits 16:9 of the address, so the address is always aligned to a multiple of 512 bytes.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video", "Map" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video", "Map" ,"Address" ,"MAPBASE","Initialization" ,"Config"],
 	  "Parameters": [
         { "Name": "L1_MAPBASE", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1402,7 +1438,7 @@
       "Name": "Layer 1 Tile Config",
       "Description": "Tile Base Address (16:11) & Tile Width and Height",
 	  "LongDescription": "Specifies the base address of the tile data. Note that the register only specifies bits 16:11 of the address, so the address is always aligned to a multiple of 2048 bytes.<br /><br />'Tile Width', 'Tile Height' specify the dimensions of a single tile:<br />Value | Tile width/height<br />0 = 8 pixels<br />1 = 16 pixels<br /><br />Tile Width specifies the bitmap width in Bitmap mode. TILEW=0 results in 320 pixels width and TILEW=1 results in 640 pixels width.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video", "Tiles" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video", "Tiles" ,"TILEBASE" , "Address","Initialization","Config" ],
 	  "Parameters": [
         { "Name": "L1_TILEBASE", "Target": "Address", "Type":"byte", 
 		"Flags":[
@@ -1416,7 +1452,7 @@
       "Name": "Layer 1 H-Scroll (7:0)",
       "Description": "Layer 1 Horizontal Scroll Low (7:0)",
 	  "LongDescription": "Specifies the horizontal scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move left, decreasing will cause the picture to move right.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" , "HSCROLL" ],
 	  "Parameters": [
         { "Name": "L1_HSCROLL_L", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1425,7 +1461,7 @@
       "Name": "Layer 1 H-Scroll (11:8)",
       "Description": "Layer 1 Horizontal Scroll High (11:8)",
 	   "LongDescription": "Specifies the horizontal scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move left, decreasing will cause the picture to move right.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" , "HSCROLL" ],
 	  "Parameters": [
         { "Name": "L1_HSCROLL_H", "Target": "Address", "Type":"byte" ,
 		"Flags":[
@@ -1438,7 +1474,7 @@
       "Name": "Layer 1 V-Scroll (7:0)",
       "Description": "Layer 1 Vertical Scroll Low (7:0)",
 	  "LongDescription": "Specifies the vertical scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move up, decreasing will cause the picture to move down.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" , "VSCROLL" ],
 	  "Parameters": [
         { "Name": "L1_VSCROLL_L", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1447,7 +1483,7 @@
       "Name": "Layer 1 V-Scroll (11:8) (Pal)",
       "Description": "Layer 1 Vertical Scroll High (11:8) or Palette offset in bitmap mode",
 	  "LongDescription": "Specifies the vertical scroll offset. A value between 0 and 4095 can be used. Increasing the value will cause the picture to move up, decreasing will cause the picture to move down.\r\n\r\nIn bitmap modes, the 'H-Scroll (11:8)' register is used to specify the palette offset for the bitmap.",
-      "Tags": [ "Register","VERA", "Access","Layers", "Video" ],
+      "Tags": [ "Register","VERA", "Access","Layer", "Video" , "VSCROLL" ],
 	  "Parameters": [
         { "Name": "L1_VSCROLL_H", "Target": "Address", "Type":"byte" ,
 		"Flags":[
@@ -1470,7 +1506,7 @@
       "Name": "Audio Control",
       "Description": "Audio Config",
 	  "LongDescription": "",
-	   "Tags": [ "Register","Audio", "Initialization"],
+	   "Tags": [ "Register","Audio", "Initialization" , "Config", "Ctrl"],
 	  "Parameters": [
         { "Name": "AUDIO_CTRL", "Target": "Address", "Type":"flags" ,
 		"Flags":[
@@ -1486,7 +1522,7 @@
       "Name": "Audio Rate",
       "Description": "Audio PCM Sample Rate",
 	  "LongDescription": "Controls the speed at which samples are read from the FIFO. A few example values:\r\n128 = normal speed (25MHz / 512 = 48828.125 Hz)\r\n64 = half speed (24414 Hz)\r\n32 = quarter speed (12207 Hz)\r\n0 = stop playback\r\n>128 = invalid\r\n\r\nUsing a value of 128 will give the best quality (lowest distortion); at this value for every output sample, an input sample from the FIFO is read. Lower values will output the same sample multiple times to the audio DAC. Input samples are always read as a complete set (being 1/2/4 bytes).\r\n\r\nNOTE: When setting up for PCM playback it is adviced to first set the sample rate at 0 to stop playback. First fill the FIFO buffer with some initial data and then set the desired sample rate. This can prevent undesired FIFO underruns.",
-	  "Tags": [ "Register","Audio", "Initialization"],
+	  "Tags": [ "Register","Audio", "Initialization" , "Config","PCM","Rate", "Sample"],
 	  "Parameters": [
         { "Name": "AUDIO_RATE", "Target": "Address", "Type":"byte" } ]
     },{
@@ -1495,7 +1531,7 @@
       "Name": "Audio Data",
       "Description": "Audio FIFO data (write-only)",
 	  "LongDescription": "Audio data is two's complement signed. Depending on the selected mode the data needs to be written to the FIFO in the following order:\r\n\r\nMode = Order in which to write data to FIFO\r\n8-bit mono = &lt;mono sample&gt;\r\n8-bit stereo = &lt;left sample&gt; &lt;right sample&gt;\r\n16-bit mono = &lt;mono sample (7:0)&gt; &lt;mono sample (15:8)&gt;\r\n16-bit stereo = &lt;left sample (7:0)&gt; &lt;left sample (15:8)&gt; &lt;right sample (7:0)&gt; &lt;right sample (15:8)&gt;",
-	  "Tags": [ "Register","Audio", "Access"],
+	  "Tags": [ "Register","Audio", "Access" , "Data", "FIFO"],
 	  "Parameters": [
         { "Name": "AUDIO_DATA", "Target": "Address", "Type":"byte" } ]
     }

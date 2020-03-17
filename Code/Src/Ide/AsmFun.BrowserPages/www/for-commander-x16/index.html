@@ -1548,10 +1548,17 @@ programItem.address  | toHex2
         <div v-if="documentation.isVisible">
             <div v-show="documentation.isVisiblePopup" class="documentation v-scaler">
                 <div class="nav-btns">
+                    <span class="search-field">
+
+                        <input type="text" v-model="documentation.SearchText" @keyup="documentation.SearchChanged(documentation.SearchText)" placeholder="Tag search"
+                               v-on:keyup.esc="documentation.SearchText = '';documentation.SearchChanged('');" />
+                        <a v-on:click="documentation.SearchText = '';documentation.SearchChanged('');" v-if="documentation.SearchText != ''">X</a>
+                    </span>
+                    &nbsp; &nbsp;
 
                     <a v-on:click="documentation.ShowByAddress = true" v-if="!documentation.ShowByAddress">Address List</a>
                     <a v-on:click="documentation.ShowByAddress = false" v-else>Category List</a>
-                    
+
                     &nbsp; &nbsp;
                     <a class="close-btn" v-on:click="DocumentationOpenManager(false)">X</a>
                 </div>
@@ -1582,6 +1589,7 @@ programItem.address  | toHex2
                                 </div>
 
                             </div>
+                            <a class="docFunctionTitle">External tutorial</a>
                         </div>
                         <br />
                         <div v-for="dGroup in documentation.ComputerDoc.Groups">

@@ -11,7 +11,9 @@ export interface IDocumentationData {
     ComputerDocByAddress: IDocFunction[];
     ShowByAddress: boolean;
     ShowGeneral: boolean;
-    SelectByAddress: (f: IDocFunction)=> void,
+    SelectByAddress: (f: IDocFunction) => void,
+    SearchText: string;
+    SearchChanged: (s: string) => void;
 }
 
 
@@ -66,6 +68,7 @@ export interface IDocReturnParameter {
 }
 
 export interface IDocFunction {
+    TagsSearch: string;
     Group: IDocGroup;
     VariableDescriptions: IDocVariableDefinition[];
     AddressHex: string;

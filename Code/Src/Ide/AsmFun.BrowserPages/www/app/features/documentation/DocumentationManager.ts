@@ -5,7 +5,7 @@
 // #endregion
 
 import { DocumentationOpenManagerCommand } from "./commands/DocumentationCommands.js";
-import { IDocumentationData, IDocFunction } from "./data/DocumentationDatas.js";
+import { IDocumentationData, IDocFunction, IDocRootObject, IDocGroup } from "./data/DocumentationDatas.js";
 import { UIDataNameDocumentation } from "./DocumentationFactory.js";
 import { IMainData } from "../../framework/data/MainData.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
@@ -14,7 +14,7 @@ import { DocumentationService } from "./services/DocumentationService.js";
 
 
 export class DocumentationManager implements IPopupWindow {
-  
+    private docRoot: IDocRootObject | null = null;
     private mainData: IMainData;
     public data: IDocumentationData;
     private documentationService: DocumentationService;
@@ -34,14 +34,54 @@ export class DocumentationManager implements IPopupWindow {
         this.mainData.commandManager.Subscribe2(new DocumentationOpenManagerCommand(null), this, x => this.popupMe.SwitchState(x.state));
         
         this.data.SelectByAddress = f => this.SelectByAddress(f);
+        this.data.SearchChanged = s => this.Search(s);
+        
         if (document.location.href.indexOf("popup=documentation") > -1)
             setTimeout(() => this.popupMe.Open(), 200);
         this.LoadData();
     }
 
+    private Search(search: string) {
+        
+        if (this.data.ComputerDoc == null || this.docRoot == null || search == null) return;
+        search = search.trim().replace(/_/g,' ').replace(/-/g," ");
+        if (search === "" || search.length < 3) {
+            this.data.ComputerDoc.Groups = this.docRoot.Groups;
+            return;
+        }
+        var searchParts = search.toLocaleLowerCase().split(' ');
+        var groups: IDocGroup[] = [];
+        this.docRoot.Groups.forEach(g => {
+            var newGroup: IDocGroup | null = null; 
+            g.Functions.forEach(f => {
+                var found = true;
+                for (var i = 0; i < searchParts.length; i++) {
+                    if (f.TagsSearch.indexOf(searchParts[i]) <0) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) {
+                    // Found
+                    if (newGroup == null) {
+                        newGroup = { ...g };
+                        newGroup.Functions = [];
+                        newGroup.IsVisible = true;
+                        groups.push(newGroup);
+                    }
+                    f.IsVisible = true;
+                    newGroup.Functions.push(f);
+                }
+               
+            });
+        });
+        this.data.ComputerDoc.Groups = groups;
+    }
+
     private SelectByAddress(selected: IDocFunction): void {
         this.data.ShowByAddress = false;
         if (this.data.ComputerDoc == null) return;
+        this.Search("");
         // Close all groups
         this.data.ComputerDoc.Groups.forEach(g => g.IsVisible = false);
         // Open only selected function
@@ -53,7 +93,7 @@ export class DocumentationManager implements IPopupWindow {
 
     public LoadData() {
         this.documentationService.GetCommanderX16((r) => {
-            console.log(r);
+           
             var computerDocByAddress: IDocFunction[] = [];
             // inject visibility prop
             if (r == null || r.Groups == null || r.VariableDefinitions == null) return;
@@ -84,6 +124,7 @@ export class DocumentationManager implements IPopupWindow {
                     g.Functions.forEach(f => {
                         computerDocByAddress.push(f);
                         f.Group = g;
+                        f.TagsSearch = f.Tags != null? f.Tags.join(" ").toLowerCase() :"";
                         f.IsVisible = false;
                         f.SwapVisible = () => {
                             f.IsVisible = !f.IsVisible;
@@ -108,6 +149,7 @@ export class DocumentationManager implements IPopupWindow {
                     });
                 }
             });
+            this.docRoot = { ...r };
             this.data.ComputerDocByAddress = computerDocByAddress.sort((a, b) => a.AddressHex.localeCompare(b.AddressHex));
             this.data.ComputerDoc = r;
         });
@@ -152,6 +194,8 @@ export class DocumentationManager implements IPopupWindow {
             ShowByAddress: false,
             SelectByAddress: () => { },
             ShowGeneral: false,
+            SearchChanged: () => { },
+            SearchText: "",
         };
     }
 
