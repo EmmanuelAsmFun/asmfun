@@ -8,7 +8,7 @@
     <StartupObject>AsmFun.WPF.Startup.Program</StartupObject>
     <AssemblyName>ASMFunPlayer</AssemblyName>
     <RootNamespace>AsmFun</RootNamespace>
-    <Version>1.0.2.9</Version>
+    <Version>1.0.2.10</Version>
     <Authors>Emmanuel From ASMFun</Authors>
     <Product>ASMFun Player</Product>
     <Description>https://asmfun.com</Description>

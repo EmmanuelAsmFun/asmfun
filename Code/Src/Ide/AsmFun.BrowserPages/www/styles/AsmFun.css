@@ -1124,6 +1124,20 @@ body {
     width: 380px;
   }
 }
+.homeAddonNote {
+  position: absolute;
+  left: 700px;
+  top: 150px;
+}
+.confirmLicense input {
+  width: 20px;
+  height: 20px;
+}
+button.btn-home-start {
+  font-size: 25px;
+  border-radius: 5px;
+  width: 220px;
+}
 .avatar {
   position: fixed;
   z-index: 10000;

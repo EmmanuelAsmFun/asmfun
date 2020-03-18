@@ -150,9 +150,9 @@
                 <a href="javascript:" v-on:click="DocumentationOpenManager()" title="Open Documentation, F1 (on a variable)"><span class="fa fa-book"></span></a>
                 <span v-if="!ide.serverNotConnected">
                     <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
-                 </span>
-                <span v-else><a  href="javascript:" v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span></a></span>
-                    <!--<a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-paint-brush"></span></a>-->
+                </span>
+                <span v-else><a href="javascript:" v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span></a></span>
+                <!--<a href="javascript:" v-on:click="PainterOpenManager()" title="Open Painter"><span class="fa fa-paint-brush"></span></a>-->
             </div>
             <div class="newVersionText" v-if="ide.newVersionAvailable">
                 <a href="javascript:" v-on:click="ASMFunPlayerOpenManager(true)">
@@ -185,8 +185,10 @@
                 </span>
                 <span class="top-btns-block">
                     <a href="javascript:" v-on:click="VideoOpenManager()" title="Show video data"><span class="fa fa-image fa-fw"></span></a>
-                    <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows"><span class="fa fa-bug fa-fw"
-                              v-bind:class="{  'isSelected' : processor.isShowDebugger}"></span></a>
+                    <a href="javascript:" v-on:click="SwapShowDebugger" title="Show debugger windows">
+                        <span class="fa fa-bug fa-fw"
+                              v-bind:class="{  'isSelected' : processor.isShowDebugger}"></span>
+                    </a>
                 </span>
             </div>
 
@@ -284,13 +286,13 @@
                         <input type="text" v-model="editor.Bundle.Labels.Search" @keyup="editor.Bundle.Labels.SearchChanged" placeholder="Filter list"
                                v-on:keyup.esc="editor.Bundle.Labels.Search = '';editor.Bundle.Labels.SearchChanged();" />
                         <a v-on:click="editor.Bundle.Labels.Search = '';editor.Bundle.Labels.SearchChanged();" v-if="editor.Bundle.Labels.Search != ''">X</a>
-                    </span> 
+                    </span>
                     <div class="listing-table">
                         <table>
                             <tr v-for="item in editor.Bundle.Labels.List" v-bind:id="'lblview'+item.Name">
-                                <td  v-on:click="EditorScrollToLine(item)" > {{ item.LineNumber}} </td>
+                                <td v-on:click="EditorScrollToLine(item)"> {{ item.LineNumber}} </td>
                                 <td v-bind:class="{ 'hilite' : item.Hilite }">
-                                    <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy" 
+                                    <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy"
                                           v-on:click.ctrl="EditorScrollToLine(item)">{{ item.Name }} </span>
                                     <span class="UsedByCount">({{item.UsedByLines.length}})</span>
                                     <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
@@ -300,49 +302,49 @@
                                                 <span>{{link.Text}}</span>
                                             </div>
                                         </div>
-                                        </div>
-</td>
+                                    </div>
+                                </td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="macros" v-if="ide.showMacros">
                     <span class="search-field">
-                        <input type="text" v-model="editor.Bundle.Macros.Search" @keyup="editor.Bundle.Macros.SearchChanged" placeholder="Filter list" 
+                        <input type="text" v-model="editor.Bundle.Macros.Search" @keyup="editor.Bundle.Macros.SearchChanged" placeholder="Filter list"
                                v-on:keyup.esc="editor.Bundle.Macros.Search = '';editor.Bundle.Macros.SearchChanged();" />
-                        <a v-on:click="editor.Bundle.Macros.Search = '';editor.Bundle.Macros.SearchChanged();"  v-if="editor.Bundle.Macros.Search != ''">X</a>
+                        <a v-on:click="editor.Bundle.Macros.Search = '';editor.Bundle.Macros.SearchChanged();" v-if="editor.Bundle.Macros.Search != ''">X</a>
                     </span>
                     <div class="listing-table">
-                    <table>
-                        <tr v-for="item in editor.Bundle.Macros.List">
-                            <td  v-on:click="EditorScrollToLine(item)"> {{ item.LineNumber}} </td>
-                            <td>
-                                <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy" v-on:click.ctrl="EditorScrollToLine(item)">{{ item.Name }}</span>
-                                <span class="UsedByCount">({{item.UsedByLines.length}})</span>
-                                <span class="parameters" v-on:click="item.ShowUsedBy = !item.ShowUsedBy">{{item.ParametersNames}}</span> 
-                                <span class="UsedByCount">({{item.UsedByLines.length}})</span>
-                                <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
-                                    <div class="items">
-                                        <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
-                                            <span>{{link.LineNumber}}</span>&nbsp;
-                                            <span>{{link.Text}}</span>
+                        <table>
+                            <tr v-for="item in editor.Bundle.Macros.List">
+                                <td v-on:click="EditorScrollToLine(item)"> {{ item.LineNumber}} </td>
+                                <td>
+                                    <span v-on:click="item.ShowUsedBy = !item.ShowUsedBy" v-on:click.ctrl="EditorScrollToLine(item)">{{ item.Name }}</span>
+                                    <span class="UsedByCount">({{item.UsedByLines.length}})</span>
+                                    <span class="parameters" v-on:click="item.ShowUsedBy = !item.ShowUsedBy">{{item.ParametersNames}}</span>
+                                    <span class="UsedByCount">({{item.UsedByLines.length}})</span>
+                                    <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
+                                        <div class="items">
+                                            <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
+                                                <span>{{link.LineNumber}}</span>&nbsp;
+                                                <span>{{link.Text}}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    </div>
-</td>
-                        </tr>
-                    </table>
-                </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <div class="variables" v-if="ide.showVariables">
                     <span class="search-field">
                         <input type="text" v-model="editor.Bundle.Properties.Search" @keyup="editor.Bundle.Properties.SearchChanged" placeholder="Filter list"
                                v-on:keyup.esc="editor.Bundle.Properties.Search = '';editor.Bundle.Properties.SearchChanged();" />
-                        <a v-on:click="editor.Bundle.Properties.Search = '';editor.Bundle.Properties.SearchChanged();"  v-if="editor.Bundle.Properties.Search != ''">X</a>
+                        <a v-on:click="editor.Bundle.Properties.Search = '';editor.Bundle.Properties.SearchChanged();" v-if="editor.Bundle.Properties.Search != ''">X</a>
                     </span>
                     <div class="listing-table">
                         <table>
-                            <tr v-for="item in editor.Bundle.Properties.List" v-bind:class="{ 'hilite' : item.Hilite }" v-bind:id="'varview'+item.Name" >
+                            <tr v-for="item in editor.Bundle.Properties.List" v-bind:class="{ 'hilite' : item.Hilite }" v-bind:id="'varview'+item.Name">
                                 <td>
                                     <span class="ad" v-bind:class="{ 'hilite' : item.Hilite }">{{ item.Address }}</span>
                                 </td>
@@ -353,10 +355,10 @@
                                     </span>
                                     <div v-if="item.ShowUsedBy && item.UsedByLines.length > 0" class="ShowUsedBy" @mouseleave="item.ShowUsedBy = false">
                                         <div class="items">
-                                        <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
-                                            <span>{{link.LineNumber}}</span>&nbsp;
-                                            <span>{{link.Text}}</span>
-                                        </div>
+                                            <div v-for="link in item.UsedByLines" v-on:click="EditorScrollToLine(link); item.ShowUsedBy = false;" class="ShowUsedByItem">
+                                                <span>{{link.LineNumber}}</span>&nbsp;
+                                                <span>{{link.Text}}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -367,7 +369,7 @@
                                           v-on:click="SwapChangeLabelValue(item)" @mouseover="item.MouseHover(item)" v-bind:title="item.FullValue">
                                         {{ item.Value}}<span v-if="item.IsMultiValue">.</span><br />
                                     </span>
-                                    
+
                                 </td>
                             </tr>
                         </table>
@@ -395,7 +397,7 @@ programItem.address  | toHex2
         </div>
 
 
-        <div id="sourceCode" class="sourceCode" >
+        <div id="sourceCode" class="sourceCode">
             <div id="sc-inner" class="inner">
                 <div id="MyCursor" class="myCursor myCursorA">|</div>
 
@@ -449,7 +451,7 @@ programItem.address  | toHex2
                             <span class="errorDetail" v-if="line.HasError && line.Error != null">{{line.Error.compilerName}}: {{line.Error.message}}</span>
                         </span>
                     </div>
-                   
+
                 </div>
 
             </div>
@@ -472,9 +474,12 @@ programItem.address  | toHex2
                 <span class="address">{{memoryViewer.memoryBlock.startAddressHex}} - {{memoryViewer.memoryBlock.endAddressHex}} </span>
                 <span class="pageControl">
                     <a v-on:click="memoryViewer.swapAutoReload()" title="Auto Reload data ON" v-if="!memoryViewer.autoReload"><span class="fa fa-automobile"></span></a>
-                    <a v-on:click="memoryViewer.swapAutoReload()" title="Auto Reload data OFF" v-else><span class="fa-stack">
-                        <i class="fa fa-automobile fa-stack-1x"></i>
-                        <i class="fa fa-ban fa-stack-1x"></i></span></a>
+                    <a v-on:click="memoryViewer.swapAutoReload()" title="Auto Reload data OFF" v-else>
+                        <span class="fa-stack">
+                            <i class="fa fa-automobile fa-stack-1x"></i>
+                            <i class="fa fa-ban fa-stack-1x"></i>
+                        </span>
+                    </a>
                     <a v-on:click="SelectMemoryPage(-1)" title="Reload data"><span class="fa fa-refresh"></span></a>
                     &nbsp;
                     <a v-on:click="PreviousMemoryPage(64)" title="Previous 16 kb"> &lt;&lt;&lt; </a>
@@ -563,7 +568,7 @@ programItem.address  | toHex2
                                                 <b>Complete</b><br />
                                                 <small>
                                                     with .net core 3.1 framework<br />
-                                                    Microsoft is hungry in Mb, fiuuw!
+
                                                 </small>
                                             </span>
                                             <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
@@ -1284,15 +1289,15 @@ programItem.address  | toHex2
             <div class="content">
                 <div class="find">
                     <input id="findReplaceField" type="text" v-model="findReplace.SearchWord" placeholder="Find..."
-                           v-on:keyup.enter="FindReplaceSearch()" v-on:keyup.esc="FindReplaceOpenManager(false)"/>
+                           v-on:keyup.enter="FindReplaceSearch()" v-on:keyup.esc="FindReplaceOpenManager(false)" />
                     <a v-on:click="FindReplaceSearch()" title="Find Next"><span class="fa fa-arrow-right"></span></a>
                     <a v-on:click="FindReplaceOpenManager(false)" title="Close find and replace"><span class="fa fa-close"></span></a>
                 </div>
                 <div class="replace">
-                    <input type="text" v-model="findReplace.ReplaceWord" placeholder="Replace..." 
-                           v-on:keyup.enter="FindReplaceReplaceNext()" v-on:keyup.esc="FindReplaceOpenManager(false)"/>
+                    <input type="text" v-model="findReplace.ReplaceWord" placeholder="Replace..."
+                           v-on:keyup.enter="FindReplaceReplaceNext()" v-on:keyup.esc="FindReplaceOpenManager(false)" />
                     <a v-on:click="FindReplaceReplaceNext()" title="Replace next"><span class="fa fa-edit"></span></a>
-                    
+
                 </div>
                 <div class="other">
                     <label><input type="checkbox" v-model="findReplace.MatchCase" />Case</label>
@@ -1566,15 +1571,18 @@ programItem.address  | toHex2
                     <h2><span class="fa fa-book"></span> Documentation</h2>
                     <div v-if="documentation.ShowByAddress" class="showByAddressList">
                         <table class="docInsertCode">
-                            <tr v-for="dFunction in documentation.ComputerDocByAddress" >
+                            <tr v-for="dFunction in documentation.ComputerDocByAddress">
                                 <td class="docCode" v-on:click="documentation.SelectByAddress(dFunction); ">{{dFunction.Code}}</td>
                                 <td>= </td>
-                                <td class="docAddressHex" >${{dFunction.AddressHex}}</td>
+                                <td class="docAddressHex">${{dFunction.AddressHex}}</td>
                                 <td> &nbsp; ; </td>
                                 <td class="">{{dFunction.Name}}</td>
-                                <td><a class="btn-insert" href="javascript:" v-if="!dFunction.IsUsed"
-                                        v-on:click="EditorInsertVariableSetter(dFunction.Code,dFunction.AddressHex,dFunction.Name); documentation.NewUsed();" title="Insert in code"> 
-                                    &nbsp;<span class="fa fa-hand-o-left"></span>&nbsp;</a></td>
+                                <td>
+                                    <a class="btn-insert" href="javascript:" v-if="!dFunction.IsUsed"
+                                       v-on:click="EditorInsertVariableSetter(dFunction.Code,dFunction.AddressHex,dFunction.Name); documentation.NewUsed();" title="Insert in code">
+                                        &nbsp;<span class="fa fa-hand-o-left"></span>&nbsp;
+                                    </a>
+                                </td>
                             </tr>
                         </table>
                     </div>
@@ -1585,8 +1593,8 @@ programItem.address  | toHex2
                                 <a class="docFunctionTitle" v-on:click="dGeneralInfo.SwapVisible()" v-bind:class="{'IsOpen' : dGeneralInfo.IsVisible}">
                                     <span v-if="dGeneralInfo.IsVisible"><span class="fa fa-caret-down fa-fw"></span></span>
                                     <span v-else><span class="fa fa-caret-right fa-fw"></span></span>
-                                    <span>{{dGeneralInfo.Name}}</span> 
-                                   
+                                    <span>{{dGeneralInfo.Name}}</span>
+
                                     <span class="docDescription">{{dGeneralInfo.Description}}</span>
                                 </a>
                                 <div v-if="dGeneralInfo.IsVisible">
@@ -1594,7 +1602,13 @@ programItem.address  | toHex2
                                 </div>
 
                             </div>
-                            <a class="docFunctionTitle">External tutorial</a>
+                            <h3>Duszn Strakl Tutorials</h3>
+                            <img src="/images/avatar/Dusan-Strakl/Dusan-Strakl.gif" width="70" style="float: left; margin-right:10px;" />
+                            <a class="docFunctionTitle" href="https://www.8bitcoding.com/2019/12/default-palette.html" target="_blank">Default palette</a><br />
+                            <a class="docFunctionTitle" href="https://www.8bitcoding.com/2020/01/direct-vera-access.html" target="_blank">Direct VERA Access</a><br />
+                            <div style="clear:both;"></div>
+                            <small> You have any tutorials? Tell me :-)</small>
+                           
                         </div>
                         <br />
                         <div v-for="dGroup in documentation.ComputerDoc.Groups">
@@ -1609,7 +1623,7 @@ programItem.address  | toHex2
                                     <a class="btn-insert" href="javascript:" v-if="!dFunction.IsUsed"
                                        v-on:click="EditorInsertVariableSetter(dFunction.Code,dFunction.AddressHex,dFunction.Name); documentation.NewUsed();" title="Insert in code">
                                         &nbsp;<span class="fa fa-hand-o-left"></span>&nbsp;
-                                    </a> 
+                                    </a>
                                     <span v-else>&nbsp;&nbsp;</span>
                                     <span class="docDescription">{{dFunction.Description}}</span>
                                     <div class="docFunctionDetail" v-if="dFunction.IsVisible">
@@ -1723,12 +1737,12 @@ programItem.address  | toHex2
                                                 <div class="docTableTitle">{{vardesc.Name}}: <span class="docAddNote">({{vardesc.Code}})</span></div>
                                                 <table class="docParameters">
                                                     <!--<thead>
-                        <tr>
-                            <th>Address</th>
-                            <th>Name</th>
-                            <th>Comment</th>
-                        </tr>
-                    </thead>-->
+                                                    <tr>
+                                                        <th>Address</th>
+                                                        <th>Name</th>
+                                                        <th>Comment</th>
+                                                    </tr>
+                                                </thead>-->
                                                     <tbody>
                                                         <tr v-for="dParameter in vardesc.Values">
                                                             <td>0x{{dParameter.HexValue}}</td>
@@ -1750,10 +1764,13 @@ programItem.address  | toHex2
                             </div>
                         </div>
                     </div>
+                    <br />
+                    <br /> 
+                    <small>PS.: Use F1 on a defined variable in your code to select corresponding info.</small>
                 </div>
             </div>
         </div>
-        
+
 
         <div class="serverVersionFooter">
             <a v-on:click="ASMFunPlayerOpenManager()"><span class="fa fa-download"></span> V{{ide.currentVersion}}</a>
@@ -1768,7 +1785,7 @@ programItem.address  | toHex2
             <div id="fullPageInfoContent"></div>
         </div>
 
-
+    </div>
     <div class="footerbar">
         <span class="mouseInfo" id="mouseInfo"> </span>
     </div>

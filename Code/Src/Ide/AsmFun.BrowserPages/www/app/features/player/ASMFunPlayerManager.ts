@@ -59,6 +59,8 @@ export class ASMFunPlayerManager implements IPopupWindow {
             this.Done();
         }
         this.data.SelectCodeNavTab = (tabName) => this.SelectCodeNavTab(tabName);
+        if (document.location.href.indexOf("popup=Downloads") > -1)
+            setTimeout(() => this.popupMe.Open(), 200);
     }
 
 
@@ -121,7 +123,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
     }
 
     private SelectOS(osName: string) {
-        this.clearOS();
+        this.ClearOS();
         switch (osName) {
             case "Windows": this.data.isWindows = true; return;
             case "Mac": this.data.isMac = true; return;
@@ -131,7 +133,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
         this.data.isWindows = true;
     }
 
-    private clearOS() {
+    private ClearOS() {
         this.data.isWindows = false;
         this.data.isMac = false;
         this.data.isLinux = false;
