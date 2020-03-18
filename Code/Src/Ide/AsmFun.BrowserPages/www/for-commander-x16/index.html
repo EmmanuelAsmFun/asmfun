@@ -147,7 +147,7 @@
                     </span>
                 </span>
                 <a href="javascript:" v-on:click="SettingsOpenManager()" title="Open Settings"><span class="fa fa-cog"></span></a>
-                <a href="javascript:" v-on:click="DocumentationOpenManager()" title="Open Documentation"><span class="fa fa-book"></span></a>
+                <a href="javascript:" v-on:click="DocumentationOpenManager()" title="Open Documentation, F1 (on a variable)"><span class="fa fa-book"></span></a>
                 <span v-if="!ide.serverNotConnected">
                     <a href="javascript:" v-on:click="ComputerOpenManager()" title="Open Player Control" v-if="!computer.isComputerRunning"><span class="fa fa-desktop"></span></a>
                  </span>
@@ -1566,12 +1566,15 @@ programItem.address  | toHex2
                     <h2><span class="fa fa-book"></span> Documentation</h2>
                     <div v-if="documentation.ShowByAddress" class="showByAddressList">
                         <table class="docInsertCode">
-                            <tr v-for="dFunction in documentation.ComputerDocByAddress" v-on:click="documentation.SelectByAddress(dFunction); ">
-                                <td class="docCode">{{dFunction.Code}}</td>
+                            <tr v-for="dFunction in documentation.ComputerDocByAddress" >
+                                <td class="docCode" v-on:click="documentation.SelectByAddress(dFunction); ">{{dFunction.Code}}</td>
                                 <td>= </td>
-                                <td class="docAddressHex">${{dFunction.AddressHex}}</td>
+                                <td class="docAddressHex" >${{dFunction.AddressHex}}</td>
                                 <td> &nbsp; ; </td>
                                 <td class="">{{dFunction.Name}}</td>
+                                <td><a class="btn-insert" href="javascript:" v-if="!dFunction.IsUsed"
+                                        v-on:click="EditorInsertVariableSetter(dFunction.Code,dFunction.AddressHex,dFunction.Name); documentation.NewUsed();" title="Insert in code"> 
+                                    &nbsp;<span class="fa fa-hand-o-left"></span>&nbsp;</a></td>
                             </tr>
                         </table>
                     </div>
@@ -1582,7 +1585,9 @@ programItem.address  | toHex2
                                 <a class="docFunctionTitle" v-on:click="dGeneralInfo.SwapVisible()" v-bind:class="{'IsOpen' : dGeneralInfo.IsVisible}">
                                     <span v-if="dGeneralInfo.IsVisible"><span class="fa fa-caret-down fa-fw"></span></span>
                                     <span v-else><span class="fa fa-caret-right fa-fw"></span></span>
-                                    <span>{{dGeneralInfo.Name}}</span>  <span class="docDescription">{{dGeneralInfo.Description}}</span>
+                                    <span>{{dGeneralInfo.Name}}</span> 
+                                   
+                                    <span class="docDescription">{{dGeneralInfo.Description}}</span>
                                 </a>
                                 <div v-if="dGeneralInfo.IsVisible">
                                     <div class="docLongDescription" v-html="dGeneralInfo.LongDescription"></div>
@@ -1599,8 +1604,14 @@ programItem.address  | toHex2
                                     <a class="docFunctionTitle" v-on:click="dFunction.SwapVisible()" v-bind:class="{'IsOpen' : dFunction.IsVisible}">
                                         <span v-if="dFunction.IsVisible"><span class="fa fa-caret-down fa-fw"></span></span>
                                         <span v-else><span class="fa fa-caret-right fa-fw"></span></span>
-                                        <span class="docFunctionName">{{dFunction.Name}}</span>  <span class="docDescription">{{dFunction.Description}}</span>
+                                        <span class="docFunctionName">{{dFunction.Name}}</span>
                                     </a>
+                                    <a class="btn-insert" href="javascript:" v-if="!dFunction.IsUsed"
+                                       v-on:click="EditorInsertVariableSetter(dFunction.Code,dFunction.AddressHex,dFunction.Name); documentation.NewUsed();" title="Insert in code">
+                                        &nbsp;<span class="fa fa-hand-o-left"></span>&nbsp;
+                                    </a> 
+                                    <span v-else>&nbsp;&nbsp;</span>
+                                    <span class="docDescription">{{dFunction.Description}}</span>
                                     <div class="docFunctionDetail" v-if="dFunction.IsVisible">
                                         <div class="docInsertCode">
                                             <span class="docCode">{{dFunction.Code}}</span> =
@@ -1712,12 +1723,12 @@ programItem.address  | toHex2
                                                 <div class="docTableTitle">{{vardesc.Name}}: <span class="docAddNote">({{vardesc.Code}})</span></div>
                                                 <table class="docParameters">
                                                     <!--<thead>
-                                    <tr>
-                                        <th>Address</th>
-                                        <th>Name</th>
-                                        <th>Comment</th>
-                                    </tr>
-                                </thead>-->
+                        <tr>
+                            <th>Address</th>
+                            <th>Name</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>-->
                                                     <tbody>
                                                         <tr v-for="dParameter in vardesc.Values">
                                                             <td>0x{{dParameter.HexValue}}</td>

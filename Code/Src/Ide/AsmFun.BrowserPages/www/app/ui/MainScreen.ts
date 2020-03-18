@@ -17,6 +17,7 @@ import { VideoManager } from "../features/video/VideoManager.js";
 import { MemoryItemHoverCommand } from "../features/memory/commands/MemoryCommands.js";
 import { MemoryEdit } from "../features/memory/MemoryMethods.js";
 import { IEditorSelection } from "../features/editor/data/EditorData.js";
+import { DocumentationOpenManagerCommand } from "../features/documentation/commands/DocumentationCommands.js";
 
 // Initialize base objects
 var reg = new ServiceRegisterer();
@@ -180,7 +181,9 @@ document.onkeydown = function (e) {
             
         }
     }
+    
     switch (e.which) {
+        case 112: myMainData.commandManager.InvokeCommand(new DocumentationOpenManagerCommand(true,true)); handled = true; break;       // F1
         case 113: reg.mainScreenMethods.DbResetPc(); handled = true; break;       // F2
         case 116: reg.mainScreenMethods.DbgRun(); handled = true; break;       // F5
         case 121: reg.mainScreenMethods.DbgStepOver(); handled = true; break;  // F10

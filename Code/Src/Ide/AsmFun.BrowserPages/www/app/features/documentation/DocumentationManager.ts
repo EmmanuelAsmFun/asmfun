@@ -11,13 +11,19 @@ import { IMainData } from "../../framework/data/MainData.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { IPopupWindowData, IPopupWindow, IPopupSubscription, IPopupEventData } from "../../framework/data/IPopupData.js";
 import { DocumentationService } from "./services/DocumentationService.js";
+import { SourceCodeManager } from "../editor/SourceCodeManager.js";
+import { SelectedLineChanged } from "../editor/commands/EditorCommands.js";
+import { IEditorLine } from "../editor/data/EditorData.js";
 
 
 export class DocumentationManager implements IPopupWindow {
+
+    private lastSelectedLine: IEditorLine | null = null;
     private docRoot: IDocRootObject | null = null;
     private mainData: IMainData;
     public data: IDocumentationData;
     private documentationService: DocumentationService;
+    private sourceCodeManager: SourceCodeManager;
 
     private popupMe: IPopupSubscription;
     public CanOpenPopup(evt: IPopupEventData) { evt.SetCanOpen(true); }
@@ -29,13 +35,22 @@ export class DocumentationManager implements IPopupWindow {
         var thiss = this;
         this.mainData = mainData;
         this.documentationService = this.mainData.container.Resolve<DocumentationService>(DocumentationService.ServiceName) ?? new DocumentationService(mainData);
+        this.sourceCodeManager = this.mainData.container.Resolve<SourceCodeManager>(SourceCodeManager.ServiceName) ?? new SourceCodeManager(mainData);
         this.popupMe = mainData.popupManager.Subscribe(0, this);
         this.data = this.mainData.GetUIData(UIDataNameDocumentation);
-        this.mainData.commandManager.Subscribe2(new DocumentationOpenManagerCommand(null), this, x => this.popupMe.SwitchState(x.state));
+        // Commands
+        this.mainData.commandManager.Subscribe2(new DocumentationOpenManagerCommand(null, null), this, x => {
+            this.popupMe.SwitchState(x.state);
+            if (x.hiliteLastLine)
+                this.HiliteFunctionByLine(null);
+        });
+        // Events
+        this.mainData.eventManager.Subscribe2(new SelectedLineChanged(null), this, x => this.EditorLineChanged(x.line));
         
         this.data.SelectByAddress = f => this.SelectByAddress(f);
         this.data.SearchChanged = s => this.Search(s);
-        
+        this.data.NewUsed = () => this.FilterUsed();
+
         if (document.location.href.indexOf("popup=documentation") > -1)
             setTimeout(() => this.popupMe.Open(), 200);
         this.LoadData();
@@ -82,6 +97,11 @@ export class DocumentationManager implements IPopupWindow {
         this.data.ShowByAddress = false;
         if (this.data.ComputerDoc == null) return;
         this.Search("");
+        this.SelectFunction(selected);
+    }
+
+    private SelectFunction(selected: IDocFunction) {
+        if (this.data.ComputerDoc == null) return;
         // Close all groups
         this.data.ComputerDoc.Groups.forEach(g => g.IsVisible = false);
         // Open only selected function
@@ -90,6 +110,37 @@ export class DocumentationManager implements IPopupWindow {
         });
         selected.Group.IsVisible = true;
     }
+
+    private EditorLineChanged(line: IEditorLine | null): void {
+        this.lastSelectedLine = line;
+    }
+
+    private HiliteFunctionByLine(line: IEditorLine | null)
+    {
+        if (line == null)
+            line = this.lastSelectedLine;
+        if (!this.data.isVisible) return;
+        
+        if (this.sourceCodeManager.Bundle == null || line == null) return;
+        var lineI = this.sourceCodeManager.Bundle.GetLine(line);
+        if (lineI == null) return;
+        var addressLink = 0;
+        if (lineI.Property != null && lineI.Property.AddressNum > 0)
+            addressLink = lineI.Property.AddressNum;
+        else if (lineI.PropertyLink != null && lineI.PropertyLink.AddressNum > 0)
+            addressLink = lineI.PropertyLink.AddressNum;
+        if (addressLink == 0) return;
+        var f = this.GetFunctionByAddress(addressLink);
+        if (f == null) return;
+        this.SelectFunction(f);
+    }
+
+    private GetFunctionByAddress(address: number): IDocFunction | null {
+        var f = this.data.ComputerDocByAddress.find(x => x.Address === address);
+        return f != undefined ? f : null;
+    }
+
+    
 
     public LoadData() {
         this.documentationService.GetCommanderX16((r) => {
@@ -132,6 +183,7 @@ export class DocumentationManager implements IPopupWindow {
                                 g.IsVisible = true;
                         }
                         f.VariableDescriptions = [];
+                        f.Address = f.AddressHex != null? parseInt(f.AddressHex, 16):0;
                         if (f.LongDescription != null)
                             f.LongDescription = this.ToHtml(f.LongDescription);
                         if (f.Parameters != null && f.Parameters.length > 0) {
@@ -152,12 +204,33 @@ export class DocumentationManager implements IPopupWindow {
             this.docRoot = { ...r };
             this.data.ComputerDocByAddress = computerDocByAddress.sort((a, b) => a.AddressHex.localeCompare(b.AddressHex));
             this.data.ComputerDoc = r;
+            this.FilterUsed();
         });
     }
 
+    private FilterUsed() {
+        if (this.data.ComputerDocByAddress == null || this.sourceCodeManager.Bundle == null) return;
+        var propManager = this.sourceCodeManager.Bundle.PropertyManager;
+        this.data.ComputerDocByAddress.forEach(f => {
+            if (f.AddressHex != null) {
+                var searchAd = f.AddressHex;
+                if (searchAd.length < 5)
+                    searchAd = "0" + searchAd;
+                f.IsUsed = propManager.FindByHexAddress(searchAd) != null;
+            }
+        });
+        
+    }
+
+  
+
     public OpeningPopup() {
         var thiss = this;
-        if (this.data.ComputerDoc != null) return;
+
+        if (this.data.ComputerDoc != null) {
+            this.FilterUsed();
+            return;
+        }
         this.LoadData();
     }
 
@@ -194,6 +267,7 @@ export class DocumentationManager implements IPopupWindow {
             ShowByAddress: false,
             SelectByAddress: () => { },
             ShowGeneral: false,
+            NewUsed: () => { },
             SearchChanged: () => { },
             SearchText: "",
         };

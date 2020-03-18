@@ -61,6 +61,15 @@
 .documentation .showByAddressList tr:hover {
   background: black;
 }
+.documentation .showByAddressList tr:hover .btn-insert {
+  display: block;
+}
+.documentation .showByAddressList .btn-insert {
+  display: none;
+}
+.documentation .showByAddressList td:last-child {
+  width: 30px;
+}
 .documentation .docFunctionDetail {
   clear: both;
   border-bottom: 1px solid #333333;

@@ -9,9 +9,11 @@
 
 export class DocumentationOpenManagerCommand extends BaseCommand {
     public state: boolean | null;
-    public constructor(state: boolean | null) {
+    public hiliteLastLine: boolean | null;
+    public constructor(state: boolean | null, hiliteLastLine:boolean | null) {
         super();
         this.state = state;
+        this.hiliteLastLine = hiliteLastLine;
         this.commandName = "OpenManager";
         this.nameSpace = "Documentation";
     }

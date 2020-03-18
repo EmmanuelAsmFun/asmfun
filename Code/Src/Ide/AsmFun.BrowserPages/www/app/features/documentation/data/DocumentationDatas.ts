@@ -14,6 +14,7 @@ export interface IDocumentationData {
     SelectByAddress: (f: IDocFunction) => void,
     SearchText: string;
     SearchChanged: (s: string) => void;
+    NewUsed: () => void;
 }
 
 
@@ -68,6 +69,8 @@ export interface IDocReturnParameter {
 }
 
 export interface IDocFunction {
+    Address: number;
+    IsUsed: boolean;
     TagsSearch: string;
     Group: IDocGroup;
     VariableDescriptions: IDocVariableDefinition[];
