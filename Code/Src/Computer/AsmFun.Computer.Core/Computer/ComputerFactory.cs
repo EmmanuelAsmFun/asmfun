@@ -16,8 +16,19 @@ namespace AsmFun.Computer.Core.Computer
     {
         private readonly List<Type> _usedServices = new List<Type>();
         private readonly IEmServiceResolverFactory container;
+        private string computerVersion;
+
         public string ComputerType { get; protected set; }
-        public string ComputerVersion { get; protected set; }
+        public string ComputerVersion
+        {
+            get => computerVersion; 
+            protected set
+            {
+                computerVersion = value;
+                ComputerVersionNum = int.Parse(value.Replace("R", ""));
+            }
+        }
+        public int ComputerVersionNum { get; protected set; }
 
         public ComputerFactory(IEmServiceResolverFactory resolverFactory)
         {
@@ -42,7 +53,7 @@ namespace AsmFun.Computer.Core.Computer
         {
             _usedServices.Add(typeof(TService));
             return container.Add<TService>();
-        } 
+        }
         protected IEmServiceSubscription<TService> Add<TService>(Func<TService> constructor)
         {
             _usedServices.Add(typeof(TService));

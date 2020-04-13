@@ -5,6 +5,7 @@ using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Data.Computer;
 using AsmFun.Computer.Common.Debugger;
 using AsmFun.Computer.Common.Processors;
+using AsmFun.Computer.Core.Debugger;
 using System.Linq;
 
 namespace AsmFun.Computer.Core.Processors.P6502
@@ -20,13 +21,19 @@ namespace AsmFun.Computer.Core.Processors.P6502
         protected TModes modes;
         protected TInstructions instructions;
         protected InstructionDB<TInstructions, TModes> instructionDB;
+        private readonly IDataLogger dataLogger;
         private IDebugger debugger;
+        public bool enableDataLog = false;
+        public void EnableDataLog(bool state)
+        {
+            enableDataLog = state;
+        }
 
         public Processor6502(ProcessorData processorData, TModes modes, TInstructions instructions, IComputerMemoryAccess computerMemory,
-            InstructionDB<TInstructions, TModes> instructionsdb)
+            InstructionDB<TInstructions, TModes> instructionsdb, IDataLogger dataLogger)
         {
             instructionDB = instructionsdb;
-            
+            this.dataLogger = dataLogger;
             this.modes = modes;
             this.computerMemory = computerMemory;
             this.instructions = instructions;
@@ -55,7 +62,7 @@ namespace AsmFun.Computer.Core.Processors.P6502
             pData.Opcode = Read(pData.ProgramCounter++);
             pData.Status |= P6502Flags.FLAG_CONSTANT;
 #if DEBUG
-            if (pData.instructionsCount >= 86300)
+            if (pData.instructionsCount >= 120600)
             {
                 //var name = optable[opcode].Name;
                 //if (name == "bne") Console.WriteLine();
@@ -70,7 +77,8 @@ namespace AsmFun.Computer.Core.Processors.P6502
             pData.CurrentAddressName = opCodeData.OpcodeModeName;
             opCodeData.AddressAction(modes);
             opCodeData.OpcodeAction(instructions);
-
+            if (enableDataLog)
+                dataLogger.ProcessorStep(opCodeData.OpcodeName);
             pData.ClockTicks += opCodeData.Ticks;
             if (pData.PenaltyOperation > 0 && pData.PenaltyAddress > 0)
                 pData.ClockTicks++;

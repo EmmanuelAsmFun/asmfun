@@ -18,6 +18,10 @@ using AsmFun.Ide.Core.Features.SourceCode;
 
 namespace AsmFun.Ide.Core.Features.Projects
 {
+    // To add :
+    // https://github.com/rzo42/x16-tracker?fbclid=IwAR1jE536aA-WVp15BdTMw22WOAQNiukZb8UJEiTHSUWENqb5kZJolLNzwKc
+    // https://github.com/rzo42/cx16-meteor-run?fbclid=IwAR202kqzTBw-gIKqvqae9hLNeYjr-AjJdLL8O6xsvd0iQStbzv4woUKkR_Q
+
     public class ProjectDA : IProjectDA
     {
 
@@ -170,6 +174,40 @@ namespace AsmFun.Ide.Core.Features.Projects
                     UnderConstruction = false,
                     CompilerVariables = ""
                 },
+                new ProjectDetail
+                {
+                    Id = new Guid("{9788F0B9-F8B0-4D35-ACA6-C50AEB5ECEE8}"),
+                    DeveloperName = "John Bliss",
+                    DevPicUrl = "",
+                    Name = "x16-music-player",
+                    Description = "Simple way to try out the YM2151 sound chip and Vera PSG on the Commander X16.",
+                    ImageUrl="https://asmfun.com/projects/DemoGames/cx16maze.jpg",
+                    InternetSourceType = InternetSourceType.GitHub,
+                    InternetSource = "https://github.com/jjbliss/x16-music-player",
+                    InternetVersion = "fdb7f1e692cad2abc3abe65da85b72ad14865fc0",
+                    ProjectUrl = "https://github.com/jjbliss/x16-music-player",
+                    StartFile = $"player.asm",
+                    RomVersion = "R37",
+                    UnderConstruction = false,
+                    CompilerVariables = ""
+                },               
+                //new ProjectDetail
+                //{
+                //    Id = new Guid("{FA2C5E6D-4D7C-42DE-9206-8691B50E137B}"),
+                //    DeveloperName = "Michael Jørgensen",
+                //    DevPicUrl = "",
+                //    Name = "Assembly Tutorial",
+                //    Description = "This is a step-by-step guide for how to write a simple game in assembly for the Commander X16.",
+                //    ImageUrl="https://asmfun.com/projects/DemoGames/cx16maze.jpg",
+                //    InternetSourceType = InternetSourceType.GitHub,
+                //    InternetSource = "https://github.com/MJoergen/x16-assembly-tutorial/tree/master/Episode_7/",
+                //    InternetVersion = "6b4cd43aece8e3ce27bc883370c77e47c8c598dd",
+                //    ProjectUrl = "https://github.com/MJoergen/x16-assembly-tutorial/tree/master/Episode_7",
+                //    StartFile = $"tennis.s",
+                //    RomVersion = "R36",
+                //    UnderConstruction = false,
+                //    CompilerVariables = ""
+                //},
                 // orking ok
                 // https://github.com/JustinBaldock/x16-guides/tree/master/2020-02-GraphicFunctions
                  //  ca65 assembler

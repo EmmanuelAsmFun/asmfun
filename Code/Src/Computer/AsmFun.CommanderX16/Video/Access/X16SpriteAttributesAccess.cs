@@ -30,10 +30,11 @@ namespace AsmFun.CommanderX16.Video
         private readonly VideoSettings videoSettings;
         private readonly ISpriteRegistersAccess spriteRegisters;
         private readonly IVideoPaletteAccess palette;
+        private IDisplayComposer displayComposer;
         private readonly IVideoRamAccess ramAccess;
         IComputerDisplay display;
 
-
+        
 
         public string Name => "SpriteAttributes";
 
@@ -44,14 +45,27 @@ namespace AsmFun.CommanderX16.Video
             this.videoSettings = videoSettings;
             this.spriteRegisters = spriteRegisters;
             this.palette = videoPaletteAccess;
+            
             NumberOfSprites = videoSettings.NumberOfSprites;    // = 128
             sprite_line_col = new byte[videoSettings.Width];
             sprite_line_z = new byte[videoSettings.Width];
             this.ramAccess = ramAccess;
-            spriteDataStartAddress = ((X16VideoSettings)videoSettings).SpriteDataStartADD;
-            sprite_properties = new X16VideoSpriteProperties[256];
-            for (int i = 0; i < 256; i++)
+            UpdateAddresses();
+            sprite_properties = new X16VideoSpriteProperties[128];
+            for (int i = 0; i < 128; i++)
                 sprite_properties[i] = new X16VideoSpriteProperties();
+            
+        }
+
+        public void Init(IDisplayComposer displayComposer)
+        {
+            this.displayComposer = displayComposer;
+            
+            SpriteEnabledUpdateMethod();
+        }
+        public void UpdateAddresses()
+        {
+            spriteDataStartAddress = ((X16VideoSettings)videoSettings).SpriteDataStartADD;
         }
 
         public void Reset()
@@ -107,6 +121,7 @@ namespace AsmFun.CommanderX16.Video
         {
             return sprite_properties[spriteIndex];
         }
+      
        
         public ushort RenderLine(ushort y)
         {
@@ -115,7 +130,7 @@ namespace AsmFun.CommanderX16.Video
         }
         public bool RenderLine(byte[] spriteLineCol,byte[] spriteLineZ,ushort y)
         {
-            if (spriteRegisters.IsSpritesDisabled())
+            if (!IsSpriteEnabled())
             {
                 // sprites disabled
                 //sprite_line_empty = true;
@@ -318,7 +333,17 @@ namespace AsmFun.CommanderX16.Video
             return colorIndex;
         }
 
-       
+        private Func<bool> IsSpriteEnabled;
+        private void SpriteEnabledUpdateMethod()
+        {
+            // R37 or bigger
+            if (videoSettings.ComputerVersionNum > 36)
+                IsSpriteEnabled = () => displayComposer.SpritesEnable;
+            else
+                IsSpriteEnabled = () => !spriteRegisters.IsSpritesDisabled();
+        }
+
+
         internal byte GetSpriteData(uint spriteIndex, uint y)
         {
             return spriteData[spriteIndex][y];
@@ -342,11 +367,12 @@ namespace AsmFun.CommanderX16.Video
             return buf2;
         }
 
+        public int SpriteAddressSize = 0x7f;
         public void Write(uint address, byte value)
         {
             // Receives full address
             var add = address - spriteDataStartAddress;
-            var spriteIndex = (address >> 3) & 0xff;
+            var spriteIndex = (address >> 3) & SpriteAddressSize; // 0x7f Prev R37 = 0xff;
             var datas = spriteData[spriteIndex];
             datas[address & 0x7] = value;
             spriteDataRaw[add] = value;
@@ -357,7 +383,7 @@ namespace AsmFun.CommanderX16.Video
         {
             // Receives full address
             var add = address - spriteDataStartAddress;
-            var spriteIndex = (address >> 3) & 0xff;
+            var spriteIndex = (address >> 3) & SpriteAddressSize; // 0x7f Prev R37 = 0xff;
             var datas = spriteData[spriteIndex];
             Array.Copy(bytes, sourceIndex, datas, address & 0x7, length);
             Array.Copy(bytes, sourceIndex, spriteDataRaw, add, length);

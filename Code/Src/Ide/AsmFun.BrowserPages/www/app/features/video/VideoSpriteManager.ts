@@ -19,7 +19,7 @@ export class VideoSpriteManager {
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
     private requestReloadMemory?: () => void;
-    private htmlDragables: ElementDragger<IVideoSpriteProperties>[] = new Array(512);
+    private htmlDragables: ElementDragger<IVideoSpriteProperties>[] = new Array(128);
 
     public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, requestReloadMemory: () => void) {
         this.videoSettings = videoManagerData.settings;
@@ -256,6 +256,7 @@ export class VideoSpriteManager {
             selectedSpriteIndex:0,
             changeSprite: (delta) => { },
             selectByImage: () => { },
+            IsEnabled: true,
         }
     }
     public static NewSpriteData(): IVideoSpriteProperties {

@@ -69,6 +69,8 @@ export class SettingsManager implements IPopupWindow {
         this.mainData.commandManager.Subscribe2(new UserSaveUserSettingsCommand(), this, x => this.SaveUserSettings());
         this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => this.ParseProjectSettings(x.projectSettings));
         this.mainData.eventManager.Subscribe2(new UserSettingsLoaded(), this, x => this.ParseUserSettings(x.userSettings));
+        if (document.location.href.indexOf("popup=Settings") > -1)
+            setTimeout(() => this.popupMe.Open(), 200);
     }
 
    

@@ -1,0 +1,262 @@
+.myCursor {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  margin-top: 20px;
+  margin-left: 113px;
+  font-weight: bold;
+  font-size: 15px;
+  height: 18px;
+  opacity: 1;
+  z-index: 1000;
+  color: white;
+  pointer-events: none;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.myCursorA {
+  animation: myCursorK 1s linear infinite;
+}
+@keyframes myCursorK {
+  49% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.sourceCode {
+  position: fixed;
+  top: 30px;
+  left: 150px;
+  right: 0;
+  bottom: 25px;
+  /*padding-right: 510px;*/
+  line-height: 18px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.sourceCode .inner {
+  /*position: relative;*/
+  margin-top: 20px;
+  /* to be able to scroll the end of te page*/
+  margin-bottom: 800px;
+  margin-left: 0px;
+  margin-right: 290px;
+  max-width: 850px;
+}
+.sourceCode .ln {
+  /* border-right: 2px solid #454511;*/
+  height: 18px;
+  padding: 0;
+}
+.sourceCode .ln.hasError {
+  color: #ca5252;
+}
+.ScLines {
+  margin-left: 108px;
+}
+.ScLines .ln {
+  width: 100%;
+  min-width: 400px;
+  white-space: nowrap;
+  -webkit-touch-callout: text;
+  /* iOS Safari */
+  -webkit-user-select: text;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: text;
+  /* Internet Explorer/Edge */
+  user-select: text;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.ScLines .ln:hover {
+  background: #222222;
+}
+.ScLines .ln.isSelected {
+  background: #312d23;
+  border-right: 1px solid #f6b741;
+}
+.ScLines .ln.hilite {
+  background: green;
+  color: black;
+  font-size: 20px;
+  border: 1px solid green;
+}
+.ScLines .ln .scline {
+  background: transparent;
+  margin-left: 3px;
+  display: inline-block;
+}
+.ScLines .ln .errorDetail {
+  position: absolute;
+  font-size: 11px;
+  font-weight: bold;
+  background: black;
+  display: none;
+}
+.ScLines .ln:hover .errorDetail {
+  display: block;
+}
+.ScLines:focus {
+  outline: none;
+}
+.PreScLines {
+  position: absolute;
+  width: 105px;
+  left: 0px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.PreScLines .breakPoint {
+  color: transparent;
+  cursor: pointer;
+}
+.PreScLines .ln {
+  white-space: nowrap;
+}
+.PreScLines .ln .debugInfo {
+  width: 60px;
+  display: inline-block;
+}
+.PreScLines .ln .l-address {
+  /*position: absolute;*/
+  line-height: 10px;
+  font-size: 5px;
+  display: inline-block;
+  width: 40px;
+  font-size: 11px;
+  text-align: right;
+}
+.PreScLines .ln .asmFunCode {
+  position: absolute;
+  left: 620px;
+  min-width: 240px;
+  display: inline-block;
+  text-align: left;
+  color: #999999;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+  height: 18px;
+}
+.PreScLines .ln .lnn {
+  text-align: right;
+  display: inline-block;
+  height: 18px;
+  width: 34px;
+  /*position: absolute;*/
+  left: -50px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.PreScLines .sc-value {
+  position: absolute;
+  margin-top: 0px;
+  left: 510px;
+  color: #9a8255;
+  font-size: 11px;
+  padding-left: 50px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+  cursor: pointer;
+}
+.PreScLines .sc-value input {
+  width: 40px;
+  border: 1px solid #999999;
+  padding: 2px;
+}
+.sourceCode .debugable {
+  /*position: absolute;*/
+  display: inline-block;
+  z-index: 10;
+  left: -70px;
+  color: #111111;
+}
+.sourceCode .debugable.isBpSelected {
+  color: darkred;
+}
+.sourceCode .zone,
+.sourceCode .zonejp {
+  color: #7096ac;
+}
+.sourceCode .label,
+.sourceCode .labeljp {
+  color: #39b6ff;
+}
+.sourceCode .macrojp,
+.sourceCode .macro {
+  color: #32d9d4;
+}
+.sourceCode .opcode {
+  color: #c077f8;
+}
+.sourceCode .comm {
+  color: #a0e937;
+}
+.sourceCode .varjp {
+  color: #04be9c;
+}
+.sourceCode .ptrjp,
+.sourceCode .ptrvar {
+  /* Pointer*/
+  color: #00ad8d;
+}
+.sourceCode .var {
+  color: #f1b767;
+}
+.sourceCode .set,
+.sourceCode .prop {
+  color: #00ad8d;
+}
+.sourceCode .instr {
+  color: #3965e1;
+}
+.sourceCode .op {
+  color: #c077f8;
+}

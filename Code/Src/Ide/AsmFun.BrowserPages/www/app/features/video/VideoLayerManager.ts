@@ -9,6 +9,7 @@ import { ElementDragger } from "./ElementDragger.js";
 import { DebuggerService } from "../processor/services/DebuggerService.js";
 import { ProjectManager } from "../project/ProjectManager.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
+import { VideoComposerManager } from "./VideoComposerManager.js";
 
 // #region license
 // ASM Fun
@@ -24,37 +25,49 @@ export class VideoLayerManager {
     private videoSettings?: IVideoSettings;
     private videoManagerData?: IVideoManagerData;
     private debuggerService?: DebuggerService;
+    private composer?: VideoComposerManager;
     private layerDatas: IVideoLayerManagerData = NewVideoLayerManagerData();
     private projectManager?: ProjectManager;
     private layers: IVideoLayerData[] = [NewVideoLayer(0), NewVideoLayer(1)];
-    private draggers: (ElementDragger<IVideoLayerData> | null)[] = [null,null];
+    private draggers: (ElementDragger<IVideoLayerData> | null)[] = [null, null];
+    private isRelease37Plus: boolean = false;
 
-    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, projectManager: ProjectManager) {
+    public Init(videoManagerData: IVideoManagerData, debuggerService: DebuggerService, projectManager: ProjectManager, composer: VideoComposerManager) {
         this.videoSettings = videoManagerData.settings;
         this.videoHeight = videoManagerData.settings.Height;
         this.videoWidth = videoManagerData.settings.Width;
         this.videoManagerData = videoManagerData;
         this.debuggerService = debuggerService;
         this.projectManager = projectManager;
+        this.composer = composer;
     }
 
 
-    public Parse(layerIndex:number, memDump: IMemoryDump, data: Uint8Array) {
+    public Parse(layerIndex: number, memDump: IMemoryDump, data: Uint8Array, isRelease37Plus: boolean) {
         if (this.videoManagerData == null) return;
         var thiss = this;
+        this.isRelease37Plus = isRelease37Plus;
         if (this.firstLoad) {
             this.StoreLoad();
             this.firstLoad = false;
         }
         // store previous layerInfo
         this.StorePreviousLayerInfo();
-        const vidLayer = this.Reload(layerIndex,data);
+        const vidLayer = this.isRelease37Plus ?
+            this.Reload(layerIndex, data) :
+            this.ReloadR33(layerIndex, data);
         this.layers[vidLayer.LayerIndex] = vidLayer;
        
         vidLayer.name = memDump.name;
         vidLayer.startAddress = AsmTools.numToHex5(memDump.startAddress);
         vidLayer.endAddress = AsmTools.numToHex5(memDump.endAddressForUI);
         vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+        vidLayer.IsEnabledChanged = v => {
+            if (this.isRelease37Plus && this.composer != null)
+                this.composer.SendIsEnableChanges();
+            else 
+                this.UpdateLayer(vidLayer, memDump.startAddress);
+        };
         vidLayer.valueChanged = v => {
             //alert("oo");
             this.UpdateLayer(vidLayer, memDump.startAddress);
@@ -103,15 +116,198 @@ export class VideoLayerManager {
     }
 
     private UpdateLayer(vidLayer: IVideoLayerData, startAddress: number) {
-        let data = this.RecalculateArray(vidLayer);
-        vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
-        if (this.debuggerService != null)
-            this.debuggerService.WriteVideoMemoryBlock(startAddress, data, data.length, () => { });
-        this.ParseData(vidLayer, data);
+        if (this.isRelease37Plus) {
+            let data = this.RecalculateArray(vidLayer);
+            vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+            if (this.debuggerService != null)
+                this.debuggerService.WriteVideoMemoryBlock(startAddress, data, data.length, () => { });
+                this.ParseData(vidLayer, data);
+        } else {
+            let data = this.RecalculateArrayR33(vidLayer);
+            vidLayer.RawDataString = AsmTools.ArrayToHexString(data.subarray(0, 9));
+            if (this.debuggerService != null)
+                this.debuggerService.WriteVideoMemoryBlock(startAddress, data, data.length, () => { });
+            this.ParseDataR33(vidLayer, data);
+        }
     }
- 
+    public Reload(layerIndex: number, layerData: Uint8Array): IVideoLayerData {
+        var isEnabled = this.layers.length > 1 ? this.layers[layerIndex].IsEnabled : false;
+        var props: IVideoLayerData = NewVideoLayer(layerIndex);
+        props.IsEnabled = isEnabled;
+        return this.ParseData(props, layerData);
+    }
+
 
     private RecalculateArray(vidLayer: IVideoLayerData) {
+        // Set enum strings back to numeric
+        vidLayer.Mode = LayerModes[vidLayer.ModeString.replace(/ /g, "_").replace("_bpp", "")];
+        if (vidLayer.Mode == LayerModes.Text_16_color_1) {
+            vidLayer.TileMode = false;
+            vidLayer.ColorDepth = 0;
+            vidLayer.TextMode = true;
+            vidLayer.TextMode256c = false;
+            vidLayer.BitmapMode = false;
+        }
+        else if (vidLayer.Mode == LayerModes.Text_256_color_1) {
+            vidLayer.TileMode = false;
+            vidLayer.TextMode = true;
+            vidLayer.TextMode256c = true;
+            vidLayer.BitmapMode = false;
+        }
+        else if (vidLayer.Mode == LayerModes.BitmapMode_2 || vidLayer.Mode == LayerModes.BitmapMode_4 || vidLayer.Mode == LayerModes.BitmapMode_8) {
+            vidLayer.TileMode = false;
+            vidLayer.TextMode = false;
+            vidLayer.TextMode256c = false;
+            vidLayer.BitmapMode = true;
+        }
+        else {
+            // Tile mode
+            vidLayer.TileMode = true;
+            vidLayer.TextMode = false;
+            vidLayer.TextMode256c = false;
+            vidLayer.BitmapMode = false;
+        }
+
+        var data: Uint8Array = new Uint8Array(7);
+        data[0] =
+            ((Math.log2(vidLayer.MapHeight) - 5) << 6) |
+            ((Math.log2(vidLayer.MapWidth)  - 5) << 4) |
+            (vidLayer.TextMode256c ? 1 : 0) << 3 |
+            (vidLayer.BitmapMode ? 1 : 0) << 2 |
+            (Math.log2(vidLayer.ColorDepth) << 1) & 0x3;
+            
+        
+        if (vidLayer.MapBaseHex != null && vidLayer.MapBaseHex.length > 0) {
+            var num = parseInt(vidLayer.MapBaseHex, 16);
+            data[1] = (num >> 9);
+        }
+        if (vidLayer.TileBaseHex != null && vidLayer.TileBaseHex.length > 0) {
+            var num = parseInt(vidLayer.TileBaseHex, 16);
+            data[2] = (num >> 9) & 0xFC;
+        }
+
+        if (!vidLayer.BitmapMode)
+            data[2] |=
+                ((Math.log2(vidLayer.TileWidth) - 3)) | ((Math.log2(vidLayer.TileHeight) - 3) << 1)
+        else
+            data[2] |= vidLayer.TileWidth == 640 ? 1 : 0
+
+
+        data[3] = (vidLayer.HorizontalScroll) & 0xff;
+        if (vidLayer.BitmapMode)
+            data[4] = vidLayer.PaletteOffset & 0xf;
+        else
+            data[4] = ((vidLayer.HorizontalScroll >> 8) & 0xf);
+        data[5] = (vidLayer.VerticalScroll) & 0xff;
+        data[6] = (vidLayer.VerticalScroll >> 8) & 0xf;
+       
+        return data;
+    }
+
+    private ParseData(props: IVideoLayerData, layerData: Uint8Array) {
+        if (this.videoSettings == null) return props;
+        
+        // BIT 0 & 1
+        props.ColorDepth = layerData[0] & 0x3;
+
+        // MAP_BASE specifies the base address where tile map data is fetched from. 
+        // (Note that the registers don’t specify the lower 2 bits, so the address is always aligned to a multiple of 4 bytes.)
+        props.MapBase = (layerData[1] << 9);
+        props.MapBaseHex = AsmTools.numToHex5(props.MapBase);
+
+        // TILE_BASE specifies the base address where tile data is fetched from. (Note that the registers don’t specify the 
+        props.TileBase = ((layerData[2] & 0xFC) << 9);
+        props.TileBaseHex = AsmTools.numToHex5(props.TileBase);
+
+        // Text and Tile mode settings
+        props.BitmapMode = (layerData[0] & 0x4) != 0;
+        props.TextMode = (props.ColorDepth == 0) && !props.BitmapMode;
+        props.TextMode256c = (layerData[0] & 8) != 0;
+        props.TileMode = !props.BitmapMode && !props.TextMode;
+        props.ModeString = LayerModes[props.Mode].replace(/_/g, " ") + " bpp";
+
+        // Represent the layer’s “mode” setting.
+        // Temp fix
+        props.Mode = (props.TextMode || props.TextMode256c ? 0 :
+            props.TileMode ? 2 : props.BitmapMode ? 5 : 3);
+
+        if (!props.BitmapMode) {
+            // HSCROLL specifies the horizontal scroll offset. A value between 0 and 4095 can be used. 
+            // Increasing the value will cause the picture to move left, decreasing will cause the picture to move right.
+            props.HorizontalScroll = (layerData[3] | (layerData[4] & 0xf) << 8);
+            // YSCROLL specifies the vertical scroll offset. A value between 0 and 4095 can be used. 
+            // Increasing the value will cause the picture to move up, decreasing will cause the picture to move down.
+            props.VerticalScroll = (layerData[5] | (layerData[6] & 0xf) << 8);
+        }
+        else {
+            props.HorizontalScroll = 0;
+            props.VerticalScroll = 0;
+        }
+        // MAPW, MAPH specify the map width and map height respectively:
+        // 0 = 32 tiles, 1 = 64 tiles, 2 = 128 tiles, 3 = 256 tiles
+        props.MapWidth = 0;
+        props.MapHeight = 0;
+        // TILEW, TILEH specify the tile width and tile height respectively:
+        // 0 = 8px, 1 = 16px
+        props.TileWidth = 0;
+        props.TileHeight = 0;
+
+        // $0F:$X001 contains the tilemap settings for layer X, in the format %00ABCCDD:
+        if (props.TileMode || props.TextMode) {
+            props.MapWidth = (1 << ((layerData[0] >> 4) & 3) + 5);
+            props.MapHeight = (1 << (((layerData[0] >> 6) & 3) + 5));
+            // Scale the tiles or text characters according to TILEW and TILEH.
+            props.TileWidth = (1 << (((layerData[2] & 1) + 3)));
+            props.TileHeight = (1 << (((layerData[2] >> 1) & 1) + 3));
+        }
+        else if (props.BitmapMode) {
+            // Bitmap mode is tiled mode with a single tile
+            props.TileWidth = (((layerData[2] & 1) > 0 ? 640 : 320));
+            props.TileHeight = this.videoHeight;
+        }
+
+        // We know mapw, maph, tilew, and tileh are powers of two, and any products of that set will be powers of two,
+        // so there's no need to modulo against them if we have bitmasks we can bitwise-and against.
+
+        props.MapWidthMax = (props.MapWidth - 1);
+        props.MapHeightMax = (props.MapHeight - 1);
+        props.TileWidthMax = (props.TileWidth - 1);
+        props.TileHeightMax = (props.TileHeight - 1);
+
+        props.LayerWidth = (props.MapWidth * props.TileWidth);
+        props.LayerHeight = (props.MapHeight * props.TileHeight);
+
+        props.LayerWidthMax = (props.LayerWidth - 1);
+        props.LayerHeightMax = (props.LayerHeight - 1);
+
+       
+       
+        // Find min/max eff_x for bulk reading in tile data during draw.
+        var min_eff_x = Number.MAX_VALUE;
+        var max_eff_x = Number.MIN_VALUE;
+        for (var x = 0; x < this.videoSettings.Width; ++x) {
+            var eff_x = this.CalcLayerEffX(props, x);
+            if (eff_x < min_eff_x) {
+                min_eff_x = eff_x;
+            }
+            if (eff_x > max_eff_x) {
+                max_eff_x = eff_x;
+            }
+        }
+        props.min_eff_x = Math.round(min_eff_x);
+        props.max_eff_x = Math.round(max_eff_x);
+
+        props.BitsPerPixel = (1 << props.ColorDepth);
+
+        props.TileSize = ((props.TileWidth * props.BitsPerPixel * props.TileHeight) >> 3);
+        if (props.BitmapMode)
+            props.PaletteOffset = (layerData[4] & 0xf);
+        return props;
+    }
+
+
+
+    private RecalculateArrayR33(vidLayer: IVideoLayerData) {
         // Set enum strings back to numeric
         vidLayer.Mode = LayerModes[vidLayer.ModeString.replace(/ /g, "_").replace("_bpp","")];
 
@@ -142,14 +338,12 @@ export class VideoLayerManager {
         return data;
     }
 
-    public Reload(layerIndex: number,layerData: Uint8Array): IVideoLayerData {
-
+    public ReloadR33(layerIndex: number, layerData: Uint8Array): IVideoLayerData {
         var props: IVideoLayerData = NewVideoLayer(layerIndex);
-        
-        return this.ParseData(props, layerData);
+        return this.ParseDataR33(props, layerData);
     }
 
-    private ParseData(props: IVideoLayerData, layerData: Uint8Array) {
+    private ParseDataR33(props: IVideoLayerData, layerData: Uint8Array) {
         if (this.videoSettings == null) return props;
         // X can be 2 or 3, representing Layer 0 or Layer 1, respectively, 
         // the following memory-mapped addresses control display layer behavior:
@@ -349,7 +543,7 @@ export class VideoLayerManager {
                     //    color = ram[layer.TileBase + indexOff];
                     //}
                     color = ram[layer.TileBase + indexOff];
-                    var colorIndex = this.BitsPerPxlCalculation(layer.BitsPerPixel, 1, 0, color, x);
+                    var colorIndex = this.BitsPerPxlCalculation(layer, layer.BitsPerPixel, 1, 0, color, x);
                     colorIndexes[index] = colorIndex;
                     //console.log(index,colorIndex);
                     var colorp = palette.GetColor(colorIndex);
@@ -424,9 +618,9 @@ export class VideoLayerManager {
             // Convert tile byte to indexed color
             var colorIndex = 0;
             if (tile != null)
-                colorIndex = this.BitsPerPxlCalculation(context.layer.BitsPerPixel, tile.ForegroundColor, tile.BackgroundColor, color, newX);
+                colorIndex = this.BitsPerPxlCalculation(context.layer, context.layer.BitsPerPixel, tile.ForegroundColor, tile.BackgroundColor, color, newX);
             else
-                colorIndex = this.BitsPerPxlCalculation(context.layer.BitsPerPixel, 0, 0, color, newX);
+                colorIndex = this.BitsPerPxlCalculation(context.layer, context.layer.BitsPerPixel, 0, 0, color, newX);
 
             // Apply Palette Offset
             if (paletteOffset>0)
@@ -463,12 +657,19 @@ export class VideoLayerManager {
         context.tile_bytes = context.ram.subarray(context.map_addr_begin, context.map_addr_begin + context.size);
          //console.log(context.map_addr_begin, context.map_addr_end, context.size);
     }
-    private BitsPerPxlCalculation(bitsPerPixel:number, foregroundColor: number, backgroundColor:number, color: number, newX: number):number {
+    private BitsPerPxlCalculation(layer: IVideoLayerData, bitsPerPixel:number, foregroundColor: number, backgroundColor:number, color: number, newX: number):number {
         switch (bitsPerPixel) {
             case 1:
+                if (layer.TextMode) {
                     var bit = (color >> 7 - newX & 1) != 0;
                     var colorIndex = bit ? foregroundColor : backgroundColor;
                     return colorIndex;
+                }
+                else {
+
+                    var colorIndex = ((color >> (7 - (newX & 1)) & 1));
+                    return colorIndex;
+                }
             case 2:
                 return (color >> 6 - ((newX & 3) << 1) & 3);
             case 4:
@@ -541,6 +742,20 @@ export class VideoLayerManager {
         if (changed)
             this.projectManager.ProjectSetProp(VideoLayerManager.StorageLayerData, this.layerDatas);
     }
+
+    public GetLayerData(layerIndex: number) {
+        if (layerIndex >= this.layers.length) return;
+        return this.layers[layerIndex];
+    }
+    public GetEnabledState(layerIndex: number) {
+        if (layerIndex >= this.layers.length) return;
+        return this.layers[layerIndex].IsEnabled;
+    }
+    public SetEnabledState(layerIndex: number, state: boolean) {
+        if (layerIndex >= this.layers.length) return;
+        this.layers[layerIndex].IsEnabled = state;
+    }
+   
     private StoreNewLayerInfo(vidLayer: IVideoLayerData) {
         var lay = this.layerDatas.Layers[vidLayer.LayerIndex];
         vidLayer.Show = lay.Show;

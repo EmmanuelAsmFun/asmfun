@@ -55,7 +55,7 @@ namespace AsmFun.CommanderX16.IO
 
         public void Step()
         {
-            if (joystickReader.NumJoysticks == 0) return;
+            
             if (!writing)
             { //if we are not already writing, check latch to
               //see if we need to start

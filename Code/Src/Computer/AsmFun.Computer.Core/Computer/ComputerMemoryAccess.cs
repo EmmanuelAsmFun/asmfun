@@ -194,9 +194,5 @@ namespace AsmFun.Computer.Common.Data.Computer
             return returnData;
         }
 
-        public void SetWriteAudioMethod(Action<int, int> writeAudio)
-        {
-            ((IAudioMemory)ByType[MemoryAddressType.YM2151]).SetWriteAudioMethod(writeAudio);
-        }
     }
 }

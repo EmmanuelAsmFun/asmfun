@@ -1,0 +1,134 @@
+body {
+  /*font-family: "Courier New", Courier, monospace;*/
+  font-family: 'Roboto Mono', monospace;
+  color: #aaaaaa;
+  margin: 0;
+  padding: 0;
+  padding-top: 40px;
+  overflow-y: hidden;
+  background: black url('../images/editor-bg.jpg') no-repeat 50% 50%;
+  background-size: cover;
+  height: 100%;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+/*******************************/
+.top-bar {
+  background: black url('../images/editor-footer-bg.jpg') no-repeat 50% 100%;
+  box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0px;
+  height: 30px;
+  z-index: 1000;
+}
+.top-buttons {
+  color: #9b9b75;
+  padding-left: 100px;
+  padding-top: 5px;
+  font-size: 13px;
+  display: inline-block;
+}
+.top-buttons a,
+.top-buttons a:link,
+.top-buttons a:visited,
+.top-buttons a:active {
+  color: #76765a;
+  background: transparent;
+  text-decoration: none;
+  font-size: 17px;
+  padding-right: 3px;
+}
+.top-buttons a:hover {
+  color: #bdbd92;
+  text-decoration: none;
+}
+.top-buttons .fa-stack {
+  font-size: 50%;
+}
+.top-buttons .top-btns-block {
+  display: inline-block;
+  border-right: 1px solid #39392b;
+  margin-right: 10px;
+  padding-right: 10px;
+  float: left;
+}
+.top-buttons .top-comp-btns {
+  width: 60px;
+}
+.newVersionText {
+  display: inline-block;
+  font-size: 11px;
+  padding-left: 15px;
+  vertical-align: text-top;
+}
+.logo {
+  position: absolute;
+  left: 10px;
+  top: 2px;
+}
+.logo img {
+  height: 26px;
+}
+/*******************************/
+.footerbar {
+  border-top: 1px solid #111111;
+  color: #888888;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 10px;
+  height: 22px;
+  padding-top: 2px;
+  line-height: 24px;
+  background: black url('../images/editor-footer-bg.jpg') no-repeat 50% 0%;
+  box-shadow: 0px 0px 36px 6px rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+}
+.footerbar .mouseInfo {
+  position: absolute;
+  right: 140px;
+}
+.serverVersionFooter {
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  z-index: 1001;
+  font-size: 10px;
+  height: 22px;
+  padding-top: 2px;
+  line-height: 24px;
+}
+.serverVersionFooter a,
+.serverVersionFooter a:link,
+.serverVersionFooter a:visited {
+  color: #888888;
+  cursor: pointer;
+}
+/** SCOLLBAR */
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  border: none;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  border: none;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #494926;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #858543;
+}

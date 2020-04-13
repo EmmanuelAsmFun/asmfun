@@ -36,6 +36,7 @@ import { ProcessorFactory } from "./features/processor/ProcessorFactory.js";
 import { ProjectFactory } from "./features/project/ProjectFactory.js";
 import { SettingsFactory } from "./features/settings/SettingsFactory.js";
 import { VideoFactory } from "./features/video/VideoFactory.js";
+import { DocumentationFactory } from "./features/documentation/DocumentationFactory.js";
 import { SourceCodeManager } from "./features/editor/SourceCodeManager.js";
 import { IMainData } from "./framework/data/MainData.js";
 import { ServiceLifestyle } from "./framework/serviceLoc/ServiceName.js";
@@ -97,6 +98,7 @@ export class ServiceRegisterer {
         this.features.push(new ProjectFactory());
         this.features.push(new SettingsFactory());
         this.features.push(new VideoFactory());
+        this.features.push(new DocumentationFactory());
     }
 
     private AddUIDatas(appData:any) {

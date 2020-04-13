@@ -20,7 +20,7 @@ namespace AsmFun.CommanderX16.Video
         private IVideoPainter videoPainter;
         private readonly IAccessorContainer accessorContainer;
         private IX16VideoMapTileAccess mapTileAccess;
-        private X16IOAccess ioAccess;
+        private IX16IOAccess ioAccess;
 
 
 
@@ -29,7 +29,7 @@ namespace AsmFun.CommanderX16.Video
             this.accessorContainer = accessorContainer;
             
         }
-        public void Init(X16IOAccess ioAccess, IVideoPainter videoPainter, IX16VideoMapTileAccess mapTileAccess)
+        public void Init(IX16IOAccess ioAccess, IVideoPainter videoPainter, IX16VideoMapTileAccess mapTileAccess)
         {
             this.videoPainter = videoPainter;
             this.mapTileAccess = mapTileAccess;

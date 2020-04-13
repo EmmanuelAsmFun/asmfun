@@ -47,20 +47,27 @@ export interface IInterpretLine {
     EditorLine: IEditorLine;
     LineNumber: number;
     Ui: IUILine;
-    Zone: IZoneData | null ;
+    Zone: IZoneData | null;
     ZoneFound: boolean;
-    Opcode: IOpcodeData | null ;
-    OpcodePart: IInterpretLinePart | null ;
+    Opcode: IOpcodeData | null;
+    OpcodePart: IInterpretLinePart | null;
     OpcodeFound: boolean;
-    Property: IInterpretPropertyData | null ;
+    Property: IInterpretPropertyData | null;
     PropertyFound: boolean;
-    Constant: IPropertyType | null ;
+    Constant: IPropertyType | null;
     ConstantFound: boolean;
-    Macro: IMacroData | null ;
+    Macro: IMacroData | null;
     MacroFound: boolean;
-    Label: ILabelData | null ;
+    Label: ILabelData | null;
     LabelFound: boolean;
+
+    // Links
+    PropertyLink: IInterpretPropertyData | null;
+    MacroLink: IMacroData | null;
+    LabelLink: ILabelData | null;
+    ZoneLink: IZoneData | null;
 }
+
 
 export interface IInterpretLinePart {
     LabelRef: ILabelData | null;

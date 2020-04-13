@@ -17,7 +17,7 @@ export class EditorData {
     public cursorWishedX: number = 0;
     public maxX: number = 0;
     public maxY: number = 0;
-    public charWidth: number = 7.8; // 9.65 for line-height 20px;
+    public charWidth: number = 7.2; // 9.65 for line-height 20px;
     public charHeight: number = 18;
     public screenXOffset: number = -4;
     public screenYOffset: number = -1;

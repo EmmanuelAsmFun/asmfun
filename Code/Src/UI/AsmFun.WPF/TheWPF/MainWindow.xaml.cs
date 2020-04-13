@@ -4,11 +4,14 @@
 //
 #endregion
 
+using AsmFun.CommanderX16.Audio;
 using AsmFun.Common.ServiceLoc;
+using AsmFun.Computer.Common;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
+using AsmFun.Computer.Core.Sound.Yamaha2151;
 using AsmFun.Startup;
 using AsmFun.WPF;
 using AsmFun.WPF.EnvTools;
@@ -91,7 +94,7 @@ namespace AsmFun.WPF
             sound = new SDLSound();
             if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_AUDIO | SDL2.SDL.SDL_INIT_GAMECONTROLLER) < 0)
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
-            sound.Init();
+            sound.Init(8);
             Topmost = true;
         }
 
@@ -157,13 +160,14 @@ namespace AsmFun.WPF
         private void InitComputer()
         {
             if (isInitialized) return;
+            Container.Update<IAudioPlayer>(sound);
             var computerManager = Container.Resolve<IComputerManager>();
             displayComposer = Container.Resolve<IDisplayComposer>();
             joystickReader = Container.Resolve<IJoystickReader>();
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
-            computer.SetWriteAudioMethod(sound.WriteAudio);
+            sound.InitDevices(Container.Resolve<IVeraPsg>(), Container.Resolve<IVeraPCM>(), Container.Resolve<Ym2151>());
             //computer.SetWriteAudioMethod(sound2.WriteAudio);
             keyboardAccess = computer.GetKeyboard();
             // Todo: Find a solution to make a sdl window to be able to use the joystick

@@ -25,3 +25,4 @@ export class FindReplaceOpenManagerCommand extends BaseCommand {
         this.nameSpace = "ReplaceNext";
     }
 }
+

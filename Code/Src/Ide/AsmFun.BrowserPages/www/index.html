@@ -15,52 +15,236 @@
     <link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="out/ui/Home.js" type="module"></script>
 
 </head>
-<body>
-    <div class="home">
-        <a href="for-commander-x16/index.html">
+<body >
+    <div class="home" id="appHome">
+        <a href="javascript:" v-on:click="ide.isVisible = true;">
             <img class="logo-home" src="images/logo_splash_ASM_Fun.png"
                  alt="Logo ASM Fun, An assembler development tool, special for noobs!"
                  title="Logo ASM Fun, An assembler development tool, special for noobs!" />
-
         </a>
         <br />
         <br />
-        <a href="for-commander-x16/index.html">For Commander-X16 : GO</a>
+        For Commander-X16 Retro computer.<br />
         <br />
+        <button class="btn-home-start" v-on:click="ide.isVisible = true;">
+            <span class="fa fa-download"></span>
+            Install
+        </button> and Start having Fun!<br />
         <br />
-        <a href="for-commander-x16/index.html">
+        <img v-on:click="ide.isVisible = true;" class="screenshot1" src="images/screenshots/screenshot-commanderX16.jpg" width="800" />
+
+        <br /> <br /> <br />
+
+        <br /><br />
+        <h2>Nice features</h2>
+        <h3>IDE</h3>
+        <ul>
+            <li>Code Editor</li>
+            <li>Code Assist</li>
+            <li>Instant Opcode Translator</li>
+            <li>Label/Zone/Variable search</li>
+            <li>Compile On Save</li>
+            <li>Interactive documentation</li>
+            <li>Find And replace</li>
+            <li>Easy Variable, Macro's and Label Links, navigate or find all usages.</li>
+        </ul>
+        <a v-on:click="ide.isVisible = true;">
             <img class="CodeAssist" src="images/Info/CodeAssistHome.gif" />
         </a>
-        <br /> <br /> <br />
+        <h3>Emulator</h3>
+        <ul>
+            <li>Embedded Emulator</li>
+            <li>Prg instant in memory on save</li>
+            <li>Backwads compatible Roms</li>
+        </ul>
+        <h3>Debugger</h3>
+        <ul>
+            <li>Memory inspector</li>
+            <li>Video Memory inspector</li>
+            <li>Instant Memory Edit</li>
+            <li>Multi breakpoint debugger</li>
+            <li>Variable inspector and instant editable</li>
+            <li>Base dissasembly</li>
+        </ul>
+        <h3>Video</h3>
+        <ul>
+            <li>Vera inspector</li>
+            <li>Instant property edit end bytes preview</li>
+            <li>Drag layers and Sprites</li>
+            <li>Color palette inspector</li>
+            <li>Tile inspector</li>
+        </ul>
+        <br /><br />
+
+        <button class="btn-home-start" v-on:click="ide.isVisible = true;">
+            <span class="fa fa-download"></span>
+            Install
+        </button> and Start having Fun!<br />
+        <br />
+        <br />
+        <br />
         <div class="nonresponsiveDesign">Sorry, this IDE doesn't work on small devices. Developing on a phone seems like an impossible task :-).</div>
         <small>
-            Developed by Emmanuel<br />
+            Developed by Emmanuel The Creator<br />
         </small>
         <small>
-            <a href="https://www.facebook.com/groups/asmfun/" target="_blank">Contact | Facebook</a> | 
+            <a href="/for-commander-x16/index.html">Open IDE </a> |
+            <a href="https://www.facebook.com/groups/asmfun/" target="_blank">Contact | Facebook</a> |
             <a href="https://github.com/EmmanuelAsmFun/asmfun" target="_blank">Source Code</a>
         </small>
         <br /><br /><br /><br /><br /><br />
-                                      <a href="for-commander-x16/index.html">
-                                          <img class="screenshot1" src="images/screenshots/screenshot-commanderX16.jpg" width="800" /></a>
-                                          <br /><br /><br /><br /><br /><br />
-        
-</div>
-    <script>
-        if (document.location.protocol != 'https:' && document.location.host.indexOf("localhost") < 0) {
-    document.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
-}
-    </script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HTQ9YEL51"></script>
-    <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+        <a href="for-commander-x16/index.html">
 
-  gtag('config', 'G-6HTQ9YEL51');
-    </script>
+        </a>
+        <br /><br /><br /><br /><br /><br />
+
+
+        <div>
+            <div v-show="ide.isVisible" style="display:none;">
+                <div class="asmPlayerManager v-scaler">
+                    <div class="nav-btns">
+                        <a class="close-btn" v-on:click="ide.isVisible = false">X</a>
+                    </div>
+                    <div class="content">
+                        <h2 v-on:click="ide.showDownloads = !ide.showDownloads;"><span class="number">1</span>Download and run the ASMFun player</h2>
+                        <div>
+                            <div>
+                                <p v-show="ide.serverNotConnected">
+                                    To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
+                                    You can download it here after accepting the terms.<br /><br />
+                                </p>
+                                <div class="confirmLicense">
+                                    <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions </a></label>
+                                </div>
+                                <div v-bind:class="{ 'linkdisabled' : !ide.hasConfirmedLicense }">
+
+                                    <div class="downloadheader">
+                                        <span v-bind:class="{ 'osSelected' : ide.isWindows }">
+                                            <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Windows');"><img src="/images/Logos/Windows.png" /> Windows</a>
+                                        </span>
+                                        <span v-bind:class="{'osSelected' : ide.isMac}">
+                                            <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Mac');"><img src="/images/Logos/Mac.png" />Mac</a>
+                                        </span>
+                                        <span v-bind:class="{'osSelected' : ide. isLinux}">
+                                            <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Linux');"><img src="/images/Logos/Ubuntu.png" />Linux</a>
+                                        </span>
+                                        <a href="https://github.com/EmmanuelAsmFun/asmfun" target="_blank">Source Code</a>
+                                    </div>
+
+                                    <div class="homeAddonNote v-fade" v-show="ide.hasConfirmedLicense">
+                                        <div v-show="ide.isMac">
+                                            <h3>For Mac</h3>
+                                            <p>
+                                                <br />
+                                                Can somebody tell me if Mac works? I don't have a Mac available at the moment.<br /><br />
+                                                <br />
+                                                Open terminal and run:<br />
+                                                &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
+                                                &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
+                                                <br />
+                                            </p>
+                                        </div>
+                                        <div v-show="ide.isLinux">
+                                            <h3>For Linux</h3>
+                                            <p>
+                                                Open terminal and run:<br />
+                                                &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
+                                                &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="download-large">
+                                            <span v-if="ide.isWindows"><a class="btn-default" href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a></span>
+                                            <span v-if="ide.isMac"><a class="btn-default" href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
+                                            <span v-if="ide.isLinux"><a class="btn-default" href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
+
+                                        </div>
+                                        <div style="margin-left:200px;" v-show="ide.hasConfirmedLicense" class="v-fade">
+                                            <a v-on:click="ide.showMoreDownloads = !ide.showMoreDownloads" v-if="!ide.showMoreDownloads && ide.isWindows">Other compiled versions</a>
+                                            <div v-if="ide.showMoreDownloads">
+                                                <div class="downloadBlock">
+                                                    <span class="downloadText">
+                                                        <b>Light</b><br /><small> .Net core 3.1 is already installed</small>
+                                                    </span>
+                                                    <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a>  &nbsp;1.4Mb (3.7Mb)</span>
+                                                    <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                                    <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                                </div>
+                                                <div class="downloadBlock">
+                                                    <span class="downloadText">
+                                                        <b>Complete</b><br />
+                                                        <small>
+                                                            with .net core 3.1 framework<br />
+                                                        </small>
+                                                    </span>
+                                                    <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
+                                                    <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                                    <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                                </div>
+                                            </div>
+
+                                            <br /><br />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <h2><span class="number">2</span>Download and install compilers.</h2>
+                                    <div style="margin-left:200px;">
+                                        <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank">Download ACME Compiler</a> (Required)<br />
+                                        <a href="https://cc65.github.io/getting-started.html" target="_blank">Download Cc65 Compiler</a> (Optional)
+
+                                        <br /><br />
+                                        <div v-show="ide.isLinux">
+
+                                            <p>
+                                                The default compiler is ACME, you need to download it and set the folder with filename in the settings.<br />
+                                                You can download the source at:<br />
+                                                &nbsp; &nbsp; <a href="https://github.com/meonwax/acme" target="_blank">https://github.com/meonwax/acme</a><br />
+                                                &nbsp; &nbsp; goto /src/ folder<br />
+                                                run the command:<br />
+                                                &nbsp; &nbsp; make all<br />
+                                                <br />
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <h2><span class="number">3</span>Setup compilers folders.</h2>
+
+
+                                    <div style="margin-left:200px;">
+                                        <button v-on:click="ide.Start()" style="width: 180px;"><span class="fa fa-hand-o-right"></span> Go set the folders </button> and have some Fun!
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+            if (document.location.protocol != 'https:' && document.location.host.indexOf("localhost") < 0) {
+                document.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+            }
+        </script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HTQ9YEL51"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-6HTQ9YEL51');
+        </script>
 </body>
 </html>

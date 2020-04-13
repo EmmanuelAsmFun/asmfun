@@ -23,6 +23,7 @@ using AsmFun.Computer.Core.Computer;
 using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.IO.Data;
 using AsmFun.Computer.Common.Memory;
+using AsmFun.Computer.Common;
 
 namespace AsmFun.CommanderX16.Computer
 {
@@ -65,12 +66,18 @@ namespace AsmFun.CommanderX16.Computer
         private VideoProcessor videoProcessor;
         private IProgramAccess programAccess;
         private IUart uart;
+        private IAudioPlayer audioPlayer;
+        private bool soundEnabled;
 
-        public bool SoundEnabled { get; set; }
+        public bool SoundEnabled { get => soundEnabled; set { 
+                soundEnabled = value;
+                if (audioPlayer != null)
+                    audioPlayer.IsEnabled = value;
+            } }
 
         public X16Computer(X16JoystickData joystickData, IVideoAccess videoAccess, IComputerAccess computerAccess,
             IX16PS2Access ps2Data, X16VeraSpi veraSpi, IEmServiceResolverFactory container, IDebugger debugger,
-            ComputerSetupSettings computerSettings, IProcessor processor, ProcessorData processorData, IComputerDiagnose diagnose, 
+            ComputerSetupSettings computerSettings, IProcessor processor, ProcessorData processorData, IComputerDiagnose diagnose,
             IKeyboardAccess keyboardAccess, IUart uart, IProgramAccess programAccess
             )
         {
@@ -157,11 +164,12 @@ namespace AsmFun.CommanderX16.Computer
                             ps2.Step();
                             joystick.Step();
                             veraSpi.Step();
-                            uart.Step();
+                            //uart.Step();
                             videoAccess.ProcessorStep();
                             display.ClockTick(processorData.ProgramCounter, mhzRunning);
                             CheckFps();
                         }
+                        audioPlayer.Render(clocks);
 
                         stepCounter++;
 
@@ -246,7 +254,7 @@ namespace AsmFun.CommanderX16.Computer
                 videoAccess.LockOnMhz(value);
                 Console.WriteLine($"Set LockOnMhz {required}Mhz :" + value);
             }
-        } 
+        }
         public bool LockOnFps
         {
             get { return lockOnFps; }
@@ -333,6 +341,9 @@ namespace AsmFun.CommanderX16.Computer
         {
             this.display = display;
             videoAccess.SetDisplay(display);
+            audioPlayer = container.Resolve<IAudioPlayer>();
+            if (audioPlayer != null)
+                audioPlayer.IsEnabled = soundEnabled;
         }
         public MemoryDumpData[] VideoMemoryDump()
         {
@@ -340,17 +351,13 @@ namespace AsmFun.CommanderX16.Computer
         }
         public void WriteVideoMemoryBlock(int startAddress, byte[] data, int count)
         {
-            videoAccess.WriteBlock(startAddress,data,count);
+            videoAccess.WriteBlock(startAddress, data, count);
         }
         public void WriteMemoryBlock(int startAddress, byte[] data, int count)
         {
-            computerAccess.Memory.WriteBlock(startAddress,data,count);
+            computerAccess.Memory.WriteBlock(startAddress, data, count);
         }
-        public void SetWriteAudioMethod(Action<int, int> writeAudio)
-        {
-            if (!SoundEnabled) return;
-            computerAccess.Memory.SetWriteAudioMethod(writeAudio);
-        }
+
         public List<MemoryDumpData> GetLoadedMemoryBlocks()
         {
             return programAccess.GetLoadedMemoryBlocks();
@@ -358,7 +365,8 @@ namespace AsmFun.CommanderX16.Computer
 
         public void MouseButtonDown(int index) { ps2.MouseButtonDown(index); }
         public void MouseButtonUp(int index) { ps2.MouseButtonUp(index); }
-        public void MouseMove(int x, int y) { ps2.MouseMove(x, y);}
+        public void MouseMove(int x, int y) { ps2.MouseMove(x, y); }
+        public void EnableDataLog(bool state) { processor.EnableDataLog(state); }
 
         public void Dispose()
         {
@@ -371,6 +379,6 @@ namespace AsmFun.CommanderX16.Computer
                 container.Delete(usedService);
         }
 
-       
+
     }
 }

@@ -10,5 +10,5 @@ namespace AsmFun.CommanderX16.Computer.Factories
         {
             ComputerVersion = ComputerVersionS;
         }
-    }
+    } 
 }

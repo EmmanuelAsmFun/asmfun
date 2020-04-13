@@ -23,6 +23,7 @@ namespace AsmFun.Computer.Common.Video.Data
         public VideoOutModes OutMode { get; protected set; }
         public byte OutModeVG { get; protected set; }
         public bool ChromaDisable { get; protected set; }
+        public bool SpritesEnable { get; protected set; }
         public float HScale { get; protected set; }
         public float VScale { get; protected set; }
         /// <summary>
@@ -38,6 +39,11 @@ namespace AsmFun.Computer.Common.Video.Data
         public ushort IrqLine { get; protected set; }
         public abstract string Name { get; }
 
+        public DisplayComposerData()
+        {
+            SpritesEnable = true;
+        }
+        
         public bool IsInsideWorkArea(int x, int y)
         {
             return x < HStart || x > HStop || y < VStart || y > VStop;
@@ -60,5 +66,8 @@ namespace AsmFun.Computer.Common.Video.Data
 
         public abstract void MemoryDump(byte[] data, int startAddress);
         public abstract byte[] MemoryDump(int startAddress);
+
+        public abstract void SetIrqLine(byte value);
+        public abstract void Init(IVideoPainter videoPainter);
     }
 }

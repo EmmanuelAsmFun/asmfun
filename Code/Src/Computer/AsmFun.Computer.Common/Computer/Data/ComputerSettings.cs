@@ -23,7 +23,7 @@ namespace AsmFun.Computer.Common.Computer.Data
         public ComputerSettings()
         {
             ComputerType = "CommanderX16";
-            ComputerVersion = "R36";
+            ComputerVersion = "R37";
         }
 
         public void Parse(ComputerSettings computerSettings)

@@ -10,12 +10,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using AsmFun.CommanderX16.Audio;
 using AsmFun.Common;
 using AsmFun.Common.ServiceLoc;
+using AsmFun.Computer.Common;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.IO;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
+using AsmFun.Computer.Core.Sound.Yamaha2151;
 using AsmFun.Core.Tools;
 
 namespace AsmFun.Startup
@@ -67,13 +70,14 @@ namespace AsmFun.Startup
         public void Init()
         {
             if (isInitialized) return;
+            Container.Update<IAudioPlayer>(sound);
             var computerManager = Container.Resolve<IComputerManager>();
             displayComposer = Container.Resolve<IDisplayComposer>();
             joystickReader = Container.Resolve<IJoystickReader>();
             var computer = computerManager.GetComputer();
             if (computer == null) return;
             computerManager.SetDisplay(this);
-            computer.SetWriteAudioMethod(sound.WriteAudio);
+            sound.InitDevices(Container.Resolve<IVeraPsg>(), Container.Resolve<IVeraPCM>(), Container.Resolve<Ym2151>());
             eventManagerSDL = new EventManagerSDL(Container, computer.GetKeyboard());
             _stopwatchFramePaint.Start();
             _stopwatchSDL.Start();
@@ -95,7 +99,7 @@ namespace AsmFun.Startup
             InitBGLayer();
             InitLayers();
             InitFpsCounter();
-            sound.Init();
+            sound.Init(8);
             eventManagerSDL.RunPollEvent();
         }
 
@@ -106,12 +110,12 @@ namespace AsmFun.Startup
                 SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
             if (SDL2.SDL.SDL_Init(SDL2.SDL.SDL_INIT_VIDEO | SDL2.SDL.SDL_INIT_EVENTS | SDL2.SDL.SDL_INIT_GAMECONTROLLER | SDL2.SDL.SDL_INIT_AUDIO) < 0)
                 Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL2.SDL.SDL_GetError());
-            SDL2.SDL.SDL_CreateWindowAndRenderer(640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
+            SDL2.SDL.SDL_CreateWindowAndRenderer(640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI
                 | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL, out window, out renderer);
             //window = SDL2.SDL.SDL_CreateWindow("ASMFun - Commander X16", 0, 0, 640, 480, SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE
             //    | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL2.SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL );
             //renderer = SDL2.SDL.SDL_CreateRenderer(window, -1, SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE | SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-
+            SDL2.SDL.SDL_SetWindowResizable(window,SDL2.SDL.SDL_bool.SDL_TRUE);
             if (window == IntPtr.Zero)
             {
                 Console.WriteLine("Unable to create a window. SDL. Error: {0}", SDL2.SDL.SDL_GetError());

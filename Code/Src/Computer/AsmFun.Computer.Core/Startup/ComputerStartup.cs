@@ -23,6 +23,7 @@ namespace AsmFun.Computer.Startup
             container.Add<IComputerManager, ComputerManager>().WithLifestyle(EmServiceLifestyle.Singleton);
             // Transient
             container.Add<IAsmMemoryReader, AsmMemoryReader>().WithLifestyle(EmServiceLifestyle.Transient);
+
         }
 
 

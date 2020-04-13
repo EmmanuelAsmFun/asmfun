@@ -15,6 +15,7 @@ namespace AsmFun.Computer.Common.Video
         VideoOutModes OutMode { get; }
         byte OutModeVG { get; }
         bool ChromaDisable { get; }
+        bool SpritesEnable { get; }
         float HScale { get; }
         float VScale { get; }
         /// <summary>
@@ -33,5 +34,7 @@ namespace AsmFun.Computer.Common.Video
         VScales GetVScale();
         void SetRegComposer(byte[] data);
         bool IsInsideWorkArea(int x, int y);
+        void SetIrqLine(byte value);
+        void Init(IVideoPainter videoPainter);
     }
 }

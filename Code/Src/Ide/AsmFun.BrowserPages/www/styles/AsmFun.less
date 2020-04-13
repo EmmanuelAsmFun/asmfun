@@ -19,6 +19,7 @@
 @import "findreplace";
 @import "codenavigator";
 @import "compilation";
+@import "documentation";
 
 
 @font-face {
@@ -108,29 +109,29 @@ a:hover {
 
 
 
-    .stack {
-        position: fixed;
-        right: 25px;
-        top: 35px;
-        bottom: 30px;
-        color: #11b011;
-        width: 70px;
-        font-size: 10px;
-        padding: 5px;
-        z-index: 50;
-        overflow-y: scroll;
+.stack {
+    position: fixed;
+    right: 25px;
+    top: 35px;
+    bottom: 30px;
+    color: @color-stack;
+    width: 70px;
+    font-size: 10px;
+    padding: 5px;
+    z-index: 50;
+    overflow-y: scroll;
 
-        .title {
-            margin-bottom: 8px;
-        }
-
-        .isActifOpcode {
-            color: #f0f167;
-            -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
-            -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
-            animation: actifOpcode 0.5s ease-in-out infinite alternate;
-        }
+    .title {
+        margin-bottom: 8px;
     }
+
+    .isActifOpcode {
+        color: #f0f167;
+        -webkit-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+        -moz-animation: actifOpcode 0.5s ease-in-out infinite alternate;
+        animation: actifOpcode 0.5s ease-in-out infinite alternate;
+    }
+}
 
     .stack::-webkit-scrollbar {
         display: none;

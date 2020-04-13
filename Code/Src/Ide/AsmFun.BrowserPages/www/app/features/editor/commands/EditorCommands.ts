@@ -2,6 +2,7 @@
 import { IEditorFile, IEditorLine, IEditorSelection } from "../data/EditorData.js";
 import { IUILine } from "../ui/IUILine.js";
 import { IUIFile } from "../ui/IUIFile.js";
+import { BaseEvent } from "../../../framework/data/EventsCommon.js";
 
 // #region license
 // ASM Fun
@@ -118,6 +119,30 @@ export class EditorClearProjectCommand extends BaseCommand{
     public constructor() {
         super();
         this.commandName = "ClearProject";
+        this.nameSpace = "Editor";
+    }
+}
+
+export class EditorInsertVariableSetterCommand extends BaseCommand {
+    public code: string | null;
+    public addressHex: string | null;
+    public name: string | null;
+    public constructor(code: string | null, addressHex: string | null, name: string | null) {
+        super();
+        this.code = code;
+        this.addressHex = addressHex;
+        this.name = name;
+        this.commandName = "InsertVariableSetter";
+        this.nameSpace = "Editor";
+    }
+}
+
+export class SelectedLineChanged extends BaseEvent {
+    public line: IEditorLine | null;
+    public constructor(line:IEditorLine | null) {
+        super();
+        this.line = line;
+        this.eventName = "SelectedLineChanged";
         this.nameSpace = "Editor";
     }
 }

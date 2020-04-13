@@ -16,18 +16,21 @@ namespace AsmFun.CommanderX16.Video
         public uint ComposerStartADD = 0xF0000;
         public uint ComposerEndADD = 0xF1000;
         public uint ComposerEndADDForUI = 0xF001F;
-        public uint PaletteStartADD = 0xF1000;
-        public uint PaletteEndADD = 0xF2000;
-        public uint PaletteEndADDForUI = 0xF11FF;
+        public uint PSGStartADD = 0x1F9C0;
+        public uint PSGEndADD = 0x1FA00;
+        public uint PSGEndADDForUI = 0x1FA00;
+        public uint PaletteStartADD = 0xF1000;      // R37+ = 0x1FA00
+        public uint PaletteEndADD = 0xF2000;        // R37+ = 0x1FC00
+        public uint PaletteEndADDForUI = 0xF11FF;   // R37+ = 0x1F1FF
         public uint Layer1StartADD = 0xF2000;
         public uint Layer1EndADD = 0xF3000;
         public uint Layer1EndADDForUI = 0xF200F;
         public uint Layer2StartADD  = 0xF3000;
         public uint Layer2EndADD = 0xF4000;
         public uint Layer2EndADDForUI = 0xF300F;
-        public uint SpritesStartADD = 0xF4000;
-        public uint SpritesEndADD = 0xF5000;
-        public uint SpritesEndADDForUI = 0xF400F;
+        public uint SpritesStartADD = 0xF4000;      // R37+ = 0x1FC00
+        public uint SpritesEndADD = 0xF5000;        // R37+ = 0x20000
+        public uint SpritesEndADDForUI = 0xF400F;   // R37+ = 0x1FC0F
         public uint SpriteDataStartADD = 0xF5000;
         public uint SpriteDataEndADD = 0xF6000;
         public uint SpriteDataEndADDForUI = 0xF53FF;

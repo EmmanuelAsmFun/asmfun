@@ -7,7 +7,7 @@
 import { EditorData, IEditorFile, IEditorLine, IEditorManagerData, IEditorSelection } from "./data/EditorData.js";
 import {
     KeyboardKeyCommand, EditorCodeAssistCommand, CloseEditorCodeAssistCommand, EditorPasteCommand, EditorInsertTextCommand, EditorEnableCommand,
-    EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand, EditorClearProjectCommand
+    EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand, EditorClearProjectCommand, EditorInsertVariableSetterCommand, SelectedLineChanged
 } from "./commands/EditorCommands.js";
 import { SourceCodeManager } from "./SourceCodeManager.js";
 import { CursorLogic } from "./CursorLogic.js";
@@ -45,6 +45,7 @@ export interface IEditorContext {
 
 
 export class EditorManager implements IEditorContext {
+   
   
    
 
@@ -91,6 +92,7 @@ export class EditorManager implements IEditorContext {
         mainData.commandManager.Subscribe2(new EditorReloadLineCommand(null), this, (c) => { if (c.line != null) { thiss.RedrawLineFromUi(c.line); } });
         mainData.commandManager.Subscribe2(new EditorScrollToLineCommand(null), this, (c) => { if (c.line != null) { thiss.EditorScrollToLine(c.line); } });
         mainData.commandManager.Subscribe2(new EditorClearProjectCommand(), this, (c) => thiss.ClearProject());
+        mainData.commandManager.Subscribe2(new EditorInsertVariableSetterCommand(null, null, null), this, (c) => thiss.EditorInsertVariableSetter(c.code, c.addressHex, c.name));
         // Events
         mainData.eventManager.Subscribe2(new SourceCodeLoadedAndParsed(), this, (c) => thiss.SourceCodeLoadedAndParsed());
 
@@ -227,6 +229,7 @@ export class EditorManager implements IEditorContext {
         this.currentLine = line;
         if (this.sourceCodeManager.Bundle == null) return;
         this.currentLineI = this.sourceCodeManager.Bundle.GetLine(line);
+        this.mainData.eventManager.InvokeEvent(new SelectedLineChanged(line));
     }
 
     private PasteText(text: string, selection: IEditorSelection | null) {
@@ -421,6 +424,24 @@ export class EditorManager implements IEditorContext {
         if (line.data == null) return;
         this.SelectFile(line.file);
         this.MoveCursor(0, line.data.lineNumber - 1,true);
+    }
+
+    public EditorInsertVariableSetter(code: string | null, addressHex: string | null, name: string | null): void {
+        if (this.currentFile == null || this.currentLine == null || this.sourceCodeManager.Bundle == null || addressHex == null || code == null) return;
+        // Check if it's already added.
+        var searchAd = addressHex;
+        if (searchAd.length < 5) searchAd = "0" + searchAd;
+        var exists = this.sourceCodeManager.Bundle.PropertyManager.FindByHexAddress(searchAd);
+        if (exists != null) return;
+        exists = this.sourceCodeManager.Bundle.PropertyManager.Find(code);
+        if (exists != null) return;
+        var numSpacesStart = 28 - code.length;
+        if (numSpacesStart <= 0)
+            numSpacesStart = 1;
+        var codeText = code + " ".repeat(numSpacesStart)+"= $" + addressHex;
+        var codeText = codeText + "  ; " + name + "\r\n";
+        this.editorWriter.PasteText(this, codeText, null);
+        
     }
 
     /** Completly resets the project, when createing a new project. */

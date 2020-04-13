@@ -15,7 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+// https://www.facebook.com/photo.php?fbid=10218493369501531&set=p.10218493369501531&type=1&theater
 namespace AsmFun.Computer.Core.Sound.Yamaha2151
 {
     public class Ym2151

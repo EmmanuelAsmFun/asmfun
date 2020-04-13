@@ -19,6 +19,7 @@ export var RomVersionNames: { name: string, value: string }[] = [
     { value: "R34", name: "ROM R34" },
     { value: "R35", name: "ROM R35" },
     { value: "R36", name: "ROM R36" },
+    { value: "R37", name: "ROM R37" },
 ];
 
 export interface ISourceCodeBundle {
@@ -204,7 +205,7 @@ export interface IProjectManagerData extends IPopupWindowData{
         projectIsDownloading: false,
         compilerNames: CompilerNames,
         newProjectCompiler: 1,
-        newProjectRomVersion: "R36",
+        newProjectRomVersion: "R37",
         romVersionNames: RomVersionNames,
         newProjectDeveloperName: ""
     }
@@ -227,7 +228,7 @@ export function NewBuildConfiguration(): IBuildConfiguration {
         computerType: ProjectComputerTypes.CommanderX16,
         outputFolderName: "output",
         programFileName: "",
-        romVersion: "R36"
+        romVersion: "R37"
     };
 }
 export enum InternetSourceType {

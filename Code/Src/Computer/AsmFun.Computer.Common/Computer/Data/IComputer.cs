@@ -50,12 +50,13 @@ namespace AsmFun.Computer.Common.Computer.Data
         MemoryDumpData[] VideoMemoryDump();
         void WriteVideoMemoryBlock(int startAddress, byte[] data, int count);
         void WriteMemoryBlock(int startAddress, byte[] data, int count);
-        void SetWriteAudioMethod(Action<int, int> writeAudio);
 
         List<MemoryDumpData> GetLoadedMemoryBlocks();
 
         void MouseButtonDown(int index);
         void MouseButtonUp(int index);
         void MouseMove(int x, int y);
+
+        void EnableDataLog(bool state);
     }
 }

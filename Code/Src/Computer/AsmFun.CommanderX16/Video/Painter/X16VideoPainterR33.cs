@@ -50,7 +50,7 @@ namespace AsmFun.CommanderX16.Video.Painter
         private IVideoPaletteAccess videoPalette;
         private IVideoLayerAccess LayerAccess;
         private IX16VideoMapTileAccess mapTileAccess;
-        private X16IOAccess ioAccess;
+        private IX16IOAccess ioAccess;
 
 
         private List<Action<int, int, byte[]>> paintProcedure = new List<Action<int, int, byte[]>>();
@@ -59,7 +59,7 @@ namespace AsmFun.CommanderX16.Video.Painter
 
         public X16VideoPainterR33(VideoSettings videoSettings, IVideoAccess videoAccess, IDisplayComposer composer,
             IVideoPaletteAccess videoPalette, IVideoLayerAccess layerAccess, ISpriteAttributesAccess spriteAccess,
-            IX16VideoMapTileAccess mapTileAccess, X16IOAccess ioAccess)
+            IX16VideoMapTileAccess mapTileAccess, IX16IOAccess ioAccess)
         {
             X16VideoSettings videoSettings2 = (X16VideoSettings)videoSettings;
             this.videoPalette = videoPalette;

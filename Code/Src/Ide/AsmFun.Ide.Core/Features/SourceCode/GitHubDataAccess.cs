@@ -52,7 +52,7 @@ namespace AsmFun.Ide.Core.Features.SourceCode
             var files = new List<string>();
             var directories = new List<string>();
             var regExBlock = new Regex("(<tr class=\"js-navigation-item\")([\\s\\S]*?)(<\\/tr>)");
-            var regEx = new Regex("(<a class=\"js-navigation-open\").*(href=\")([^\"]*)");
+            var regEx = new Regex("(<a class=\"js-navigation-open).*(href=\")([^\"]*)");
             var matchesBlock = regExBlock.Matches(htmlData);
             foreach (Match matchBlock in matchesBlock)
             {

@@ -11,6 +11,7 @@ namespace AsmFun.Computer.Common.Video
 {
     public interface ISpriteAttributesAccess : IMemoryAccessable
     {
+        void Init(IDisplayComposer displayComposer);
         byte CalculateColIndex(byte[][] layerLine, bool[] layerLinesEmpty, int eff_x);
         byte CalculateLineColIndex(byte spr_zindex, byte spr_col_index, byte l1_col_index, byte l2_col_index);
         ushort RenderLine(ushort y);

@@ -48,12 +48,12 @@ namespace AsmFun.CommanderX16.Video.Painter
         private IVideoPaletteAccess videoPalette;
         private IVideoLayerAccess LayerAccess;
         private IX16VideoMapTileAccess mapTileAccess;
-        private X16IOAccess ioAccess;
+        private IX16IOAccess ioAccess;
         private readonly IComputerDiagnose diagnose;
 
         public X16VideoPainterR34(VideoSettings videoSettings, IVideoAccess videoAccess, IDisplayComposer composer,
             IVideoPaletteAccess videoPalette, IVideoLayerAccess layerAccess, ISpriteAttributesAccess spriteAccess,
-            IX16VideoMapTileAccess mapTileAccess, X16IOAccess ioAccess, IComputerDiagnose diagnose)
+            IX16VideoMapTileAccess mapTileAccess, IX16IOAccess ioAccess, IComputerDiagnose diagnose)
         {
             X16VideoSettings videoSettings2 = (X16VideoSettings)videoSettings;
             this.videoPalette = videoPalette;

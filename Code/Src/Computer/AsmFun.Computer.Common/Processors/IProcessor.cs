@@ -8,6 +8,8 @@ namespace AsmFun.Common.Processors
 {
     public interface IProcessor
     {
+        void EnableDataLog(bool state);
+
         bool IsKernal();
         void Reset();
         void Step();

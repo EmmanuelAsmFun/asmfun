@@ -1,6 +1,7 @@
 ﻿using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace AsmFun.CommanderX16.Video.Painter
@@ -54,10 +55,10 @@ namespace AsmFun.CommanderX16.Video.Painter
         public bool PaintFrame(IntPtr layerBuffer, ushort vStart, byte vScale)
         {
             if (!enabled) return false;
+            ushort scaledWidth = (ushort)(vScale * (width - vStart) / 128);
             for (ushort y = 0; y < height; y++)
             {
-                ushort eff_y = (ushort)(vScale * (y - vStart) / 128);
-
+                var eff_y = y;
                 var newY = tileHeight > 0 ? eff_y % tileHeight : 0;
                 // Additional bytes to reach the correct line of the tile
                 uint y_add = (uint)(newY * tileWidth * bitsPerPixel >> 3);
@@ -71,12 +72,12 @@ namespace AsmFun.CommanderX16.Video.Painter
                     // Get the offset address of the tile.
                     uint tile_offset = y_add + x_add;
                     byte color = videoBytes[tile_offset];
-
+                    
                     // Convert tile byte to indexed color
                     var colorIndex = BitsPerPxlCalculation(color, newX);
 
                     // Apply Palette Offset
-                    if (paletteOffset > 0)
+                    if (paletteOffset > 0 && colorIndex >0 && colorIndex < 16)
                         colorIndex += paletteOffset;
                     var place = x + eff_y * width;
                     if (place < 41861120)

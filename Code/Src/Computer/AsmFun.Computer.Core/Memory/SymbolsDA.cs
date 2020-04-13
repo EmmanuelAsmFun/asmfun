@@ -42,14 +42,28 @@ namespace AsmFun.Computer.Core.Memory
         public void Read()
         {
             lastLoadedVersion = computerSettings.Version;
-            var startFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-            var fullFileName = Path.Combine(startFolder, computerSettings.ComputerTypeShort, computerSettings.Version, "rom.sym");
-            if (!File.Exists(fullFileName))
-                throw new FileNotFoundException("The Symbols of the ROM file was not found", fullFileName);
-            Read(fullFileName);
+            OnRead();
         }
+        protected virtual void OnRead() 
+        { 
+            Read(Path.Combine(GetFolder(), "basic.sym"));
+            //Read(Path.Combine(GetFolder(), "cbdos.sym"));
+            Read(Path.Combine(GetFolder(), "geos.sym"));
+            Read(Path.Combine(GetFolder(), "kernal.sym"));
+            Read(Path.Combine(GetFolder(), "monitor.sym"));
+        }
+
+        protected string GetFolder()
+        {
+            var startFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var fullFolder = Path.Combine(startFolder, computerSettings.ComputerTypeShort, computerSettings.Version);
+            return fullFolder;
+        }
+
         public void Read(string fullFileName)
         {
+            if (!File.Exists(fullFileName))
+                throw new FileNotFoundException("The Symbols of the ROM file was not found", fullFileName);
             var lines = File.ReadAllLines(fullFileName);
             foreach (var line in lines)
             {

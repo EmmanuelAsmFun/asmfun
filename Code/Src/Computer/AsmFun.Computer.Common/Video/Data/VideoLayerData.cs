@@ -16,6 +16,7 @@ namespace AsmFun.Computer.Common.Video.Data
         public uint TileSize;
 
         public bool TextMode;
+        public bool TextMode256c;
         public bool TileMode;
         public bool BitmapMode;
 
@@ -45,11 +46,13 @@ namespace AsmFun.Computer.Common.Video.Data
         public int min_eff_x;
         public int max_eff_x;
         public bool PaintRequireReload = true;
+        public int ColorDepth;
 
         public VideoLayerData(int layerIndex)
         {
             LayerIndex = layerIndex;
         }
 
+       
     }
 }

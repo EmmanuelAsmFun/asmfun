@@ -12,12 +12,12 @@ namespace AsmFun.CommanderX16.Video.Data
 {
     public class X16MemoryVideoData : MemoryDataAccessDeffered
     {
-        X16IOAccess ioAccess;
+        IX16IOAccess ioAccess;
 
         public X16MemoryVideoData(IntPtr data, int length) : base(data, length)
         {
         }
-        public void Init(X16IOAccess video)
+        public void Init(IX16IOAccess video)
         {
             ioAccess = video;
             Init(Read, Write);

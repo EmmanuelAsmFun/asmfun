@@ -16,6 +16,6 @@ namespace AsmFun.Computer.Common.Video.Data
         public int VideoRAMSize { get; set; }
         public int NumberOfLayers { get; set; }
         public int NumberOfSprites { get; set; }
-
+        public int ComputerVersionNum { get; set; }
     }
 }

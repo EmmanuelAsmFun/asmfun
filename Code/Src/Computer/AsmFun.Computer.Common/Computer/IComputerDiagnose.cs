@@ -6,5 +6,6 @@ namespace AsmFun.Computer.Common.Computer
     {
         void Step(ProcessorData processorData);
         void StepPaint(int frame, ushort y, byte[] pData);
+        void WriteRAM(uint address, byte value);
     }
 }

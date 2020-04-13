@@ -20,9 +20,12 @@ import { IKeyboardKey } from "../computer/data/ComputerData.js";
 import { ServiceName } from "../../framework/serviceLoc/ServiceName.js";
 import { DebuggerService } from "../processor/services/DebuggerService.js";
 import { IPopupWindow, IPopupSubscription, IPopupEventData, IPopupWindowData } from "../../framework/data/IPopupData.js";
+import { UserSettingsLoaded, ProjectSettingsLoaded } from "../project/commands/ProjectsCommands.js";
+import { IUserSettings, IProjectSettings } from "../project/data/ProjectData.js";
 
 
 export class VideoManager implements IPopupWindow {
+   
 
     private autoReloader: number = 0; 
     private mainData: IMainData;
@@ -35,10 +38,11 @@ export class VideoManager implements IPopupWindow {
     public videoRamManager: VideoRamManager;
     private projectManager: ProjectManager;
     private keyboardManager: KeyboardManager | null = null;
+    private versionNum: number = 33;
 
     private popupMe: IPopupSubscription;
     public CanOpenPopup(evt: IPopupEventData) { evt.SetCanOpen(true); }
-   public GetData(): IPopupWindowData {
+    public GetData(): IPopupWindowData {
         return this.data;
     }
 
@@ -47,7 +51,8 @@ export class VideoManager implements IPopupWindow {
         this.mainData = mainData;
         this.data = mainData.GetUIData(UIDataName);
         this.popupMe = mainData.popupManager.Subscribe(0, this);
-        
+
+        // Services
         this.computerService = mainData.container.Resolve<ComputerService>(ComputerService.ServiceName) ?? new ComputerService(mainData);
         this.videoLayerManager = mainData.container.Resolve<VideoLayerManager>(VideoLayerManager.ServiceName) ?? new VideoLayerManager();
         this.videoPaletteManager = mainData.container.Resolve<VideoPaletteManager>(VideoPaletteManager.ServiceName) ?? new VideoPaletteManager();
@@ -55,16 +60,22 @@ export class VideoManager implements IPopupWindow {
         this.videoComposerManager = mainData.container.Resolve<VideoComposerManager>(VideoComposerManager.ServiceName) ?? new VideoComposerManager();
         this.videoRamManager = mainData.container.Resolve<VideoRamManager>(VideoRamManager.ServiceName) ?? new VideoRamManager();
         this.projectManager = mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName) ?? new ProjectManager(this.mainData);
+        this.projectManager = mainData.container.Resolve<ProjectManager>(ProjectManager.ServiceName) ?? new ProjectManager(this.mainData);
+        var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
+
+        // Events
         this.mainData.commandManager.Subscribe2(new VideoOpenManagerCommand(null), this, x => this.popupMe.SwitchState(x.state));
         this.mainData.commandManager.Subscribe2(new VideoReloadAllCommand(), this, () => this.ReloadData());
         this.mainData.commandManager.Subscribe2(new VideoEnableAutoReloadCommand(null), this, (s) => this.SwapEnableAutoReload(s.state));
         this.mainData.commandManager.Subscribe2(new VideoEnableKeyForwardingCommand(null), this, (s) => this.EnableKeyForwarding(s.state));
-        var debugSvc = mainData.container.Resolve<DebuggerService>(DebuggerService.ServiceName) ?? new DebuggerService(mainData);
-        this.videoLayerManager.Init(this.data, debugSvc, this.projectManager);
+        this.mainData.eventManager.Subscribe2(new ProjectSettingsLoaded(), this, x => this.ParseProjectSettings(x.projectSettings));
+
+        // init
+        this.videoLayerManager.Init(this.data, debugSvc, this.projectManager, this.videoComposerManager);
         this.videoRamManager.Init(mainData, this.data, debugSvc, this.projectManager, this.computerService);
         this.videoPaletteManager.Init(mainData,this.data);
         this.videoSpriteManager.Init(this.data, debugSvc, () => this.ReloadData());
-        this.videoComposerManager.Init(this.data, debugSvc);
+        this.videoComposerManager.Init(this.data, debugSvc, this.videoLayerManager);
     }
 
     public ReloadData() {
@@ -72,16 +83,17 @@ export class VideoManager implements IPopupWindow {
         this.computerService.VideoMemoryDump((r) => {
             if (r == null) return;
             thiss.data.layers = [];
+            var isRelease37Plus = this.versionNum >= 37;
             var ram: Uint8Array = new Uint8Array([]);
             for (var i = 0; i < r.length; i++) {
                 var memDump = r[i];
                 var numBytes = Uint8Array.from(atob(memDump.data), c => c.charCodeAt(0))
                 switch (memDump.name) {
-                    case "Composer": thiss.videoComposerManager.Parse(memDump, numBytes, this.videoPaletteManager); break;
+                    case "Composer": thiss.videoComposerManager.Parse(memDump, numBytes, this.videoPaletteManager, isRelease37Plus); break;
                     case "Palette": thiss.videoPaletteManager.Parse(memDump, numBytes); break;
                     case "SpriteAttributes": this.videoSpriteManager.Parse(memDump, numBytes); break;
-                    case "Layer1": thiss.videoLayerManager.Parse(0, memDump, numBytes); break;
-                    case "Layer2": thiss.videoLayerManager.Parse(1, memDump, numBytes); break;
+                    case "Layer1": thiss.videoLayerManager.Parse(0, memDump, numBytes, isRelease37Plus); break;
+                    case "Layer2": thiss.videoLayerManager.Parse(1, memDump, numBytes, isRelease37Plus); break;
                     case "VideoRAM":
                         thiss.videoRamManager.Parse(memDump,numBytes);
                         ram = numBytes; break;
@@ -151,6 +163,21 @@ export class VideoManager implements IPopupWindow {
         //this.computerService.KeyDown(keyy, () => { });
         return this.keyboardManager?.KeyDown(keyy);
     }
+
+  
+
+    private ParseProjectSettings(projectSettings: IProjectSettings | null): void {
+        if (projectSettings == null || projectSettings.configurations == null || projectSettings.configurations.length === 0) return;
+        try {
+            var version = projectSettings.configurations[0].romVersion.replace(/r/gi, "");
+            this.versionNum = parseInt(version);
+        } catch (e) {
+
+        }
+        
+
+    }
+
 
     public static NewData(): IVideoManagerData {
         return {

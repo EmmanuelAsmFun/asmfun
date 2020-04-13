@@ -1,15 +1,17 @@
-﻿using AsmFun.Computer.Common.Video;
+﻿using AsmFun.Computer.Common.Computer;
+using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
 using System;
 using System.Runtime.InteropServices;
 
 namespace AsmFun.CommanderX16.Video.Painter
 {
-    public class TextPainter 
+    public class TextPainter : ITextPainter
     {
-        private Func<byte, int, byte,byte, byte> BitsPerPxlCalculation;
+        private Func<byte, int, byte, byte, byte> BitsPerPxlCalculation;
         private IVideoLayerAccess LayerAccess;
         private readonly IVideoRamAccess videoRamAccess;
+        private readonly IComputerDiagnose computerDiagnose;
         private IX16VideoMapTileAccess mapTileAccess;
         private IVideoAccess videoAccess;
         private byte[] videoBytes = null;
@@ -29,25 +31,30 @@ namespace AsmFun.CommanderX16.Video.Painter
         private ushort layerWithMax;
         private ushort layerHeightMax;
 
-        public TextPainter(IX16VideoMapTileAccess mapTileAccess, IVideoLayerAccess layerAccess, IVideoAccess videoAccess, IVideoRamAccess videoRamAccess, VideoSettings videoSettings)
+        public int Frame;
+
+        public TextPainter(IX16VideoMapTileAccess mapTileAccess, IVideoLayerAccess layerAccess, IVideoAccess videoAccess, IVideoRamAccess videoRamAccess, 
+            VideoSettings videoSettings, IComputerDiagnose computerDiagnose)
         {
             width = videoSettings.Width;
             height = videoSettings.Height;
             this.mapTileAccess = mapTileAccess;
             this.LayerAccess = layerAccess;
             this.videoRamAccess = videoRamAccess;
+            this.computerDiagnose = computerDiagnose;
             videoBytes = new byte[640 * 480 * 128];
             tile_bytes = new byte[640 * 480 * 128];
             this.videoAccess = videoAccess;
-            bitsPerPixel = 1;
+            bitsPerPixel = 2;
             UpdateBitPerPixelMethod();
         }
+
 
 
         public bool ReadVideo(VideoLayerData layer)
         {
             this.layer = layer;
-             mapBase = layer.MapBase;
+            mapBase = layer.MapBase;
             bitsPerPixel = layer.BitsPerPixel;
             min_eff_x = layer.min_eff_x;
             tileWidth = layer.TileWidth;
@@ -58,7 +65,7 @@ namespace AsmFun.CommanderX16.Video.Painter
             vScroll = layer.VerticalScroll;
             layerWithMax = layer.LayerWidthMax;
             layerHeightMax = layer.LayerHeightMax;
-            var addressSize = layer.MapWidth * layer.MapHeight * layer.BitsPerPixel*2;
+            var addressSize = layer.MapWidth * layer.MapHeight * layer.BitsPerPixel * 2;
             if (addressSize == 0)
             {
                 videoBytes = new byte[640 * 480 * 128];
@@ -66,7 +73,7 @@ namespace AsmFun.CommanderX16.Video.Painter
             }
             videoBytes = videoAccess.ReadBlock(layer.TileBase, addressSize);
 
-            tile_bytes = videoRamAccess.ReadBlock(mapBase, addressSize *64);
+            tile_bytes = videoRamAccess.ReadBlock(mapBase, addressSize * 64);
             if (layer.PaintRequireReload)
             {
                 UpdateBitPerPixelMethod();
@@ -80,12 +87,12 @@ namespace AsmFun.CommanderX16.Video.Painter
             for (ushort y = 0; y < height; y++)
             {
                 ushort eff_y = (ushort)(vScale * (y - vStart) / 128);
-                RenderLayerLine(eff_y, layerBuffer, width);
+                RenderLayerLine(eff_y, layerBuffer);
             }
             return true;
         }
 
-        public void RenderLayerLine(ushort y, IntPtr layerBuffer, int width)
+        public void RenderLayerLine(ushort y, IntPtr layerBuffer)
         {
             if (!layer.IsEnabled) return;
             int eff_y = PainterCalculations.CalcLayerEffY(vScroll, layerHeightMax, y);
@@ -103,7 +110,7 @@ namespace AsmFun.CommanderX16.Video.Painter
                 var tileIndex = byte0;
                 byte foregroundColor = byte1;
                 byte backgroundColor = 0;
-                if (layer.Mode == 0)
+                if (!layer.TextMode256c)
                 {
                     foregroundColor = (byte)(byte1 & 15);
                     backgroundColor = (byte)(byte1 >> 4);
@@ -123,14 +130,12 @@ namespace AsmFun.CommanderX16.Video.Painter
                 var place = x + y * width;
                 if (place < 41861120)
                     Marshal.WriteByte(layerBuffer + place, colorIndex);
+                //var ar1 = BitConverter.GetBytes(x);
+                //var ar2 = BitConverter.GetBytes(y);
+                //var resulAr = ar1.Concat(ar2).Concat(new byte[] { color, colorIndex }).ToArray();
+                //computerDiagnose.StepPaint(Frame, y, resulAr);
             }
         }
-
-        private void Readerr()
-        {
-            
-        }
-
 
         private void UpdateBitPerPixelMethod()
         {
@@ -138,15 +143,23 @@ namespace AsmFun.CommanderX16.Video.Painter
             switch (bitsPerPixel)
             {
                 case 1:
-
-                    BitsPerPxlCalculation = (color, newX, fg, bg) =>
+                    if (layer.TextMode)
                     {
-                        bool bit = (color >> 7 - newX & 1) != 0;
-                        var colorIndex = bit ? fg : bg;
-                        return colorIndex;
-                    };
-
-
+                        BitsPerPxlCalculation = (color, newX, fg, bg) =>
+                        {
+                            var bit = (byte)(color >> (7 - (newX & 7)) & 1);
+                            var colorIndex = bit >0 ? fg : bg;
+                            return colorIndex;
+                        };
+                    }
+                    else
+                    {
+                        BitsPerPxlCalculation = (color, newX, fg, bg) =>
+                        {
+                            var colorIndex = (byte)((color >> (7 - (newX & 7)) & 1));
+                            return colorIndex;
+                        };
+                    }
                     break;
                 case 2:
                     BitsPerPxlCalculation = (color, newX, fg, bg) => (byte)(color >> 6 - ((newX & 3) << 1) & 3);

@@ -217,7 +217,7 @@ namespace AsmFun.Ide.Core.Features.Projects
                 OutputFolderName = "output",
                 CompilerType = ProjectCompilerTypes.ACME,
                 ComputerType = ProjectComputerTypes.CommanderX16,
-                RomVersion = "R36",
+                RomVersion = "R37",
                 AddonCommandLine = "",
                 ProgramFileName = "",
                 CompilerVariables = "",

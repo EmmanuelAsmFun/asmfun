@@ -16,13 +16,14 @@ namespace AsmFun.Computer.Core.Video
     public class AccessorContainer : IAccessorContainer
     {
         private uint lastMaxAddress = 0;
-        private List<AccessorItem> accessors = new List<AccessorItem>();
+        protected List<AccessorItem> accessors = new List<AccessorItem>();
+
 
         public AccessorContainer()
         {
 
         }
-        public void AddInOrder(IMemoryAccessable accessor, uint startAddress, uint endAddress, Func<uint, uint> addressTransform
+        public virtual void AddInOrder(IMemoryAccessable accessor, uint startAddress, uint endAddress, Func<uint, uint> addressTransform
             ,string name= null, uint addEddressForUI = 0)
         {
             // Fill in the gap if needed
@@ -35,6 +36,13 @@ namespace AsmFun.Computer.Core.Video
                     EndAddressForUI = startAddress,
                     AddressTransform = x => x
                 });
+            Add(accessor, startAddress, endAddress, addressTransform, name, addEddressForUI);
+            lastMaxAddress = endAddress;
+        }
+
+        protected virtual void Add(IMemoryAccessable accessor, uint startAddress, uint endAddress, Func<uint, uint> addressTransform
+           , string name = null, uint addEddressForUI = 0)
+        {
             accessors.Add(new AccessorItem
             {
                 Accessor = accessor,
@@ -42,11 +50,10 @@ namespace AsmFun.Computer.Core.Video
                 EndAddress = endAddress,
                 EndAddressForUI = addEddressForUI,
                 AddressTransform = addressTransform,
-                Name = name?? accessor.Name
+                Name = name ?? accessor.Name
             });
-            lastMaxAddress = endAddress;
         }
-        public void Clear()
+            public void Clear()
         {
             accessors.Clear();
         }
@@ -60,7 +67,7 @@ namespace AsmFun.Computer.Core.Video
             accessors.ForEach(x => x.Accessor.Reset());
         }
 
-        public byte Read(uint address)
+        public virtual byte Read(uint address)
         {
             foreach (AccessorItem accessor in accessors)
             {
@@ -70,7 +77,7 @@ namespace AsmFun.Computer.Core.Video
             return 0xFF;
         }
 
-        public byte[] ReadBlock(uint address, int length)
+        public virtual byte[] ReadBlock(uint address, int length)
         {
             foreach (AccessorItem accessor in accessors)
             {
@@ -83,7 +90,7 @@ namespace AsmFun.Computer.Core.Video
 
 
 
-        public void Write(uint address, byte value)
+        public virtual void Write(uint address, byte value)
         {
             foreach (AccessorItem accessor in accessors)
             {
@@ -96,7 +103,7 @@ namespace AsmFun.Computer.Core.Video
             }
         }
 
-        public void WriteBlock(int address, byte[] data, int count)
+        public virtual void WriteBlock(int address, byte[] data, int count)
         {
             foreach (AccessorItem accessor in accessors)
             {
@@ -109,7 +116,7 @@ namespace AsmFun.Computer.Core.Video
             }
         }
 
-        public MemoryDumpData[] MemoryDump()
+        public virtual MemoryDumpData[] MemoryDump()
         {
             var returnData = new List<MemoryDumpData>();
             foreach (AccessorItem accessor in accessors)
@@ -131,17 +138,17 @@ namespace AsmFun.Computer.Core.Video
        
 
         [DebuggerDisplay("{StartAddress.ToString(\"X2\")}-{EndAddress.ToString(\"X2\")}:{Accessor.GetType().Name}")]
-        private class AccessorItem
+        protected class AccessorItem
         {
             public uint StartAddress;
             public uint EndAddress;
             public IMemoryAccessable Accessor;
             public Func<uint, uint> AddressTransform;
 
-            public string Name { get; internal set; }
+            public string Name { get; set; }
             public uint EndAddressForUI;
         }
-        private class DummmyMemorySpace : IMemoryAccessable
+        protected class DummmyMemorySpace : IMemoryAccessable
         {
             public string Name => "Unused";
 

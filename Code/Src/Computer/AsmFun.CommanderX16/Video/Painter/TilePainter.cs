@@ -59,10 +59,8 @@ namespace AsmFun.CommanderX16.Video.Painter
             var tilesSize = tileWidth * tileHeight * bitsPerPixel * 128;
             tile_bytes = videoAccess.ReadBlock(layer.TileBase, tilesSize);
             if (layer.PaintRequireReload)
-            {
                 UpdateBitPerPixelMethod();
-                //layer.PaintRequireReload = false;
-            }
+            
             return true;
         }
 

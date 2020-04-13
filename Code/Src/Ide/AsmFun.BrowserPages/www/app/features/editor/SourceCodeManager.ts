@@ -131,7 +131,7 @@ export class SourceCodeManager {
             var svc = this.mainData.container.Resolve<EditorManager>(EditorManager.ServiceName)
             if (svc != null)
                 svc.LoadFirstFile(true);
-            if (thiss.data.SelectedFile != null && this.Bundle != null) {
+            if (thiss.data.SelectedFile != null && this.Bundle != null && this.Bundle.Files[thiss.data.SelectedFile.Index] != null) {
                 var editorFile = this.Bundle.Files[thiss.data.SelectedFile.Index].Data.File;
                 thiss.RedrawErrorsBar(editorFile);
             }

@@ -1,5 +1,6 @@
 ﻿// Heavely inspired from https://github.com/commanderx16/x16-emulator
 
+using AsmFun.Common.ServiceLoc;
 using AsmFun.Computer.Common.Computer;
 using AsmFun.Computer.Common.Video;
 using AsmFun.Computer.Common.Video.Data;
@@ -50,20 +51,20 @@ namespace AsmFun.CommanderX16.Video.Painter
         private IVideoPaletteAccess videoPalette;
         private IVideoLayerAccess LayerAccess;
         private IX16VideoMapTileAccess mapTileAccess;
-        private X16IOAccess ioAccess;
+        private IX16IOAccess ioAccess;
         private readonly IComputerDiagnose diagnose;
 
         private TilePainter tilePainter1;
         private TilePainter tilePainter2;
         private BimapPainter bimapPainter1;
         private BimapPainter bimapPainter2;
-        private TextPainter textPainter1;
-        private TextPainter textPainter2;
+        private ITextPainter textPainter1;
+        private ITextPainter textPainter2;
 
 
         public X16VideoPainterR35(VideoSettings videoSettings, IVideoAccess videoAccess, IDisplayComposer composer,
             IVideoPaletteAccess videoPalette, IVideoLayerAccess layerAccess, ISpriteAttributesAccess spriteAccess,
-            IX16VideoMapTileAccess mapTileAccess, X16IOAccess ioAccess, IComputerDiagnose diagnose, IVideoRamAccess videoRamAccess)
+            IX16VideoMapTileAccess mapTileAccess, IX16IOAccess ioAccess, IComputerDiagnose diagnose, IVideoRamAccess videoRamAccess, IEmServiceResolver container)
         {
             X16VideoSettings videoSettings2 = (X16VideoSettings)videoSettings;
             this.videoPalette = videoPalette;
@@ -87,72 +88,73 @@ namespace AsmFun.CommanderX16.Video.Painter
             tilePainter2 = new TilePainter(videoAccess, videoSettings);
             bimapPainter1 = new BimapPainter(videoAccess, videoSettings);
             bimapPainter2 = new BimapPainter(videoAccess, videoSettings);
-            textPainter1 = new TextPainter(mapTileAccess, layerAccess, videoAccess, videoRamAccess, videoSettings);
-            textPainter2 = new TextPainter(mapTileAccess, layerAccess, videoAccess, videoRamAccess, videoSettings);
-            
+            textPainter1 = container.Resolve<ITextPainter>(); // new TextPainterR33(mapTileAccess, layerAccess, videoAccess, videoRamAccess, videoSettings);
+            textPainter2 = container.Resolve<ITextPainter>(); //new TextPainterR33(mapTileAccess, layerAccess, videoAccess, videoRamAccess, videoSettings);
+
 
             threadDraw2 = new Thread(DrawThread2);
             threadDraw2.IsBackground = true;
             threadDraw2.Start();
+
+            
         }
 
         public void Reset()
         {
             scanY = 0;
             elapsedWatcher.Start();
+            //PreviousVersionPrepare();
         }
         
 
         private void PaintLayers()
         {
-            thread2Are.Set();
+            //thread2Are.Set();
             var layer1 = LayerAccess.GetLayer(0);
             var layer2 = LayerAccess.GetLayer(1);
             // Layer1
             if (layer1.TileMode)
             {
-                tilePainter1.ReadVideo(LayerAccess.GetLayer(0));
+                tilePainter1.ReadVideo(layer1);
                 tilePainter1.PaintFrame(layersbuffer1, composer.VStart, composer.b_VScale);
             }
             else if (layer1.BitmapMode)
             {
-                bimapPainter1.ReadVideo(LayerAccess.GetLayer(0));
+                bimapPainter1.ReadVideo(layer1);
                 bimapPainter1.PaintFrame(layersbuffer1, composer.VStart, composer.b_VScale);
             }
             else
             {
-                textPainter1.ReadVideo(LayerAccess.GetLayer(0));
+                textPainter1.ReadVideo(layer1);
                 textPainter1.PaintFrame(layersbuffer1, composer.VStart, composer.b_VScale);
             }
-            while (!isDisposed && !thread2Finished)
+            //while (!isDisposed && !thread2Finished)
+            //{
+            //    Thread.Sleep(0);
+            //}
+          
+            // Layer2
+            if (layer2.TileMode)
             {
-                Thread.Sleep(0);
+                tilePainter2.ReadVideo(layer2);
+                tilePainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
             }
-
+            else if (layer2.BitmapMode)
+            {
+                bimapPainter2.ReadVideo(layer2);
+                bimapPainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
+            }
+            else
+            {
+                textPainter2.ReadVideo(layer2);
+                textPainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
+            }
             if (!layer1.IsEnabled && !layer2.IsEnabled)
             {
                 Thread.Sleep(5);
             }
-            // Layer2
-            //var layer2 = LayerAccess.GetLayer(1);
-            //if (layer2.TileMode)
-            //{
-            //    tilePainter2.ReadVideo(layer2);
-            //    tilePainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
-            //}
-            //else if (layer2.BitmapMode)
-            //{
-            //    bimapPainter2.ReadVideo(layer2);
-            //    bimapPainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
-            //}
-            //else
-            //{
-            //    textPainter2.ReadVideo(layer2);
-            //    textPainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
-            //}
-
             display.RequestRedrawLayer(0, layersbuffer1, layer1);
-            //display.RequestRedrawLayer(1, layersbuffer1, layer2);
+            display.RequestRedrawLayer(1, layersbuffer2, layer2);
         }
 
 
@@ -176,6 +178,8 @@ namespace AsmFun.CommanderX16.Video.Painter
                 scanY = 0;
                 isNewFrame = true;
                 PaintLayers();
+
+                // Paint Background
                 var isNewBg = lastBorderColor != composer.BorderColor;
                 if (isNewBg)
                 {
@@ -188,9 +192,10 @@ namespace AsmFun.CommanderX16.Video.Painter
                     Buffer.BlockCopy(fillLineInt, 0, fillLine, 0, fillLine.Length);
                     for (int i = 0; i < height; i++)
                         Marshal.Copy(fillLine, 0, framebufferBG + i * width * 4, width * 4);
-
                     lastBorderColor = composer.BorderColor;
                 }
+
+
                 //display.RequestRedrawLayers(layersbuffer, LayerAccess.GetLayers());
                 ioAccess.FramePainted();
                 display.Paint(framebufferBG, isNewBg);
@@ -206,7 +211,6 @@ namespace AsmFun.CommanderX16.Video.Painter
                     ioAccess.SetIrqLine();
             }
             IsPainting = false;
-
             return isNewFrame;
         }
 
@@ -215,18 +219,22 @@ namespace AsmFun.CommanderX16.Video.Painter
         private bool processorHasStepped = false;
         public bool ProcessorStep()
         {
+            //return PreviousVersionStepPaint();
             processorHasStepped = true;
             return true;
+            //return StepPaint();
         }
         private int step;
         public bool Step()
         {
+            //Thread.Sleep(500000);
+            //return true;
             if (doBreak) return false;
             //while (!processorHasStepped)
             //{
-            //    Thread.Sleep(0); 
+            //    Thread.Sleep(0);
             //}
-            //processorHasStepped = false;
+            processorHasStepped = false;
             return StepPaint();
         }
 
@@ -279,6 +287,105 @@ namespace AsmFun.CommanderX16.Video.Painter
         {
             videoPalette.PaletteNeedsToReload();
         }
+
+
+
+        #region Previous version paint
+        private float scan_pos_x;
+        private void PreviousVersionPrepare()
+        {
+            PreviousVersionPrepareFrames();
+        }
+        private bool PreviousVersionStepPaint()
+        {
+            var isNewFrame = false;
+            float advance = (float)(25.175 / 8);
+            scan_pos_x += advance;
+            step++;
+            IsPainting = true;
+            
+            var SCAN_WIDTH = 800;
+            var SCAN_HEIGHT = 525;
+            var SCREEN_HEIGHT = 480;
+            if (scan_pos_x > SCAN_WIDTH)
+            {
+                scan_pos_x -= SCAN_WIDTH;
+                ushort y = (ushort)(scanY - composer.FrontPorch);
+                if (y < SCREEN_HEIGHT)
+                {
+                    //tasks.Add(new Task(() => render_line(y)));
+                    PreviousVersionPaintLine(y);
+                }
+                scanY++;
+                if (scanY == scanHeight)
+                {
+                    scanY = 0;
+                    isNewFrame = true;
+                    //display.RequestRedrawLayers(layersbuffer, LayerAccess.GetLayers());
+                    ioAccess.FramePainted();
+                    display.Paint(framebufferBG, false);
+                    if (lockOnFps)
+                        CheckSpeed();
+                    frameCount++;
+                    PreviousVersionPrepareFrames();
+                    videoPalette.RefreshIfNeeded(composer.OutMode, composer.ChromaDisable);
+                }
+
+                if (ioAccess.IsIrqLine())
+                {
+                    y = (ushort)(scanY - composer.FrontPorch);
+                    if (y < height && y == composer.IrqLine)
+                        ioAccess.SetIrqLine();
+                }
+            }
+            IsPainting = false;
+            return isNewFrame;
+        }
+        private void PreviousVersionPaintLine(ushort y)
+        {
+            var layer1 = LayerAccess.GetLayer(0);
+            var layer2 = LayerAccess.GetLayer(1);
+            // Layer1
+            if (layer1.TileMode)
+                tilePainter1.RenderLayerLine(y, layersbuffer1);
+            else if (layer1.BitmapMode) { }
+            //bimapPainter1.PaintFrame(y, layersbuffer1);
+            else
+                textPainter1.RenderLayerLine(y, layersbuffer1);
+            // Layer2
+            if (layer2.TileMode)
+                tilePainter2.RenderLayerLine(y, layersbuffer2);
+            else if (layer2.BitmapMode) { }
+            //bimapPainter2.PaintFrame(layersbuffer2, composer.VStart, composer.b_VScale);
+            else
+                textPainter2.RenderLayerLine(y, layersbuffer2);
+        }
+        private void PreviousVersionPrepareFrames()
+        {
+            //thread2Are.Set();
+            var layer1 = LayerAccess.GetLayer(0);
+            var layer2 = LayerAccess.GetLayer(1);
+            // Layer1
+            if (layer1.TileMode)
+                tilePainter1.ReadVideo(layer1);
+            else if (layer1.BitmapMode)
+                bimapPainter1.ReadVideo(layer1);
+            else
+                textPainter1.ReadVideo(layer1);
+            // Layer2
+            if (layer2.TileMode)
+                tilePainter2.ReadVideo(layer2);
+            else if (layer2.BitmapMode)
+                bimapPainter2.ReadVideo(layer2);
+            else
+                textPainter2.ReadVideo(layer2);
+            if (!layer1.IsEnabled && !layer2.IsEnabled)
+                Thread.Sleep(5);
+            display.RequestRedrawLayer(0, layersbuffer1, layer1);
+            display.RequestRedrawLayer(1, layersbuffer2, layer2);
+        }
+
+        #endregion
 
         public void Dispose()
         {

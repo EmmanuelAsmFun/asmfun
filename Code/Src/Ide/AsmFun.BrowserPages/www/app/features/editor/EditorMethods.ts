@@ -1,6 +1,6 @@
 ﻿
 import { ICommandManager } from "../../framework/ICommandManager.js";
-import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand } from "./commands/EditorCommands.js";
+import { EditorEnableCommand, EditorSelectFileCommand, EditorSwapOutputCommand, EditorReloadLineCommand, EditorScrollToLineCommand, EditorInsertVariableSetterCommand } from "./commands/EditorCommands.js";
 import { FindReplaceOpenManagerCommand, FindReplaceSearchNextCommand, FindReplaceReplaceNextCommand } from "./commands/FindReplaceCommands.js";
 import { IUILine } from "./ui/IUILine.js";
 import { IUIFile } from "./ui/IUIFile.js";
@@ -23,3 +23,6 @@ export function EditorScrollToLine(line: IUILine | null) { commmandManager.Invok
 export function FindReplaceOpenManager(state: boolean) { commmandManager.InvokeCommand(new FindReplaceOpenManagerCommand(state)); }
 export function FindReplaceSearch() { commmandManager.InvokeCommand(new FindReplaceSearchNextCommand()); }
 export function FindReplaceReplaceNext() { commmandManager.InvokeCommand(new FindReplaceReplaceNextCommand()); }
+export function EditorInsertVariableSetter(code: string | null, addressHex: string | null, name: string | null) {
+    return commmandManager.InvokeCommand(new EditorInsertVariableSetterCommand(code, addressHex, name));
+}

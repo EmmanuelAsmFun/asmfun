@@ -27,6 +27,7 @@ export interface IVideoManagerData extends IPopupWindowData {
 }
 
 export interface IVideoLayerData extends IDragableElement {
+    ColorDepth: number;
     RawDataString: string;
     IsEnabled: boolean;
 
@@ -39,6 +40,7 @@ export interface IVideoLayerData extends IDragableElement {
     TileSize: number;
 
     TextMode: boolean;
+    TextMode256c: boolean;
     TileMode: boolean;
     BitmapMode: boolean;
 
@@ -72,6 +74,7 @@ export interface IVideoLayerData extends IDragableElement {
     endAddress: string;
 
     valueChanged: (v) => void;
+    IsEnabledChanged: (v) => void;
     VideoLayerScoll: (evt,obj) => void;
     CopyToClipBoard: () => void;
     SelectTileByImage: (e) => void;
@@ -83,6 +86,7 @@ export interface IVideoLayerData extends IDragableElement {
 }
 export function NewVideoLayer(layerIndex:number): IVideoLayerData {
     return {
+        ColorDepth:0,
         BitmapMode: false,
         BitsPerPixel: 0,
         HorizontalScroll: 0,
@@ -104,6 +108,7 @@ export function NewVideoLayer(layerIndex:number): IVideoLayerData {
         ModeString: "",
         PaletteOffset: 0,
         TextMode: false,
+        TextMode256c: false,
         TileBase: 0,
         TileBaseHex: "",
         TileHeight: 0,
@@ -118,6 +123,7 @@ export function NewVideoLayer(layerIndex:number): IVideoLayerData {
         endAddress: "",
         RawDataString: "",
         valueChanged: () => { },
+        IsEnabledChanged: () => { },
         VideoLayerScoll: (evt, obj) => { },
         CopyToClipBoard: () => { },
         SelectTileByImage: (e) => { },
@@ -158,6 +164,7 @@ export interface IVideoPalette {
 }
 
 export interface ISpritesData {
+    IsEnabled: boolean;
     sprites: IVideoSpriteProperties[];
     selectedSprite: IVideoSpriteProperties | null;
     selectedSpriteIndex: number;

@@ -73,6 +73,7 @@ namespace AsmFun.CommanderX16.Computer
 			var fnAddr = memoryAccess.ReadUShort(FNADR);
 			var fnAddBytes = memoryAccess.ReadBlock(fnAddr, fnLength);
 			var fileName = System.Text.Encoding.ASCII.GetString(fnAddBytes);
+			if (string.IsNullOrWhiteSpace(startFolder) || string.IsNullOrWhiteSpace(fileName)) return;
 			var fullFileName = Path.Combine(startFolder, fileName);
 			if (string.IsNullOrWhiteSpace(fileName) || !File.Exists(fullFileName))
 			{

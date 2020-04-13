@@ -20,6 +20,7 @@ namespace AsmFun.CommanderX16.Startup
             container.Add<X16ComputerFactoryR34>().WithLifestyle(EmServiceLifestyle.Transient);
             container.Add<X16ComputerFactoryR35>().WithLifestyle(EmServiceLifestyle.Transient);
             container.Add<X16ComputerFactoryR36>().WithLifestyle(EmServiceLifestyle.Transient);
+            container.Add<X16ComputerFactoryR37>().WithLifestyle(EmServiceLifestyle.Transient);
             
         }
     }

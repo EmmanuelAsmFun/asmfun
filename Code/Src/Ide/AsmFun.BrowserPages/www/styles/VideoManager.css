@@ -1,0 +1,231 @@
+.videoManager {
+  position: fixed;
+  top: 30px;
+  left: 0px;
+  right: 0px;
+  bottom: 21px;
+  z-index: 200;
+  background: black;
+  -webkit-touch-callout: text;
+  /* iOS Safari */
+  -webkit-user-select: text;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: text;
+  /* Internet Explorer/Edge */
+  user-select: text;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.videoManager h3 {
+  color: #c4c480;
+}
+.videoManager .vAddress {
+  color: #a9a98b;
+}
+.videoManager .vAddress a {
+  font-size: 10px;
+}
+.videoManager .rawBinaryData {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  font-size: 8px;
+  color: #777777;
+}
+.videoManager .rawBinaryData a {
+  font-size: 10px;
+}
+.videoManager a {
+  font-size: 13px;
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.videoManager h2 {
+  font-weight: 100;
+  font-size: 22px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.videoManager .content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+.videoManager .video-block {
+  float: left;
+  padding-right: 10px;
+  margin-left: 10px;
+  font-size: 10px;
+  border-right: 1px solid #222222;
+  min-height: 600px;
+}
+.videoManager .nav-btns {
+  position: absolute;
+  right: 5px;
+  top: 2px;
+  font-size: 18px;
+}
+.videoManager .close-btn {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  cursor: pointer;
+  font-size: 22px;
+  z-index: 10;
+}
+.videoManager .top-btnbar {
+  position: absolute;
+  top: 10px;
+  right: 100px;
+  font-size: 10px;
+}
+.videoManager .palette .table-cont {
+  min-height: 170px;
+}
+.videoManager .palette .paletteColors {
+  width: 208px;
+}
+.videoManager .palette .paletteColor {
+  display: inline-block;
+  float: left;
+  width: 13px;
+  height: 13px;
+  font-size: 1px;
+  cursor: pointer;
+}
+.videoManager .palette .selectedColor {
+  clear: both;
+  padding-top: 10px;
+}
+.videoManager .palette .pallete-adr-list {
+  font-size: 8px;
+  color: #666666;
+  max-width: 208px;
+  height: 150px;
+  max-height: 150px;
+  overflow-y: scroll;
+}
+.videoManager .palette .pallete-adr-list span {
+  display: inline-block;
+  width: 68px;
+}
+.videoManager .palette .pallete-adr-list::-webkit-scrollbar {
+  display: none;
+}
+.videoManager table tr,
+.videoManager table td {
+  font-size: 10px;
+}
+.videoManager .layers {
+  float: left;
+  min-height: 400px;
+}
+.videoManager .layers .Canvas-cont {
+  /*width: 320px;*/
+  width: 208px;
+  position: relative;
+}
+.videoManager .layers .LayerCanvas {
+  width: 100%;
+  object-fit: contain;
+}
+.videoManager .layers .LayerTiles-cont {
+  margin-top: 5px;
+}
+.videoManager .layers .layer-dragger-cont {
+  position: relative;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.videoManager .layers .layer-dragger {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 208px;
+  height: 150px;
+  z-index: 40;
+  display: block;
+  cursor: pointer;
+}
+.videoManager .Sprites {
+  width: 208px;
+}
+.videoManager .Sprites .spriteCanvas {
+  cursor: pointer;
+}
+.videoManager .Sprites select {
+  width: 90px;
+}
+.videoManager .VideoViewer {
+  float: left;
+  position: relative;
+}
+.videoManager .VideoViewer .vAddress {
+  margin-bottom: 10px;
+}
+.videoManager .VideoViewer .btn-hide-Ram {
+  position: absolute;
+  right: 20px;
+  font-size: 22px;
+}
+.videoManager .fullVideo {
+  position: relative;
+  width: 640px;
+  height: 480px;
+}
+.videoManager .fullVideo .Layer1CanvasFS,
+.videoManager .fullVideo .Layer2CanvasFS,
+.videoManager .fullVideo .spriteHolder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 640px;
+  height: 480px;
+}
+.videoManager .fullVideo .spriteHolder canvas {
+  position: absolute;
+  cursor: pointer;
+}
+.videoManager .RamViewer .addr {
+  color: #a9a98b;
+}
+.videoManager .RamViewer .addr-start-region,
+.videoManager .RamViewer .addr-end-region {
+  font-size: 30px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.videoManager .RamViewer .addr-end-region {
+  font-style: italic;
+  font-size: 20px;
+}
+.videoManager .viddocumentation {
+  clear: both;
+  font-size: 10px;
+  padding-top: 80px;
+}
+.videoManager .viddocumentation a {
+  font-size: 9px;
+}
