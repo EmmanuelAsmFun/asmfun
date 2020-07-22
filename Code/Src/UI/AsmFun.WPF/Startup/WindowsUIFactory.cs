@@ -55,8 +55,8 @@ namespace AsmFun.WPF
             if (displays.Count > 1)
             {
                 DualScreenXOffset = displays[0].ScreenWidth;
-                //if (displays.Count > 2)
-                //    DualScreenXOffset = displays[0].ScreenWidth + displays[1].ScreenWidth;
+                if (displays.Count > 2)
+                    DualScreenXOffset = displays[0].ScreenWidth + displays[1].ScreenWidth;
                 new ConsoleTools().SetWindowPosition(DualScreenXOffset+ 20, 10, ConsoleWidth, ConsoleHeight);
             }
 #endif
