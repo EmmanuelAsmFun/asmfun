@@ -1,6 +1,5 @@
 ﻿using AsmFun.Computer.Common.Computer.Data;
-using AsmFun.Computer.Common.Data;
-using AsmFun.Computer.Common.DataAccess;
+using AsmFun.Computer.Common.Memory;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

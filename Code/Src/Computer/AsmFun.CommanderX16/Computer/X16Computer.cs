@@ -169,7 +169,7 @@ namespace AsmFun.CommanderX16.Computer
                             display.ClockTick(processorData.ProgramCounter, mhzRunning);
                             CheckFps();
                         }
-                        audioPlayer.Render(clocks);
+                        //audioPlayer.Render(clocks);
 
                         stepCounter++;
 

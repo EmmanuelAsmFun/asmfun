@@ -5,8 +5,7 @@
 #endregion
 
 using AsmFun.Computer.Common.Computer;
-using AsmFun.Computer.Common.DataAccess;
-using AsmFun.Computer.Common.Managers;
+using AsmFun.Computer.Common.Memory;
 
 namespace AsmFun.Computer.Core.DataAccess
 {

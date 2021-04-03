@@ -1,0 +1,2 @@
+
+unzip and Copy from Code/Lib the sdl to your build folder. Probably Code\Src\UI\AsmFun.SDL\bin\Debug\netcoreapp3.1

@@ -45,6 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsmFun.Computer.Diagnose", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{89B222EE-345F-439D-B85F-9AA15ED7F8D7}"
 	ProjectSection(SolutionItems) = preProject
+		GettingStarted.txt = GettingStarted.txt
 		Links.txt = Links.txt
 	EndProjectSection
 EndProject
@@ -261,7 +262,7 @@ Global
 		{89B222EE-345F-439D-B85F-9AA15ED7F8D7} = {D066B0BF-B731-4DAF-B964-A66E758290FA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {25A63626-CBFB-4FE2-BEBE-DFE3D87DF55D}
 		LessCompiler = 0b3e62d7-f5e2-4d13-a6fd-fc8dc06b8801
+		SolutionGuid = {25A63626-CBFB-4FE2-BEBE-DFE3D87DF55D}
 	EndGlobalSection
 EndGlobal

@@ -10,5 +10,6 @@ namespace AsmFun.Computer.Common.Debugger
     {
         public int Address { get; set; }
         public int Index { get; set; }
+        public bool IsEnabled { get; set; }
     }
 }

@@ -25,7 +25,7 @@ namespace AsmFun.WebServer.Startup
             this.container = container;
         }
 
-        public void Start() { 
+        public void Start() {
             
             Console.WriteLine("Starting Web server on port " + 5001);
             server = WebHost.CreateDefaultBuilder()
