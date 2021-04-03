@@ -191,7 +191,9 @@ export class BreakPointsManager {
         var address = parseInt(breakpointAddress, 16);
         var uiBreakPoint: IBreakpointUIData = this.CreateUiBreakpoint(address, breakpointAddress, this.data.list.length);
         if (!state) {
-            var uiBreakPoint = this.data.list.find(x => x.AddressHex == breakpointAddress);
+            var uiBreakPointTemp = this.data.list.find(x => x.AddressHex == breakpointAddress);
+            if (uiBreakPointTemp != undefined)
+                uiBreakPoint = uiBreakPointTemp;
             uiBreakPoint.IsEnabled = false;
         }
         this.SetBreakpoint(uiBreakPoint, state);

@@ -11,4 +11,4 @@ export default DocumentationMethods;
 export class DocumentationMethods { }
 
 // Documentation
-export function DocumentationOpenManager(state: boolean | null) { commmandManager.InvokeCommand(new DocumentationOpenManagerCommand(state)); }
+export function DocumentationOpenManager(state: boolean | null) { commmandManager.InvokeCommand(new DocumentationOpenManagerCommand(state,null)); }
