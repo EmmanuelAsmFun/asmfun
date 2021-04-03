@@ -51,14 +51,14 @@ namespace AsmFun.Ide.Core.Features.SourceCode
             if (string.IsNullOrWhiteSpace(internetVersion)) internetVersion = "master";
             var files = new List<string>();
             var directories = new List<string>();
-            var regExBlock = new Regex("(<tr class=\"js-navigation-item\")([\\s\\S]*?)(<\\/tr>)");
+            var regExBlock = new Regex("(<div role=\"row\")([\\s\\S]*?)(<\\/a><\\/span>)");
             var regEx = new Regex("(<a class=\"js-navigation-open).*(href=\")([^\"]*)");
             var matchesBlock = regExBlock.Matches(htmlData);
             foreach (Match matchBlock in matchesBlock)
             {
                 var isDirectory = false;
                 var innerText = matchBlock.Groups[2].Value;
-                if (innerText.Contains("aria-label=\"directory\""))
+                if (innerText.Contains("aria-label=\"directory\"",StringComparison.CurrentCultureIgnoreCase))
                     isDirectory = true;
                 var matches = regEx.Matches(innerText);
                 foreach (Match match in matches)
