@@ -30,7 +30,7 @@
     <Compile Include="..\AsmFun.SDL\SDLL\SDL2.cs" Link="Startup\SDL2.cs" />
     <Compile Include="..\AsmFun.SDL\Startup\SDLSound.cs" Link="Startup\SDLSound.cs" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
