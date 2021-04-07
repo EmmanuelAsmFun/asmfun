@@ -3,7 +3,9 @@
   "scripts":{
     "install":"npm install -g nw-builder",
     "dev":"nw www/",
-    "prod":"nwbuild -r \"www\" --cacheDir \"../nw\" -p \"win64\" -v 0.52.2 -r false"
+    "prod":"nwbuild -r \"www\" --cacheDir \"../nw\" -p \"win64\" -v 0.52.2 -r false",
+    "prodl":"nwbuild -r \"www\" --cacheDir \"../nw\" -p \"linux64\" -v 0.52.2 -r false",
+    "prodo":"nwbuild -r \"www\" -p \"osx64\" -v 0.52.2 -r false"
   },
   
   "window": {

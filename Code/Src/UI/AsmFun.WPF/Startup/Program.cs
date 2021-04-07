@@ -12,8 +12,6 @@ namespace AsmFun.WPF.Startup
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("EMMANUIEL USE this: https://github.com/nwjs");
-            Console.ReadLine();
             new WindowsUIFactory(args).Launch();
         }
     }

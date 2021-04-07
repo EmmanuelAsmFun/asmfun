@@ -21,6 +21,8 @@
       "buildType":"versioned",
       "cacheDir":"../nw",
       "buildDir":"./build",
+      "kiosk": false,
+      "fullscreen": false,
       "winVersionString": {
         "CompanyName": "ATOIA",
         "FileDescription": "ASMFunIde",

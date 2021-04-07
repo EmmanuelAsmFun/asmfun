@@ -13,8 +13,11 @@ using AsmFun.UI.Consolee.Controls;
 using AsmFun.UI.Consolee.UI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -118,8 +121,77 @@ namespace AsmFun.UI.Consolee
         } 
         private void LaunchOnlineIde()
         {
-            OpenUrl("https://asmfun.com/for-commander-x16/");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                CheckAndDownloadIDE("Windows", "ASMFunIde.exe");
+            } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                CheckAndDownloadIDE("Linux", "ASMFunIde");
+            }
+            else
+                OpenUrl("https://asmfun.com/for-commander-x16/");
             Redraw();
+        }
+        bool isDownloading = false;
+        string folderThis = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        private void CheckAndDownloadIDE(string platform,string runFile)
+        {
+            var idefolder = Path.Combine(folderThis, "ide");
+            var ideZip = Path.Combine(folderThis, "ide.zip");
+            var ideExe = Path.Combine(folderThis, runFile);
+            if (File.Exists(ideExe))
+            {
+                Process.Start(ideExe);
+                return;
+            }  
+            if (File.Exists(ideZip))
+            {
+                ExtractIde();
+                Process.Start(ideExe);
+                return;
+            }
+            if (isDownloading) return;
+            isDownloading = true;
+            lastPercent = -1;
+            Console.Clear();
+            Console.WriteLine("Downloading IDE...");
+            var package = "https://asmfun.com/downloads/ASMFunIde"+ platform+".zip";
+            
+            
+            //if (Directory.Exists(idefolder))
+            //    Directory.CreateDirectory(idefolder);
+            using (WebClient wc = new WebClient())
+            {
+                wc.DownloadProgressChanged += wc_DownloadProgressChanged;
+                wc.DownloadFileCompleted += wc_DownloadFileCompleted;
+                wc.DownloadFileAsync(new Uri(package), ideZip);
+            }
+        }
+        private int lastPercent = -1;
+        private void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            if (lastPercent == e.ProgressPercentage) return;
+            lastPercent = e.ProgressPercentage;
+            Console.SetCursorPosition(10, 0);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write("Downloading IDE (NW.js) :"+e.ProgressPercentage+"%");
+        }
+
+        private void wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            isDownloading = false;
+            Console.WriteLine("IDE  downloaded.");
+            ExtractIde();
+        }
+
+        private void ExtractIde()
+        {
+            var ideZip = Path.Combine(folderThis, "ide.zip");
+            Console.WriteLine("Extract IDE in " + folderThis);
+            ZipFile.ExtractToDirectory(ideZip, folderThis, true);
+            Console.WriteLine("Extract IDE done ");
+            Console.WriteLine("IDE is ready to use");
         }
 
         private void Redraw()
@@ -155,8 +227,8 @@ namespace AsmFun.UI.Consolee
                 mainMenu.Title = "Menu";
                 mainMenu.AddRangeOnce(new List<Data.ConsoleMenuItemData> {
                 new Data.ConsoleMenuItemData{Id="0", Title= "Redraw",Action= () => Redraw()},
-                new Data.ConsoleMenuItemData{Id="1", Title= "Launch local IDE with SourceCode",Action= () => LaunchIde()},
-                new Data.ConsoleMenuItemData{Id="2", Title= "Launch Online IDE",Action= () => LaunchOnlineIde()},
+                //new Data.ConsoleMenuItemData{Id="1", Title= "Launch local IDE with SourceCode",Action= () => LaunchIde()},
+                new Data.ConsoleMenuItemData{Id="2", Title= "Launch IDE",Action= () => LaunchOnlineIde()},
                 new Data.ConsoleMenuItemData{Id="3", Title= "Start CommanderX16",Action= () => LaunchComputer()},
                 new Data.ConsoleMenuItemData{Id="4", Title= "Load Current Program",Action= () => LoadProgram()},
                 new Data.ConsoleMenuItemData{Id="5", Title= "Quit",Action= () => Quit()},

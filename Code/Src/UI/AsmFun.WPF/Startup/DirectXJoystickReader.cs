@@ -113,16 +113,17 @@ namespace AsmFun.Startup
         public void Dispose()
         {
             isDisposed = true;
-            readerThread.Join(100);
+            if (readerThread != null)
+                readerThread.Join(100);
             Thread.Sleep(50);
             for (int index = 0; index < joysticks.Count; index++)
             {
                 var joystick = joysticks[index];
                 joystick.Dispose();
             }
-            joysticks.Clear();
-            joystickStates.Clear();
-            joystickStatesX.Clear();
+            joysticks?.Clear();
+            joystickStates?.Clear();
+            joystickStatesX?.Clear();
         }
 
     }
