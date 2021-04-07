@@ -54,6 +54,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
         this.mainData.commandManager.Subscribe2(new IdeSelectCodeNavTabCommand(""), this, x => this.SelectCodeNavTab(x.tabName));
         
         thiss.data.serverNotConnected = true;
+        thiss.data.isPlayerLocal = document.location.href.indexOf("fromlocal=true") > 1;
         this.data.onDone = () => {
             this.Save();
             this.Done();
@@ -193,6 +194,7 @@ export class ASMFunPlayerManager implements IPopupWindow {
             latestVersion: "0.0.0.0",
             isVisible: false,
             isVisiblePopup: false,
+            isPlayerLocal: false,
             onDone: () => { },
 
             showMacros: false,

@@ -518,95 +518,106 @@ programItem.address  | toHex2
                 <div class="nav-btns" v-if="!ide.serverNotConnected">
                     <a class="close-btn" v-on:click="ASMFunPlayerOpenManager(false)">X</a>
                 </div>
-                <div class="content">
-                    <h2 v-on:click="ide.showDownloads = !ide.showDownloads;"><span class="number">1</span>Download and run the ASMFun player</h2>
-                    <div v-if="ide.showDownloads">
-                        <h3 v-if="ide.serverNotConnected">The ASMFun Player is not running</h3>
-                        <h3 v-if="ide.newVersionAvailable">There is a new ASMFun Player available</h3>
-                        <h3 v-if="!ide.newVersionAvailable && !ide.serverNotConnected">ASMFun Player downloads</h3>
-                        <div>
-                            <p v-show="ide.serverNotConnected">
-                                To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
-                                You can download it here after accepting the terms.<br /><br />
+                <div class="content" >
+                    <div>
+                        <div v-if="ide.isPlayerLocal">
+                            <h2><span class="number">1</span>Local player is not running.</h2>
+                            <p>
+                                Launch the local ASMFun player<br /><br />
+                                <a href="javascript:" v-on:click="CheckPlayerAvailable">Check again if the player is running...</a>
                             </p>
-                            <div class="confirmLicense">
-                                <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions </a></label>
+                        </div>
+                        <div v-if="!ide.isPlayerLocal">
+                            <h2 v-on:click="ide.showDownloads = !ide.showDownloads;"><span class="number">1</span>Download and run the ASMFun player</h2>
+                            <div v-if="ide.showDownloads">
+                                <h3 v-if="ide.serverNotConnected">The ASMFun Player is not running</h3>
+                                <h3 v-if="ide.newVersionAvailable">There is a new ASMFun Player available</h3>
+                                <h3 v-if="!ide.newVersionAvailable && !ide.serverNotConnected">ASMFun Player downloads</h3>
+                                <div>
+                                    <p v-show="ide.serverNotConnected">
+                                        To use ASMFun, you need to run the ASMFun Player on your computer so you can develop and play amazing Commander X16 Games!
+                                        You can download it here after accepting the terms.<br /><br />
+                                    </p>
+                                    <div class="confirmLicense">
+                                        <label><input type="checkbox" v-model="ide.hasConfirmedLicense" />I accept the <a href="/terms.html" target="_blank">terms and conditions </a></label>
+                                    </div>
+                                    <div v-bind:class="{ 'linkdisabled' : !ide.hasConfirmedLicense }">
+
+                                        <div class="downloadheader">
+                                            <span v-bind:class="{ 'osSelected' : ide.isWindows }">
+                                                <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Windows');"><img src="/images/Logos/Windows.png" /> Windows</a>
+                                            </span>
+                                            <span v-bind:class="{'osSelected' : ide.isMac}">
+                                                <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Mac');"><img src="/images/Logos/Mac.png" />Mac</a>
+                                            </span>
+                                            <span v-bind:class="{'osSelected' : ide. isLinux}">
+                                                <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Linux');"><img src="/images/Logos/Ubuntu.png" />Linux</a>
+                                            </span>
+                                        </div>
+
+
+                                        <div v-show="ide.hasConfirmedLicense" class="v-fade">
+                                            <div class="download-large">
+                                                <span v-if="ide.isWindows"><a class="btn-default" href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a></span>
+                                                <span v-if="ide.isMac"><a class="btn-default" href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
+                                                <span v-if="ide.isLinux"><a class="btn-default" href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
+                                            </div>
+                                            <a v-on:click="ide.showMoreDownloads = !ide.showMoreDownloads" v-if="!ide.showMoreDownloads && ide.isWindows">Other compiled versions</a>
+                                            <div v-if="ide.showMoreDownloads">
+                                                <div class="downloadBlock">
+                                                    <span class="downloadText">
+                                                        <b>Light</b><br /><small> .Net core 3.1 is already installed</small>
+                                                    </span>
+                                                    <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a>  &nbsp;1.4Mb (3.7Mb)</span>
+                                                    <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                                    <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
+                                                </div>
+                                                <div class="downloadBlock">
+                                                    <span class="downloadText">
+                                                        <b>Complete</b><br />
+                                                        <small>
+                                                            with .net core 3.1 framework<br />
+
+                                                        </small>
+                                                    </span>
+                                                    <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
+                                                    <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                                    <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <br /><br />
+                                        <div v-show="ide.isMac">
+                                            <h3>For Mac</h3>
+                                            <p>
+                                                <br />
+                                                Can somebody tell me if Mac works? I don't have a Mac available at the moment.<br /><br />
+                                                <br />
+                                                Open terminal and run:<br />
+                                                &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
+                                                &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
+                                                <br />
+                                            </p>
+                                        </div>
+                                        <div v-show="ide.isLinux">
+                                            <h3>For Linux</h3>
+                                            <p>
+                                                Open terminal and run:<br />
+                                                &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
+                                                &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div v-bind:class="{ 'linkdisabled' : !ide.hasConfirmedLicense }">
-
-                                <div class="downloadheader">
-                                    <span v-bind:class="{ 'osSelected' : ide.isWindows }">
-                                        <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Windows');"><img src="/images/Logos/Windows.png" /> Windows</a>
-                                    </span>
-                                    <span v-bind:class="{'osSelected' : ide.isMac}">
-                                        <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Mac');"><img src="/images/Logos/Mac.png" />Mac</a>
-                                    </span>
-                                    <span v-bind:class="{'osSelected' : ide. isLinux}">
-                                        <a href="javascript:" v-on:click="ASMFunPlayerSelectOS('Linux');"><img src="/images/Logos/Ubuntu.png" />Linux</a>
-                                    </span>
-                                </div>
-
-
-                                <div v-show="ide.hasConfirmedLicense" class="v-fade">
-                                    <div class="download-large">
-                                        <span v-if="ide.isWindows"><a class="btn-default" href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a></span>
-                                        <span v-if="ide.isMac"><a class="btn-default" href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
-                                        <span v-if="ide.isLinux"><a class="btn-default" href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> </span>
-                                    </div>
-                                    <a v-on:click="ide.showMoreDownloads = !ide.showMoreDownloads" v-if="!ide.showMoreDownloads && ide.isWindows">Other compiled versions</a>
-                                    <div v-if="ide.showMoreDownloads">
-                                        <div class="downloadBlock">
-                                            <span class="downloadText">
-                                                <b>Light</b><br /><small> .Net core 3.1 is already installed</small>
-                                            </span>
-                                            <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindowsLight.zip" target="_blank"> <span class="fa fa-download"></span> Download</a>  &nbsp;1.4Mb (3.7Mb)</span>
-                                            <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMacLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
-                                            <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinuxLight.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;1.4Mb (3.7Mb) </span>
-                                        </div>
-                                        <div class="downloadBlock">
-                                            <span class="downloadText">
-                                                <b>Complete</b><br />
-                                                <small>
-                                                    with .net core 3.1 framework<br />
-
-                                                </small>
-                                            </span>
-                                            <span class="download" v-if="ide.isWindows"><a href="/downloads/ASMFunWindows.zip" target="_blank"> <span class="fa fa-download"></span> Download</a> &nbsp;70Mb (170Mb)</span>
-                                            <span class="download" v-if="ide.isMac"><a href="/downloads/ASMFunMac.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
-                                            <span class="download" v-if="ide.isLinux"><a href="/downloads/ASMFunLinux.zip" target="_blank"><span class="fa fa-download"></span> Download</a> &nbsp;40Mb (95Mb) </span>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div v-if="ide.serverNotConnected">
                                 <br /><br />
-                                <div v-show="ide.isMac">
-                                    <h3>For Mac</h3>
-                                    <p>
-                                        <br />
-                                        Can somebody tell me if Mac works? I don't have a Mac available at the moment.<br /><br />
-                                        <br />
-                                        Open terminal and run:<br />
-                                        &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
-                                        &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
-                                        <br />
-                                    </p>
-                                </div>
-                                <div v-show="ide.isLinux">
-                                    <h3>For Linux</h3>
-                                    <p>
-                                        Open terminal and run:<br />
-                                        &nbsp; &nbsp; chmod u+x ASMFunPlayerSDL<br />
-                                        &nbsp; &nbsp; ./ASMFunPlayerSDL<br />
-                                    </p>
-                                </div>
+                                <p>
+                                    <a href="javascript:" v-on:click="CheckPlayerAvailable">Check again if the player is running...</a>
+                                    <br /><br />
+                                </p>
                             </div>
                         </div>
-                    </div>
-                    <div v-if="ide.serverNotConnected">
-                        <br /><br />
-                        <p>
-                            <a href="javascript:" v-on:click="CheckPlayerAvailable">Check again if the player is running...</a>
-                            <br /><br />
-                        </p>
                     </div>
                     <div v-if="!ide.newVersionAvailable">
                         <div>

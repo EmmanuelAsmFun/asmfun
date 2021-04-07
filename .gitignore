@@ -351,3 +351,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+Code/Src/Ide/NW/AsmFunNw/build/
+Code/Src/Ide/NW/nw/0.52.2-sdk/linux64/credits.html
+Code/Src/Ide/NW/nw/

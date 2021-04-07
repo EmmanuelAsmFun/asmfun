@@ -1,0 +1,15 @@
+{
+  
+  "scripts":{
+    "install":"npm install -g nw-builder",
+    "dev":"nw www/",
+    "prod":"nwbuild -r \"www\" --cacheDir \"../nw\" -p \"win64\" -v 0.52.2 -r false"
+  },
+  
+  "window": {
+   
+    "cacheDir":"../nw",
+    "buildDir":"build"
+   
+}
+}

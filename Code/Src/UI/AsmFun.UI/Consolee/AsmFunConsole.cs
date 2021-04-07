@@ -113,7 +113,7 @@ namespace AsmFun.UI.Consolee
         }
         private void LaunchIde()
         {
-            OpenUrl("http://localhost:5001");
+            OpenUrl("http://localhost:5001/for-commander-x16/index.html");
             Redraw();
         } 
         private void LaunchOnlineIde()

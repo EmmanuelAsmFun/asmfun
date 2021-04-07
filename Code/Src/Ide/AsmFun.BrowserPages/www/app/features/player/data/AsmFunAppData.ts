@@ -21,6 +21,7 @@ export interface IAsmFunIdeData extends IPopupWindowData {
     showDownloads: boolean;
     serverNotConnected: boolean;
     hasConfirmedLicense: boolean;
+    isPlayerLocal: boolean;
     isWindows: boolean;
     isMac: boolean;
     isLinux: boolean;

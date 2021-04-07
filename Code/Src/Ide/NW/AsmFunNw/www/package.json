@@ -1,0 +1,30 @@
+{
+  "name": "ASMFunIde",
+  "version": "0.0.1",
+  "main": "indexframe.html",
+  "description": "An assemnler development tool. Special for noobs",
+  "private": true,
+  "engines": {
+    "node": ">= 6.0.0"
+  },
+  "author": {
+    "name": "Emmanuel The Creator"
+  },
+  
+  "window": {
+      "frame": true,
+      "toolbar": false,
+      "icon": "favicon.png",
+      "winIco": "favicon.png",
+      "title": "ASMFunIde",
+      "zip": true,
+      "buildType":"versioned",
+      "cacheDir":"../nw",
+      "buildDir":"./build",
+      "winVersionString": {
+        "CompanyName": "ATOIA",
+        "FileDescription": "ASMFunIde",
+        "ProductName": "ASMFunIde"
+      }
+  }
+}
